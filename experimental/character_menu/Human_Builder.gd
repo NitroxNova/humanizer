@@ -66,25 +66,25 @@ func update_skin_textures():
 	var shader_material : ShaderMaterial = human_char.body_mesh_inst.get_surface_override_material(0)
 	if human_char.get_age() < 15:
 		if human_char.macros.data.gender.value > .5:
-			shader_material.set_shader_parameter("texture_light",load("res://addons/humanizer/data/assets/skins/young_asian_male/young_lightskinned_male_diffuse3.png"))
-			shader_material.set_shader_parameter("texture_dark",load("res://addons/humanizer/data/assets/skins/young_african_male/young_darkskinned_male_diffuse.png"))
+			shader_material.set_shader_parameter("texture_light",load("res://addons/humanizer/data/assets/skins/young_asian_male/young_asian_male_diffuse3.png"))
+			shader_material.set_shader_parameter("texture_dark",load("res://addons/humanizer/data/assets/skins/young_african_male/young_african_male_diffuse.png"))
 		else:
-			shader_material.set_shader_parameter("texture_light",load("res://addons/humanizer/data/assets/skins/young_asian_female/young_lightskinned_female_diffuse3.png"))
-			shader_material.set_shader_parameter("texture_dark",load("res://addons/humanizer/data/assets/skins/young_african_female/young_darkskinned_female_diffuse.png"))
+			shader_material.set_shader_parameter("texture_light",load("res://addons/humanizer/data/assets/skins/young_asian_female/young_asian_female_diffuse3.png"))
+			shader_material.set_shader_parameter("texture_dark",load("res://addons/humanizer/data/assets/skins/young_african_female/young_african_female_diffuse.png"))
 	elif human_char.get_age() < 65:
 		if human_char.macros.data.gender.value > .5:
-			shader_material.set_shader_parameter("texture_light",load("res://addons/humanizer/data/assets/skins/middleage_asian_male/middleage_lightskinned_male_diffuse2.png"))
-			shader_material.set_shader_parameter("texture_dark",load("res://addons/humanizer/data/assets/skins/middleage_african_male/middleage_darkskinned_male_diffuse.png"))
+			shader_material.set_shader_parameter("texture_light",load("res://addons/humanizer/data/assets/skins/middleage_asian_male/middleage_asian_male_diffuse2.png"))
+			shader_material.set_shader_parameter("texture_dark",load("res://addons/humanizer/data/assets/skins/middleage_african_male/middleage_african_male_diffuse.png"))
 		else:
-			shader_material.set_shader_parameter("texture_light",load("res://addons/humanizer/data/assets/skins/middleage_asian_female/middleage_lightskinned_female_diffuse2.png"))
-			shader_material.set_shader_parameter("texture_dark",load("res://addons/humanizer/data/assets/skins/middleage_african_female/middleage_darkskinned_female_diffuse.png"))
+			shader_material.set_shader_parameter("texture_light",load("res://addons/humanizer/data/assets/skins/middleage_asian_female/middleage_asian_female_diffuse2.png"))
+			shader_material.set_shader_parameter("texture_dark",load("res://addons/humanizer/data/assets/skins/middleage_african_female/middleage_african_female_diffuse.png"))
 	else:
 		if human_char.macros.data.gender.value > .5:
-			shader_material.set_shader_parameter("texture_light",load("res://addons/humanizer/data/assets/skins/old_caucasian_male/old_lightskinned_male_diffuse.png"))
-			shader_material.set_shader_parameter("texture_dark",load("res://addons/humanizer/data/assets/skins/old_african_male/old_darkskinned_male_diffuse.png"))
+			shader_material.set_shader_parameter("texture_light",load("res://addons/humanizer/data/assets/skins/old_caucasian_male/old_caucasian_male_diffuse.png"))
+			shader_material.set_shader_parameter("texture_dark",load("res://addons/humanizer/data/assets/skins/old_african_male/old_african_male_diffuse.png"))
 		else:
-			shader_material.set_shader_parameter("texture_light",load("res://addons/humanizer/data/assets/skins/old_caucasian_female/old_lightskinned_female_diffuse.png"))
-			shader_material.set_shader_parameter("texture_dark",load("res://addons/humanizer/data/assets/skins/old_african_female/old_darkskinned_female_diffuse.png"))
+			shader_material.set_shader_parameter("texture_light",load("res://addons/humanizer/data/assets/skins/old_caucasian_female/old_caucasian_female_diffuse.png"))
+			shader_material.set_shader_parameter("texture_dark",load("res://addons/humanizer/data/assets/skins/old_african_female/old_african_female_diffuse.png"))
 
 
 func reset_mesh_skins_from_skeleton():
