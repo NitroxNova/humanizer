@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://dsrnmyw7n7drw"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/humanizer_config.gd" id="1_rt5bh"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_registry.gd" id="57_651fh"]
+
+[node name="HumanizerConfig" type="Node"]
+script = ExtResource("1_rt5bh")
+default_skeleton = "game_engine-RETARGETED"
+
+[node name="HumanizerRegistry" type="Node" parent="."]
+script = ExtResource("57_651fh")

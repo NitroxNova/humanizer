@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bh2eruums4kph"
+path="res://.godot/imported/eyebrow005.obj-48252865eca9a4d8db5b5f19dc8c8a9f.mesh"
+
+[deps]
+
+files=["res://.godot/imported/eyebrow005.obj-48252865eca9a4d8db5b5f19dc8c8a9f.mesh"]
+
+source_file="res://addons/humanizer/data/input_data/assets/eyebrows/eyebrow005/eyebrow005.obj"
+dest_files=["res://.godot/imported/eyebrow005.obj-48252865eca9a4d8db5b5f19dc8c8a9f.mesh", "res://.godot/imported/eyebrow005.obj-48252865eca9a4d8db5b5f19dc8c8a9f.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

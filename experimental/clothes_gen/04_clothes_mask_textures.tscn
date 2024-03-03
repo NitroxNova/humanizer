@@ -1,0 +1,139 @@
+[gd_scene load_steps=5 format=3 uid="uid://crst8bxrgfr1m"]
+
+[sub_resource type="GDScript" id="GDScript_cupwn"]
+script/source = "extends Node2D
+
+var input_dir = \"res://experimental/generated_assets/\"
+
+#clothes_data is generated in step3 - obj_to_mesh
+var clothes_data = {}
+var mh_uv_data = {}
+var delete_vertex = []
+@onready var uv_immediate_mesh : ImmediateMesh = $SubViewportContainer/SubViewport/UV_Mesh.mesh
+var clothes_list = []
+var uv_scale = 256
+
+func _ready():
+	#mh_uv_index generated in step 0 - generate rigged helpers
+	var data_file = FileAccess.open(\"res://experimental/generate_mesh/mh_uv_index.dat\",FileAccess.READ)
+	mh_uv_data = data_file.get_var()
+	data_file.close()
+	delete_vertex.resize(mh_uv_data.mh_index_size)
+	delete_vertex.fill(false)
+	# https://docs.godotengine.org/en/stable/tutorials/rendering/viewports.html
+	# But if you use this in _ready() or from the first frame of the Viewport's initialization, you will get an empty texture because there is nothing to get as texture. You can deal with it using (for example):
+	# Wait until the frame has finished before getting the texture.
+	await RenderingServer.frame_post_draw
+	# You can get the image after this.	
+	find_clothes(\"\")
+	
+func _process(delta):
+	if clothes_list.size() > 0:
+		var curr_clothes = clothes_list.pop_back()
+		process_clothing(curr_clothes[0],curr_clothes[1])
+		
+func process_clothing(path:String,file_name:String):
+	print(\"processing \" + path + \"/\" + file_name)
+	delete_vertex.fill(false)
+	clothes_data = load(path.path_join(file_name))
+	update_delete_vertex()
+	draw_hidden_vertex()
+	# Wait until the frame has finished before getting the texture.
+	await RenderingServer.frame_post_draw
+	var viewport_texture = $SubViewportContainer/SubViewport.get_texture()
+	viewport_texture.get_image().save_png(path.path_join(\"clothes_mask.png\"))
+	
+func update_delete_vertex():
+	delete_vertex.fill(false)
+	for vert_range in clothes_data.delete_vertex:
+		#print(vert_range)
+		if vert_range.size() == 1:
+			delete_vertex[vert_range[0]] = true
+		else:
+			for mh_id in range(vert_range[0],vert_range[1]+1):
+				delete_vertex[mh_id] = true
+
+func draw_hidden_vertex():
+	uv_immediate_mesh.clear_surfaces()
+	uv_immediate_mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
+	for face_id in mh_uv_data.face.size():
+		#print(face_id)
+		if is_delete_face(face_id):
+			
+			uv_immediate_mesh.surface_add_vertex_2d(mh_uv_data.uv[face_id][0] * uv_scale)
+			uv_immediate_mesh.surface_add_vertex_2d(mh_uv_data.uv[face_id][1] * uv_scale)
+			uv_immediate_mesh.surface_add_vertex_2d(mh_uv_data.uv[face_id][2] * uv_scale)
+			
+			uv_immediate_mesh.surface_add_vertex_2d(mh_uv_data.uv[face_id][2] * uv_scale)
+			uv_immediate_mesh.surface_add_vertex_2d(mh_uv_data.uv[face_id][3] * uv_scale)
+			uv_immediate_mesh.surface_add_vertex_2d(mh_uv_data.uv[face_id][0] * uv_scale)
+				
+	uv_immediate_mesh.surface_end()
+
+
+func is_delete_face(face_id):
+	#print(mh_uv_data.face[face_id])
+	for i in 4:
+		var mh_id = mh_uv_data.face[face_id][i]
+		if delete_vertex[mh_id]:
+			#print(\"deleting face \" + str(face_id))
+			return true
+	return false
+	
+func find_clothes(local_path):
+	var dir_path = input_dir.path_join(local_path)
+	var dir = DirAccess.open(dir_path)
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != \"\":
+			if dir.current_is_dir():
+				find_clothes(local_path.path_join(file_name))
+			elif file_name == \"clothes_data.res\":
+				clothes_list.append([dir_path,file_name])
+			file_name = dir.get_next()
+	else:
+		print(\"An error occurred when trying to access the path.\")
+
+"
+
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_edgx5"]
+
+[sub_resource type="Gradient" id="Gradient_pb2wj"]
+offsets = PackedFloat32Array(0)
+colors = PackedColorArray(0, 0, 0, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_dgbg2"]
+gradient = SubResource("Gradient_pb2wj")
+
+[node name="clothes_mask" type="Node2D"]
+script = SubResource("GDScript_cupwn")
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(256, 256)
+render_target_update_mode = 4
+
+[node name="Background" type="ColorRect" parent="SubViewportContainer/SubViewport"]
+visible = false
+offset_right = 256.0
+offset_bottom = 256.0
+
+[node name="UV_Mesh" type="MeshInstance2D" parent="SubViewportContainer/SubViewport"]
+mesh = SubResource("ImmediateMesh_edgx5")
+texture = SubResource("GradientTexture1D_dgbg2")
+
+[node name="Next" type="Button" parent="."]
+visible = false
+offset_left = 128.0
+offset_top = 204.0
+offset_right = 173.0
+offset_bottom = 235.0
+text = "Next"
+
+[connection signal="pressed" from="Next" to="." method="_on_next_pressed"]

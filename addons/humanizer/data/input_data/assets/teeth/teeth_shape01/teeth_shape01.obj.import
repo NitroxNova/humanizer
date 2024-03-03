@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://ceo1xq8mslynu"
+path="res://.godot/imported/teeth_shape01.obj-ab1744fad863a5071422690fbd86ed8c.mesh"
+
+[deps]
+
+files=["res://.godot/imported/teeth_shape01.obj-ab1744fad863a5071422690fbd86ed8c.mesh"]
+
+source_file="res://addons/humanizer/data/input_data/assets/teeth/teeth_shape01/teeth_shape01.obj"
+dest_files=["res://.godot/imported/teeth_shape01.obj-ab1744fad863a5071422690fbd86ed8c.mesh", "res://.godot/imported/teeth_shape01.obj-ab1744fad863a5071422690fbd86ed8c.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

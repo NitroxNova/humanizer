@@ -1,0 +1,25 @@
+[gd_scene load_steps=8 format=3 uid="uid://bk8a2mydl38do"]
+
+[ext_resource type="ArrayMesh" uid="uid://bbjl15ju6lo15" path="res://addons/humanizer/data/assets/body_parts/Hair/Afro/Hair-Afro01_mesh.res" id="1_6vpqg"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd" id="1_rtj1s"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="2_p63kr"]
+[ext_resource type="Material" uid="uid://yfi4f6wg5pxu" path="res://addons/humanizer/data/assets/body_parts/Hair/Afro/Hair-Afro01_material.res" id="2_x7lxv"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_material.gd" id="3_ar02t"]
+
+[sub_resource type="Resource" id="Resource_yiwkb"]
+resource_name = "afro"
+script = ExtResource("2_p63kr")
+albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Hair/Afro/afro_diffuse.png"
+normal_texture_path = ""
+ao_texture_path = ""
+color = Color(1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_a2ib7"]
+script = ExtResource("3_ar02t")
+overlays = Array[ExtResource("2_p63kr")]([SubResource("Resource_yiwkb")])
+
+[node name="Hair-Afro01" type="MeshInstance3D"]
+mesh = ExtResource("1_6vpqg")
+surface_material_override/0 = ExtResource("2_x7lxv")
+script = ExtResource("1_rtj1s")
+material_config = SubResource("Resource_a2ib7")

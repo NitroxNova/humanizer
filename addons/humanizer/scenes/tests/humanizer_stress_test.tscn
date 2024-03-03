@@ -1,0 +1,46 @@
+[gd_scene load_steps=6 format=3 uid="uid://bhe86eqebf0ql"]
+
+[sub_resource type="GDScript" id="GDScript_avvx6"]
+script/source = "extends Node
+
+
+
+var n = 5
+
+func _ready():
+	var human = load(\"res://addons/humanizer/scenes/tests/humanizer_test.tscn\")
+	for i in n:
+		for j in n:
+			pass
+			#var h = human.instantiate()
+			##add_child(h)
+			
+			#h.global_position = Vector3(i * 2, 0, j * 2)
+"
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_vyou0"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_kiqjl"]
+
+[sub_resource type="Sky" id="Sky_0nots"]
+sky_material = SubResource("ProceduralSkyMaterial_kiqjl")
+
+[sub_resource type="Environment" id="Environment_cj4et"]
+background_mode = 2
+sky = SubResource("Sky_0nots")
+
+[node name="Node" type="Node"]
+script = SubResource("GDScript_avvx6")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(7.38718, 0, 0, 0, 1, 0, 0, 0, 4.2614, 0, 0, 0)
+mesh = SubResource("PlaneMesh_vyou0")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.0288812, 0.999583, 0, -0.999583, -0.0288812, 0, 0, 0)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_cj4et")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0954046, 0.517161, 2.30755)

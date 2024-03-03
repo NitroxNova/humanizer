@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://ce3v4pbmrgmt6"
+path="res://.godot/imported/LeftEye-LowPolyEyeball.obj-2ea1213d1cfbfe2bd51ab80db8a3d4d8.mesh"
+
+[deps]
+
+files=["res://.godot/imported/LeftEye-LowPolyEyeball.obj-2ea1213d1cfbfe2bd51ab80db8a3d4d8.mesh"]
+
+source_file="res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/LeftEye-LowPolyEyeball.obj"
+dest_files=["res://.godot/imported/LeftEye-LowPolyEyeball.obj-2ea1213d1cfbfe2bd51ab80db8a3d4d8.mesh", "res://.godot/imported/LeftEye-LowPolyEyeball.obj-2ea1213d1cfbfe2bd51ab80db8a3d4d8.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

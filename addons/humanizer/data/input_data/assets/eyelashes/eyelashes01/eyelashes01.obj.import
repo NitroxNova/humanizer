@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://b17mi3b6k1rep"
+path="res://.godot/imported/eyelashes01.obj-de5ce57c60c90bc312662fff8553f2cd.mesh"
+
+[deps]
+
+files=["res://.godot/imported/eyelashes01.obj-de5ce57c60c90bc312662fff8553f2cd.mesh"]
+
+source_file="res://addons/humanizer/data/input_data/assets/eyelashes/eyelashes01/eyelashes01.obj"
+dest_files=["res://.godot/imported/eyelashes01.obj-de5ce57c60c90bc312662fff8553f2cd.mesh", "res://.godot/imported/eyelashes01.obj-de5ce57c60c90bc312662fff8553f2cd.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

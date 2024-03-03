@@ -1,0 +1,25 @@
+[gd_scene load_steps=8 format=3 uid="uid://se8qnopngpis"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd" id="1_flry1"]
+[ext_resource type="ArrayMesh" uid="uid://qbjmfxe73a8c" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/LeftEyelash_mesh.res" id="1_ieox7"]
+[ext_resource type="Material" uid="uid://b7m6tjy807tba" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/LeftEyelash_material.res" id="2_ovdhl"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="2_oxyv3"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_material.gd" id="3_yqw76"]
+
+[sub_resource type="Resource" id="Resource_nhnan"]
+resource_name = "eyelashes01"
+script = ExtResource("2_oxyv3")
+albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyelashes/eyelashes01.png"
+normal_texture_path = ""
+ao_texture_path = ""
+color = Color(1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_tm382"]
+script = ExtResource("3_yqw76")
+overlays = Array[ExtResource("2_oxyv3")]([SubResource("Resource_nhnan")])
+
+[node name="LeftEyelash" type="MeshInstance3D"]
+mesh = ExtResource("1_ieox7")
+surface_material_override/0 = ExtResource("2_ovdhl")
+script = ExtResource("1_flry1")
+material_config = SubResource("Resource_tm382")

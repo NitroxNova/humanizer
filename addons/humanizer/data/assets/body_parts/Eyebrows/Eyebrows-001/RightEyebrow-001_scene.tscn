@@ -1,0 +1,25 @@
+[gd_scene load_steps=8 format=3 uid="uid://c4j80jq3faibn"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd" id="1_iidlo"]
+[ext_resource type="ArrayMesh" uid="uid://cbmfsvs2h8vu" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/RightEyebrow-001_mesh.res" id="1_mstnk"]
+[ext_resource type="Material" uid="uid://ddclxslkj13sk" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/RightEyebrow-001_material.res" id="2_dxcou"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="2_m05w6"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_material.gd" id="3_mjxr0"]
+
+[sub_resource type="Resource" id="Resource_r630v"]
+resource_name = "eyebrow001"
+script = ExtResource("2_m05w6")
+albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/eyebrow001.png"
+normal_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/eyebrow001_normal.png"
+ao_texture_path = ""
+color = Color(1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_0ca22"]
+script = ExtResource("3_mjxr0")
+overlays = Array[ExtResource("2_m05w6")]([SubResource("Resource_r630v")])
+
+[node name="RightEyebrow-001" type="MeshInstance3D"]
+mesh = ExtResource("1_mstnk")
+surface_material_override/0 = ExtResource("2_dxcou")
+script = ExtResource("1_iidlo")
+material_config = SubResource("Resource_0ca22")

@@ -1,0 +1,25 @@
+[gd_scene load_steps=8 format=3 uid="uid://chw0wowljc0is"]
+
+[ext_resource type="ArrayMesh" uid="uid://dowht4syuiha6" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_mesh.res" id="1_fpoa6"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd" id="1_j1o5e"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="2_e20bq"]
+[ext_resource type="Material" uid="uid://cfheb7b22j30o" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_material.res" id="2_wiybp"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_material.gd" id="3_5hkkg"]
+
+[sub_resource type="Resource" id="Resource_e0ej6"]
+resource_name = "female_casualsuit01"
+script = ExtResource("2_e20bq")
+albedo_texture_path = "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_diffuse.png"
+normal_texture_path = "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_normal.png"
+ao_texture_path = ""
+color = Color(1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_122op"]
+script = ExtResource("3_5hkkg")
+overlays = Array[ExtResource("2_e20bq")]([SubResource("Resource_e0ej6")])
+
+[node name="female_casualsuit01" type="MeshInstance3D"]
+mesh = ExtResource("1_fpoa6")
+surface_material_override/0 = ExtResource("2_wiybp")
+script = ExtResource("1_j1o5e")
+material_config = SubResource("Resource_122op")

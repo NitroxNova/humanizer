@@ -1,0 +1,100 @@
+[gd_scene load_steps=2 format=3 uid="uid://bfyhiklrwnwel"]
+
+[sub_resource type="GDScript" id="GDScript_kspuv"]
+script/source = "extends Node3D
+#upload the mpfb2_mixamo_basis.fbx (provided) to mixamo.com
+#download animations as regular fbx, without skin
+
+#if you have fbx2glb installed and enabled - https://godotengine.org/fbx-import/
+#        just drag the exported fbx into the input folder, and let godot reimport the assets
+#if not, open and export as glb using blender and place the . glb files in the input folder
+
+#then run this scene, they will be added to the human animation player , using the file name
+#finally, go to the Character_Menu/demo_tool.tscn and click the 
+#   	AnimationPlayer to make sure theyve been added
+
+var export_anim_lib_path = \"res://character_menu/human_animation_library.tres\"
+var export_anim_library : AnimationLibrary = load(export_anim_lib_path)
+
+func _ready():
+	find_animations(\"res://import_animations/input/\")
+
+
+func process_fbx(path:String,file_name:String):
+	var fbx_node = load(path.path_join(file_name)).instantiate()
+	var import_anim_player : AnimationPlayer = fbx_node.get_node(\"AnimationPlayer\")
+	var import_anim_library = import_anim_player.get_animation_library(\"\")
+	var import_animation = import_anim_library.get_animation(import_anim_library.get_animation_list()[0])
+	var animation_name = file_name.get_basename()
+	# hips are rotated 90 degrees by default, hip rotation is on the second track (track 1)
+	var hips_rotation_key = 1
+	for key_id in import_animation.track_get_key_count(hips_rotation_key):
+		var key_value = import_animation.track_get_key_value(hips_rotation_key,key_id)
+		key_value.x -= PI/4
+		import_animation.track_set_key_value(hips_rotation_key,key_id,key_value)
+	#move hips up as well, since it was scaled down by 100
+	var hip_pos_key = 0
+	for key_id in import_animation.track_get_key_count(hip_pos_key):
+		var hip_pos = import_animation.track_get_key_value(hip_pos_key,key_id)
+		hip_pos = Vector3(hip_pos.x,hip_pos.z,hip_pos.y*-1) * 100
+		import_animation.track_set_key_value(hip_pos_key,key_id,hip_pos)
+		
+	trasnfer_animation(import_animation,animation_name)
+	
+func process_glb(path:String,file_name:String):
+	var glb_node = load_glb(path.path_join(file_name))
+	var import_anim_player : AnimationPlayer = glb_node.get_node(\"AnimationPlayer\")
+	
+	#get the \"global\" animation library
+	var import_anim_library = import_anim_player.get_animation_library(\"\")
+	#print(import_anim_library.get_animation_list())
+	#just get the first one, because animation names are generic \"Human_rig_reduced|mixamo_com|Layer0\"
+	var import_animation = import_anim_library.get_animation(import_anim_library.get_animation_list()[0])
+	var animation_name = file_name.get_basename()
+	
+	trasnfer_animation(import_animation,animation_name)
+	
+
+func trasnfer_animation(import_animation:Animation,animation_name:String):
+	for track_id in import_animation.get_track_count():
+		var track_node_path = import_animation.track_get_path(track_id)
+		#print(track_node_path.get_concatenated_names())
+		#Human_rig_reduced/Skeleton3D
+		#print(track_node_path.get_concatenated_subnames())
+		#mixamorig_LeftLeg, mixamorig_LeftFoot, mixamorig_LeftToeBase...
+		var new_node_path = NodePath(\"Skeleton3D:\" + track_node_path.get_concatenated_subnames())
+		import_animation.track_set_path(track_id,new_node_path)
+	
+	export_anim_library.add_animation(animation_name, import_animation)
+	ResourceSaver.save(export_anim_library,export_anim_lib_path)
+	#print(export_anim_library.get_animation_list())
+		
+#find glb files in the input folder
+#might add collada support later	
+func find_animations(path:String):
+	var dir = DirAccess.open(path)
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != \"\":
+			if file_name.get_extension() == \"fbx\":
+				process_fbx(path,file_name)
+			if file_name.get_extension() == \"glb\":
+				process_glb(path,file_name)
+			file_name = dir.get_next()
+	else:
+		print(\"An error occurred when trying to access the path.\")
+
+func load_glb(glb_path):
+	var gltf_document_load = GLTFDocument.new()
+	var gltf_state_load = GLTFState.new()
+	var error = gltf_document_load.append_from_file(glb_path, gltf_state_load)
+	if error == OK:
+		var gltf_scene_root_node = gltf_document_load.generate_scene(gltf_state_load)
+		return gltf_scene_root_node
+	else:
+		print(\"Couldn't load glTF scene (error code: %s).\" % error_string(error))
+"
+
+[node name="Animation_Importer" type="Node3D"]
+script = SubResource("GDScript_kspuv")

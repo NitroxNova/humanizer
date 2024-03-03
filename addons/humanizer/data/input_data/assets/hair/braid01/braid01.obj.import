@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bxygqe5g80mih"
+path="res://.godot/imported/braid01.obj-6edf84a5bb72e5003de595ff1d45f95b.mesh"
+
+[deps]
+
+files=["res://.godot/imported/braid01.obj-6edf84a5bb72e5003de595ff1d45f95b.mesh"]
+
+source_file="res://addons/humanizer/data/input_data/assets/hair/braid01/braid01.obj"
+dest_files=["res://.godot/imported/braid01.obj-6edf84a5bb72e5003de595ff1d45f95b.mesh", "res://.godot/imported/braid01.obj-6edf84a5bb72e5003de595ff1d45f95b.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

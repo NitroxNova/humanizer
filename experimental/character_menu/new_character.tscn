@@ -1,0 +1,190 @@
+[gd_scene load_steps=7 format=3 uid="uid://3jwf32o076uk"]
+
+[ext_resource type="PackedScene" uid="uid://bl8p7b1da8tnm" path="res://experimental/character_menu/generate_tabs/output.tscn" id="1_5i33u"]
+[ext_resource type="PackedScene" uid="uid://dkfgfvcivevbl" path="res://experimental/character_menu/human_character.tscn" id="1_y8lm3"]
+
+[sub_resource type="GDScript" id="GDScript_07lg3"]
+script/source = "extends Control
+
+@onready var human = $Split_Screen/SubViewportContainer/SubViewport/Human
+var human_builder : Human_Builder
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	human.process_mode = Node.PROCESS_MODE_DISABLED
+	human.macros = Macro_Config.new({race=[0,0,1],gender=1,age=25,muscle=.5,weight=.5,height=.5,proportions=.5})
+	human_builder = Human_Builder.new(human)
+	human_builder.set_clothes(\"clothes/male_casualsuit04\")
+	human_builder.rebuild_human()
+
+func _on_menu_slider_changed(value, sk_name):
+	#var sk_id = human.get_node(\"Body_Mesh\").find_blend_shape_by_name(sk_name)
+	#human.set_blend_shape_value(sk_id,value/100)
+	human_builder.set_blend_shape_value(sk_name,value/100,false)
+	human_builder.rebuild_human()
+	
+	#$Rebuild_Human_Timer.set_paused(false)
+
+func _on_menu_age_changed(age):
+	human_builder.set_macro_value(\"age\",age)
+	#$Rebuild_Human_Timer.set_paused(false)
+	human_builder.rebuild_human()
+
+func _on_menu_gender_changed(gender):
+	if gender == \"male\":
+		human_builder.set_macro_value(\"gender\",1)
+	else:
+		human_builder.set_macro_value(\"gender\",0)
+		
+	#$Rebuild_Human_Timer.set_paused(false)
+	human_builder.rebuild_human()
+
+func _on_menu_height_changed(height):
+	human_builder.set_macro_value(\"height\",height/100)
+	human_builder.rebuild_human()
+	
+func _on_menu_outfit_changed(clothes_mesh):
+	human_builder.set_clothes(clothes_mesh)
+	#$Rebuild_Human_Timer.set_paused(false)
+	human_builder.rebuild_human()
+
+	
+func _on_menu_race_changed(race):
+	human_builder.set_race(race)
+	#$Rebuild_Human_Timer.set_paused(false)
+	human_builder.rebuild_human()
+
+func _on_menu_skin_color_changed(color):
+	human_builder.set_skin_color(color)
+
+func _on_start_game_pressed():
+	var new_world = load(\"res://experimental/character_menu/world/demo_world.tscn\").instantiate()
+	$Split_Screen/SubViewportContainer/SubViewport.remove_child(human)
+	new_world.add_child(human)
+	human.add_child(load(\"res://experimental/character_menu/player_camera.tscn\").instantiate())
+	var tree = get_tree()
+	tree.get_root().remove_child(self) 
+	tree.get_root().add_child(new_world)
+	human.process_mode = Node.PROCESS_MODE_INHERIT
+	tree.current_scene = new_world
+
+func _on_menu_skin_color_ratio_changed(ratio):
+	human_builder.set_skin_color_ratio(ratio)
+
+func _on_rebuild_human_timer_timeout():
+	human_builder.rebuild_human()
+	$Rebuild_Human_Timer.set_paused(true)
+	
+func _on_refresh_shading_timer_timeout():
+	human_builder.generate_normals_tangents()
+
+func _on_recalc_helpers_timer_timeout():
+	print(\"recalculating helpers\")
+	human_builder.calculate_helper_vertex()
+
+
+
+
+func _on_menu_proportions_changed(value):
+	human_builder.set_macro_value(\"proportions\",value/100)
+	human_builder.rebuild_human()
+
+
+func _on_menu_muscle_changed(muscle):
+	human_builder.set_macro_value(\"muscle\",muscle/100)
+	human_builder.rebuild_human()
+
+
+func _on_menu_weight_changed(weight):
+	human_builder.set_macro_value(\"weight\",weight/100)
+	human_builder.rebuild_human()
+"
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_0ku8n"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_8jahg"]
+sky_material = SubResource("ProceduralSkyMaterial_0ku8n")
+
+[sub_resource type="Environment" id="Environment_ukgrs"]
+background_mode = 2
+sky = SubResource("Sky_8jahg")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="New_Character" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_07lg3")
+
+[node name="Split_Screen" type="HSplitContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Menu" parent="Split_Screen" instance=ExtResource("1_5i33u")]
+layout_mode = 2
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="Split_Screen"]
+layout_mode = 2
+size_flags_horizontal = 3
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Split_Screen/SubViewportContainer"]
+handle_input_locally = false
+size = Vector2i(881, 648)
+render_target_update_mode = 4
+
+[node name="Human" parent="Split_Screen/SubViewportContainer/SubViewport" instance=ExtResource("1_y8lm3")]
+
+[node name="Camera3D" type="Camera3D" parent="Split_Screen/SubViewportContainer/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.82843, 1.49222)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Split_Screen/SubViewportContainer/SubViewport"]
+environment = SubResource("Environment_ukgrs")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Split_Screen/SubViewportContainer/SubViewport"]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Start_Game" type="Button" parent="."]
+layout_mode = 0
+offset_left = 947.0
+offset_top = 560.0
+offset_right = 1119.0
+offset_bottom = 610.0
+theme_override_font_sizes/font_size = 25
+text = "Start Game"
+
+[node name="Rebuild_Human_Timer" type="Timer" parent="."]
+wait_time = 0.25
+
+[node name="Refresh_Shading_Timer" type="Timer" parent="."]
+wait_time = 3.0
+
+[node name="Recalc_Helpers_Timer" type="Timer" parent="."]
+wait_time = 10.0
+
+[connection signal="age_changed" from="Split_Screen/Menu" to="." method="_on_menu_age_changed"]
+[connection signal="gender_changed" from="Split_Screen/Menu" to="." method="_on_menu_gender_changed"]
+[connection signal="height_changed" from="Split_Screen/Menu" to="." method="_on_menu_height_changed"]
+[connection signal="muscle_changed" from="Split_Screen/Menu" to="." method="_on_menu_muscle_changed"]
+[connection signal="outfit_changed" from="Split_Screen/Menu" to="." method="_on_menu_outfit_changed"]
+[connection signal="proportions_changed" from="Split_Screen/Menu" to="." method="_on_menu_proportions_changed"]
+[connection signal="race_changed" from="Split_Screen/Menu" to="." method="_on_menu_race_changed"]
+[connection signal="skin_color_changed" from="Split_Screen/Menu" to="." method="_on_menu_skin_color_changed"]
+[connection signal="skin_color_ratio_changed" from="Split_Screen/Menu" to="." method="_on_menu_skin_color_ratio_changed"]
+[connection signal="slider_changed" from="Split_Screen/Menu" to="." method="_on_menu_slider_changed"]
+[connection signal="weight_changed" from="Split_Screen/Menu" to="." method="_on_menu_weight_changed"]
+[connection signal="pressed" from="Start_Game" to="." method="_on_start_game_pressed"]
+[connection signal="timeout" from="Rebuild_Human_Timer" to="." method="_on_rebuild_human_timer_timeout"]
+[connection signal="timeout" from="Refresh_Shading_Timer" to="." method="_on_refresh_shading_timer_timeout"]
+[connection signal="timeout" from="Recalc_Helpers_Timer" to="." method="_on_recalc_helpers_timer_timeout"]

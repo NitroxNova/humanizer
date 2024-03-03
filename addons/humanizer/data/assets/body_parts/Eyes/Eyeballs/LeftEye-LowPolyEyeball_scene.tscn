@@ -1,0 +1,33 @@
+[gd_scene load_steps=9 format=3 uid="uid://dv5vyqd2l1j7l"]
+
+[ext_resource type="ArrayMesh" uid="uid://b1xrex7eerpqt" path="res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/LeftEye-LowPolyEyeball_mesh.res" id="1_kebea"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd" id="1_ute7f"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="2_drilg"]
+[ext_resource type="Material" uid="uid://c7u8ck8ihyn17" path="res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/LeftEye-LowPolyEyeball_material.res" id="2_jvipo"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_material.gd" id="3_wv3id"]
+
+[sub_resource type="Resource" id="Resource_35w3p"]
+resource_name = "eyeball"
+script = ExtResource("2_drilg")
+albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/eyeball_albedo.png"
+normal_texture_path = ""
+ao_texture_path = ""
+color = Color(1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_q83aw"]
+resource_name = "overlay_iris"
+script = ExtResource("2_drilg")
+albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/overlay_iris_albedo.png"
+normal_texture_path = ""
+ao_texture_path = ""
+color = Color(1, 1, 1, 1)
+
+[sub_resource type="Resource" id="Resource_pq5jl"]
+script = ExtResource("3_wv3id")
+overlays = Array[ExtResource("2_drilg")]([SubResource("Resource_35w3p"), SubResource("Resource_q83aw")])
+
+[node name="LeftEye-LowPolyEyeball" type="MeshInstance3D"]
+mesh = ExtResource("1_kebea")
+surface_material_override/0 = ExtResource("2_jvipo")
+script = ExtResource("1_ute7f")
+material_config = SubResource("Resource_pq5jl")
