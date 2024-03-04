@@ -8,6 +8,13 @@ var animator: AnimationPlayer
 var mesh: MeshInstance3D
 var baked := false
 var scene_loaded: bool = false
+var _shapekey_data: Dictionary = {}
+var shapekey_data: Dictionary:
+	get:
+		if _shapekey_data.size() == 0:
+			_shapekey_data = HumanizerUtils.get_shapekey_data()
+		return _shapekey_data
+var _helper_vertex: Array = []
 
 @export var human_config: HumanConfig:
 	set(value):
@@ -60,8 +67,7 @@ func deserialize() -> void:
 	for clothes in human_config.clothes:
 		apply_clothes(clothes)
 		set_clothes_material(clothes.resource_name, human_config.clothes_materials[clothes.resource_name])
-	for sk in human_config.shapekeys:
-		set_shapekey(human_config.shapekeys[sk], sk)
+	set_shapekeys(human_config.shapekeys)
 
 func serialize(name: String) -> void:
 	## Save to files for easy load later
@@ -177,7 +183,7 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	_set_mesh(skinned_mesh)
 	mesh.skeleton = skeleton.get_path()
 	_reset_animator()
-	apply_all_shapekeys()
+	set_shapekeys(human_config.shapekeys)
 	adjust_skeleton()
 
 func _reset_animator() -> void:
@@ -208,7 +214,7 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	if Engine.is_editor_hint():
 		bp_scene.owner = EditorInterface.get_edited_scene_root()
 	_add_bone_weights(bp)
-	apply_all_shapekeys()
+	set_shapekeys(human_config.shapekeys)
 	#notify_property_list_changed()
 
 func _add_bone_weights(asset: HumanAsset) -> void:
@@ -234,25 +240,30 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 		var bones = []
 		var weights = []
 		var v_data = mhclo.vertex_data[mh_id]
-		for i in 3:
-			var v_id = v_data.vertex[i]
-			var v_weight = v_data.weight[i]
-			var vb_id = bone_weights.bones[v_id]
-			var vb_weights = bone_weights.weights[v_id]
-			for j in bone_count:
-				var l_weight = vb_weights[j]
-				if not l_weight == 0:
-					var l_bone = vb_id[j]
-					l_weight *= v_weight
-					if l_bone in bones:
-						var l_id = bones.find(l_bone)
-						weights[l_id] += l_weight
-					else:
-						bones.append(l_bone)
-						weights.append(l_weight)
-		while bones.size() < bone_count:
-			bones.append(0)
-			weights.append(0)
+		if v_data.format == 'single':
+			var id = v_data.vertex[0]
+			bones.append(bone_weights.bones[id])
+			weights.append(bone_weights.weights[id])
+		else:
+			for i in 3:
+				var v_id = v_data.vertex[i]
+				var v_weight = v_data.weight[i]
+				var vb_id = bone_weights.bones[v_id]
+				var vb_weights = bone_weights.weights[v_id]
+				for j in bone_count:
+					var l_weight = vb_weights[j]
+					if not l_weight == 0:
+						var l_bone = vb_id[j]
+						l_weight *= v_weight
+						if l_bone in bones:
+							var l_id = bones.find(l_bone)
+							weights[l_id] += l_weight
+						else:
+							bones.append(l_bone)
+							weights.append(l_weight)
+						
+		bones.resize(8)
+		weights.resize(8)
 		
 		if mh_id < mh2gd_index.size():	
 			var g_id_array = mh2gd_index[mh_id]
@@ -271,15 +282,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 	mi.mesh = mesh
 	mi.skeleton = skeleton.get_path()
 	mi.skin = skeleton.create_skin_from_rest_transforms()
-	return
-	mi.queue_free()
-	var new_mi = MeshInstance3D.new()
-	new_mi.name = asset.resource_name
-	new_mi.mesh = mesh
-	add_child(new_mi)
-	if Engine.is_editor_hint():
-		new_mi.owner = EditorInterface.get_edited_scene_root()
-	
+
 func clear_body_part(clear_slot: String) -> void:
 	for slot in human_config.body_parts:
 		if slot == clear_slot:
@@ -317,7 +320,7 @@ func apply_clothes(cl: HumanClothes) -> void:
 	if Engine.is_editor_hint():
 		mi.owner = EditorInterface.get_edited_scene_root()
 	_add_bone_weights(cl)
-	apply_all_shapekeys()
+	set_shapekeys(human_config.shapekeys)
 
 func clear_clothes_in_slot(slot: String) -> void:
 	for cl in human_config.clothes:
@@ -343,18 +346,45 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 			base.albedo_texture_path = cl.textures[texture]
 			child.material_config.set_base_textures(base)
 			
-func set_shapekey(value: float, shapekey: String):
-	var idx = mesh.find_blend_shape_by_name(shapekey)
-	if idx == -1:
-		return
-	human_config.shapekeys[shapekey] = value
-	for mesh in get_children():
-		if mesh is MeshInstance3D:
-			mesh.set_blend_shape_value(idx, value)
+func set_shapekeys(shapekeys: Dictionary):
+	var prev_sk = human_config.shapekeys
+	for child in get_children():
+		if not child is MeshInstance3D:
+			continue
+
+		var mesh: ArrayMesh = child.mesh
+		_helper_vertex = shapekey_data.basis.duplicate(true)
+		for sk in shapekeys:
+			var prev_val = prev_sk.get(sk, 0)
+			for mh_id in shapekey_data.shapekeys[sk]:
+				_helper_vertex[mh_id] += shapekey_data.shapekeys[sk][mh_id] * (shapekeys[sk] - prev_val)
+				
+		var res: HumanAsset = null
+		for slot in human_config.body_parts:
+			if human_config.body_parts[slot].resource_name == child.name:
+				res = human_config.body_parts[slot] as HumanBodyPart
+				mesh = child.mesh
+		if res == null:
+			for cl in human_config.clothes:
+				if cl.resource_name == child.name:
+					res = cl as HumanClothes
+					mesh = child.mesh
+
+		if res != null:   # Body parts/clothes
+			var mhclo: MHCLO = load(res.mhclo_path)
+			var new_mesh = mhclo.build_fitted_mesh(mesh, _helper_vertex)
+			child.mesh = new_mesh
+		else:
+			var surf_arrays = (mesh as ArrayMesh).surface_get_arrays(0)
+			var fmt = mesh.surface_get_format(0)
+			var lods = {}
+			var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
+			surf_arrays[Mesh.ARRAY_VERTEX] = vtx_arrays.slice(0, vtx_arrays.size())
+			mesh.clear_surfaces()
+			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], lods, fmt)
 	
-func apply_all_shapekeys() -> void:
-	for sk in human_config.shapekeys:
-		set_shapekey(human_config.shapekeys[sk], sk)
+	for sk in shapekeys:
+		human_config.shapekeys[sk] = shapekeys[sk]
 
 func adjust_skeleton() -> void:
 	var shapekey_data = HumanizerUtils.get_shapekey_data()
@@ -399,7 +429,6 @@ func bake() -> void:
 	notify_property_list_changed()
 	
 func _combine_meshes() -> void:
-
 	var new_mesh = ArrayMesh.new()
 	new_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
 	for shape_id in mesh.get_blend_shape_count():
@@ -419,7 +448,7 @@ func _combine_meshes() -> void:
 		i += 1
 		child.queue_free()
 	_set_mesh(new_mesh)
-	apply_all_shapekeys()
+	set_shapekeys(human_config.shapekeys)
 	
 func _bake_shapekeys() -> void:
 	var newmesh = ArrayMesh.new()

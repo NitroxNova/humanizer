@@ -1,7 +1,7 @@
 @tool
 extends MarginContainer
 
-signal shapekey_value_changed(key: String, value: float)
+signal shapekey_value_changed(shapekeys: Dictionary)
 
 var shapekeys
 var human: Humanizer
@@ -47,7 +47,7 @@ func reset_sliders() -> void:
 			child.value = 0
 		
 func _on_value_changed(value, key: String) -> void:
-	shapekey_value_changed.emit(float(value), key)
+	shapekey_value_changed.emit({key: float(value)})
 
 func _on_randomize_sliders(human: Humanizer, randomization: HSlider, asymmetry: HSlider) -> void:
 	var rng = RandomNumberGenerator.new()

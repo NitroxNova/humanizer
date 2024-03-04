@@ -80,7 +80,7 @@ func parse_scale_data(line:String, index:String): #index is x, y, or z
 	scale_config[index].start = scale_data[1]
 	scale_config[index].end = scale_data[2]
 	scale_config[index].length = scale_data[3]
-
+	
 func build_fitted_mesh(mesh: ArrayMesh, helper_vertex_array: PackedVector3Array) -> ArrayMesh: 
 	# the static mesh with no shapekeys
 	var new_mesh = ArrayMesh.new()

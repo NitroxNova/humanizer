@@ -119,7 +119,7 @@ func _parse_category(human, category):
 		scene.get_node('%VBoxContainer').add_child(button)
 		scene.get_node('%VBoxContainer').add_child(cat_container)
 		button.pressed.connect(func(): cat_container.visible = not cat_container.visible)
-		cat_container.shapekey_value_changed.connect(human.set_shapekey)
+		cat_container.shapekey_value_changed.connect(human.set_shapekeys)
 		cat_container.config = human.human_config
 		human.on_human_reset.connect(cat_container.reset_sliders)
 
