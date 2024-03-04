@@ -1,25 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://ceyu67v8atem8"]
+[gd_scene load_steps=3 format=3 uid="uid://bhrbfs0148b63"]
 
-[ext_resource type="ArrayMesh" uid="uid://d2bcuub0stfn8" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_mesh.res" id="1_2igi6"]
-[ext_resource type="Material" uid="uid://cfky7s60s0fnp" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_material.res" id="2_4guhs"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd" id="3_pb365"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="4_0aq63"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_material.gd" id="5_2c55r"]
-
-[sub_resource type="Resource" id="Resource_bmotw"]
-resource_name = "female_casualsuit01"
-script = ExtResource("4_0aq63")
-albedo_texture_path = "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_diffuse.png"
-normal_texture_path = "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_normal.png"
-ao_texture_path = ""
-color = Color(1, 1, 1, 1)
-
-[sub_resource type="Resource" id="Resource_gkmil"]
-script = ExtResource("5_2c55r")
-overlays = Array[ExtResource("4_0aq63")]([SubResource("Resource_bmotw")])
+[ext_resource type="ArrayMesh" uid="uid://pwnf5y63s3v5" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_mesh.res" id="1_5j7gb"]
+[ext_resource type="Material" uid="uid://p7d60h8ekt2s" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_material.res" id="2_6dw5l"]
 
 [node name="female_casualsuit01" type="MeshInstance3D"]
-mesh = ExtResource("1_2igi6")
-surface_material_override/0 = ExtResource("2_4guhs")
-script = ExtResource("3_pb365")
-material_config = SubResource("Resource_gkmil")
+mesh = ExtResource("1_5j7gb")
+surface_material_override/0 = ExtResource("2_6dw5l")

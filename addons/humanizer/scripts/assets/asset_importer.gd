@@ -70,14 +70,14 @@ func _scan_path(path: String) -> void:
 			asset_data[fl]['mh2gd_index'] = obj_data.mh2gd_index
 	if asset_data.size() == 0:
 		return
-
+		
 	# Get textures
 	for file_name in contents.files:
 		if file_name.get_extension() in ["png"]:
 			# Eyes come with two textures for coloring iris, base and overlay
 			if 'overlay' in file_name.get_file():
 				for k in asset_data:
-					asset_data[k]['overlay'] = {'albedo': file_name}
+					textures['overlay'] = {'albedo': file_name}
 				continue
 			if file_name.rsplit('.', true, 1)[-2].ends_with('normal'):
 				textures['normal'] = file_name
@@ -85,11 +85,68 @@ func _scan_path(path: String) -> void:
 				textures['ao'] = file_name
 			else:
 				textures[file_name.get_file()] = file_name
-
+	_generate_material(path, textures)
+	
 	for asset in asset_data:
-		asset_data[asset]['textures'] = textures
+		asset_data[asset].textures = textures
 		_import_asset(path, asset, asset_data[asset])
+
+func _generate_material(path: String, textures: Dictionary) -> void:
+	# Create material
+	var mat = StandardMaterial3D.new()
+	mat.cull_mode = BaseMaterial3D.CULL_BACK
+	if asset_type == HumanizerRegistry.AssetType.BodyPart:
+		if 'eyelash' in path.to_lower() or 'eyebrow' in path.to_lower() or 'hair' in path.to_lower():
+			# For eyebrows/eyelashes alpha looks better but scissor is cheaper
+			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+			mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		if 'eyebrow' in path.to_lower():
+			mat.grow = true
+			mat.grow_amount = 0.001
+		if 'hair' in path.to_lower():
+			mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+			mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
+	
+	if textures.size() > 0:
+		var albedo := ''
+		var normal := ''
+		var ao := ''
+		for t in textures:
+			if t == 'normal':
+				normal = textures[t]
+			elif t == 'ao':
+				ao = textures[t]
+			elif albedo == '': # Get first albedo as default
+				albedo = textures[t]
+
+		# Create normal map from albedo as bump map for eyebrows
+		if 'eyebrow' in path.to_lower() and normal == '':
+			print('Generating normal')
+			var normal_texture = load(albedo) as Texture2D
+			normal_texture = normal_texture.get_image()
+			normal_texture.bump_map_to_normal_map()
+			normal_texture = ImageTexture.create_from_image(normal_texture)
+			normal = albedo.replace('.png', '_normal.png')
+			ResourceSaver.save(normal_texture, normal)
 		
+		# Set material textures
+		if albedo != '':
+			mat.albedo_texture = load(albedo)
+		if normal != '':
+			mat.normal_texture = load(normal)
+		if ao != '':
+			mat.ao_texture = load(ao)
+	
+	# For the list of textures in the asset resource we only keep albedo textures
+	# Normal/AO maps should not change I think
+	if textures.has('normal'):
+		textures.erase("normal")
+	if textures.has('ao'):
+		textures.erase('ao')
+		
+	var mat_path = path.path_join(path.get_file() + '_material.res')
+	ResourceSaver.save(mat, mat_path)
+
 func _import_asset(path: String, asset_name: String, data: Dictionary):
 	print('Importing asset ' + asset_name)
 	# Build resource object
@@ -117,29 +174,15 @@ func _import_asset(path: String, asset_name: String, data: Dictionary):
 	var new_sf_arrays = mesh.surface_get_arrays(0)
 	mesh = build_import_mesh(path, mhclo)
 	
-	# Create material
-	var mat = StandardMaterial3D.new()
-	mat.cull_mode = BaseMaterial3D.CULL_BACK
-	if asset_type == HumanizerRegistry.AssetType.BodyPart:
-		if 'Eyelash' in slot or 'Eyebrow' in slot or 'Hair' == slot:
-			# For eyebrows alpha looks better but scissor is cheaper
-			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
-			mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-		if 'Eyebrow' in slot:
-			mat.grow = true
-			mat.grow_amount = 0.001
-		if slot == 'Hair':
-			mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
-			mat.diffuse_mode = BaseMaterial3D.DIFFUSE_TOON
-
 	# Set slot(s)
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
 		slot = asset_name.split('-')[0].split('_')[0]
 		if slot not in HumanizerConfig.body_part_slots:
 			printerr('File should be named {slot}-{asset}.mhclo.  Slot not recognized : ' + slot)
 			return
-		if HumanizerRegistry.body_parts[slot].has(asset_name):
-			HumanizerRegistry.body_parts[slot].erase(asset_name)
+		if HumanizerRegistry.body_parts.has(slot):
+			if HumanizerRegistry.body_parts[slot].has(asset_name):
+				HumanizerRegistry.body_parts[slot].erase(asset_name)
 		resource.slot = slot
 	elif asset_type == HumanizerRegistry.AssetType.Clothes:
 		for slot in clothing_slots:
@@ -166,57 +209,34 @@ func _import_asset(path: String, asset_name: String, data: Dictionary):
 	# Create packed scene
 	var mi = MeshInstance3D.new()
 	var scene = PackedScene.new()
+	var mat = load(resource.material_path)
 	mi.mesh = mesh
 	mi.name = asset_name
 	mi.set_surface_override_material(0, mat)
-	mi.set_script(load("res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd"))
 	add_child(mi)
 	mi.owner = self
-	var mat_config = mi.material_config as HumanizerMaterial
 	
-	# Set textures
-	if resource.textures.size() > 0:
-		var albedo := ''
-		var normal := ''
-		var ao := ''
-		for t in resource.textures:
-			if t == 'normal':
-				normal = resource.textures[t]
-			elif t == 'ao':
-				ao = resource.textures[t]
-			elif albedo == '': # Get first albedo as default
-				albedo = resource.textures[t]
-
-		# Create normal map from albedo as bump map for eyebrows
-		if 'Eyebrow' in slot and normal == '':
-			print('Generating normal')
-			var normal_texture = load(albedo) as Texture2D
-			normal_texture = normal_texture.get_image()
-			normal_texture.bump_map_to_normal_map()
-			normal_texture = ImageTexture.create_from_image(normal_texture)
-			normal = albedo.replace('.png', '_normal.png')
-			ResourceSaver.save(normal_texture, normal)
-	
-		## Set textures on material config
-		mat_config.set_base_textures(HumanizerOverlay.from_dict({'albedo': albedo, 'normal': normal, 'ao': ao}))
-		if data.has('overlay'):
-			mat_config.add_overlay(HumanizerOverlay.from_dict(data.overlay))
-
-	mi.update_material()
-	ResourceSaver.save(mat, resource.material_path)
-	ResourceSaver.save(mesh, resource.mesh_path)
-	# Scene material path still shows empty string, but the tscn file size is 
-	# smaller than the material.res file so it must be working correctly
-	mat.resource_path = resource.material_path
+	if data.textures.has('overlay'):
+		mi.set_script(load("res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd"))
+		var mat_config = mi.material_config as HumanizerMaterial
+		var mat_dict := {}
+		if mat.albedo_texture != null:
+			mat_dict['albedo'] = mat.albedo_texture.resource_path
+		if mat.normal_texture != null:
+			mat_dict['normal'] = mat.normal_texture.resource_path
+		if mat.ao_texture != null:
+			mat_dict['ao'] = mat.ao_texture.resource_path
+		mat_config.set_base_textures(HumanizerOverlay.from_dict(mat_dict))
+		mat_config.add_overlay(HumanizerOverlay.from_dict(data.textures.overlay))
+		mi.update_material()
+		ResourceSaver.save(mat, resource.material_path)
+		
 	mesh.resource_path = resource.mesh_path
 	scene.pack(mi)
+	ResourceSaver.save(mesh, resource.mesh_path)
 	ResourceSaver.save(scene, resource.scene_path)
-	mi.queue_free()
-
-	for key in ['ao', 'normal']:
-		if resource.textures.has(key):
-			resource.textures.erase(key)
 	ResourceSaver.save(resource, resource.resource_path)
+	mi.queue_free()
 
 func build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh: 
 	# build basis from obj file

@@ -1,25 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://rhnj66jmqowl"]
+[gd_scene load_steps=3 format=3 uid="uid://duwcajmidsaqy"]
 
-[ext_resource type="ArrayMesh" uid="uid://butfo7cpd0ohu" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/LeftEyebrow-001_mesh.res" id="1_xk7ex"]
-[ext_resource type="Material" uid="uid://dgm2ctp3w5sp6" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/LeftEyebrow-001_material.res" id="2_bwrim"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd" id="3_6meda"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="4_uhmag"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_material.gd" id="5_s6mg0"]
-
-[sub_resource type="Resource" id="Resource_xyhm7"]
-resource_name = "eyebrow001"
-script = ExtResource("4_uhmag")
-albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/eyebrow001.png"
-normal_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/eyebrow001_normal.png"
-ao_texture_path = ""
-color = Color(1, 1, 1, 1)
-
-[sub_resource type="Resource" id="Resource_bhxrs"]
-script = ExtResource("5_s6mg0")
-overlays = Array[ExtResource("4_uhmag")]([SubResource("Resource_xyhm7")])
+[ext_resource type="ArrayMesh" uid="uid://bjssckuk7hjbh" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/LeftEyebrow-001_mesh.res" id="1_0ftso"]
+[ext_resource type="Material" uid="uid://unth0ptebbpc" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/Eyebrows-001_material.res" id="2_is3hl"]
 
 [node name="LeftEyebrow-001" type="MeshInstance3D"]
-mesh = ExtResource("1_xk7ex")
-surface_material_override/0 = ExtResource("2_bwrim")
-script = ExtResource("3_6meda")
-material_config = SubResource("Resource_bhxrs")
+mesh = ExtResource("1_0ftso")
+surface_material_override/0 = ExtResource("2_is3hl")

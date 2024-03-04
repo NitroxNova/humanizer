@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="HumanClothes" load_steps=2 format=3 uid="uid://bqbocmcfvwkms"]
+[gd_resource type="Resource" script_class="HumanClothes" load_steps=2 format=3 uid="uid://ce3r8efqflte5"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_clothes.gd" id="1_rktoc"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_clothes.gd" id="1_iymdm"]
 
 [resource]
 resource_name = "female_casualsuit01"
-script = ExtResource("1_rktoc")
+script = ExtResource("1_iymdm")
 slots = Array[String]([])
 textures = {
 "female_casualsuit01_diffuse.png": "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_diffuse.png"
