@@ -28,11 +28,12 @@ func run():
 	ground_offset /= 8
 	for gd_id in sf_arrays[Mesh.ARRAY_VERTEX].size():
 		sf_arrays[Mesh.ARRAY_VERTEX][gd_id] -= ground_offset
+		sf_arrays[Mesh.ARRAY_VERTEX][gd_id] *= 0.1
 	
-	var new_mesh = ArrayMesh.new()
 	var flags = helper_mesh.surface_get_format(0)
-	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, sf_arrays, [], {}, flags)
-	ResourceSaver.save(new_mesh,"res://addons/humanizer/data/resources/base_helpers.res")
+	helper_mesh = ArrayMesh.new()
+	helper_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, sf_arrays, [], {}, flags)
+	ResourceSaver.save(helper_mesh,"res://addons/humanizer/data/resources/base_helpers.res")
 	#endregion
 
 	#region Generate uv helper data for hiding vertices
@@ -103,11 +104,8 @@ func run():
 				var new_id = old_index[old_id]
 				new_slice.append(new_id)
 			new_sf_arrays[Mesh.ARRAY_INDEX].append_array(new_slice)
-			
-	for gd_id in new_sf_arrays[Mesh.ARRAY_VERTEX].size():
-		new_sf_arrays[Mesh.ARRAY_VERTEX][gd_id] -= ground_offset
 	
-	new_mesh = ArrayMesh.new()
+	var new_mesh = ArrayMesh.new()
 	flags = helper_mesh.surface_get_format(0)
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_sf_arrays, [], {}, flags)
 	new_mesh = HumanizerUtils.generate_normals_and_tangents(new_mesh)

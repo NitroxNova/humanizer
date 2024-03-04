@@ -1,25 +1,25 @@
-[gd_scene load_steps=8 format=3 uid="uid://chw0wowljc0is"]
+[gd_scene load_steps=8 format=3 uid="uid://ceyu67v8atem8"]
 
-[ext_resource type="ArrayMesh" uid="uid://dowht4syuiha6" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_mesh.res" id="1_fpoa6"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd" id="1_j1o5e"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="2_e20bq"]
-[ext_resource type="Material" uid="uid://cfheb7b22j30o" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_material.res" id="2_wiybp"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_material.gd" id="3_5hkkg"]
+[ext_resource type="ArrayMesh" uid="uid://d2bcuub0stfn8" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_mesh.res" id="1_2igi6"]
+[ext_resource type="Material" uid="uid://cfky7s60s0fnp" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_material.res" id="2_4guhs"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd" id="3_pb365"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="4_0aq63"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_material.gd" id="5_2c55r"]
 
-[sub_resource type="Resource" id="Resource_e0ej6"]
+[sub_resource type="Resource" id="Resource_bmotw"]
 resource_name = "female_casualsuit01"
-script = ExtResource("2_e20bq")
+script = ExtResource("4_0aq63")
 albedo_texture_path = "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_diffuse.png"
 normal_texture_path = "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_normal.png"
 ao_texture_path = ""
 color = Color(1, 1, 1, 1)
 
-[sub_resource type="Resource" id="Resource_122op"]
-script = ExtResource("3_5hkkg")
-overlays = Array[ExtResource("2_e20bq")]([SubResource("Resource_e0ej6")])
+[sub_resource type="Resource" id="Resource_gkmil"]
+script = ExtResource("5_2c55r")
+overlays = Array[ExtResource("4_0aq63")]([SubResource("Resource_bmotw")])
 
 [node name="female_casualsuit01" type="MeshInstance3D"]
-mesh = ExtResource("1_fpoa6")
-surface_material_override/0 = ExtResource("2_wiybp")
-script = ExtResource("1_j1o5e")
-material_config = SubResource("Resource_122op")
+mesh = ExtResource("1_2igi6")
+surface_material_override/0 = ExtResource("2_4guhs")
+script = ExtResource("3_pb365")
+material_config = SubResource("Resource_gkmil")

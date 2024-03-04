@@ -6,7 +6,7 @@
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="2_m05w6"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_material.gd" id="3_mjxr0"]
 
-[sub_resource type="Resource" id="Resource_r630v"]
+[sub_resource type="Resource" id="Resource_6yo1a"]
 resource_name = "eyebrow001"
 script = ExtResource("2_m05w6")
 albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/eyebrow001.png"
@@ -14,12 +14,12 @@ normal_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyebrows/Ey
 ao_texture_path = ""
 color = Color(1, 1, 1, 1)
 
-[sub_resource type="Resource" id="Resource_0ca22"]
+[sub_resource type="Resource" id="Resource_3wv4s"]
 script = ExtResource("3_mjxr0")
-overlays = Array[ExtResource("2_m05w6")]([SubResource("Resource_r630v")])
+overlays = Array[ExtResource("2_m05w6")]([SubResource("Resource_6yo1a")])
 
 [node name="RightEyebrow-001" type="MeshInstance3D"]
 mesh = ExtResource("1_mstnk")
 surface_material_override/0 = ExtResource("2_dxcou")
 script = ExtResource("1_iidlo")
-material_config = SubResource("Resource_0ca22")
+material_config = SubResource("Resource_3wv4s")

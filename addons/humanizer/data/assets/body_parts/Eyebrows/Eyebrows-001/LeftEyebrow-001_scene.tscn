@@ -1,25 +1,25 @@
 [gd_scene load_steps=8 format=3 uid="uid://rhnj66jmqowl"]
 
-[ext_resource type="ArrayMesh" uid="uid://butfo7cpd0ohu" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/LeftEyebrow-001_mesh.res" id="1_01qeo"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd" id="1_i6ncn"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="2_l34q3"]
-[ext_resource type="Material" uid="uid://dgm2ctp3w5sp6" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/LeftEyebrow-001_material.res" id="2_lubif"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_material.gd" id="3_qn8kb"]
+[ext_resource type="ArrayMesh" uid="uid://butfo7cpd0ohu" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/LeftEyebrow-001_mesh.res" id="1_xk7ex"]
+[ext_resource type="Material" uid="uid://dgm2ctp3w5sp6" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/LeftEyebrow-001_material.res" id="2_bwrim"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd" id="3_6meda"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="4_uhmag"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_material.gd" id="5_s6mg0"]
 
-[sub_resource type="Resource" id="Resource_nmmdm"]
+[sub_resource type="Resource" id="Resource_xyhm7"]
 resource_name = "eyebrow001"
-script = ExtResource("2_l34q3")
+script = ExtResource("4_uhmag")
 albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/eyebrow001.png"
 normal_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/eyebrow001_normal.png"
 ao_texture_path = ""
 color = Color(1, 1, 1, 1)
 
-[sub_resource type="Resource" id="Resource_ltvdx"]
-script = ExtResource("3_qn8kb")
-overlays = Array[ExtResource("2_l34q3")]([SubResource("Resource_nmmdm")])
+[sub_resource type="Resource" id="Resource_bhxrs"]
+script = ExtResource("5_s6mg0")
+overlays = Array[ExtResource("4_uhmag")]([SubResource("Resource_xyhm7")])
 
 [node name="LeftEyebrow-001" type="MeshInstance3D"]
-mesh = ExtResource("1_01qeo")
-surface_material_override/0 = ExtResource("2_lubif")
-script = ExtResource("1_i6ncn")
-material_config = SubResource("Resource_ltvdx")
+mesh = ExtResource("1_xk7ex")
+surface_material_override/0 = ExtResource("2_bwrim")
+script = ExtResource("3_6meda")
+material_config = SubResource("Resource_bhxrs")
