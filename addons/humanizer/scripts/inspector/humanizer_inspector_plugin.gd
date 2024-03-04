@@ -69,9 +69,8 @@ func _parse_category(human, category):
 		'Legs': [],
 		'Misc': [],
 	}
-	var mesh = load("res://addons/humanizer/data/resources/unshaded.res")
-	for i in mesh.get_blend_shape_count():
-		var name = mesh.get_blend_shape_name(i)
+	var shapekeys = HumanizerUtils.get_shapekey_data()
+	for name in shapekeys.shapekeys:
 		if 'penis' in name.to_lower():
 			continue
 		if 'caucasian' in name.to_lower() or 'african' in name.to_lower() or 'asian' in name.to_lower():
