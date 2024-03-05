@@ -196,12 +196,10 @@ func _import_asset(path: String, asset_name: String, data: Dictionary):
 				printerr('clothing slot not recognized : ' + slot)
 				return
 		# TODO SET CLOTHING SLOTS
-		printerr(asset_name)
-		if asset_name.begins_with('Pants'):
+		if asset_name.begins_with('Pants') or asset_name.begins_with('Shorts') or asset_name.begins_with('Skirt'):
 			resource.slots.append('Legs')
 		elif asset_name.begins_with('Shirt'):
 			resource.slots.append('Torso')
-		printerr(resource.slots)
 		if HumanizerRegistry.clothes.has(asset_name):
 			HumanizerRegistry.clothes.erase(asset_name)
 	# Save resources

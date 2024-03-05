@@ -51,6 +51,7 @@ func load_human() -> void:
 		notify_property_list_changed()
 
 func reset_human() -> void:
+	_helper_vertex = shapekey_data.basis.duplicate(true)
 	baked = false
 	human_config = HumanConfig.new()
 	set_rig(HumanizerConfig.default_skeleton)
@@ -264,7 +265,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 		bones.resize(8)
 		weights.resize(8)
 		
-		if mh_id < mh2gd_index.size():	
+		if mh_id < mh2gd_index.size():
 			var g_id_array = mh2gd_index[mh_id]
 			for g_id in g_id_array:
 				for i in bone_count:
@@ -347,18 +348,20 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 			
 func set_shapekeys(shapekeys: Dictionary):
 	var prev_sk = human_config.shapekeys
-	if _helper_vertex.size() == 0:
-		_helper_vertex = shapekey_data.basis.duplicate(true)
+	_helper_vertex = shapekey_data.basis.duplicate(true)
+	for sk in shapekeys:
+		human_config.shapekeys[sk] = shapekeys[sk]
 		
 	for child in get_children():
 		if not child is MeshInstance3D:
 			continue
 
 		var mesh: ArrayMesh = child.mesh
-		for sk in shapekeys:
-			var prev_val = prev_sk.get(sk, 0)
+		for sk in human_config.shapekeys:
+			if human_config.shapekeys[sk] == 0:
+				continue
 			for mh_id in shapekey_data.shapekeys[sk]:
-				_helper_vertex[mh_id] += shapekey_data.shapekeys[sk][mh_id] * (shapekeys[sk] - prev_val)
+				_helper_vertex[mh_id] += shapekey_data.shapekeys[sk][mh_id] * human_config.shapekeys[sk]
 				
 		var res: HumanAsset = null
 		for slot in human_config.body_parts:
@@ -376,20 +379,17 @@ func set_shapekeys(shapekeys: Dictionary):
 			var new_mesh = MeshOperations.build_fitted_mesh(mesh, _helper_vertex, mhclo)
 			child.mesh = new_mesh
 		else:             # Base mesh
-			continue
 			var surf_arrays = (mesh as ArrayMesh).surface_get_arrays(0)
 			var fmt = mesh.surface_get_format(0)
 			var lods = {}
 			var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
-			print(vtx_arrays[0])
-			print(_helper_vertex[0])
 			surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
+			for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
+				var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+				surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
 			mesh.clear_surfaces()
 			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], lods, fmt)
 	
-	for sk in shapekeys:
-		human_config.shapekeys[sk] = shapekeys[sk]
-
 func adjust_skeleton() -> void:
 	var shapekey_data = HumanizerUtils.get_shapekey_data()
 	skeleton.reset_bone_poses()
