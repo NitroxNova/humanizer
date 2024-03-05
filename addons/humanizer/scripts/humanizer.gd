@@ -348,12 +348,14 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 			
 func set_shapekeys(shapekeys: Dictionary):
 	var prev_sk = human_config.shapekeys
+	if _helper_vertex.size() == 0:
+		_helper_vertex = shapekey_data.basis.duplicate(true)
+		
 	for child in get_children():
 		if not child is MeshInstance3D:
 			continue
 
 		var mesh: ArrayMesh = child.mesh
-		_helper_vertex = shapekey_data.basis.duplicate(true)
 		for sk in shapekeys:
 			var prev_val = prev_sk.get(sk, 0)
 			for mh_id in shapekey_data.shapekeys[sk]:
@@ -374,12 +376,11 @@ func set_shapekeys(shapekeys: Dictionary):
 			var mhclo: MHCLO = load(res.mhclo_path)
 			var new_mesh = MeshOperations.build_fitted_mesh(mesh, _helper_vertex, mhclo)
 			child.mesh = new_mesh
-		else:
+		else:             # Base mesh
 			var surf_arrays = (mesh as ArrayMesh).surface_get_arrays(0)
 			var fmt = mesh.surface_get_format(0)
 			var lods = {}
 			var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
-			print(_helper_vertex[0])
 			surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
 			mesh.clear_surfaces()
 			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], lods, fmt)
