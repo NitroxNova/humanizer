@@ -351,7 +351,6 @@ func _get_asset(mesh_name: String) -> HumanAsset:
 	var res: HumanAsset = null
 	for slot in human_config.body_parts:
 		if human_config.body_parts[slot].resource_name == mesh_name:
-			print('yes')
 			res = human_config.body_parts[slot] as HumanBodyPart
 	if res == null:
 		for cl in human_config.clothes:
@@ -381,7 +380,6 @@ func set_shapekeys(shapekeys: Dictionary):
 			var new_mesh = MeshOperations.build_fitted_mesh(mesh, _helper_vertex, mhclo)
 			child.mesh = new_mesh
 		else:             # Base mesh
-			print(child.name)
 			if child.name != _BASE_MESH_NAME:
 				printerr('Failed to match asset resource for mesh ' + child.name + ' which is not the base mesh.')
 				return
