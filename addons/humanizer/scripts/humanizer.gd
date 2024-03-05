@@ -197,6 +197,15 @@ func _reset_animator() -> void:
 	add_child(animator)
 	if Engine.is_editor_hint():
 		animator.owner = EditorInterface.get_edited_scene_root()
+	if HumanizerConfig.default_animation_tree != null:
+		var tree := HumanizerConfig.default_animation_tree.instantiate() as AnimationTree
+		if tree == null:
+			printerr('Default animation tree scene does not have an animation Tree as its root node')
+			return
+		add_child(tree)
+		if Engine.is_editor_hint():
+			tree.owner = EditorInterface.get_edited_scene_root()
+		tree.anim_player = animator.get_path()
 
 func set_skin_texture(name: String) -> void:
 	if not HumanizerRegistry.skin_textures.has(name):
