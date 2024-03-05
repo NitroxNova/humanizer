@@ -361,6 +361,41 @@ func _get_asset(mesh_name: String) -> HumanAsset:
 				res = cl as HumanClothes
 	return res
 
+func update_hide_vertices() -> void:
+	var arrays: Array = (mesh.mesh as ArrayMesh).surface_get_arrays(0)
+	var delete_verts_gd := []
+	delete_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
+	var delete_verts_mh := []
+	delete_verts_mh.resize(_helper_vertex.size())
+	
+	for child in get_children():
+		var res: HumanAsset = _get_asset(child.name)
+		if res != null:
+			for entry in load(res.mhclo_path).delete_vertices:
+				for mh_id in entry:
+					delete_verts_mh[mh_id] = true
+			
+	for gd_id in arrays[Mesh.ARRAY_VERTEX].size():
+		var mh_id = arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+		if delete_verts_mh[mh_id]:
+			delete_verts_gd[gd_id] = true
+	
+	var new_mesh = ArrayMesh.new()
+	var new_arrays := []
+	new_arrays.resize(Mesh.ARRAY_MAX)
+	new_arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
+	new_arrays[Mesh.ARRAY_CUSTOM0] = PackedFloat32Array()
+	new_arrays[Mesh.ARRAY_INDEX] = PackedInt32Array()
+	new_arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
+	var lods := {}
+	var fmt = mesh.mesh.surface_get_format(0)
+	for gd_id in delete_verts_gd.size():
+		if not delete_verts_gd[gd_id]:
+			new_arrays[Mesh.ARRAY_VERTEX].append(arrays[Mesh.ARRAY_VERTEX][gd_id])
+			new_arrays[Mesh.ARRAY_CUSTOM0].append(arrays[Mesh.ARRAY_CUSTOM0][gd_id])
+	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_arrays, [], lods, fmt)
+	_set_mesh(new_mesh)
+
 func set_shapekeys(shapekeys: Dictionary):
 	var prev_sk = human_config.shapekeys
 	if _helper_vertex.size() == 0:

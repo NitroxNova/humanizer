@@ -85,6 +85,11 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Components"
 
+[node name="HideVerticesButton" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Update Hidden Vertices"
+
 [node name="BakeButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2

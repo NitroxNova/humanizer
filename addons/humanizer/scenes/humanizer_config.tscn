@@ -1,10 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://dsrnmyw7n7drw"]
+[gd_scene load_steps=6 format=3 uid="uid://dsrnmyw7n7drw"]
 
 [ext_resource type="Script" path="res://addons/humanizer/scripts/humanizer_config.gd" id="1_rt5bh"]
 [ext_resource type="PackedScene" uid="uid://csan8bknfmodc" path="res://addons/humanizer/data/animations/animation_tree.tscn" id="2_wlrj1"]
-[ext_resource type="Resource" uid="uid://c6jtfkc5c72gc" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01.tres" id="4_ub1hj"]
-[ext_resource type="Resource" uid="uid://mehidylgqve2" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/Pants-SkinnyJeans.tres" id="5_6e2hg"]
-[ext_resource type="Resource" uid="uid://b8gs64f4mkey" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/Shirt-MakeHumanTShirt.tres" id="6_jp3uv"]
+[ext_resource type="Resource" uid="uid://6hrgmdx1sa44" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/Pants-SkinnyJeans.tres" id="4_ubelq"]
+[ext_resource type="Resource" uid="uid://bdr3jyxmk64sy" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/Shirt-MakeHumanTShirt.tres" id="5_2b1xm"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_registry.gd" id="57_651fh"]
 
 [node name="HumanizerConfig" type="Node"]
@@ -15,7 +14,6 @@ default_animation_tree = ExtResource("2_wlrj1")
 [node name="HumanizerRegistry" type="Node" parent="."]
 script = ExtResource("57_651fh")
 _clothes = {
-"Pants-SkinnyJeans": ExtResource("5_6e2hg"),
-"Shirt-MakeHumanTShirt": ExtResource("6_jp3uv"),
-"female_casualsuit01": ExtResource("4_ub1hj")
+"Pants-SkinnyJeans": ExtResource("4_ubelq"),
+"Shirt-MakeHumanTShirt": ExtResource("5_2b1xm")
 }

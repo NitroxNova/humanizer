@@ -16,7 +16,7 @@ func _parse_category(human, category):
 	scene.get_node('%BakeButton').pressed.connect(human.bake)
 	scene.get_node('%SaveButton').pressed.connect(_save_human.bind(human, scene.get_node('%HumanName')))
 	scene.get_node('%RigOptionButton').human = human
-	
+	scene.get_node('%HideVerticesButton').pressed.connect(human.update_hide_vertices)
 	if human.baked:
 		scene.get_node('%VBoxContainer').add_child(HSeparator.new())
 		var delete = false
