@@ -3,6 +3,7 @@ class_name Humanizer
 extends Node3D
 
 const humanizer_mesh_instance = preload('res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd')
+const _BASE_MESH_NAME: String = 'Human'
 var skeleton: Skeleton3D
 var animator: AnimationPlayer
 var mesh: MeshInstance3D
@@ -94,7 +95,7 @@ func _set_mesh(meshdata: ArrayMesh) -> void:
 			remove_child(child)
 			child.queue_free()
 	mesh = MeshInstance3D.new()
-	mesh.name = 'Human'
+	mesh.name = _BASE_MESH_NAME
 	mesh.mesh = meshdata
 	mesh.set_script(humanizer_mesh_instance)
 	add_child(mesh)
@@ -345,40 +346,45 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 			var base = child.material_config.overlays[0]
 			base.albedo_texture_path = cl.textures[texture]
 			child.material_config.set_base_textures(base)
-			
+
+func _get_asset(mesh_name: String) -> HumanAsset:
+	var res: HumanAsset = null
+	for slot in human_config.body_parts:
+		if human_config.body_parts[slot].resource_name == mesh_name:
+			print('yes')
+			res = human_config.body_parts[slot] as HumanBodyPart
+	if res == null:
+		for cl in human_config.clothes:
+			if cl.resource_name == mesh_name:
+				res = cl as HumanClothes
+	return res
+
 func set_shapekeys(shapekeys: Dictionary):
 	var prev_sk = human_config.shapekeys
-	_helper_vertex = shapekey_data.basis.duplicate(true)
+	if _helper_vertex.size() == 0:
+		_helper_vertex = shapekey_data.basis.duplicate(true)
 	for sk in shapekeys:
-		human_config.shapekeys[sk] = shapekeys[sk]
-		
+		var prev_val: float = prev_sk.get(sk, 0)
+		if prev_val == shapekeys[sk]:
+			continue
+		for mh_id in shapekey_data.shapekeys[sk]:
+			_helper_vertex[mh_id] += shapekey_data.shapekeys[sk][mh_id] * (shapekeys[sk] - prev_val)
+				
 	for child in get_children():
 		if not child is MeshInstance3D:
 			continue
-
 		var mesh: ArrayMesh = child.mesh
-		for sk in human_config.shapekeys:
-			if human_config.shapekeys[sk] == 0:
-				continue
-			for mh_id in shapekey_data.shapekeys[sk]:
-				_helper_vertex[mh_id] += shapekey_data.shapekeys[sk][mh_id] * human_config.shapekeys[sk]
-				
-		var res: HumanAsset = null
-		for slot in human_config.body_parts:
-			if human_config.body_parts[slot].resource_name == child.name:
-				res = human_config.body_parts[slot] as HumanBodyPart
-				mesh = child.mesh
-		if res == null:
-			for cl in human_config.clothes:
-				if cl.resource_name == child.name:
-					res = cl as HumanClothes
-					mesh = child.mesh
 
+		var res: HumanAsset = _get_asset(child.name)
 		if res != null:   # Body parts/clothes
 			var mhclo: MHCLO = load(res.mhclo_path)
 			var new_mesh = MeshOperations.build_fitted_mesh(mesh, _helper_vertex, mhclo)
 			child.mesh = new_mesh
 		else:             # Base mesh
+			print(child.name)
+			if child.name != _BASE_MESH_NAME:
+				printerr('Failed to match asset resource for mesh ' + child.name + ' which is not the base mesh.')
+				return
 			var surf_arrays = (mesh as ArrayMesh).surface_get_arrays(0)
 			var fmt = mesh.surface_get_format(0)
 			var lods = {}
@@ -390,6 +396,9 @@ func set_shapekeys(shapekeys: Dictionary):
 			mesh.clear_surfaces()
 			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], lods, fmt)
 	
+	for sk in shapekeys:
+		human_config.shapekeys[sk] = shapekeys[sk]
+		
 func adjust_skeleton() -> void:
 	var shapekey_data = HumanizerUtils.get_shapekey_data()
 	skeleton.reset_bone_poses()
