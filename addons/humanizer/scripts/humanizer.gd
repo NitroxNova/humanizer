@@ -90,7 +90,8 @@ func serialize(name: String) -> void:
 
 func _set_mesh(meshdata: ArrayMesh) -> void:
 	for child in get_children():
-		if child is MeshInstance3D:
+		if child is MeshInstance3D and child.name == _BASE_MESH_NAME:
+			print(child)
 			remove_child(child)
 			child.queue_free()
 	mesh = MeshInstance3D.new()
@@ -401,8 +402,8 @@ func update_hide_vertices() -> void:
 		if delete_verts_gd[slice[0]] or delete_verts_gd[slice[1]] or delete_verts_gd[slice[2]]:
 			continue
 		new_arrays[Mesh.ARRAY_INDEX].append_array(slice)
-
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_arrays, [], lods, fmt)
+	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
 	_set_mesh(new_mesh)
 
 func set_shapekeys(shapekeys: Dictionary):
