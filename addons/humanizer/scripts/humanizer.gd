@@ -368,6 +368,9 @@ func update_hide_vertices() -> void:
 	delete_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
 	var delete_verts_mh := []
 	delete_verts_mh.resize(_helper_vertex.size())
+	var remap_verts_gd := [] #old to new
+	remap_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
+	remap_verts_gd.fill(-1)
 	
 	for child in get_children():
 		if not child is MeshInstance3D:
@@ -382,6 +385,12 @@ func update_hide_vertices() -> void:
 		var mh_id = arrays[Mesh.ARRAY_CUSTOM0][gd_id]
 		if delete_verts_mh[mh_id]:
 			delete_verts_gd[gd_id] = true
+	
+	var new_gd_id = 0
+	for old_gd_id in arrays[Mesh.ARRAY_VERTEX].size():
+		if not delete_verts_gd[old_gd_id]:
+			remap_verts_gd[old_gd_id] = new_gd_id
+			new_gd_id += 1
 	
 	var new_mesh = ArrayMesh.new()
 	var new_arrays := []
@@ -401,6 +410,7 @@ func update_hide_vertices() -> void:
 		var slice = arrays[Mesh.ARRAY_INDEX].slice(i*3,(i+1)*3)
 		if delete_verts_gd[slice[0]] or delete_verts_gd[slice[1]] or delete_verts_gd[slice[2]]:
 			continue
+		slice = [remap_verts_gd[slice[0]],remap_verts_gd[slice[1]],remap_verts_gd[slice[2]]]
 		new_arrays[Mesh.ARRAY_INDEX].append_array(slice)
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_arrays, [], lods, fmt)
 	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
