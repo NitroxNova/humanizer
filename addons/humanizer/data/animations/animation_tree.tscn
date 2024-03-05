@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://csan8bknfmodc"]
+
+[ext_resource type="AnimationLibrary" uid="uid://cuxxbj7avet71" path="res://addons/humanizer/data/animations/animations.glb" id="2_a0fcn"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_qefju"]
+animation = &"Idle"
+
+[node name="AnimationTree" type="AnimationTree"]
+root_node = NodePath(".")
+libraries = {
+"animations": ExtResource("2_a0fcn")
+}
+tree_root = SubResource("AnimationNodeAnimation_qefju")
+anim_player = NodePath("AnimationPlayer")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"animations": ExtResource("2_a0fcn")
+}

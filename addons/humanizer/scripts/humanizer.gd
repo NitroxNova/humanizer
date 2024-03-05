@@ -5,7 +5,6 @@ extends Node3D
 const humanizer_mesh_instance = preload('res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd')
 const _BASE_MESH_NAME: String = 'Human'
 var skeleton: Skeleton3D
-var animator: AnimationPlayer
 var mesh: MeshInstance3D
 var baked := false
 var scene_loaded: bool = false
@@ -181,32 +180,27 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	skeleton.unique_name_in_owner = true
 	if Engine.is_editor_hint():
 		skeleton.owner = EditorInterface.get_edited_scene_root()
+	_reset_animator()
 	# Set new mesh
 	_set_mesh(skinned_mesh)
 	mesh.skeleton = skeleton.get_path()
-	_reset_animator()
 	adjust_skeleton()
 
 func _reset_animator() -> void:
 	for child in get_children():
-		if child is AnimationPlayer:
+		if child is AnimationTree:
 			remove_child(child)
 			child.queue_free()
-	animator = AnimationPlayer.new()
-	animator.name = 'AnimationPlayer'
-	add_child(animator)
-	if Engine.is_editor_hint():
-		animator.owner = EditorInterface.get_edited_scene_root()
 	if HumanizerConfig.default_animation_tree != null:
 		var tree := HumanizerConfig.default_animation_tree.instantiate() as AnimationTree
 		if tree == null:
-			printerr('Default animation tree scene does not have an animation Tree as its root node')
+			printerr('Default animation tree scene does not have an AnimationTree as its root node')
 			return
 		add_child(tree)
 		if Engine.is_editor_hint():
 			tree.owner = EditorInterface.get_edited_scene_root()
-		tree.anim_player = animator.get_path()
-
+		set_editable_instance(tree, true)
+		
 func set_skin_texture(name: String) -> void:
 	if not HumanizerRegistry.skin_textures.has(name):
 		human_config.body_part_materials['skin'] = ''
