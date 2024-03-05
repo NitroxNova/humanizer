@@ -369,6 +369,8 @@ func update_hide_vertices() -> void:
 	delete_verts_mh.resize(_helper_vertex.size())
 	
 	for child in get_children():
+		if not child is MeshInstance3D:
+			continue
 		var res: HumanAsset = _get_asset(child.name)
 		if res != null:
 			for entry in load(res.mhclo_path).delete_vertices:
@@ -393,6 +395,13 @@ func update_hide_vertices() -> void:
 		if not delete_verts_gd[gd_id]:
 			new_arrays[Mesh.ARRAY_VERTEX].append(arrays[Mesh.ARRAY_VERTEX][gd_id])
 			new_arrays[Mesh.ARRAY_CUSTOM0].append(arrays[Mesh.ARRAY_CUSTOM0][gd_id])
+			new_arrays[Mesh.ARRAY_TEX_UV].append(arrays[Mesh.ARRAY_TEX_UV][gd_id])
+	for i in arrays[Mesh.ARRAY_INDEX].size()/3:
+		var slice = arrays[Mesh.ARRAY_INDEX].slice(i*3,(i+1)*3)
+		if delete_verts_gd[slice[0]] or delete_verts_gd[slice[1]] or delete_verts_gd[slice[2]]:
+			continue
+		new_arrays[Mesh.ARRAY_INDEX].append_array(slice)
+
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_arrays, [], lods, fmt)
 	_set_mesh(new_mesh)
 
