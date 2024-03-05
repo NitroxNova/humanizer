@@ -8,10 +8,6 @@ static var skin_textures := {}
 static var overlays := {}
 static var rigs := {}
 
-@export var _clothes: Dictionary:
-	get:
-		return HumanizerRegistry.clothes
-
 enum AssetType {
 	BodyPart,
 	Clothes
@@ -102,6 +98,7 @@ static func _scan_dir(path: String, asset_type: AssetType) -> void:
 		_scan_dir(folder, asset_type)
 	for file in contents.files:
 		if 'mhclo' not in file.get_file() and file.get_extension() == 'tres':
+			print(file)
 			if asset_type == AssetType.BodyPart:
 				var asset = load(file)
 				if asset is HumanClothes:

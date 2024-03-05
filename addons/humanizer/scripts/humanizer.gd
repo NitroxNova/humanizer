@@ -91,7 +91,6 @@ func serialize(name: String) -> void:
 func _set_mesh(meshdata: ArrayMesh) -> void:
 	for child in get_children():
 		if child is MeshInstance3D and child.name == _BASE_MESH_NAME:
-			print(child)
 			remove_child(child)
 			child.queue_free()
 	mesh = MeshInstance3D.new()
@@ -378,8 +377,11 @@ func update_hide_vertices() -> void:
 		var res: HumanAsset = _get_asset(child.name)
 		if res != null:
 			for entry in load(res.mhclo_path).delete_vertices:
-				for mh_id in entry:
-					delete_verts_mh[mh_id] = true
+				if entry.size() == 1:
+					delete_verts_mh[entry[0]] = true
+				else:
+					for mh_id in range(entry[0], entry[1] + 1):
+						delete_verts_mh[mh_id] = true
 			
 	for gd_id in arrays[Mesh.ARRAY_VERTEX].size():
 		var mh_id = arrays[Mesh.ARRAY_CUSTOM0][gd_id]
@@ -410,10 +412,14 @@ func update_hide_vertices() -> void:
 		var slice = arrays[Mesh.ARRAY_INDEX].slice(i*3,(i+1)*3)
 		if delete_verts_gd[slice[0]] or delete_verts_gd[slice[1]] or delete_verts_gd[slice[2]]:
 			continue
-		slice = [remap_verts_gd[slice[0]],remap_verts_gd[slice[1]],remap_verts_gd[slice[2]]]
+		slice = [remap_verts_gd[slice[0]], remap_verts_gd[slice[1]], remap_verts_gd[slice[2]]]
 		new_arrays[Mesh.ARRAY_INDEX].append_array(slice)
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_arrays, [], lods, fmt)
 	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
+	var mi = MeshInstance3D.new()
+	mi.mesh = new_mesh
+	add_child(mi)
+	mi.owner = EditorInterface.get_edited_scene_root()
 	_set_mesh(new_mesh)
 
 func set_shapekeys(shapekeys: Dictionary):
