@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=2 format=3 uid="uid://dtuw3u3l7h16b"]
+[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=2 format=3 uid="uid://ypikxeqlxm23"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="1_y5igh"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="1_hn8s7"]
 
 [resource]
 resource_name = "LeftEye-LowPolyEyeball"
-script = ExtResource("1_y5igh")
+script = ExtResource("1_hn8s7")
 slot = "LeftEye"
 textures = {
 "eyeball_albedo.png": "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/eyeball_albedo.png",

@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cim8oycmtkfg4"
+path="res://.godot/imported/Shirt-MakeHumanTShirt.obj-8f50e93cf85598fbff6943661d1ac276.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Shirt-MakeHumanTShirt.obj-8f50e93cf85598fbff6943661d1ac276.mesh"]
+
+source_file="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/Shirt-MakeHumanTShirt.obj"
+dest_files=["res://.godot/imported/Shirt-MakeHumanTShirt.obj-8f50e93cf85598fbff6943661d1ac276.mesh", "res://.godot/imported/Shirt-MakeHumanTShirt.obj-8f50e93cf85598fbff6943661d1ac276.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

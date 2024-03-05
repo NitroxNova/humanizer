@@ -183,7 +183,6 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	_set_mesh(skinned_mesh)
 	mesh.skeleton = skeleton.get_path()
 	_reset_animator()
-	set_shapekeys(human_config.shapekeys)
 	adjust_skeleton()
 
 func _reset_animator() -> void:
@@ -377,10 +376,13 @@ func set_shapekeys(shapekeys: Dictionary):
 			var new_mesh = MeshOperations.build_fitted_mesh(mesh, _helper_vertex, mhclo)
 			child.mesh = new_mesh
 		else:             # Base mesh
+			continue
 			var surf_arrays = (mesh as ArrayMesh).surface_get_arrays(0)
 			var fmt = mesh.surface_get_format(0)
 			var lods = {}
 			var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
+			print(vtx_arrays[0])
+			print(_helper_vertex[0])
 			surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
 			mesh.clear_surfaces()
 			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], lods, fmt)

@@ -1,8 +1,0 @@
-[gd_scene load_steps=3 format=3 uid="uid://3cmtp6a0daay"]
-
-[ext_resource type="ArrayMesh" uid="uid://64t5qphi2yno" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_mesh.res" id="1_k5q5i"]
-[ext_resource type="Material" uid="uid://b6d3rj8vhxeo6" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_material.res" id="2_ht0xa"]
-
-[node name="female_casualsuit01" type="MeshInstance3D"]
-mesh = ExtResource("1_k5q5i")
-surface_material_override/0 = ExtResource("2_ht0xa")
