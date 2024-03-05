@@ -10,7 +10,7 @@ var busy: bool = false
 var asset_type: HumanizerRegistry.AssetType
 var basis: Array
 
-func run() -> void:
+func run(clean_only: bool = false) -> void:
 	if asset_type == HumanizerRegistry.AssetType.Clothes:
 		if clothing_slots.size() == 0:
 			printerr('Select clothing slots before processing clothes asset.')
@@ -23,15 +23,21 @@ func run() -> void:
 				DirAccess.remove_absolute(fl)
 		_scan_path(_asset_path)
 	else:                  # Bulk import task
-		print('Bulk asset import')
+		if not clean_only:
+			print('Bulk asset import')
+		else:
+			print('Purging assets')
 		for path in HumanizerConfig.asset_import_paths:
 			for dir in OSPath.get_dirs(path.path_join('body_parts')):
 				_clean_recursive(dir)
-				_scan_recursive(dir)
+				if not clean_only:
+					_scan_recursive(dir)
 			for dir in OSPath.get_dirs(path.path_join('clothes')):
 				_clean_recursive(dir)
-				_scan_recursive(dir)
-
+				if not clean_only:
+					_scan_recursive(dir)
+	print('Done')
+	
 func _clean_recursive(path: String) -> void:
 	for dir in OSPath.get_dirs(path):
 		_clean_recursive(dir)
@@ -61,7 +67,7 @@ func _scan_path(path: String) -> void:
 	for file_name in OSPath.get_files(path):
 		if file_name.get_extension() == "mhclo":
 			var fl = file_name.get_file().rsplit('.', true, 1)[0]
-			var _mhclo = MHCLO.new(file_name)
+			var _mhclo := MHCLO.new(file_name)
 			var obj = _mhclo.obj_file_name
 			obj_data = ObjToMesh.new(file_name.get_base_dir().path_join(obj)).run()
 			asset_data[fl] = {}
@@ -251,9 +257,9 @@ func build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh:
 	var scale_config = mhclo.scale_config
 	
 	var new_mesh = ArrayMesh.new()
-	var new_sf_arrays = mhclo.build_fitted_arrays(mesh, basis)
+	var new_sf_arrays = MeshOperations.build_fitted_arrays(mesh, basis, mhclo)
 	var flags = mesh.surface_get_format(0)
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_sf_arrays,[],{},flags)
-	var shaded_mesh: ArrayMesh = HumanizerUtils.generate_normals_and_tangents(new_mesh)
+	var shaded_mesh: ArrayMesh = MeshOperations.generate_normals_and_tangents(new_mesh)
 	mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(shaded_mesh)
 	return shaded_mesh

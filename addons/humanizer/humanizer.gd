@@ -22,6 +22,7 @@ const menu_ids := {
 	'import_tongue': 15,
 	'import_hair': 16,
 	'import_clothes': 21,
+	'purge_generated_assets': 29,
 	'asset_importer': 30,
 	'test': 999,
 }
@@ -72,6 +73,7 @@ func _add_tool_submenu() -> void:
 	popup_menu.add_child(preprocessing_popup)
 	popup_menu.add_submenu_item('Preprocessing Tasks', 'preprocessing_popup')
 	popup_menu.add_item('Run All Preprocessing', menu_ids.process_raw_data)
+	popup_menu.add_item('Purge Generated Asset Resources', menu_ids.purge_generated_assets)
 	popup_menu.add_item('Import All Assets', menu_ids.asset_importer)
 	popup_menu.add_item('Run Test Function', menu_ids.test)
 	
@@ -96,9 +98,10 @@ func _handle_menu_event(id) -> void:
 		_process_raw_data()
 	elif id == menu_ids.asset_importer:
 		thread.start(_import_assets)
+	elif id == menu_ids.purge_generated_assets:
+		thread.start(_purge_assets)
 	elif id == menu_ids.test:
 		thread.start(_test)
-
 
 ## Testing asset importer in its own window
 func _open_asset_importer() -> void:
@@ -130,9 +133,16 @@ func _rig_config() -> void:
 	HumanizerSkeletonConfig.new().run()
 
 func _import_assets() -> void:
-	HumanizerAssetImporter.new().run()
+	HumanizerAssetImporter.new().run(false)
+	
+func _purge_assets() -> void:
+	HumanizerAssetImporter.new().run(true)
 	
 func _test() -> void:
-	var scene = load("res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_scene.tscn").instantiate()
-	printerr((scene as MeshInstance3D).get_surface_override_material(0).resource_path)
+	var path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/RightEye-LowPolyEyeball_mhclo.res"
+	var res = load(path)
+	print(res)
+	for i in 50:
+		await get_tree().process_frame
+	print(res is MHCLO)
 #endregion

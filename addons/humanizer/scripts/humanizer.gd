@@ -14,7 +14,7 @@ var shapekey_data: Dictionary:
 		if _shapekey_data.size() == 0:
 			_shapekey_data = HumanizerUtils.get_shapekey_data()
 		return _shapekey_data
-var _helper_vertex: Array = []
+var _helper_vertex: PackedVector3Array = []
 
 @export var human_config: HumanConfig:
 	set(value):
@@ -221,7 +221,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 	var rig = human_config.rig.split('-')[0]
 	var bone_weights = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].bone_weights_json_path)
 	var bone_count = bone_weights.bones[0].size()
-	var mhclo: MHCLO = load(asset.mhclo_path)
+	var mhclo: MHCLO = load(asset.mhclo_path) 
 	var mh2gd_index = mhclo.mh2gd_index
 	var mesh: ArrayMesh
 	var mi: MeshInstance3D
@@ -242,8 +242,8 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 		var v_data = mhclo.vertex_data[mh_id]
 		if v_data.format == 'single':
 			var id = v_data.vertex[0]
-			bones.append(bone_weights.bones[id])
-			weights.append(bone_weights.weights[id])
+			bones = bone_weights.bones[id]
+			weights = bone_weights.weights[id]
 		else:
 			for i in 3:
 				var v_id = v_data.vertex[i]
@@ -372,14 +372,15 @@ func set_shapekeys(shapekeys: Dictionary):
 
 		if res != null:   # Body parts/clothes
 			var mhclo: MHCLO = load(res.mhclo_path)
-			var new_mesh = mhclo.build_fitted_mesh(mesh, _helper_vertex)
+			var new_mesh = MeshOperations.build_fitted_mesh(mesh, _helper_vertex, mhclo)
 			child.mesh = new_mesh
 		else:
 			var surf_arrays = (mesh as ArrayMesh).surface_get_arrays(0)
 			var fmt = mesh.surface_get_format(0)
 			var lods = {}
 			var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
-			surf_arrays[Mesh.ARRAY_VERTEX] = vtx_arrays.slice(0, vtx_arrays.size())
+			print(_helper_vertex[0])
+			surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
 			mesh.clear_surfaces()
 			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], lods, fmt)
 	
