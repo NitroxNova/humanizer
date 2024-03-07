@@ -99,6 +99,7 @@ func _scan_path(path: String) -> void:
 
 func _generate_material(path: String, textures: Dictionary) -> void:
 	# Create material
+	print('Generating material for ' + path.get_file())
 	var mat = StandardMaterial3D.new()
 	mat.cull_mode = BaseMaterial3D.CULL_BACK
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
@@ -214,7 +215,6 @@ func _import_asset(path: String, asset_name: String, data: Dictionary):
 	elif asset_type == HumanizerRegistry.AssetType.Clothes:
 		HumanizerRegistry.add_clothes_asset(resource)
 
-	print('Creating packed scene for ' + asset_name)
 	# Create packed scene
 	var mi = MeshInstance3D.new()
 	var scene = PackedScene.new()

@@ -53,6 +53,10 @@ func load_human() -> void:
 func reset_human() -> void:
 	_helper_vertex = shapekey_data.basis.duplicate(true)
 	baked = false
+	for clothes in human_config.clothes:
+		remove_clothes(clothes)
+	for bp in human_config.body_parts:
+		clear_body_part(bp.slot)
 	human_config = HumanConfig.new()
 	set_rig(HumanizerConfig.default_skeleton)
 	on_human_reset.emit()
@@ -362,6 +366,7 @@ func _get_asset(mesh_name: String) -> HumanAsset:
 	return res
 
 func update_hide_vertices() -> void:
+	var skin_mat = mesh.get_surface_override_material(0)
 	var arrays: Array = (mesh.mesh as ArrayMesh).surface_get_arrays(0)
 	var delete_verts_gd := []
 	delete_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
@@ -416,11 +421,8 @@ func update_hide_vertices() -> void:
 		new_arrays[Mesh.ARRAY_INDEX].append_array(slice)
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_arrays, [], lods, fmt)
 	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
-	var mi = MeshInstance3D.new()
-	mi.mesh = new_mesh
-	add_child(mi)
-	mi.owner = EditorInterface.get_edited_scene_root()
 	_set_mesh(new_mesh)
+	mesh.set_surface_override_material(0, skin_mat)
 
 func set_shapekeys(shapekeys: Dictionary):
 	var prev_sk = human_config.shapekeys
@@ -497,8 +499,7 @@ func bake() -> void:
 		printerr('Already baked.  Reset human to start over or load another config.')
 		return
 	_combine_meshes()
-	adjust_skeleton()
-	_bake_shapekeys()
+	#adjust_skeleton()
 	baked = true
 	on_bake_complete.emit()
 	notify_property_list_changed()
@@ -523,30 +524,3 @@ func _combine_meshes() -> void:
 		i += 1
 		child.queue_free()
 	_set_mesh(new_mesh)
-	set_shapekeys(human_config.shapekeys)
-	
-func _bake_shapekeys() -> void:
-	var newmesh = ArrayMesh.new()
-	newmesh.blend_shape_mode = Mesh.BLEND_SHAPE_MODE_NORMALIZED
-	
-	for surface in mesh.mesh.get_surface_count():
-		var meshdata = mesh.mesh.surface_get_arrays(surface)
-		var newarrays = meshdata.duplicate(true)
-		var blendarrays = mesh.mesh.surface_get_blend_shape_arrays(surface)
-
-		for sk in mesh.get_blend_shape_count():
-			var value = mesh.get_blend_shape_value(sk)
-			if value == 0:
-				continue
-			for vtx in meshdata[Mesh.ARRAY_VERTEX].size():
-				newarrays[Mesh.ARRAY_VERTEX][vtx] += value * (blendarrays[sk][Mesh.ARRAY_VERTEX][vtx] - meshdata[Mesh.ARRAY_VERTEX][vtx])
-			for vtx in meshdata[Mesh.ARRAY_NORMAL].size():
-				newarrays[Mesh.ARRAY_NORMAL][vtx] += value * (blendarrays[sk][Mesh.ARRAY_NORMAL][vtx] - meshdata[Mesh.ARRAY_NORMAL][vtx])
-			for vtx in meshdata[Mesh.ARRAY_TANGENT].size():
-				newarrays[Mesh.ARRAY_TANGENT][vtx] += value * (blendarrays[sk][Mesh.ARRAY_TANGENT][vtx] - meshdata[Mesh.ARRAY_TANGENT][vtx])
-	
-		newmesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, newarrays)
-		newmesh.surface_set_name(surface, mesh.mesh.surface_get_name(surface))
-		newmesh.surface_set_material(surface, mesh.mesh.surface_get_material(surface))
-	
-	_set_mesh(newmesh)

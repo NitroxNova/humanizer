@@ -14,7 +14,6 @@ enum SECTION {header,vertices,delete_vertices}
 var obj_file_name :String
 
 func _init(filename:String):
-	print("reading " + filename)
 	var unique_lines = {}
 	var file = FileAccess.open(filename,FileAccess.READ)
 	var current_section = SECTION.header
