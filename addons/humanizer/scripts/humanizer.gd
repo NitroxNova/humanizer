@@ -270,8 +270,11 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 							bones.append(l_bone)
 							weights.append(l_weight)
 						
-		bones.resize(8)
-		weights.resize(8)
+		# only 4 bone weights, this may cause problems later
+		# also, should probably normalize weights array, but tested weights were close enough to 1				
+		while bones.size() < bone_count:
+			bones.append(0)
+			weights.append(0)
 		
 		if mh_id < mh2gd_index.size():
 			var g_id_array = mh2gd_index[mh_id]
