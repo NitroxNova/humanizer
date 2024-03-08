@@ -151,7 +151,7 @@ func _generate_material(path: String, textures: Dictionary) -> void:
 	if textures.has('ao'):
 		textures.erase('ao')
 		
-	var mat_path = path.path_join(path.get_file() + '_material.res')
+	var mat_path = path.path_join(path.get_file() + '_material.tres')
 	ResourceSaver.save(mat, mat_path)
 
 func _import_asset(path: String, asset_name: String, data: Dictionary):
