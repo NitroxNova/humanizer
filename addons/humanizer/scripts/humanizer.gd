@@ -55,8 +55,8 @@ func reset_human() -> void:
 	baked = false
 	for clothes in human_config.clothes:
 		remove_clothes(clothes)
-	for bp in human_config.body_parts:
-		clear_body_part(bp.slot)
+	for slot in human_config.body_parts:
+		clear_body_part(slot)
 	human_config = HumanConfig.new()
 	set_rig(HumanizerConfig.default_skeleton)
 	on_human_reset.emit()
