@@ -53,9 +53,9 @@ func load_human() -> void:
 func reset_human() -> void:
 	_helper_vertex = shapekey_data.basis.duplicate(true)
 	baked = false
-	for clothes in human_config.clothes:
+	for clothes in human_config.clothes.duplicate():
 		remove_clothes(clothes)
-	for slot in human_config.body_parts:
+	for slot in human_config.body_parts.duplicate():
 		clear_body_part(slot)
 	human_config = HumanConfig.new()
 	set_rig(HumanizerConfig.default_skeleton)
