@@ -97,13 +97,17 @@ static func _scan_dir(path: String, asset_type: AssetType) -> void:
 	for folder in contents.dirs:
 		_scan_dir(folder, asset_type)
 	for file in contents.files:
-		if 'mhclo' not in file.get_file() and file.get_extension() == 'tres':
-			print(file)
-			if asset_type == AssetType.BodyPart:
-				var asset = load(file)
-				if asset is HumanClothes:
-					printerr(file.get_file() + ' was imported as clothes but should be a body part.  Please Re-import.')
-					continue
-				add_body_part_asset(asset)
-			else:
-				add_clothes_asset(load(file))
+		if file.get_extension() not in ['tres', 'res']:
+			continue
+		var suffix: String = file.get_file().rsplit('.', true, 1)[0].split('_')[-1]
+		if suffix in ['material', 'mhclo', 'mesh']:
+			continue
+		if asset_type == AssetType.BodyPart:
+			var asset = load(file)
+			if asset is HumanClothes:
+				printerr(file.get_file() + ' was imported as clothes but should be a body part.  Please Re-import.')
+				continue
+			print(file.get_file())
+			add_body_part_asset(asset)
+		else:
+			add_clothes_asset(load(file))
