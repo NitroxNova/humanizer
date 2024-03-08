@@ -123,7 +123,7 @@ func _generate_material(path: String, textures: Dictionary) -> void:
 				normal = textures[t]
 			elif t == 'ao':
 				ao = textures[t]
-			elif albedo == '': # Get first albedo as default
+			elif albedo == '' and t != 'overlay': # Get first albedo as default
 				albedo = textures[t]
 
 		# Create normal map from albedo as bump map for eyebrows
