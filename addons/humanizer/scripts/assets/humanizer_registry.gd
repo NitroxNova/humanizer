@@ -107,7 +107,6 @@ static func _scan_dir(path: String, asset_type: AssetType) -> void:
 			if asset is HumanClothes:
 				printerr(file.get_file() + ' was imported as clothes but should be a body part.  Please Re-import.')
 				continue
-			print(file.get_file())
 			add_body_part_asset(asset)
 		else:
 			add_clothes_asset(load(file))

@@ -314,9 +314,13 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 	human_config.body_part_materials[set_slot] = texture
 	for child in get_children():
 		if child.name == bp.resource_name:
-			var base = child.material_config.overlays[0]
-			base.albedo_texture_path = bp.textures[texture]
-			child.material_config.set_base_textures(base)
+			if child is HumanizerMeshInstance:
+				var base = child.material_config.overlays[0]
+				base.albedo_texture_path = bp.textures[texture]
+				child.material_config.set_base_textures(base)
+			else:
+				var mat: BaseMaterial3D = (child as MeshInstance3D).get_surface_override_material(0)
+				mat.albedo_texture = load(bp.textures[texture])
 
 func apply_clothes(cl: HumanClothes) -> void:
 	for wearing in human_config.clothes:
