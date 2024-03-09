@@ -6,6 +6,8 @@ const humanizer_mesh_instance = preload('res://addons/humanizer/scripts/assets/h
 const _BASE_MESH_NAME: String = 'Human'
 var skeleton: Skeleton3D
 var mesh: MeshInstance3D
+var main_collider: CollisionShape3D
+
 var baked := false
 var scene_loaded: bool = false
 var _shapekey_data: Dictionary = {}
@@ -34,7 +36,33 @@ func _ready() -> void:
 		load_human()
 	else:  # Due to godot bug on empty dict 
 		reset_human()
-	
+
+####  HumanConfig Resource Management ####
+func _add_child_node(node: Node) -> void:
+	add_child(node)
+	if Engine.is_editor_hint():
+		node.owner = EditorInterface.get_edited_scene_root()
+
+func _delete_child_node(node: Node) -> void:
+	remove_child(node)
+	node.queue_free()
+
+func _delete_child_by_name(name: String) -> void:
+	for child in get_children():
+		if child.name == name:
+			_delete_child_node(child)
+
+func _get_asset_by_name(mesh_name: String) -> HumanAsset:
+	var res: HumanAsset = null
+	for slot in human_config.body_parts:
+		if human_config.body_parts[slot].resource_name == mesh_name:
+			res = human_config.body_parts[slot] as HumanBodyPart
+	if res == null:
+		for cl in human_config.clothes:
+			if cl.resource_name == mesh_name:
+				res = cl as HumanClothes
+	return res
+
 func load_human() -> void:
 	if human_config == null:
 		reset_human()
@@ -53,10 +81,9 @@ func load_human() -> void:
 func reset_human() -> void:
 	_helper_vertex = shapekey_data.basis.duplicate(true)
 	baked = false
-	for clothes in human_config.clothes.duplicate():
-		remove_clothes(clothes)
-	for slot in human_config.body_parts.duplicate():
-		clear_body_part(slot)
+	for child in get_children():
+		if child is MeshInstance3D:
+			_delete_child_node(child)
 	human_config = HumanConfig.new()
 	set_rig(HumanizerConfig.default_skeleton)
 	on_human_reset.emit()
@@ -92,25 +119,232 @@ func serialize(name: String) -> void:
 	print_debug('Saved human to : ' + path)
 	notify_property_list_changed()
 
-func _set_mesh(meshdata: ArrayMesh) -> void:
+func bake() -> void:
+	if baked:
+		printerr('Already baked.  Reset human to start over or load another config.')
+		return
+	_combine_meshes()
+	adjust_skeleton()
+	baked = true
+	on_bake_complete.emit()
+	notify_property_list_changed()
+
+func _combine_meshes() -> void:
+	var new_mesh = ArrayMesh.new()
+	new_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
+	for shape_id in mesh.get_blend_shape_count():
+		var shape_name = mesh.mesh.get_blend_shape_name(shape_id)
+		new_mesh.add_blend_shape(shape_name)
+	var i = 0
+	for child in get_children():
+		if not child is MeshInstance3D:
+			continue
+		var surface_arrays = child.mesh.surface_get_arrays(0)
+		var blend_shape_arrays = child.mesh.surface_get_blend_shape_arrays(0)
+		var lods := {}
+		var format = child.mesh.surface_get_format(0)
+		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_arrays, blend_shape_arrays, lods, format)
+		new_mesh.surface_set_name(i, child.name)
+		new_mesh.surface_set_material(i,  child.get_surface_override_material(0))
+		i += 1
+		child.queue_free()
+	_set_body_mesh(new_mesh)
+
+#### Child Mesh Management ####
+func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	for child in get_children():
 		if child is MeshInstance3D and child.name == _BASE_MESH_NAME:
-			remove_child(child)
-			child.queue_free()
+			_delete_child_node(child)
 	mesh = MeshInstance3D.new()
 	mesh.name = _BASE_MESH_NAME
 	mesh.mesh = meshdata
 	mesh.set_script(humanizer_mesh_instance)
-	add_child(mesh)
-	if Engine.is_editor_hint():
-		mesh.owner = EditorInterface.get_edited_scene_root()
+	_add_child_node(mesh)
+
+func set_body_part(bp: HumanBodyPart) -> void:
+	if human_config.body_parts.has(bp.slot):
+		var current = human_config.body_parts[bp.slot]
+		_delete_child_by_name(current.resource_name)
+	human_config.body_parts[bp.slot] = bp
+	var bp_scene = load(bp.scene_path).instantiate() as MeshInstance3D
+	_add_child_node(bp_scene)
+	_add_bone_weights(bp)
+	set_shapekeys(human_config.shapekeys)
+	#notify_property_list_changed()
+
+func apply_clothes(cl: HumanClothes) -> void:
+	for wearing in human_config.clothes:
+		for slot in cl.slots:
+			if slot in wearing.slots:
+				remove_clothes(wearing)
+	print('applying ' + cl.resource_name + ' clothes')
+	if not cl in human_config.clothes:
+		human_config.clothes.append(cl)
+	var mi = load(cl.scene_path).instantiate()
+	_add_child_node(mi)
+	_add_bone_weights(cl)
+	set_shapekeys(human_config.shapekeys)
+
+func clear_body_part(clear_slot: String) -> void:
+	for slot in human_config.body_parts:
+		if slot == clear_slot:
+			var res = human_config.body_parts[clear_slot]
+			_delete_child_by_name(res.resource_name)
+			human_config.body_parts.erase(clear_slot)
+			return
+
+func clear_clothes_in_slot(slot: String) -> void:
+	for cl in human_config.clothes:
+		if slot in cl.slots:
+			print('clearing ' + cl.resource_name + ' clothes')
+			remove_clothes(cl)
+					
+func remove_clothes(cl: HumanClothes) -> void:
+	for child in get_children():
+		if child.name == cl.resource_name:
+			#print('removing ' + cl.resource_name + ' clothes')
+			_delete_child_node(child)
+			on_clothes_removed.emit(cl)
+	human_config.clothes.erase(cl)
+
+func update_hide_vertices() -> void:
+	var skin_mat = mesh.get_surface_override_material(0)
+	var arrays: Array = (mesh.mesh as ArrayMesh).surface_get_arrays(0)
+	var delete_verts_gd := []
+	delete_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
+	var delete_verts_mh := []
+	delete_verts_mh.resize(_helper_vertex.size())
+	var remap_verts_gd := [] #old to new
+	remap_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
+	remap_verts_gd.fill(-1)
 	
+	for child in get_children():
+		if not child is MeshInstance3D:
+			continue
+		var res: HumanAsset = _get_asset_by_name(child.name)
+		if res != null:
+			for entry in load(res.mhclo_path).delete_vertices:
+				if entry.size() == 1:
+					delete_verts_mh[entry[0]] = true
+				else:
+					for mh_id in range(entry[0], entry[1] + 1):
+						delete_verts_mh[mh_id] = true
+			
+	for gd_id in arrays[Mesh.ARRAY_VERTEX].size():
+		var mh_id = arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+		if delete_verts_mh[mh_id]:
+			delete_verts_gd[gd_id] = true
+	
+	var new_gd_id = 0
+	for old_gd_id in arrays[Mesh.ARRAY_VERTEX].size():
+		if not delete_verts_gd[old_gd_id]:
+			remap_verts_gd[old_gd_id] = new_gd_id
+			new_gd_id += 1
+	
+	var new_mesh = ArrayMesh.new()
+	var new_arrays := []
+	new_arrays.resize(Mesh.ARRAY_MAX)
+	new_arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
+	new_arrays[Mesh.ARRAY_CUSTOM0] = PackedFloat32Array()
+	new_arrays[Mesh.ARRAY_INDEX] = PackedInt32Array()
+	new_arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
+	var lods := {}
+	var fmt = mesh.mesh.surface_get_format(0)
+	for gd_id in delete_verts_gd.size():
+		if not delete_verts_gd[gd_id]:
+			new_arrays[Mesh.ARRAY_VERTEX].append(arrays[Mesh.ARRAY_VERTEX][gd_id])
+			new_arrays[Mesh.ARRAY_CUSTOM0].append(arrays[Mesh.ARRAY_CUSTOM0][gd_id])
+			new_arrays[Mesh.ARRAY_TEX_UV].append(arrays[Mesh.ARRAY_TEX_UV][gd_id])
+	for i in arrays[Mesh.ARRAY_INDEX].size()/3:
+		var slice = arrays[Mesh.ARRAY_INDEX].slice(i*3,(i+1)*3)
+		if delete_verts_gd[slice[0]] or delete_verts_gd[slice[1]] or delete_verts_gd[slice[2]]:
+			continue
+		slice = [remap_verts_gd[slice[0]], remap_verts_gd[slice[1]], remap_verts_gd[slice[2]]]
+		new_arrays[Mesh.ARRAY_INDEX].append_array(slice)
+	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_arrays, [], lods, fmt)
+	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
+	_set_body_mesh(new_mesh)
+	mesh.set_surface_override_material(0, skin_mat)
+
+#### Material Management ####
+func set_skin_texture(name: String) -> void:
+	if not HumanizerRegistry.skin_textures.has(name):
+		human_config.body_part_materials['skin'] = ''
+		return
+	var base_texture = HumanizerRegistry.skin_textures[name].albedo
+	mesh.material_config.set_base_textures(HumanizerOverlay.from_dict({'name': name, 'albedo': base_texture}))
+
+func set_body_part_material(set_slot: String, texture: String) -> void:
+	#print('setting material ' + texture + ' on ' + set_slot)
+	var bp = human_config.body_parts[set_slot]
+	human_config.body_part_materials[set_slot] = texture
+	for child in get_children():
+		if child.name == bp.resource_name:
+			if child is HumanizerMeshInstance:
+				var base = child.material_config.overlays[0]
+				base.albedo_texture_path = bp.textures[texture]
+				child.material_config.set_base_textures(base)
+			else:
+				var mat: BaseMaterial3D = (child as MeshInstance3D).get_surface_override_material(0)
+				mat.albedo_texture = load(bp.textures[texture])
+
+func set_clothes_material(cl_name: String, texture: String) -> void:
+	print('setting material ' + texture + ' on ' + cl_name)
+	var cl: HumanClothes = HumanizerRegistry.clothes[cl_name]
+	for child in get_children():
+		if child.name == name:
+			var base = child.material_config.overlays[0]
+			base.albedo_texture_path = cl.textures[texture]
+			child.material_config.set_base_textures(base)
+
+#### Shapekeys ####
+func set_shapekeys(shapekeys: Dictionary):
+	var prev_sk = human_config.shapekeys
+	if _helper_vertex.size() == 0:
+		_helper_vertex = shapekey_data.basis.duplicate(true)
+	for sk in shapekeys:
+		var prev_val: float = prev_sk.get(sk, 0)
+		if prev_val == shapekeys[sk]:
+			continue
+		for mh_id in shapekey_data.shapekeys[sk]:
+			_helper_vertex[mh_id] += shapekey_data.shapekeys[sk][mh_id] * (shapekeys[sk] - prev_val)
+				
+	for child in get_children():
+		if not child is MeshInstance3D:
+			continue
+		var mesh: ArrayMesh = child.mesh
+
+		var res: HumanAsset = _get_asset_by_name(child.name)
+		if res != null:   # Body parts/clothes
+			var mhclo: MHCLO = load(res.mhclo_path)
+			var new_mesh = MeshOperations.build_fitted_mesh(mesh, _helper_vertex, mhclo)
+			child.mesh = new_mesh
+		else:             # Base mesh
+			if child.name != _BASE_MESH_NAME:
+				printerr('Failed to match asset resource for mesh ' + child.name + ' which is not the base mesh.')
+				return
+			var surf_arrays = (mesh as ArrayMesh).surface_get_arrays(0)
+			var fmt = mesh.surface_get_format(0)
+			var lods = {}
+			var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
+			surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
+			for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
+				var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+				surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
+			mesh.clear_surfaces()
+			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], lods, fmt)
+	
+	for sk in shapekeys:
+		human_config.shapekeys[sk] = shapekeys[sk]
+	if main_collider != null:
+		adjust_main_collider()
+
+#### Animation ####
 func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	# Delete existing skeleton
 	for child in get_children():
 		if child is Skeleton3D:
-			remove_child(child)
-			child.queue_free()
+			_delete_child_node(child)
 			
 	if rig_name == '':
 		return
@@ -180,50 +414,13 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	# Set rig in scene
 	if retargeted:
 		skeleton = rig.load_retargeted_skeleton()
-	add_child(skeleton)
+	_add_child_node(skeleton)
 	skeleton.unique_name_in_owner = true
-	if Engine.is_editor_hint():
-		skeleton.owner = EditorInterface.get_edited_scene_root()
 	_reset_animator()
 	# Set new mesh
-	_set_mesh(skinned_mesh)
+	_set_body_mesh(skinned_mesh)
 	mesh.skeleton = skeleton.get_path()
 	adjust_skeleton()
-
-func _reset_animator() -> void:
-	for child in get_children():
-		if child is AnimationTree:
-			remove_child(child)
-			child.queue_free()
-	if HumanizerConfig.default_animation_tree != null:
-		var tree := HumanizerConfig.default_animation_tree.instantiate() as AnimationTree
-		if tree == null:
-			printerr('Default animation tree scene does not have an AnimationTree as its root node')
-			return
-		add_child(tree)
-		if Engine.is_editor_hint():
-			tree.owner = EditorInterface.get_edited_scene_root()
-		set_editable_instance(tree, true)
-		
-func set_skin_texture(name: String) -> void:
-	if not HumanizerRegistry.skin_textures.has(name):
-		human_config.body_part_materials['skin'] = ''
-		return
-	var base_texture = HumanizerRegistry.skin_textures[name].albedo
-	mesh.material_config.set_base_textures(HumanizerOverlay.from_dict({'name': name, 'albedo': base_texture}))
-
-func set_body_part(bp: HumanBodyPart) -> void:
-	if human_config.body_parts.has(bp.slot):
-		var current = human_config.body_parts[bp.slot]
-		_clear_mesh(current.resource_name)
-	human_config.body_parts[bp.slot] = bp
-	var bp_scene = load(bp.scene_path).instantiate() as MeshInstance3D
-	add_child(bp_scene)
-	if Engine.is_editor_hint():
-		bp_scene.owner = EditorInterface.get_edited_scene_root()
-	_add_bone_weights(bp)
-	set_shapekeys(human_config.shapekeys)
-	#notify_property_list_changed()
 
 func _add_bone_weights(asset: HumanAsset) -> void:
 	var rig = human_config.rig.split('-')[0]
@@ -294,200 +491,6 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 	mi.skeleton = skeleton.get_path()
 	mi.skin = skeleton.create_skin_from_rest_transforms()
 
-func clear_body_part(clear_slot: String) -> void:
-	for slot in human_config.body_parts:
-		if slot == clear_slot:
-			var res = human_config.body_parts[clear_slot]
-			_clear_mesh(res.resource_name)
-			human_config.body_parts.erase(clear_slot)
-			return
-
-func _clear_mesh(name: String) -> void:
-	for child in get_children():
-		if child.name == name:
-			remove_child(child)
-			child.queue_free()
-	
-func set_body_part_material(set_slot: String, texture: String) -> void:
-	#print('setting material ' + texture + ' on ' + set_slot)
-	var bp = human_config.body_parts[set_slot]
-	human_config.body_part_materials[set_slot] = texture
-	for child in get_children():
-		if child.name == bp.resource_name:
-			if child is HumanizerMeshInstance:
-				var base = child.material_config.overlays[0]
-				base.albedo_texture_path = bp.textures[texture]
-				child.material_config.set_base_textures(base)
-			else:
-				var mat: BaseMaterial3D = (child as MeshInstance3D).get_surface_override_material(0)
-				mat.albedo_texture = load(bp.textures[texture])
-
-func apply_clothes(cl: HumanClothes) -> void:
-	for wearing in human_config.clothes:
-		for slot in cl.slots:
-			if slot in wearing.slots:
-				remove_clothes(wearing)
-	print('applying ' + cl.resource_name + ' clothes')
-	if not cl in human_config.clothes:
-		human_config.clothes.append(cl)
-	var mi = load(cl.scene_path).instantiate()
-	add_child(mi)
-	if Engine.is_editor_hint():
-		mi.owner = EditorInterface.get_edited_scene_root()
-	_add_bone_weights(cl)
-	set_shapekeys(human_config.shapekeys)
-
-func clear_clothes_in_slot(slot: String) -> void:
-	for cl in human_config.clothes:
-		if slot in cl.slots:
-			print('clearing ' + cl.resource_name + ' clothes')
-			remove_clothes(cl)
-					
-func remove_clothes(cl: HumanClothes) -> void:
-	for child in get_children():
-		if child.name == cl.resource_name:
-			#print('removing ' + cl.resource_name + ' clothes')
-			remove_child(child)
-			child.queue_free()
-			on_clothes_removed.emit(cl)
-	human_config.clothes.erase(cl)
-	
-func set_clothes_material(cl_name: String, texture: String) -> void:
-	print('setting material ' + texture + ' on ' + cl_name)
-	var cl: HumanClothes = HumanizerRegistry.clothes[cl_name]
-	for child in get_children():
-		if child.name == name:
-			var base = child.material_config.overlays[0]
-			base.albedo_texture_path = cl.textures[texture]
-			child.material_config.set_base_textures(base)
-
-func _get_asset(mesh_name: String) -> HumanAsset:
-	var res: HumanAsset = null
-	for slot in human_config.body_parts:
-		if human_config.body_parts[slot].resource_name == mesh_name:
-			res = human_config.body_parts[slot] as HumanBodyPart
-	if res == null:
-		for cl in human_config.clothes:
-			if cl.resource_name == mesh_name:
-				res = cl as HumanClothes
-	return res
-
-func update_hide_vertices() -> void:
-	var skin_mat = mesh.get_surface_override_material(0)
-	var arrays: Array = (mesh.mesh as ArrayMesh).surface_get_arrays(0)
-	var delete_verts_gd := []
-	delete_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
-	var delete_verts_mh := []
-	delete_verts_mh.resize(_helper_vertex.size())
-	var remap_verts_gd := [] #old to new
-	remap_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
-	remap_verts_gd.fill(-1)
-	
-	for child in get_children():
-		if not child is MeshInstance3D:
-			continue
-		var res: HumanAsset = _get_asset(child.name)
-		if res != null:
-			for entry in load(res.mhclo_path).delete_vertices:
-				if entry.size() == 1:
-					delete_verts_mh[entry[0]] = true
-				else:
-					for mh_id in range(entry[0], entry[1] + 1):
-						delete_verts_mh[mh_id] = true
-			
-	for gd_id in arrays[Mesh.ARRAY_VERTEX].size():
-		var mh_id = arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-		if delete_verts_mh[mh_id]:
-			delete_verts_gd[gd_id] = true
-	
-	var new_gd_id = 0
-	for old_gd_id in arrays[Mesh.ARRAY_VERTEX].size():
-		if not delete_verts_gd[old_gd_id]:
-			remap_verts_gd[old_gd_id] = new_gd_id
-			new_gd_id += 1
-	
-	var new_mesh = ArrayMesh.new()
-	var new_arrays := []
-	new_arrays.resize(Mesh.ARRAY_MAX)
-	new_arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
-	new_arrays[Mesh.ARRAY_CUSTOM0] = PackedFloat32Array()
-	new_arrays[Mesh.ARRAY_INDEX] = PackedInt32Array()
-	new_arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
-	var lods := {}
-	var fmt = mesh.mesh.surface_get_format(0)
-	for gd_id in delete_verts_gd.size():
-		if not delete_verts_gd[gd_id]:
-			new_arrays[Mesh.ARRAY_VERTEX].append(arrays[Mesh.ARRAY_VERTEX][gd_id])
-			new_arrays[Mesh.ARRAY_CUSTOM0].append(arrays[Mesh.ARRAY_CUSTOM0][gd_id])
-			new_arrays[Mesh.ARRAY_TEX_UV].append(arrays[Mesh.ARRAY_TEX_UV][gd_id])
-	for i in arrays[Mesh.ARRAY_INDEX].size()/3:
-		var slice = arrays[Mesh.ARRAY_INDEX].slice(i*3,(i+1)*3)
-		if delete_verts_gd[slice[0]] or delete_verts_gd[slice[1]] or delete_verts_gd[slice[2]]:
-			continue
-		slice = [remap_verts_gd[slice[0]], remap_verts_gd[slice[1]], remap_verts_gd[slice[2]]]
-		new_arrays[Mesh.ARRAY_INDEX].append_array(slice)
-	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_arrays, [], lods, fmt)
-	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
-	_set_mesh(new_mesh)
-	mesh.set_surface_override_material(0, skin_mat)
-
-func set_shapekeys(shapekeys: Dictionary):
-	var prev_sk = human_config.shapekeys
-	if _helper_vertex.size() == 0:
-		_helper_vertex = shapekey_data.basis.duplicate(true)
-	for sk in shapekeys:
-		var prev_val: float = prev_sk.get(sk, 0)
-		if prev_val == shapekeys[sk]:
-			continue
-		for mh_id in shapekey_data.shapekeys[sk]:
-			_helper_vertex[mh_id] += shapekey_data.shapekeys[sk][mh_id] * (shapekeys[sk] - prev_val)
-				
-	for child in get_children():
-		if not child is MeshInstance3D:
-			continue
-		var mesh: ArrayMesh = child.mesh
-
-		var res: HumanAsset = _get_asset(child.name)
-		if res != null:   # Body parts/clothes
-			var mhclo: MHCLO = load(res.mhclo_path)
-			var new_mesh = MeshOperations.build_fitted_mesh(mesh, _helper_vertex, mhclo)
-			child.mesh = new_mesh
-		else:             # Base mesh
-			if child.name != _BASE_MESH_NAME:
-				printerr('Failed to match asset resource for mesh ' + child.name + ' which is not the base mesh.')
-				return
-			var surf_arrays = (mesh as ArrayMesh).surface_get_arrays(0)
-			var fmt = mesh.surface_get_format(0)
-			var lods = {}
-			var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
-			surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
-			for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
-				var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-				surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
-			mesh.clear_surfaces()
-			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], lods, fmt)
-	
-	for sk in shapekeys:
-		human_config.shapekeys[sk] = shapekeys[sk]
-	
-	adjust_main_collider()
-
-func adjust_main_collider():
-	var height = _helper_vertex[14570].y
-	$Main_Collider.shape.height = height
-	$Main_Collider.position.y = height/2
-	var shoulder_id = 16951 #16959
-	var waist_id = 17346
-	var hips_id = 18127
-	var width_ids = [shoulder_id,waist_id,hips_id]
-	var max_width = 0
-	for mh_id in width_ids:
-		var vertex_position = _helper_vertex[mh_id]
-		var distance = Vector2(vertex_position.x,vertex_position.z).distance_to(Vector2.ZERO)
-		if distance > max_width:
-			max_width = distance
-	$Main_Collider.shape.radius = max_width	
-		
 func adjust_skeleton() -> void:
 	var shapekey_data = HumanizerUtils.get_shapekey_data()
 	skeleton.reset_bone_poses()
@@ -519,33 +522,46 @@ func adjust_skeleton() -> void:
 			child.skin = skeleton.create_skin_from_rest_transforms()
 	print('Fit skeleton to mesh')
 
-func bake() -> void:
-	if baked:
-		printerr('Already baked.  Reset human to start over or load another config.')
-		return
-	_combine_meshes()
-	#adjust_skeleton()
-	baked = true
-	on_bake_complete.emit()
-	notify_property_list_changed()
-	
-func _combine_meshes() -> void:
-	var new_mesh = ArrayMesh.new()
-	new_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
-	for shape_id in mesh.get_blend_shape_count():
-		var shape_name = mesh.mesh.get_blend_shape_name(shape_id)
-		new_mesh.add_blend_shape(shape_name)
-	var i = 0
+func _reset_animator() -> void:
 	for child in get_children():
-		if not child is MeshInstance3D:
-			continue
-		var surface_arrays = child.mesh.surface_get_arrays(0)
-		var blend_shape_arrays = child.mesh.surface_get_blend_shape_arrays(0)
-		var lods := {}
-		var format = child.mesh.surface_get_format(0)
-		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_arrays, blend_shape_arrays, lods, format)
-		new_mesh.surface_set_name(i, child.name)
-		new_mesh.surface_set_material(i,  child.get_surface_override_material(0))
-		i += 1
-		child.queue_free()
-	_set_mesh(new_mesh)
+		if child is AnimationTree:
+			_delete_child_node(child)
+	if HumanizerConfig.default_animation_tree != null:
+		var tree := HumanizerConfig.default_animation_tree.instantiate() as AnimationTree
+		if tree == null:
+			printerr('Default animation tree scene does not have an AnimationTree as its root node')
+			return
+		_add_child_node(tree)
+		set_editable_instance(tree, true)
+
+#### Components ####
+func set_component_state(enabled: bool, component: String) -> void:
+	if enabled:
+		human_config.components.append(component)
+		if component == 'main_collider':
+			main_collider = CollisionShape3D.new()
+			main_collider.shape = CapsuleShape3D.new()
+			main_collider.name = 'MainCollider'
+			_add_child_node(main_collider)
+			adjust_main_collider()
+	else:
+		human_config.components.erase(component)
+		if component == 'main_collider':
+			_delete_child_node(main_collider)
+			main_collider = null
+
+func adjust_main_collider():
+	var height = _helper_vertex[14570].y
+	main_collider.shape.height = height
+	main_collider.position.y = height/2
+	var shoulder_id = 16951 #16959
+	var waist_id = 17346
+	var hips_id = 18127
+	var width_ids = [shoulder_id,waist_id,hips_id]
+	var max_width = 0
+	for mh_id in width_ids:
+		var vertex_position = _helper_vertex[mh_id]
+		var distance = Vector2(vertex_position.x,vertex_position.z).distance_to(Vector2.ZERO)
+		if distance > max_width:
+			max_width = distance
+	main_collider.shape.radius = max_width	

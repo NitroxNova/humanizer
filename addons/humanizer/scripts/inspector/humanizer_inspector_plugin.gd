@@ -25,7 +25,13 @@ func _parse_category(human, category):
 				child.queue_free()
 			if child.name == 'SaveMenu':
 				delete = true
-		return	
+		return
+	
+	# Components Inspector
+	scene.get_node('%MainColliderCheckBox').button_pressed = 'main_collider' in human.human_config.components
+	scene.get_node('%RagdollCheckBox').button_pressed = 'ragdoll' in human.human_config.components
+	scene.get_node('%MainColliderCheckBox').toggled.connect(human.set_component_state.bind('main_collider'))
+	scene.get_node('%RagdollCheckBox').toggled.connect(human.set_component_state.bind('ragdoll'))
 
 	# BodyParts inspector
 	var bp_container = scene.get_node('%BodyPartsContainer') as BodyPartsInspector
@@ -64,6 +70,7 @@ func _parse_category(human, category):
 		'Face': [],
 		'Neck': [],
 		'Chest': [],
+		'Breasts': [],
 		'Hips': [],
 		'Arms': [],
 		'Legs': [],
@@ -75,6 +82,8 @@ func _parse_category(human, category):
 			continue
 		if 'caucasian' in name.to_lower() or 'african' in name.to_lower() or 'asian' in name.to_lower():
 			sliders['RaceAge'].append(name)
+		elif 'cup' in name.to_lower() or 'bust' in name.to_lower() or 'breast' in name.to_lower() or 'nipple' in name.to_lower():
+			sliders['Breasts'].append(name)
 		elif 'averagemuscle' in name.to_lower() or 'minmuscle' in name.to_lower() or 'maxmuscle' in name.to_lower():
 			sliders['MuscleWeight'].append(name)
 		elif 'head' in name.to_lower() or 'brown' in name.to_lower() or 'top' in name.to_lower():
@@ -93,7 +102,7 @@ func _parse_category(human, category):
 			sliders['Arms'].append(name)
 		elif 'leg' in name.to_lower() or 'calf' in name.to_lower() or 'foot' in name.to_lower() or 'butt' in name.to_lower() or 'ankle' in name.to_lower() or 'thigh' in name.to_lower() or 'knee' in name.to_lower():
 			sliders['Legs'].append(name)
-		elif 'torso' in name.to_lower() or 'chest' in name.to_lower() or 'shoulder' in name.to_lower() or 'bust' in name.to_lower() or 'breast' in name.to_lower() or 'nipple' in name.to_lower():
+		elif 'torso' in name.to_lower() or 'chest' in name.to_lower() or 'shoulder' in name.to_lower():
 			sliders['Chest'].append(name)
 		elif 'hip' in name.to_lower() or 'trunk' in name.to_lower() or 'pelvis' in name.to_lower() or 'waist' in name.to_lower() or 'pelvis' in name.to_lower() or 'stomach' in name.to_lower() or 'bulge' in name.to_lower():
 			sliders['Hips'].append(name)
@@ -108,6 +117,7 @@ func _parse_category(human, category):
 	for cat in sliders:
 		if sliders[cat].size() == 0:
 			continue
+		sliders[cat].sort()
 		var button = Button.new()
 		button.text = cat.replace('RaceAge', 'Race & Age').replace('MuscleWeight', 'Muscle & Weight')
 		button.name = cat + 'Button'

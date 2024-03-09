@@ -7,6 +7,9 @@ extends Resource
 ## Shapekey Settings
 @export var shapekeys := {}
 
+## Additional Components
+@export var components := []
+
 ## Equipped body parts
 @export var body_parts := {}
 @export var body_part_materials := {}
