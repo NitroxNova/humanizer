@@ -41,10 +41,14 @@ extends Node
 
 @export_group('Physics Layers')
 ## Default character collider layer
-@export_flags_3d_physics var default_character_collision_layer
+@export_flags_3d_physics var default_character_collision_layers
 ## Default character collider mask
 @export_flags_3d_physics var default_character_collision_mask
 ## Default ragdoll physics layer
-@export_flags_3d_physics var default_ragdoll_collision_layer
+@export_flags_3d_physics var default_ragdoll_collision_layers
 ## Default ragdoll physics mask
 @export_flags_3d_physics var default_ragdoll_collision_mask
+
+@export_group('Rendering')
+## Default character render layers
+@export_flags_3d_render var default_character_render_layers

@@ -1,13 +1,30 @@
 @tool
 class_name Humanizer
-extends Node3D
+extends CharacterBody3D
 
 const humanizer_mesh_instance = preload('res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd')
 const _BASE_MESH_NAME: String = 'Human'
+## Vertex ids
+const shoulder_id: int = 16951 
+const waist_id: int = 17346
+const hips_id: int = 18127
+
+
 var skeleton: Skeleton3D
 var mesh: MeshInstance3D
 var main_collider: CollisionShape3D
-
+var _base_motion_scale: float:
+	get:
+		var rig: HumanizerRig = HumanizerRegistry.rigs[human_config.rig.split('-')[0]]
+		var sk: Skeleton3D
+		if human_config.rig.ends_with('RETARGETED'):
+			sk = rig.load_retargeted_skeleton()
+		else:
+			sk = rig.load_skeleton()
+		return sk.motion_scale
+var _base_hips_height: float:
+	get:
+		return shapekey_data.basis[hips_id].y
 var baked := false
 var scene_loaded: bool = false
 var _shapekey_data: Dictionary = {}
@@ -21,6 +38,8 @@ var _helper_vertex: PackedVector3Array = []
 @export var human_config: HumanConfig:
 	set(value):
 		human_config = value
+		if human_config.rig == '':
+			human_config.rig = HumanizerConfig.default_skeleton
 		# This gets set before _ready causing issues so make sure we're loaded
 		if scene_loaded:
 			load_human()
@@ -32,9 +51,15 @@ signal on_clothes_removed(clothes: HumanClothes)
 
 func _ready() -> void:
 	scene_loaded = true
+	if not Engine.is_editor_hint():
+		print($AnimationTree)
+		var tree := ($AnimationTree as AnimationTree)
+		skeleton =  $GeneralSkeleton as Skeleton3D
+		#skeleton.physical_bones_start_simulation()
+		return
 	if baked:
 		load_human()
-	else:  # Due to godot bug on empty dict 
+	else:
 		reset_human()
 
 ####  HumanConfig Resource Management ####
@@ -42,6 +67,8 @@ func _add_child_node(node: Node) -> void:
 	add_child(node)
 	if Engine.is_editor_hint():
 		node.owner = EditorInterface.get_edited_scene_root()
+	if node is MeshInstance3D:
+		(node as MeshInstance3D).layers = HumanizerConfig.default_character_render_layers
 
 func _delete_child_node(node: Node) -> void:
 	remove_child(node)
@@ -74,7 +101,6 @@ func load_human() -> void:
 			name = human_config.resource_path.get_file().replace('.res', '')
 		else:
 			baked = false
-			set_rig(human_config.rig)
 			deserialize()
 		notify_property_list_changed()
 
@@ -84,13 +110,15 @@ func reset_human() -> void:
 	for child in get_children():
 		if child is MeshInstance3D:
 			_delete_child_node(child)
+	_delete_child_by_name('MainCollider')
+	main_collider = null
 	human_config = HumanConfig.new()
-	set_rig(HumanizerConfig.default_skeleton)
 	on_human_reset.emit()
 	notify_property_list_changed()
 	print_debug('Reset human')
 
 func deserialize() -> void:
+	_set_body_mesh(load('res://addons/humanizer/data/resources/base_human.res'))
 	for slot in human_config.body_parts:
 		var bp = human_config.body_parts[slot]
 		var mat = human_config.body_part_materials[slot]
@@ -99,8 +127,8 @@ func deserialize() -> void:
 	for clothes in human_config.clothes:
 		apply_clothes(clothes)
 		set_clothes_material(clothes.resource_name, human_config.clothes_materials[clothes.resource_name])
-	set_shapekeys(human_config.shapekeys)
 	set_rig(human_config.rig, mesh.mesh)
+	set_shapekeys(human_config.shapekeys)
 	for component in human_config.components:
 		set_component_state(true, component)
 
@@ -153,7 +181,7 @@ func _combine_meshes() -> void:
 		child.queue_free()
 	_set_body_mesh(new_mesh)
 
-#### Child Mesh Management ####
+#### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	for child in get_children():
 		if child is MeshInstance3D and child.name == _BASE_MESH_NAME:
@@ -201,7 +229,7 @@ func clear_clothes_in_slot(slot: String) -> void:
 		if slot in cl.slots:
 			print('clearing ' + cl.resource_name + ' clothes')
 			remove_clothes(cl)
-					
+
 func remove_clothes(cl: HumanClothes) -> void:
 	for child in get_children():
 		if child.name == cl.resource_name:
@@ -269,38 +297,6 @@ func update_hide_vertices() -> void:
 	_set_body_mesh(new_mesh)
 	mesh.set_surface_override_material(0, skin_mat)
 
-#### Material Management ####
-func set_skin_texture(name: String) -> void:
-	if not HumanizerRegistry.skin_textures.has(name):
-		human_config.body_part_materials['skin'] = ''
-		return
-	var base_texture = HumanizerRegistry.skin_textures[name].albedo
-	mesh.material_config.set_base_textures(HumanizerOverlay.from_dict({'name': name, 'albedo': base_texture}))
-
-func set_body_part_material(set_slot: String, texture: String) -> void:
-	#print('setting material ' + texture + ' on ' + set_slot)
-	var bp = human_config.body_parts[set_slot]
-	human_config.body_part_materials[set_slot] = texture
-	for child in get_children():
-		if child.name == bp.resource_name:
-			if child is HumanizerMeshInstance:
-				var base = child.material_config.overlays[0]
-				base.albedo_texture_path = bp.textures[texture]
-				child.material_config.set_base_textures(base)
-			else:
-				var mat: BaseMaterial3D = (child as MeshInstance3D).get_surface_override_material(0)
-				mat.albedo_texture = load(bp.textures[texture])
-
-func set_clothes_material(cl_name: String, texture: String) -> void:
-	print('setting material ' + texture + ' on ' + cl_name)
-	var cl: HumanClothes = HumanizerRegistry.clothes[cl_name]
-	for child in get_children():
-		if child.name == name:
-			var base = child.material_config.overlays[0]
-			base.albedo_texture_path = cl.textures[texture]
-			child.material_config.set_base_textures(base)
-
-#### Shapekeys ####
 func set_shapekeys(shapekeys: Dictionary):
 	var prev_sk = human_config.shapekeys
 	if _helper_vertex.size() == 0:
@@ -341,6 +337,37 @@ func set_shapekeys(shapekeys: Dictionary):
 		human_config.shapekeys[sk] = shapekeys[sk]
 	if main_collider != null:
 		adjust_main_collider()
+
+#### Material Management ####
+func set_skin_texture(name: String) -> void:
+	if not HumanizerRegistry.skin_textures.has(name):
+		human_config.body_part_materials['skin'] = ''
+		return
+	var base_texture = HumanizerRegistry.skin_textures[name].albedo
+	mesh.material_config.set_base_textures(HumanizerOverlay.from_dict({'name': name, 'albedo': base_texture}))
+
+func set_body_part_material(set_slot: String, texture: String) -> void:
+	#print('setting material ' + texture + ' on ' + set_slot)
+	var bp = human_config.body_parts[set_slot]
+	human_config.body_part_materials[set_slot] = texture
+	for child in get_children():
+		if child.name == bp.resource_name:
+			if child is HumanizerMeshInstance:
+				var base = child.material_config.overlays[0]
+				base.albedo_texture_path = bp.textures[texture]
+				child.material_config.set_base_textures(base)
+			else:
+				var mat: BaseMaterial3D = (child as MeshInstance3D).get_surface_override_material(0)
+				mat.albedo_texture = load(bp.textures[texture])
+
+func set_clothes_material(cl_name: String, texture: String) -> void:
+	print('setting material ' + texture + ' on ' + cl_name)
+	var cl: HumanClothes = HumanizerRegistry.clothes[cl_name]
+	for child in get_children():
+		if child.name == name:
+			var base = child.material_config.overlays[0]
+			base.albedo_texture_path = cl.textures[texture]
+			child.material_config.set_base_textures(base)
 
 #### Animation ####
 func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
@@ -523,6 +550,9 @@ func adjust_skeleton() -> void:
 	for child in get_children():
 		if child is MeshInstance3D:
 			child.skin = skeleton.create_skin_from_rest_transforms()
+	
+	print(_base_motion_scale)
+	skeleton.motion_scale = _base_motion_scale * _helper_vertex[hips_id].y / _base_hips_height
 	print('Fit skeleton to mesh')
 
 func _reset_animator() -> void:
@@ -536,6 +566,9 @@ func _reset_animator() -> void:
 			return
 		_add_child_node(tree)
 		set_editable_instance(tree, true)
+		var root_bone = skeleton.get_bone_name(0)
+		if root_bone in ['Root']:
+			tree.root_motion_track = NodePath(str(skeleton.get_path()) + ":" + root_bone)
 
 #### Components ####
 func set_component_state(enabled: bool, component: String) -> void:
@@ -547,19 +580,21 @@ func set_component_state(enabled: bool, component: String) -> void:
 			main_collider.name = 'MainCollider'
 			_add_child_node(main_collider)
 			adjust_main_collider()
+		elif component == 'ragdoll':
+			skeleton.physical_bones_start_simulation()
 	else:
 		human_config.components.erase(component)
 		if component == 'main_collider':
 			_delete_child_node(main_collider)
 			main_collider = null
+		elif component == 'ragdoll':
+			skeleton.physical_bones_stop_simulation()
 
 func adjust_main_collider():
 	var height = _helper_vertex[14570].y
 	main_collider.shape.height = height
 	main_collider.position.y = height/2
-	var shoulder_id = 16951 #16959
-	var waist_id = 17346
-	var hips_id = 18127
+
 	var width_ids = [shoulder_id,waist_id,hips_id]
 	var max_width = 0
 	for mh_id in width_ids:

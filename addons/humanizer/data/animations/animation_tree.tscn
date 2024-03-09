@@ -3,7 +3,7 @@
 [ext_resource type="AnimationLibrary" uid="uid://cuxxbj7avet71" path="res://addons/humanizer/data/animations/animations.glb" id="2_a0fcn"]
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_qefju"]
-animation = &"Idle"
+animation = &"animations/Idle"
 
 [node name="AnimationTree" type="AnimationTree"]
 root_node = NodePath(".")

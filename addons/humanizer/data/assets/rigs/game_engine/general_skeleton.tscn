@@ -1,6 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://cux70e2lqphoa"]
-
-[sub_resource type="ImmediateMesh" id="ImmediateMesh_71ux8"]
+[gd_scene format=3 uid="uid://cux70e2lqphoa"]
 
 [node name="GeneralSkeleton" type="Skeleton3D"]
 motion_scale = 0.890428
@@ -375,9 +373,3 @@ bones/52/enabled = true
 bones/52/position = Vector3(0.000240031, 0.121755, -0.065365)
 bones/52/rotation = Quaternion(0, 1, 0, 0)
 bones/52/scale = Vector3(1, 1, 1)
-
-[node name="_MeshInstance3D_78325" type="MeshInstance3D" parent="."]
-visible = false
-cast_shadow = 0
-mesh = SubResource("ImmediateMesh_71ux8")
-skeleton = NodePath("")
