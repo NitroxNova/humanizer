@@ -100,7 +100,10 @@ func deserialize() -> void:
 		apply_clothes(clothes)
 		set_clothes_material(clothes.resource_name, human_config.clothes_materials[clothes.resource_name])
 	set_shapekeys(human_config.shapekeys)
-
+	set_rig(human_config.rig, mesh.mesh)
+	for component in human_config.components:
+		set_component_state(true, component)
+	
 func serialize(name: String) -> void:
 	## Save to files for easy load later
 	var path = HumanizerConfig.human_export_path

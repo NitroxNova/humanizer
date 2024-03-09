@@ -36,3 +36,7 @@ extends Node
 @export var default_skeleton: String
 ## Default AnimationTree to use for new humanizer nodes
 @export var default_animation_tree: PackedScene
+## Default physics layers for character colliders
+@export_flags_3d_physics var default_character_collision_layers
+## Default ragdoll physics layers
+@export_flags_3d_physics var default_ragdoll_collision_layers
