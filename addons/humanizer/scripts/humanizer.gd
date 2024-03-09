@@ -564,4 +564,4 @@ func adjust_main_collider():
 		var distance = Vector2(vertex_position.x,vertex_position.z).distance_to(Vector2.ZERO)
 		if distance > max_width:
 			max_width = distance
-	main_collider.shape.radius = max_width	
+	main_collider.shape.radius = max_width * 1.5
