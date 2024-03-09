@@ -469,6 +469,24 @@ func set_shapekeys(shapekeys: Dictionary):
 	
 	for sk in shapekeys:
 		human_config.shapekeys[sk] = shapekeys[sk]
+	
+	adjust_main_collider()
+
+func adjust_main_collider():
+	var height = _helper_vertex[14570].y
+	$Main_Collider.shape.height = height
+	$Main_Collider.position.y = height/2
+	var shoulder_id = 16951 #16959
+	var waist_id = 17346
+	var hips_id = 18127
+	var width_ids = [shoulder_id,waist_id,hips_id]
+	var max_width = 0
+	for mh_id in width_ids:
+		var vertex_position = _helper_vertex[mh_id]
+		var distance = Vector2(vertex_position.x,vertex_position.z).distance_to(Vector2.ZERO)
+		if distance > max_width:
+			max_width = distance
+	$Main_Collider.shape.radius = max_width	
 		
 func adjust_skeleton() -> void:
 	var shapekey_data = HumanizerUtils.get_shapekey_data()
