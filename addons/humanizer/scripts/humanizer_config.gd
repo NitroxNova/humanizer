@@ -1,8 +1,14 @@
 @tool
 extends Node
 
+@export_group('Paths')
 ## Paths where humanizer will look to find files for building assets
 @export var asset_import_paths: Array[String] = ['res://addons/humanizer/data/assets/']
+## Path where human resources will be serialized
+## Defaults to res://data/humans
+@export_dir var human_export_path: String = 'res://data/humans/'
+
+@export_group('Slot Definitions')
 ## Body Part Slot Definitions
 @export var body_part_slots: Array[String] = [
 	'RightEye',
@@ -26,17 +32,19 @@ extends Node
 	'Legs',
 	'Feet',
 ]
-## Path where human resources will be serialized
-## Defaults to res://data/humans
-@export_dir var human_export_path: String = 'res://data/humans/'
 
-
-@export_group("Node defaults")
+@export_group("Animation")
 ## Default skeleton to use for new humanizer nodes
 @export var default_skeleton: String
 ## Default AnimationTree to use for new humanizer nodes
 @export var default_animation_tree: PackedScene
-## Default physics layers for character colliders
-@export_flags_3d_physics var default_character_collision_layers
-## Default ragdoll physics layers
-@export_flags_3d_physics var default_ragdoll_collision_layers
+
+@export_group('Physics Layers')
+## Default character collider layer
+@export_flags_3d_physics var default_character_collision_layer
+## Default character collider mask
+@export_flags_3d_physics var default_character_collision_mask
+## Default ragdoll physics layer
+@export_flags_3d_physics var default_ragdoll_collision_layer
+## Default ragdoll physics mask
+@export_flags_3d_physics var default_ragdoll_collision_mask

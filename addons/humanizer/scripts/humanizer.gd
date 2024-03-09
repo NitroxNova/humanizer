@@ -89,7 +89,7 @@ func reset_human() -> void:
 	on_human_reset.emit()
 	notify_property_list_changed()
 	print_debug('Reset human')
-	
+
 func deserialize() -> void:
 	for slot in human_config.body_parts:
 		var bp = human_config.body_parts[slot]
@@ -103,7 +103,7 @@ func deserialize() -> void:
 	set_rig(human_config.rig, mesh.mesh)
 	for component in human_config.components:
 		set_component_state(true, component)
-	
+
 func serialize(name: String) -> void:
 	## Save to files for easy load later
 	var path = HumanizerConfig.human_export_path
