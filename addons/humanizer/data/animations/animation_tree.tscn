@@ -6,6 +6,7 @@
 animation = &"animations/Idle"
 
 [node name="AnimationTree" type="AnimationTree"]
+active = false
 root_node = NodePath(".")
 libraries = {
 "animations": ExtResource("2_a0fcn")

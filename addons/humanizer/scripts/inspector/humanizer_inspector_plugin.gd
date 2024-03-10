@@ -30,8 +30,8 @@ func _parse_category(human, category):
 	# Components Inspector
 	scene.get_node('%MainColliderCheckBox').button_pressed = 'main_collider' in human.human_config.components
 	scene.get_node('%RagdollCheckBox').button_pressed = 'ragdoll' in human.human_config.components
-	scene.get_node('%MainColliderCheckBox').toggled.connect(human.set_component_state.bind('main_collider'))
-	scene.get_node('%RagdollCheckBox').toggled.connect(human.set_component_state.bind('ragdoll'))
+	scene.get_node('%MainColliderCheckBox').toggled.connect(human.set_component_state.bind(&'main_collider'))
+	scene.get_node('%RagdollCheckBox').toggled.connect(human.set_component_state.bind(&'ragdoll'))
 
 	# BodyParts inspector
 	var bp_container = scene.get_node('%BodyPartsContainer') as BodyPartsInspector

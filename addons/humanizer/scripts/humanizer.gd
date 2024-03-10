@@ -9,7 +9,6 @@ const shoulder_id: int = 16951
 const waist_id: int = 17346
 const hips_id: int = 18127
 
-
 var skeleton: Skeleton3D
 var mesh: MeshInstance3D
 var main_collider: CollisionShape3D
@@ -51,22 +50,16 @@ signal on_clothes_removed(clothes: HumanClothes)
 
 func _ready() -> void:
 	scene_loaded = true
-	if not Engine.is_editor_hint():
-		print($AnimationTree)
-		var tree := ($AnimationTree as AnimationTree)
-		skeleton =  $GeneralSkeleton as Skeleton3D
-		#skeleton.physical_bones_start_simulation()
-		return
-	if baked:
-		load_human()
-	else:
-		reset_human()
+	load_human()
+	return
+	for child in get_children():
+		if child is MeshInstance3D:
+			(child as MeshInstance3D).skeleton = skeleton.get_path()
 
 ####  HumanConfig Resource Management ####
 func _add_child_node(node: Node) -> void:
 	add_child(node)
-	if Engine.is_editor_hint():
-		node.owner = EditorInterface.get_edited_scene_root()
+	node.owner = self
 	if node is MeshInstance3D:
 		(node as MeshInstance3D).layers = HumanizerConfig.default_character_render_layers
 
@@ -101,24 +94,27 @@ func load_human() -> void:
 			name = human_config.resource_path.get_file().replace('.res', '')
 		else:
 			baked = false
+			reset_human(false)
 			deserialize()
 		notify_property_list_changed()
 
-func reset_human() -> void:
+func reset_human(reset_config: bool = true) -> void:
 	_helper_vertex = shapekey_data.basis.duplicate(true)
+	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
 	baked = false
 	for child in get_children():
 		if child is MeshInstance3D:
 			_delete_child_node(child)
 	_delete_child_by_name('MainCollider')
 	main_collider = null
-	human_config = HumanConfig.new()
+	if reset_config:
+		human_config = HumanConfig.new()
 	on_human_reset.emit()
 	notify_property_list_changed()
-	print_debug('Reset human')
+	print('Reset human')
 
 func deserialize() -> void:
-	_set_body_mesh(load('res://addons/humanizer/data/resources/base_human.res'))
+	print('Rebuilding human from human_config')
 	for slot in human_config.body_parts:
 		var bp = human_config.body_parts[slot]
 		var mat = human_config.body_part_materials[slot]
@@ -127,8 +123,9 @@ func deserialize() -> void:
 	for clothes in human_config.clothes:
 		apply_clothes(clothes)
 		set_clothes_material(clothes.resource_name, human_config.clothes_materials[clothes.resource_name])
-	set_rig(human_config.rig, mesh.mesh)
+	_helper_vertex = shapekey_data.basis.duplicate(true)
 	set_shapekeys(human_config.shapekeys)
+	set_rig(human_config.rig, mesh.mesh)
 	for component in human_config.components:
 		set_component_state(true, component)
 
@@ -147,7 +144,7 @@ func serialize(name: String) -> void:
 	ResourceSaver.save(human_config, path.path_join(name + '.res'))
 	human_config.take_over_path(path.path_join(name + '.res'))
 	ResourceSaver.save(mesh.mesh, path.path_join('mesh.res'))
-	print_debug('Saved human to : ' + path)
+	print('Saved human to : ' + path)
 	notify_property_list_changed()
 
 func bake() -> void:
@@ -551,7 +548,6 @@ func adjust_skeleton() -> void:
 		if child is MeshInstance3D:
 			child.skin = skeleton.create_skin_from_rest_transforms()
 	
-	print(_base_motion_scale)
 	skeleton.motion_scale = _base_motion_scale * _helper_vertex[hips_id].y / _base_hips_height
 	print('Fit skeleton to mesh')
 
@@ -565,6 +561,7 @@ func _reset_animator() -> void:
 			printerr('Default animation tree scene does not have an AnimationTree as its root node')
 			return
 		_add_child_node(tree)
+		tree.active = true
 		set_editable_instance(tree, true)
 		var root_bone = skeleton.get_bone_name(0)
 		if root_bone in ['Root']:
@@ -573,21 +570,25 @@ func _reset_animator() -> void:
 #### Components ####
 func set_component_state(enabled: bool, component: String) -> void:
 	if enabled:
-		human_config.components.append(component)
-		if component == 'main_collider':
-			main_collider = CollisionShape3D.new()
-			main_collider.shape = CapsuleShape3D.new()
-			main_collider.name = 'MainCollider'
-			_add_child_node(main_collider)
+		if not human_config.components.has(component):
+			human_config.components.append(component)
+		if component == &'main_collider':
+			if get_node_or_null('MainCollider') != null:
+				main_collider = $MainCollider
+			else:
+				main_collider = CollisionShape3D.new()
+				main_collider.shape = CapsuleShape3D.new()
+				main_collider.name = &'MainCollider'
+				_add_child_node(main_collider)
 			adjust_main_collider()
-		elif component == 'ragdoll':
+		elif component == &'ragdoll':
 			skeleton.physical_bones_start_simulation()
 	else:
 		human_config.components.erase(component)
-		if component == 'main_collider':
+		if component == &'main_collider':
 			_delete_child_node(main_collider)
 			main_collider = null
-		elif component == 'ragdoll':
+		elif component == &'ragdoll':
 			skeleton.physical_bones_stop_simulation()
 
 func adjust_main_collider():

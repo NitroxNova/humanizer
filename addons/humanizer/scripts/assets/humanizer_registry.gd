@@ -14,9 +14,8 @@ enum AssetType {
 }
 
 
-func _ready():
-	if Engine.is_editor_hint():
-		load_all()
+func _enter_tree() -> void:
+	load_all()
 
 static func load_all() -> void:
 	_get_rigs()

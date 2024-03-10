@@ -1,10 +1,10 @@
 [gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://cfq4nwk2ov8kx"]
 
-[ext_resource type="Texture2D" uid="uid://djfp1p3x3nc7s" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/eyelashes01.png" id="1_vxs8t"]
+[ext_resource type="Texture2D" uid="uid://djfp1p3x3nc7s" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/eyelashes01.png" id="1_76l8l"]
 
 [resource]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
 cull_mode = 2
-albedo_texture = ExtResource("1_vxs8t")
+albedo_texture = ExtResource("1_76l8l")

@@ -1,8 +1,8 @@
 [gd_scene load_steps=3 format=3 uid="uid://d0gfvfym5afpn"]
 
-[ext_resource type="ArrayMesh" uid="uid://bu6uv7j88v7uu" path="res://addons/humanizer/data/assets/body_parts/Hair/Afro/Hair-Afro01_mesh.tres" id="1_7am1r"]
-[ext_resource type="Material" uid="uid://dojjo3ev5lmru" path="res://addons/humanizer/data/assets/body_parts/Hair/Afro/Afro_material.tres" id="2_rjea4"]
+[ext_resource type="ArrayMesh" uid="uid://bu6uv7j88v7uu" path="res://addons/humanizer/data/assets/body_parts/Hair/Afro/Hair-Afro01_mesh.tres" id="1_8katn"]
+[ext_resource type="Material" uid="uid://dojjo3ev5lmru" path="res://addons/humanizer/data/assets/body_parts/Hair/Afro/Afro_material.tres" id="2_5mbn0"]
 
 [node name="Hair-Afro01" type="MeshInstance3D"]
-mesh = ExtResource("1_7am1r")
-surface_material_override/0 = ExtResource("2_rjea4")
+mesh = ExtResource("1_8katn")
+surface_material_override/0 = ExtResource("2_5mbn0")
