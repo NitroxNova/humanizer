@@ -51,11 +51,7 @@ signal on_clothes_removed(clothes: HumanClothes)
 func _ready() -> void:
 	scene_loaded = true
 	load_human()
-	return
-	for child in get_children():
-		if child is MeshInstance3D:
-			(child as MeshInstance3D).skeleton = skeleton.get_path()
-
+	
 ####  HumanConfig Resource Management ####
 func _add_child_node(node: Node) -> void:
 	add_child(node)
