@@ -11,7 +11,7 @@ default_animation_tree = ExtResource("2_wlrj1")
 default_character_physics_layers = 2
 default_character_physics_mask = 3
 default_physical_bone_layers = 4
-default_physical_bone_mask = 1
+default_physical_bone_mask = 5
 default_character_render_layers = 1
 
 [node name="HumanizerRegistry" type="Node" parent="."]
