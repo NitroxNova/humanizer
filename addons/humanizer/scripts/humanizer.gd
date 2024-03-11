@@ -523,7 +523,9 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	skeleton.unique_name_in_owner = true
 	_reset_animator()
 	# Set new mesh
+	var mat = mesh.get_surface_override_material(0)
 	_set_body_mesh(skinned_mesh)
+	mesh.set_surface_override_material(0, mat)
 	mesh.skeleton = skeleton.get_path()
 	adjust_skeleton()
 

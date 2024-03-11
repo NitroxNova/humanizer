@@ -6,4 +6,5 @@
 transparency = 1
 cull_mode = 2
 specular_mode = 2
+albedo_color = Color(0.415686, 0, 0, 1)
 albedo_texture = ExtResource("1_kguwr")
