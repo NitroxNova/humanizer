@@ -532,6 +532,7 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	_set_body_mesh(skinned_mesh)
 	mesh.set_surface_override_material(0, mat)
 	mesh.skeleton = skeleton.get_path()
+	set_shapekeys(human_config.shapekeys)
 	adjust_skeleton()
 
 func _add_bone_weights(asset: HumanAsset) -> void:
