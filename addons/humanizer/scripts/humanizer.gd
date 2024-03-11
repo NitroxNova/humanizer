@@ -44,6 +44,8 @@ var _helper_vertex: PackedVector3Array = []
 @export_color_no_alpha var hair_color: Color = Color.WEB_MAROON:
 	set(value):
 		hair_color = value
+		if human_config == null:
+			return
 		var slots: Array = [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows', &'Hair']
 		for slot in slots:
 			if not human_config.body_parts.has(slot):
@@ -54,6 +56,8 @@ var _helper_vertex: PackedVector3Array = []
 @export_color_no_alpha var eye_color: Color = Color.SKY_BLUE:
 	set(value):
 		eye_color = value
+		if human_config == null:
+			return
 		var slots: Array = [&'RightEye', &'LeftEye', &'Eyes']
 		for slot in slots:
 			if not human_config.body_parts.has(slot):
@@ -123,6 +127,7 @@ signal on_clothes_removed(clothes: HumanClothes)
 func _ready() -> void:
 	scene_loaded = true
 	load_human()
+	skeleton.physical_bones_start_simulation()
 
 ####  HumanConfig Resource Management ####
 func _add_child_node(node: Node) -> void:
@@ -658,7 +663,7 @@ func set_component_state(enabled: bool, component: String) -> void:
 		if component == &'main_collider':
 			_add_main_collider()
 		elif component == &'ragdoll':
-			skeleton.physical_bones_start_simulation()
+			HumanizerPhysicalSkeleton.new(skeleton, _helper_vertex).run()
 	else:
 		human_config.components.erase(component)
 		if component == &'main_collider':
@@ -666,6 +671,8 @@ func set_component_state(enabled: bool, component: String) -> void:
 			main_collider = null
 		elif component == &'ragdoll':
 			skeleton.physical_bones_stop_simulation()
+			for child in skeleton.get_children():
+				_delete_child_node(child)
 
 func _add_main_collider() -> void:
 	if get_node_or_null('MainCollider') != null:
