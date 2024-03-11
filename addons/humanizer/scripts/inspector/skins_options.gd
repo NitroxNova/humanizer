@@ -16,11 +16,11 @@ func _ready() -> void:
 		add_item(skin)
 	
 	if config != null:
-		if not config.body_part_materials.has('skin'):
+		if not config.body_part_materials.has(&'skin'):
 			selected = 0
 			return
 		for item in item_count:
-			if get_item_text(item) == config.body_part_materials['skin'].overlays[0].resource_name:
+			if get_item_text(item) == config.body_part_materials[&'skin']:
 				selected = item
 				
 func reset() -> void:

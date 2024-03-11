@@ -39,7 +39,8 @@ func update_material() -> void:
 		ao.decompress()
 		
 	## Blend albedo color
-	blend_color(albedo, overlays[0].color)
+	if albedo != null:
+		blend_color(albedo, overlays[0].color)
 	## Blend overlay with its color then onto base texture
 	if overlays.size() > 1:
 		for texture in range(1, overlays.size()):
