@@ -2,11 +2,14 @@ class_name HumanizerPhysicalSkeleton
 
 var skeleton: Skeleton3D
 var helper_vertex: Array
+var layers
+var mask
 
-
-func _init(_skeleton: Skeleton3D, _helper_vertex):
+func _init(_skeleton: Skeleton3D, _helper_vertex, _layers, _mask):
 	skeleton = _skeleton
 	helper_vertex = _helper_vertex
+	layers = _layers
+	mask = _mask
 
 func run() -> void:
 	for child in skeleton.get_children():
@@ -25,6 +28,8 @@ func run() -> void:
 	# Do we have to set the owner of the child node since we just set its parent's owner?
 	collider.owner = skeleton
 	
+	physical_bone.collision_layer = layers
+	physical_bone.collision_mask = mask
 	physical_bone.bone_name = bone_name
 	collider.shape = BoxShape3D.new()
 	print_debug('Do stuff here for the physical skeleton')

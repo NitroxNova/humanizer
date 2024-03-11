@@ -663,7 +663,7 @@ func set_component_state(enabled: bool, component: String) -> void:
 		if component == &'main_collider':
 			_add_main_collider()
 		elif component == &'ragdoll':
-			HumanizerPhysicalSkeleton.new(skeleton, _helper_vertex).run()
+			_add_physical_skeleton()
 	else:
 		human_config.components.erase(component)
 		if component == &'main_collider':
@@ -683,6 +683,15 @@ func _add_main_collider() -> void:
 		main_collider.name = &'MainCollider'
 		_add_child_node(main_collider)
 	_adjust_main_collider()
+
+func _add_physical_skeleton() -> void:
+	var layers = _ragdoll_layers
+	var mask = _ragdoll_mask
+	if layers == null:
+		layers = HumanizerConfig.default_physical_bone_layers
+	if mask == null:
+		mask = HumanizerConfig.default_physical_bone_mask
+	HumanizerPhysicalSkeleton.new(skeleton, _helper_vertex, layers, mask).run()
 
 func _adjust_main_collider():
 	var height = _helper_vertex[14570].y
