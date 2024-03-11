@@ -34,6 +34,43 @@ var shapekey_data: Dictionary:
 		return _shapekey_data
 var _helper_vertex: PackedVector3Array = []
 
+@export_color_no_alpha var skin_color: Color = Color.WHITE:
+	set(value):
+		skin_color = value
+		if scene_loaded and mesh.material_config.overlays.size() == 0:
+			return
+		mesh.material_config.overlays[0].color = skin_color
+		mesh.material_config.update_material()
+@export_color_no_alpha var hair_color: Color = Color.WEB_MAROON:
+	set(value):
+		hair_color = value
+		var slots: Array = [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows', &'Hair']
+		for slot in slots:
+			if not human_config.body_parts.has(slot):
+				return
+			print(slot)
+			var mesh = get_node(human_config.body_parts[slot].resource_name)
+			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = hair_color
+@export_color_no_alpha var eye_color: Color = Color.SKY_BLUE:
+	set(value):
+		eye_color = value
+		var slots: Array = [&'RightEye', &'LeftEye', &'Eyes']
+		for slot in slots:
+			if not human_config.body_parts.has(slot):
+				return
+			var mesh = get_node(human_config.body_parts[slot].resource_name)
+			mesh.material_config.overlays[1].color = eye_color
+@export var _bake_meshes: Array[NodePath]:
+	set(value):
+		for el in value:
+			if el == ^'':
+				continue
+			if not get_node(el) is MeshInstance3D:
+				printerr("Can only bakek MeshInstance3D nodes")
+				return
+		_bake_meshes = value
+
+@export_category("Humanizer Node Settings")
 @export var human_config: HumanConfig:
 	set(value):
 		human_config = value
@@ -148,7 +185,6 @@ func reset_human(reset_config: bool = true) -> void:
 	print('Reset human')
 
 func deserialize() -> void:
-	print('Rebuilding human from human_config')
 	for slot in human_config.body_parts:
 		var bp = human_config.body_parts[slot]
 		var mat = human_config.body_part_materials[slot]
@@ -163,7 +199,7 @@ func deserialize() -> void:
 		set_skin_texture(human_config.body_part_materials[&'skin'])
 	for component in human_config.components:
 		set_component_state(true, component)
-
+	
 func serialize(name: String) -> void:
 	## Save to files for easy load later
 	var path = HumanizerConfig.human_export_path
@@ -233,6 +269,11 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	_add_child_node(bp_scene)
 	_add_bone_weights(bp)
 	set_shapekeys(human_config.shapekeys)
+	if bp.slot in [&'RightEye', &'LeftEye', &'Eyes']:
+		await get_tree().process_frame
+		bp_scene.material_config.overlays[1].color = eye_color
+	elif bp.slot in [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows', &'Hair']:
+		(bp_scene as MeshInstance3D).get_surface_override_material(0).albedo_color = hair_color
 	#notify_property_list_changed()
 
 func apply_clothes(cl: HumanClothes) -> void:
@@ -378,22 +419,21 @@ func set_skin_texture(name: String) -> void:
 	else:
 		human_config.body_part_materials['skin'] = name
 		base_texture = HumanizerRegistry.skin_textures[name].albedo
-	mesh.material_config.set_base_textures(HumanizerOverlay.from_dict({'name': name, 'albedo': base_texture}))
+	mesh.material_config.set_base_textures(HumanizerOverlay.from_dict({'name': name, 'albedo': base_texture, 'color': skin_color}))
 	mesh.update_material()
 
 func set_body_part_material(set_slot: String, texture: String) -> void:
-	#print('setting material ' + texture + ' on ' + set_slot)
+	print('setting material ' + texture + ' on ' + set_slot)
 	var bp = human_config.body_parts[set_slot]
 	human_config.body_part_materials[set_slot] = texture
-	for child in get_children():
-		if child.name == bp.resource_name:
-			if child is HumanizerMeshInstance:
-				var base = child.material_config.overlays[0]
-				base.albedo_texture_path = bp.textures[texture]
-				child.material_config.set_base_textures(base)
-			else:
-				var mat: BaseMaterial3D = (child as MeshInstance3D).get_surface_override_material(0)
-				mat.albedo_texture = load(bp.textures[texture])
+	var mesh = get_node(bp.resource_name)
+	if mesh is HumanizerMeshInstance:
+		var base = mesh.material_config.overlays[0]
+		base.albedo_texture_path = bp.textures[texture]
+		mesh.material_config.set_base_textures(base)
+	else:
+		var mat: BaseMaterial3D = (mesh as MeshInstance3D).get_surface_override_material(0)
+		mat.albedo_texture = load(bp.textures[texture])
 
 func set_clothes_material(cl_name: String, texture: String) -> void:
 	print('setting material ' + texture + ' on ' + cl_name)
@@ -608,7 +648,7 @@ func _reset_animator() -> void:
 		if root_bone in ['Root']:
 			tree.root_motion_track = NodePath(str(skeleton.get_path()) + ":" + root_bone)
 
-#### Components ####
+#### Additional Components ####
 func set_component_state(enabled: bool, component: String) -> void:
 	if enabled:
 		if not human_config.components.has(component):

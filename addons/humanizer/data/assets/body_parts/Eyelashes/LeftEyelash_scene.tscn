@@ -1,8 +1,8 @@
 [gd_scene load_steps=3 format=3 uid="uid://cqc8fsf3jhgs8"]
 
-[ext_resource type="ArrayMesh" uid="uid://doapwfi5ixkop" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/LeftEyelash_mesh.tres" id="1_j0tkk"]
-[ext_resource type="Material" uid="uid://cfq4nwk2ov8kx" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/Eyelashes_material.tres" id="2_oh0jx"]
+[ext_resource type="ArrayMesh" uid="uid://doapwfi5ixkop" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/LeftEyelash_mesh.tres" id="1_jyasa"]
+[ext_resource type="Material" uid="uid://cfq4nwk2ov8kx" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/Eyelashes_material.tres" id="2_wjigh"]
 
 [node name="LeftEyelash" type="MeshInstance3D"]
-mesh = ExtResource("1_j0tkk")
-surface_material_override/0 = ExtResource("2_oh0jx")
+mesh = ExtResource("1_jyasa")
+surface_material_override/0 = ExtResource("2_wjigh")

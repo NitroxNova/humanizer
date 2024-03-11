@@ -8,8 +8,8 @@
 script = ExtResource("1_rt5bh")
 default_skeleton = "game_engine-RETARGETED"
 default_animation_tree = ExtResource("2_wlrj1")
-default_character_collision_mask = 3
-default_ragdoll_collision_mask = 5
+default_ragdoll_collision_layers = 4
+default_ragdoll_collision_mask = 1
 default_character_render_layers = 1
 
 [node name="HumanizerRegistry" type="Node" parent="."]

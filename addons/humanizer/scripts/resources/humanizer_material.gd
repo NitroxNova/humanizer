@@ -76,12 +76,12 @@ func blend_color(image: Image, color: Color) -> void:
 
 func set_base_textures(overlay: HumanizerOverlay) -> void:
 	if overlays.size() == 0:
-		overlays.resize(1)
+		overlays = [overlay]
 	overlays[0] = overlay
 	if overlay.on_overlay_updated.is_connected(update_material):
 		overlay.on_overlay_updated.connect(update_material)
 	update_material()
-	
+
 func add_overlay(overlay: HumanizerOverlay) -> void:
 	if get_index(overlay.resource_name) != -1:
 		printerr('Overlay already present?')

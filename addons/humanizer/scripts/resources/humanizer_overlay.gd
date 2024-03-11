@@ -26,7 +26,7 @@ static func from_dict(textures: Dictionary) -> HumanizerOverlay:
 	var overlay = HumanizerOverlay.new()
 	overlay.albedo_texture_path = textures.albedo
 	overlay.resource_name = textures.albedo.get_file().rsplit('.', true, 1)[0].replace('_albedo', '').replace('_diffuse', '')
-	overlay.color = Color.WHITE
+	overlay.color = textures.get('color', Color.WHITE)
 	if textures.has('normal'):
 		overlay.normal_texture_path = textures.normal
 	return overlay

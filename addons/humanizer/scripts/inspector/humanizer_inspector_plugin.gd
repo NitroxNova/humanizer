@@ -11,7 +11,7 @@ func _parse_category(human, category):
 	add_custom_control(scene)
 	
 	# Action buttons
-	scene.get_node('%ResetButton').pressed.connect(human.reset_human)
+	scene.get_node('%ResetButton').pressed.connect(func(): human.human_config = HumanConfig.new())
 	scene.get_node('%AdjustSkeletonButton').pressed.connect(human.adjust_skeleton)
 	scene.get_node('%BakeButton').pressed.connect(human.bake)
 	scene.get_node('%SaveButton').pressed.connect(_save_human.bind(human, scene.get_node('%HumanName')))
@@ -26,6 +26,14 @@ func _parse_category(human, category):
 			if child.name == 'SaveMenu':
 				delete = true
 		return
+	
+	# Colors
+	scene.get_node('%SkinColorPicker').color = human.skin_color
+	scene.get_node('%HairColorPicker').color = human.hair_color
+	scene.get_node('%EyeColorPicker').color = human.eye_color
+	scene.get_node('%SkinColorPicker').color_changed.connect(func(color): human.skin_color = color)
+	scene.get_node('%HairColorPicker').color_changed.connect(func(color): human.hair_color = color)
+	scene.get_node('%EyeColorPicker').color_changed.connect(func(color): human.eye_color = color)
 	
 	# Components Inspector
 	scene.get_node('%MainColliderCheckBox').button_pressed = 'main_collider' in human.human_config.components
@@ -126,16 +134,13 @@ func _parse_category(human, category):
 		cat_container.visible = false
 		cat_container.shapekeys = sliders[cat]
 		cat_container.human = human
-		scene.get_node('%VBoxContainer').add_child(button)
-		scene.get_node('%VBoxContainer').add_child(cat_container)
+		scene.get_node('%ShapekeysVBoxContainer').add_child(button)
+		scene.get_node('%ShapekeysVBoxContainer').add_child(cat_container)
 		button.pressed.connect(func(): cat_container.visible = not cat_container.visible)
 		cat_container.shapekey_value_changed.connect(human.set_shapekeys)
 		cat_container.config = human.human_config
 		human.on_human_reset.connect(cat_container.reset_sliders)
 
-	# One final separator at the bottom
-	scene.get_node('%VBoxContainer').add_child(HSeparator.new())
-	
 func _save_human(human: Humanizer, name: LineEdit) -> void:
 	var save_name: String
 	if name.text == null or name.text == '':
