@@ -10,7 +10,7 @@ const waist_id: int = 17346
 const hips_id: int = 18127
 
 var skeleton: Skeleton3D
-var mesh: MeshInstance3D
+var body_mesh: MeshInstance3D
 var main_collider: CollisionShape3D
 var _base_motion_scale: float:
 	get:
@@ -37,10 +37,10 @@ var _helper_vertex: PackedVector3Array = []
 @export_color_no_alpha var skin_color: Color = Color.WHITE:
 	set(value):
 		skin_color = value
-		if scene_loaded and mesh.material_config.overlays.size() == 0:
+		if scene_loaded and body_mesh.material_config.overlays.size() == 0:
 			return
-		mesh.material_config.overlays[0].color = skin_color
-		mesh.material_config.update_material()
+		body_mesh.material_config.overlays[0].color = skin_color
+		body_mesh.material_config.update_material()
 @export_color_no_alpha var hair_color: Color = Color.WEB_MAROON:
 	set(value):
 		hair_color = value
@@ -177,10 +177,10 @@ func load_human() -> void:
 func reset_human(reset_config: bool = true) -> void:
 	baked = false
 	_helper_vertex = shapekey_data.basis.duplicate(true)
-	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
 	for child in get_children():
 		if child is MeshInstance3D:
 			_delete_child_node(child)
+	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
 	_delete_child_by_name('MainCollider')
 	main_collider = null
 	if reset_config:
@@ -190,6 +190,8 @@ func reset_human(reset_config: bool = true) -> void:
 	print('Reset human')
 
 func deserialize() -> void:
+	set_shapekeys(human_config.shapekeys, true)
+	set_rig(human_config.rig, body_mesh.mesh)
 	for slot in human_config.body_parts:
 		var bp = human_config.body_parts[slot]
 		var mat = human_config.body_part_materials[slot]
@@ -198,8 +200,6 @@ func deserialize() -> void:
 	for clothes in human_config.clothes:
 		apply_clothes(clothes)
 		set_clothes_material(clothes.resource_name, human_config.clothes_materials[clothes.resource_name])
-	set_shapekeys(human_config.shapekeys)
-	set_rig(human_config.rig, mesh.mesh)
 	if human_config.body_part_materials.has(&'skin'):
 		set_skin_texture(human_config.body_part_materials[&'skin'])
 	for component in human_config.components:
@@ -219,7 +219,7 @@ func serialize(name: String) -> void:
 		bake()
 	ResourceSaver.save(human_config, path.path_join(name + '.res'))
 	human_config.take_over_path(path.path_join(name + '.res'))
-	ResourceSaver.save(mesh.mesh, path.path_join('mesh.res'))
+	ResourceSaver.save(body_mesh.mesh, path.path_join('mesh.res'))
 	print('Saved human to : ' + path)
 	notify_property_list_changed()
 
@@ -236,8 +236,8 @@ func bake() -> void:
 func _combine_meshes() -> void:
 	var new_mesh = ArrayMesh.new()
 	new_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
-	for shape_id in mesh.get_blend_shape_count():
-		var shape_name = mesh.mesh.get_blend_shape_name(shape_id)
+	for shape_id in body_mesh.get_blend_shape_count():
+		var shape_name = body_mesh.mesh.get_blend_shape_name(shape_id)
 		new_mesh.add_blend_shape(shape_name)
 	var i = 0
 	for child in get_children():
@@ -256,14 +256,12 @@ func _combine_meshes() -> void:
 
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
-	for child in get_children():
-		if child is MeshInstance3D and child.name == _BASE_MESH_NAME:
-			_delete_child_node(child)
-	mesh = MeshInstance3D.new()
-	mesh.name = _BASE_MESH_NAME
-	mesh.mesh = meshdata
-	mesh.set_script(humanizer_mesh_instance)
-	_add_child_node(mesh)
+	_delete_child_by_name(_BASE_MESH_NAME)
+	body_mesh = MeshInstance3D.new()
+	body_mesh.name = _BASE_MESH_NAME
+	body_mesh.mesh = meshdata
+	body_mesh.set_script(humanizer_mesh_instance)
+	_add_child_node(body_mesh)
 
 func set_body_part(bp: HumanBodyPart) -> void:
 	if human_config.body_parts.has(bp.slot):
@@ -317,8 +315,8 @@ func remove_clothes(cl: HumanClothes) -> void:
 	human_config.clothes.erase(cl)
 
 func update_hide_vertices() -> void:
-	var skin_mat = mesh.get_surface_override_material(0)
-	var arrays: Array = (mesh.mesh as ArrayMesh).surface_get_arrays(0)
+	var skin_mat = body_mesh.get_surface_override_material(0)
+	var arrays: Array = (body_mesh.mesh as ArrayMesh).surface_get_arrays(0)
 	var delete_verts_gd := []
 	delete_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
 	var delete_verts_mh := []
@@ -358,7 +356,7 @@ func update_hide_vertices() -> void:
 	new_arrays[Mesh.ARRAY_INDEX] = PackedInt32Array()
 	new_arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
 	var lods := {}
-	var fmt = mesh.mesh.surface_get_format(0)
+	var fmt = body_mesh.mesh.surface_get_format(0)
 	for gd_id in delete_verts_gd.size():
 		if not delete_verts_gd[gd_id]:
 			new_arrays[Mesh.ARRAY_VERTEX].append(arrays[Mesh.ARRAY_VERTEX][gd_id])
@@ -373,12 +371,14 @@ func update_hide_vertices() -> void:
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_arrays, [], lods, fmt)
 	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
 	_set_body_mesh(new_mesh)
-	mesh.set_surface_override_material(0, skin_mat)
+	body_mesh.set_surface_override_material(0, skin_mat)
 
-func set_shapekeys(shapekeys: Dictionary):
-	var prev_sk = human_config.shapekeys
-	if _helper_vertex.size() == 0:
-		_helper_vertex = shapekey_data.basis.duplicate(true)
+func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
+	var prev_sk = human_config.shapekeys.duplicate()
+	if override_zero:
+		for sk in prev_sk:
+			prev_sk[sk] = 0
+
 	for sk in shapekeys:
 		var prev_val: float = prev_sk.get(sk, 0)
 		if prev_val == shapekeys[sk]:
@@ -416,7 +416,7 @@ func set_shapekeys(shapekeys: Dictionary):
 	if main_collider != null:
 		_adjust_main_collider()
 
-#### Material Management ####
+#region Materials
 func set_skin_texture(name: String) -> void:
 	var base_texture: String
 	if not HumanizerRegistry.skin_textures.has(name):
@@ -424,8 +424,8 @@ func set_skin_texture(name: String) -> void:
 	else:
 		human_config.body_part_materials['skin'] = name
 		base_texture = HumanizerRegistry.skin_textures[name].albedo
-	mesh.material_config.set_base_textures(HumanizerOverlay.from_dict({'name': name, 'albedo': base_texture, 'color': skin_color}))
-	mesh.update_material()
+	body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict({'name': name, 'albedo': base_texture, 'color': skin_color}))
+	body_mesh.update_material()
 
 func set_body_part_material(set_slot: String, texture: String) -> void:
 	print('setting material ' + texture + ' on ' + set_slot)
@@ -448,6 +448,7 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 			var base = child.material_config.overlays[0]
 			base.albedo_texture_path = cl.textures[texture]
 			child.material_config.set_base_textures(base)
+#endregion
 
 #### Animation ####
 func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
@@ -471,7 +472,6 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 
 	# Load bone and weight arrays for base mesh
 	var mesh_arrays = basemesh.surface_get_arrays(0)
-	var blendshapes = basemesh.surface_get_blend_shape_arrays(0)
 	var lods := {}
 	var flags := basemesh.surface_get_format(0)
 	var weights = rig.load_bone_weights()
@@ -519,7 +519,7 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	skinned_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
 	for bs in basemesh.get_blend_shape_count():
 		skinned_mesh.add_blend_shape(basemesh.get_blend_shape_name(bs))
-	skinned_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh_arrays, blendshapes, lods, flags)
+	skinned_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh_arrays, [], lods, flags)
 	
 	# Set rig in scene
 	if retargeted:
@@ -528,13 +528,14 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	skeleton.unique_name_in_owner = true
 	_reset_animator()
 	# Set new mesh
-	var mat = mesh.get_surface_override_material(0)
+	var mat = body_mesh.get_surface_override_material(0)
 	_set_body_mesh(skinned_mesh)
-	mesh.set_surface_override_material(0, mat)
-	mesh.skeleton = skeleton.get_path()
-	set_shapekeys(human_config.shapekeys)
-	adjust_skeleton()
+	body_mesh.set_surface_override_material(0, mat)
+	body_mesh.skeleton = skeleton.get_path()
 
+	adjust_skeleton()
+	set_shapekeys(human_config.shapekeys)
+	
 func _add_bone_weights(asset: HumanAsset) -> void:
 	var rig = human_config.rig.split('-')[0]
 	var bone_weights = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].bone_weights_json_path)
@@ -693,6 +694,7 @@ func _add_physical_skeleton() -> void:
 	if mask == null:
 		mask = HumanizerConfig.default_physical_bone_mask
 	HumanizerPhysicalSkeleton.new(skeleton, _helper_vertex, layers, mask).run()
+	skeleton.physical_bones_start_simulation()
 
 func _adjust_main_collider():
 	var height = _helper_vertex[14570].y

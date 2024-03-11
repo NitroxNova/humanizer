@@ -18,18 +18,35 @@ func run() -> void:
 	
 	# You may want to abstract this out to a function so you can loop but each bone will
 	# require specific tweaking so you decide how to do it
-	var bone_name = &'Hips'
-	var physical_bone: PhysicalBone3D = PhysicalBone3D.new()
-	var collider: CollisionShape3D = CollisionShape3D.new()
+	var bone_name: StringName
+	var physical_bone: PhysicalBone3D 
+	var collider: CollisionShape3D 
+	
+	bone_name = &'Hips'
+	physical_bone = PhysicalBone3D.new()
+	collider = CollisionShape3D.new()
 	physical_bone.name = &'Physical Bone ' + bone_name
 	physical_bone.add_child(collider)
 	skeleton.add_child(physical_bone)
 	physical_bone.owner = skeleton
-	# Do we have to set the owner of the child node since we just set its parent's owner?
 	collider.owner = skeleton
-	
+
 	physical_bone.collision_layer = layers
 	physical_bone.collision_mask = mask
 	physical_bone.bone_name = bone_name
 	collider.shape = BoxShape3D.new()
-	print_debug('Do stuff here for the physical skeleton')
+	
+	bone_name = &'Spine'
+	physical_bone = PhysicalBone3D.new()
+	collider = CollisionShape3D.new()
+	physical_bone.name = &'Physical Bone ' + bone_name
+	physical_bone.add_child(collider)
+	skeleton.add_child(physical_bone)
+	physical_bone.owner = skeleton
+	collider.owner = skeleton
+
+	physical_bone.collision_layer = layers
+	physical_bone.collision_mask = mask
+	physical_bone.bone_name = bone_name
+	collider.shape = BoxShape3D.new()
+
