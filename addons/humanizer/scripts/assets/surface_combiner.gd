@@ -6,6 +6,7 @@ func _init(mesh_instances: Array[MeshInstance3D]) -> void:
 	var surfaces: Array = []
 	
 	for mesh: MeshInstance3D in mesh_instances:
+		var surface_id = surfaces.size()
 		var mat = mesh.get_surface_override_material(0)
 		var sf_unwrapper = UVUnwrapper.new(mesh.mesh, 0, mat)
 		surfaces.append(sf_unwrapper)
@@ -14,7 +15,7 @@ func _init(mesh_instances: Array[MeshInstance3D]) -> void:
 			var rect = sf_unwrapper.island_boxes[island_id]
 			rect.size *= sf_unwrapper.get_albedo_texture_size()
 			rect.position = Vector2.ZERO
-			var packable_rect = NaiveRectPacker.Packable_Rect.new(rect, 0, island_id)
+			var packable_rect = NaiveRectPacker.Packable_Rect.new(rect, surface_id, island_id)
 			rect_array.append(packable_rect)
 	var rect_packer = NaiveRectPacker.new(rect_array, bin_size)
 	
@@ -53,8 +54,12 @@ func _init(mesh_instances: Array[MeshInstance3D]) -> void:
 	new_sf_arrays[Mesh.ARRAY_INDEX] = PackedInt32Array()
 	new_sf_arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
 	
+	
+	#print(surfaces[0].islands.size())
+	#print(surfaces[0].island_transform.size())
+	
 	var vertex_offset = 0
-	for surface in surfaces:
+	for surface in surfaces:		
 		new_sf_arrays[Mesh.ARRAY_VERTEX].append_array(surface.surface_arrays[Mesh.ARRAY_VERTEX])
 		new_sf_arrays[Mesh.ARRAY_TANGENT].append_array(surface.surface_arrays[Mesh.ARRAY_TANGENT])
 		new_sf_arrays[Mesh.ARRAY_NORMAL].append_array(surface.surface_arrays[Mesh.ARRAY_NORMAL])
