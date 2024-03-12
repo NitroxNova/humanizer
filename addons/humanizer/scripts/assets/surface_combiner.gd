@@ -54,10 +54,6 @@ func _init(mesh_instances: Array[MeshInstance3D]) -> void:
 	new_sf_arrays[Mesh.ARRAY_INDEX] = PackedInt32Array()
 	new_sf_arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
 	
-	
-	#print(surfaces[0].islands.size())
-	#print(surfaces[0].island_transform.size())
-	
 	var vertex_offset = 0
 	for surface in surfaces:		
 		new_sf_arrays[Mesh.ARRAY_VERTEX].append_array(surface.surface_arrays[Mesh.ARRAY_VERTEX])
