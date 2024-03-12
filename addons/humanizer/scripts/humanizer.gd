@@ -222,34 +222,6 @@ func serialize(name: String) -> void:
 	
 	## Generate packed scene
 
-func set_bake_meshes(subset: String) -> void:
-	_bake_meshes = []
-	for child in get_children():
-		if not child is MeshInstance3D:
-			continue
-		var mat = (child as MeshInstance3D).get_surface_override_material(0) as BaseMaterial3D
-		var add: bool = false
-		add = add or subset == 'All'
-		add = add or subset == 'Opaque' and mat != null and mat.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED
-		add = add or subset == 'Transparent' and mat != null and mat.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED
-		if add:
-			_bake_meshes.append(child)
-			
-func standard_bake() -> void:
-	if baked:
-		printerr('Already baked.  Reload the scene, load a human_config, or reset human to start over.')
-		return
-	adjust_skeleton()
-	set_bake_meshes('Opaque')
-	bake_surface()
-	set_bake_meshes('Transparent')
-	bake_surface()
-	baked = true
-
-func bake_surface() -> void:
-	HumanizerSurfaceCombiner.new(_bake_meshes)
-	baked = true
-
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	_delete_child_by_name(_BASE_MESH_NAME)
@@ -411,6 +383,34 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 		human_config.shapekeys[sk] = shapekeys[sk]
 	if main_collider != null:
 		_adjust_main_collider()
+
+func set_bake_meshes(subset: String) -> void:
+	_bake_meshes = []
+	for child in get_children():
+		if not child is MeshInstance3D:
+			continue
+		var mat = (child as MeshInstance3D).get_surface_override_material(0) as BaseMaterial3D
+		var add: bool = false
+		add = add or subset == 'All'
+		add = add or subset == 'Opaque' and mat != null and mat.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED
+		add = add or subset == 'Transparent' and mat != null and mat.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED
+		if add:
+			_bake_meshes.append(child)
+			
+func standard_bake() -> void:
+	if baked:
+		printerr('Already baked.  Reload the scene, load a human_config, or reset human to start over.')
+		return
+	adjust_skeleton()
+	set_bake_meshes('Opaque')
+	bake_surface()
+	set_bake_meshes('Transparent')
+	bake_surface()
+	baked = true
+
+func bake_surface() -> void:
+	HumanizerSurfaceCombiner.new(_bake_meshes)
+	baked = true
 
 #### Materials ####
 func set_skin_texture(name: String) -> void:
