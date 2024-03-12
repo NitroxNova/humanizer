@@ -17,7 +17,7 @@ image = SubResource("Image_qacua")
 [resource]
 transparency = 1
 specular_mode = 2
-albedo_color = Color(0.415686, 0, 0, 1)
+albedo_color = Color(0, 0, 0, 1)
 albedo_texture = ExtResource("1_gon51")
 normal_enabled = true
 normal_texture = SubResource("ImageTexture_xiuos")

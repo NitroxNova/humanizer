@@ -39,7 +39,9 @@ extends Node
 ## Default AnimationTree to use for new humanizer nodes
 @export var default_animation_tree: PackedScene
 
-@export_group('Physics Layers')
+@export_group('Physics')
+## Default root node class for baked humans
+@export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D") var default_baked_root_node: String = "CharacterBody3D"
 ## Default character collider layer
 @export_flags_3d_physics var default_character_physics_layers
 ## Default character collider mask

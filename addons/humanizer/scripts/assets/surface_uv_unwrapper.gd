@@ -7,9 +7,9 @@ var material
 var island_transform = [] #set elsewhere, after the row packer is done
 var island_vertex = []
 
-func _init(mesh, surface_id):
+func _init(mesh: ArrayMesh, surface_id: int, _material):
+	material = _material
 	surface_arrays = mesh.surface_get_arrays(surface_id)
-	material = mesh.surface_get_material(surface_id)
 
 func get_albedo_texture_size():
 	return material.albedo_texture.get_size()

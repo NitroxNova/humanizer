@@ -13,20 +13,14 @@ func _parse_category(human, category):
 	# Action buttons
 	scene.get_node('%ResetButton').pressed.connect(func(): human.human_config = HumanConfig.new())
 	scene.get_node('%AdjustSkeletonButton').pressed.connect(human.adjust_skeleton)
-	scene.get_node('%BakeButton').pressed.connect(human.bake)
 	scene.get_node('%SaveButton').pressed.connect(_save_human.bind(human, scene.get_node('%HumanName')))
 	scene.get_node('%RigOptionButton').human = human
 	scene.get_node('%HideVerticesButton').pressed.connect(human.update_hide_vertices)
-	if human.baked:
-		scene.get_node('%VBoxContainer').add_child(HSeparator.new())
-		var delete = false
-		for child in scene.get_node('VBoxContainer').get_children():
-			if delete:
-				child.queue_free()
-			if child.name == 'SaveMenu':
-				delete = true
-		return
-	
+	scene.get_node('%SelectAllButton').pressed.connect(human.set_bake_meshes.bind('All'))
+	scene.get_node('%SelectOpaqueButton').pressed.connect(human.set_bake_meshes.bind('Opaque'))
+	scene.get_node('%SelectTransparentButton').pressed.connect(human.set_bake_meshes.bind('Transparent'))
+	scene.get_node('%StandardBakeButton').pressed.connect(human.standard_bake)
+	scene.get_node('%BakeSurfaceButton').pressed.connect(human.bake_surface)
 	# Colors
 	scene.get_node('%SkinColorPicker').color = human.skin_color
 	scene.get_node('%HairColorPicker').color = human.hair_color

@@ -1,5 +1,4 @@
-extends Node
-class_name NaiveRowPacker
+class_name NaiveRectPacker
 #https://www.david-colson.com/2020/03/10/exploring-rect-packing.html
 #It’s worth noting that although our naive row packer is the fastest in all cases, it fails when you give it varied sets of rectangles. Skyline bottom-left fairs a lot better in these situations. This is presumably why the author of stb_rect_pack chose this algorithm. It’s very fast, and does pretty well in a wide range of situations.
 #Unfortunately, the binary tree method seems come up a bit short in a lot of test cases. Maybe I’ve missed something, but then again, it’s one redeeming factor is that it’s simple. But you know what’s even simpler? Naive row packing.

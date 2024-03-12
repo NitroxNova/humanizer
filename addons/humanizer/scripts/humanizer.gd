@@ -11,6 +11,8 @@ const hips_id: int = 18127
 
 var skeleton: Skeleton3D
 var body_mesh: MeshInstance3D
+var baked := false
+var scene_loaded: bool = false
 var main_collider: CollisionShape3D
 var _base_motion_scale: float:
 	get:
@@ -24,8 +26,6 @@ var _base_motion_scale: float:
 var _base_hips_height: float:
 	get:
 		return shapekey_data.basis[hips_id].y
-var baked := false
-var scene_loaded: bool = false
 var _shapekey_data: Dictionary = {}
 var shapekey_data: Dictionary:
 	get:
@@ -34,14 +34,14 @@ var shapekey_data: Dictionary:
 		return _shapekey_data
 var _helper_vertex: PackedVector3Array = []
 
-@export_color_no_alpha var skin_color: Color = Color.WHITE:
+var skin_color: Color = Color.WHITE:
 	set(value):
 		skin_color = value
 		if scene_loaded and body_mesh.material_config.overlays.size() == 0:
 			return
 		body_mesh.material_config.overlays[0].color = skin_color
 		body_mesh.material_config.update_material()
-@export_color_no_alpha var hair_color: Color = Color.WEB_MAROON:
+var hair_color: Color = Color.WEB_MAROON:
 	set(value):
 		hair_color = value
 		if human_config == null:
@@ -53,7 +53,7 @@ var _helper_vertex: PackedVector3Array = []
 			print(slot)
 			var mesh = get_node(human_config.body_parts[slot].resource_name)
 			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = hair_color
-@export_color_no_alpha var eye_color: Color = Color.SKY_BLUE:
+var eye_color: Color = Color.SKY_BLUE:
 	set(value):
 		eye_color = value
 		if human_config == null:
@@ -64,15 +64,8 @@ var _helper_vertex: PackedVector3Array = []
 				return
 			var mesh = get_node(human_config.body_parts[slot].resource_name)
 			mesh.material_config.overlays[1].color = eye_color
-@export var _bake_meshes: Array[NodePath]:
-	set(value):
-		for el in value:
-			if el == ^'':
-				continue
-			if not get_node(el) is MeshInstance3D:
-				printerr("Can only bakek MeshInstance3D nodes")
-				return
-		_bake_meshes = value
+
+@export var _bake_meshes: Array[MeshInstance3D]
 
 @export_category("Humanizer Node Settings")
 @export var human_config: HumanConfig:
@@ -85,6 +78,8 @@ var _helper_vertex: PackedVector3Array = []
 			load_human()
 
 @export_group('Node Overrides')
+## The root node type for baked humans
+@export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D") var _baked_root_node: String = HumanizerConfig.default_baked_root_node
 ## The scene to be added as an animator for the character
 @export var _animator: PackedScene:
 	set(value):
@@ -119,7 +114,6 @@ var _helper_vertex: PackedVector3Array = []
 		_ragdoll_mask = value
 
 
-signal on_bake_complete
 signal on_human_reset
 signal on_clothes_removed(clothes: HumanClothes)
 
@@ -215,44 +209,46 @@ func serialize(name: String) -> void:
 		printerr('A human with this name has already been saved.  Use a different name.')
 		return
 	DirAccess.make_dir_recursive_absolute(path)
-	if not baked:
-		bake()
 	ResourceSaver.save(human_config, path.path_join(name + '.res'))
 	human_config.take_over_path(path.path_join(name + '.res'))
 	ResourceSaver.save(body_mesh.mesh, path.path_join('mesh.res'))
 	print('Saved human to : ' + path)
-	notify_property_list_changed()
+	## TODO
+	## Maybe store base mesh with all occluded vertices restored
+	## will make swapping clothes later easier.  if many shapekeys
+	## are set reloading and rebaking may be slow.  Will need to 
+	## re-write logic in this script to allow starting points other 
+	## than standard base mesh
+	
+	## Generate packed scene
 
-func bake() -> void:
-	if baked:
-		printerr('Already baked.  Reset human to start over or load another config.')
-		return
-	_combine_meshes()
-	adjust_skeleton()
-	baked = true
-	on_bake_complete.emit()
-	notify_property_list_changed()
-
-func _combine_meshes() -> void:
-	var new_mesh = ArrayMesh.new()
-	new_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
-	for shape_id in body_mesh.get_blend_shape_count():
-		var shape_name = body_mesh.mesh.get_blend_shape_name(shape_id)
-		new_mesh.add_blend_shape(shape_name)
-	var i = 0
+func set_bake_meshes(subset: String) -> void:
+	_bake_meshes = []
 	for child in get_children():
 		if not child is MeshInstance3D:
 			continue
-		var surface_arrays = child.mesh.surface_get_arrays(0)
-		var blend_shape_arrays = child.mesh.surface_get_blend_shape_arrays(0)
-		var lods := {}
-		var format = child.mesh.surface_get_format(0)
-		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_arrays, blend_shape_arrays, lods, format)
-		new_mesh.surface_set_name(i, child.name)
-		new_mesh.surface_set_material(i,  child.get_surface_override_material(0))
-		i += 1
-		child.queue_free()
-	_set_body_mesh(new_mesh)
+		var mat = (child as MeshInstance3D).get_surface_override_material(0) as BaseMaterial3D
+		var add: bool = false
+		add = add or subset == 'All'
+		add = add or subset == 'Opaque' and mat != null and mat.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED
+		add = add or subset == 'Transparent' and mat != null and mat.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED
+		if add:
+			_bake_meshes.append(child)
+			
+func standard_bake() -> void:
+	if baked:
+		printerr('Already baked.  Reload the scene, load a human_config, or reset human to start over.')
+		return
+	adjust_skeleton()
+	set_bake_meshes('Opaque')
+	bake_surface()
+	set_bake_meshes('Transparent')
+	bake_surface()
+	baked = true
+
+func bake_surface() -> void:
+	HumanizerSurfaceCombiner.new(_bake_meshes)
+	baked = true
 
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
@@ -416,7 +412,7 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 	if main_collider != null:
 		_adjust_main_collider()
 
-#region Materials
+#### Materials ####
 func set_skin_texture(name: String) -> void:
 	var base_texture: String
 	if not HumanizerRegistry.skin_textures.has(name):
@@ -448,7 +444,6 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 			var base = child.material_config.overlays[0]
 			base.albedo_texture_path = cl.textures[texture]
 			child.material_config.set_base_textures(base)
-#endregion
 
 #### Animation ####
 func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:

@@ -208,36 +208,7 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="HSeparator3" type="HSeparator" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="Label2" type="Label" parent="VBoxContainer"]
-layout_mode = 2
-text = "-------------- ShapeKeys --------------
-"
-horizontal_alignment = 1
-
-[node name="HSeparator4" type="HSeparator" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="ShapekeysVBoxContainer" type="VBoxContainer" parent="VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="HSeparator7" type="HSeparator" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="Label4" type="Label" parent="VBoxContainer"]
-layout_mode = 2
-text = "-------------- Baking --------------
-"
-horizontal_alignment = 1
-
-[node name="HSeparator8" type="HSeparator" parent="VBoxContainer"]
-layout_mode = 2
-
 [node name="ColorOptions" type="HBoxContainer" parent="VBoxContainer"]
-visible = false
 layout_mode = 2
 
 [node name="Label" type="Label" parent="VBoxContainer/ColorOptions"]
@@ -276,6 +247,51 @@ text = "Eyes"
 color = Color(0.207843, 0.662745, 0.839216, 1)
 edit_alpha = false
 
+[node name="HideVerticesButtons" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="HideVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Remove vertices which should be occluded by clothes from the body mesh"
+text = "Remove Occluded Vertices"
+
+[node name="UnHideVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Restore all vertices to the body mesh"
+text = "Show All Vertices"
+
+[node name="HSeparator3" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "-------------- ShapeKeys --------------
+"
+horizontal_alignment = 1
+
+[node name="HSeparator4" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ShapekeysVBoxContainer" type="VBoxContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HSeparator7" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label4" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "-------------- Baking --------------
+"
+horizontal_alignment = 1
+
+[node name="HSeparator8" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
 [node name="SaveMenu" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
@@ -298,14 +314,44 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 5.0
+tooltip_text = "Create andn save a new scene for this human"
 text = "Save To File"
 
-[node name="BakeButton" type="Button" parent="VBoxContainer"]
+[node name="StandardBakeButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Bake"
+tooltip_text = "Bake all opaque meshes to one surface, and all transparent meshes (hair, eyelashes, eyebrows) to a second surface."
+text = "Standard Bake"
 
-[node name="HideVerticesButton" type="Button" parent="VBoxContainer"]
+[node name="BakedMeshSelectors" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="SelectAllButton" type="Button" parent="VBoxContainer/BakedMeshSelectors"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Update Hidden Vertices"
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 5.0
+tooltip_text = "Set the baked_meshes list to contain all MeshInstances"
+text = "Select All"
+
+[node name="SelectOpaqueButton" type="Button" parent="VBoxContainer/BakedMeshSelectors"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 5.0
+tooltip_text = "Set the baked_meshes list to contain all MeshInstances whose transparency is disabled"
+text = "Select Opaque"
+
+[node name="SelectTransparentButton" type="Button" parent="VBoxContainer/BakedMeshSelectors"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 5.0
+tooltip_text = "Set the baked_meshes list to contain all MeshInstances whose transparency is enabled"
+text = "Select Transparent"
+
+[node name="BakeSurfaceButton" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Combine all meshes into a single mesh.  "
+text = "Bake Selected Meshes To Surface"

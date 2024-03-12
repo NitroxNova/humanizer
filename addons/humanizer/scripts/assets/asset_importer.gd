@@ -204,7 +204,7 @@ func _import_asset(path: String, asset_name: String, data: Dictionary):
 			HumanizerRegistry.clothes.erase(asset_name)
 	# Save resources
 	mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(mesh)
-	resource.resource_path = path.path_join(asset_name + '.tres')
+	resource.take_over_path(path.path_join(asset_name + '.tres'))
 	ResourceSaver.save(mhclo, resource.mhclo_path)
 	ResourceSaver.save(resource, resource.resource_path)
 
@@ -239,7 +239,7 @@ func _import_asset(path: String, asset_name: String, data: Dictionary):
 		mi.update_material()
 		ResourceSaver.save(mat, resource.material_path)
 		
-	mesh.resource_path = resource.mesh_path
+	mesh.take_over_path(resource.mesh_path)
 	scene.pack(mi)
 	ResourceSaver.save(mesh, resource.mesh_path)
 	ResourceSaver.save(scene, resource.scene_path)
