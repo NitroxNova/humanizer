@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://dxcestxyjtefv"
+path="res://.godot/imported/low-poly.obj-4ab30e9e7e0c737ef99034ed64557a14.mesh"
+
+[deps]
+
+files=["res://.godot/imported/low-poly.obj-4ab30e9e7e0c737ef99034ed64557a14.mesh"]
+
+source_file="res://addons/humanizer/data/input_data/assets/eyes/low-poly/low-poly.obj"
+dest_files=["res://.godot/imported/low-poly.obj-4ab30e9e7e0c737ef99034ed64557a14.mesh", "res://.godot/imported/low-poly.obj-4ab30e9e7e0c737ef99034ed64557a14.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false
