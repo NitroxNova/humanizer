@@ -38,21 +38,47 @@ func get_island_bounding_boxes():
 				max_y = uv_coords.y
 		island_boxes.append(Rect2(min_x,min_y,max_x-min_x,max_y-min_y))
 	#print(island_boxes)	
+	combine_overlapping_islands()
 
 func get_island_vertex():
-	
 	island_vertex = []
 	island_vertex.resize(surface_arrays[Mesh.ARRAY_VERTEX].size())
+	#print(islands.size())
 	for island_id in islands.size():
 		var island = islands[island_id]
 		for uv_coords in island:
 			var vertex_ids = island[uv_coords]
 			#print(vertex_ids)
 			for id in vertex_ids:
-				#if not island_vertex[id] == null:
-					#print("id already set! " + str(id))
+				if not island_vertex[id] == null:
+					print("id already set! " + str(id))
 				island_vertex[id] = island_id
 	#print(island_vertex)
+	
+func combine_overlapping_islands():
+	var new_overlaps = true
+	while new_overlaps:
+		var base_island_id = 0
+		new_overlaps = false
+		while base_island_id < islands.size():
+			for merge_island_id in range(islands.size()-1,base_island_id,-1): #loop backwards to keep order when deleting
+				var box_1 : Rect2 = island_boxes[base_island_id]
+				var box_2 : Rect2 = island_boxes[merge_island_id]
+				if box_1.intersects(box_2):
+					var new_box = box_1.merge(box_2)
+					if new_box.get_area() < (box_1.get_area() + box_2.get_area()):
+						#print(str(base_island_id) + " and " + str(merge_island_id) + " are overlapping")
+						new_overlaps = true
+						# update uvs list - there will be no duplicate uvs since we already found those in get_island
+						for uv_coords in islands[merge_island_id]:
+							islands[base_island_id][uv_coords] = islands[merge_island_id][uv_coords]
+						islands.remove_at(merge_island_id)
+						#combine bounding boxes
+						island_boxes[base_island_id] = new_box
+						island_boxes.remove_at(merge_island_id)
+			base_island_id += 1
+
+	island_transform.resize(islands.size())
 		
 func get_islands():
 	islands = []
@@ -100,10 +126,10 @@ func get_islands():
 			
 		#print(face_array)
 			
-	print(islands.size())
+	#print(islands.size())
 	#print(islands)
 	island_transform.resize(islands.size())
-	get_island_vertex()
 	get_island_bounding_boxes()
+	get_island_vertex()
 			
 	

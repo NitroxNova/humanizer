@@ -8,7 +8,7 @@ script/source = "extends Control
 
 @onready var mesh :ArrayMesh = $InputMesh.mesh
 var surfaces = []
-var rect_packer : Naive_Row_Packer
+var rect_packer
 var bin_size = pow(2,12)
 
 func _ready():
@@ -23,9 +23,9 @@ func _ready():
 			var rect = sf_unwrapper.island_boxes[island_id]
 			rect.size *= sf_unwrapper.get_albedo_texture_size()
 			rect.position = Vector2.ZERO
-			var packable_rect = Naive_Row_Packer.Packable_Rect.new(rect,surface_id,island_id)
+			var packable_rect = Binary_Rect_Packer.Packable_Rect.new(rect,surface_id,island_id)
 			rect_array.append(packable_rect)
-	rect_packer = Naive_Row_Packer.new(rect_array,bin_size)
+	rect_packer = Binary_Rect_Packer.new(rect_array,bin_size)
 	
 	for packed_rect in rect_packer.rects:
 		var surface = surfaces[packed_rect.surface_id]
