@@ -15,9 +15,9 @@ func _init(mesh_instances: Array[MeshInstance3D]) -> void:
 			var rect = sf_unwrapper.island_boxes[island_id]
 			rect.size *= sf_unwrapper.get_albedo_texture_size()
 			rect.position = Vector2.ZERO
-			var packable_rect = NaiveRectPacker.Packable_Rect.new(rect, surface_id, island_id)
+			var packable_rect = BinaryRectPacker.Packable_Rect.new(rect, surface_id, island_id)
 			rect_array.append(packable_rect)
-	var rect_packer = NaiveRectPacker.new(rect_array, bin_size)
+	var rect_packer = BinaryRectPacker.new(rect_array, bin_size)
 	
 	for packed_rect in rect_packer.rects:
 		var surface = surfaces[packed_rect.surface_id]
