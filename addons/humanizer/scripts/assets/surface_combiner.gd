@@ -13,6 +13,7 @@ func run() -> MeshInstance3D:
 	var rect_array: Array = []
 	var bin_size: int = 2 ** 12
 	var surfaces: Array = []
+	var flags = mesh_instances[0].mesh.surface_get_format(0)
 	
 	DirAccess.make_dir_recursive_absolute(path)
 	
@@ -68,12 +69,15 @@ func run() -> MeshInstance3D:
 	new_sf_arrays[Mesh.ARRAY_NORMAL] = PackedVector3Array()
 	new_sf_arrays[Mesh.ARRAY_INDEX] = PackedInt32Array()
 	new_sf_arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
+	new_sf_arrays[Mesh.ARRAY_CUSTOM0] = PackedFloat32Array()
+	var lods := {}
 	
 	var vertex_offset = 0
 	for surface in surfaces:		
 		new_sf_arrays[Mesh.ARRAY_VERTEX].append_array(surface.surface_arrays[Mesh.ARRAY_VERTEX])
 		new_sf_arrays[Mesh.ARRAY_TANGENT].append_array(surface.surface_arrays[Mesh.ARRAY_TANGENT])
 		new_sf_arrays[Mesh.ARRAY_NORMAL].append_array(surface.surface_arrays[Mesh.ARRAY_NORMAL])
+		new_sf_arrays[Mesh.ARRAY_CUSTOM0].append_array(surface.surface_arrays[Mesh.ARRAY_CUSTOM0])
 		for i in surface.surface_arrays[Mesh.ARRAY_INDEX]:
 			i += vertex_offset
 			new_sf_arrays[Mesh.ARRAY_INDEX].append(i)
@@ -89,7 +93,7 @@ func run() -> MeshInstance3D:
 			new_sf_arrays[Mesh.ARRAY_TEX_UV].append(new_uv)
 		vertex_offset += surface.surface_arrays[Mesh.ARRAY_VERTEX].size()
 		
-	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_sf_arrays)
+	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_sf_arrays, [], lods, flags)
 
 	var material_path: String = path.path_join(name + '_material.tres')
 	var new_material := StandardMaterial3D.new()
