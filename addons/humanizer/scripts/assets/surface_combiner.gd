@@ -33,13 +33,11 @@ func run() -> MeshInstance3D:
 	
 	for packed_rect in rect_packer.rects:
 		var surface = surfaces[packed_rect.surface_id]
-		var old_island_position = surface.island_boxes[packed_rect.island_id].position
 		var new_island_position = packed_rect.get_position() / bin_size
-		var offset =  new_island_position - old_island_position
 		var old_island_size = surface.island_boxes[packed_rect.island_id].size
 		var new_island_size = packed_rect.get_size() / bin_size
 		var island_scale = new_island_size/old_island_size
-		var xform = Rect2(offset,island_scale)
+		var xform = Rect2(new_island_position,island_scale)
 		surface.island_transform[packed_rect.island_id] = xform
 	
 	var new_uv_image = Image.create(bin_size, bin_size, false, Image.FORMAT_RGBA8)
@@ -83,9 +81,9 @@ func run() -> MeshInstance3D:
 			var uv = surface.surface_arrays[Mesh.ARRAY_TEX_UV][vertex_id]
 			var island_id = surface.island_vertex[vertex_id]
 			var island_xform = surface.island_transform[island_id]
-			var new_uv = uv + island_xform.position
+			var new_uv = island_xform.position	
 			
-			var old_offset = surface.island_boxes[island_id].position - uv
+			var old_offset = uv - surface.island_boxes[island_id].position
 			var new_offset = old_offset * island_xform.size
 			new_uv += new_offset
 			new_sf_arrays[Mesh.ARRAY_TEX_UV].append(new_uv)

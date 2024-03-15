@@ -9,6 +9,13 @@ var island_vertex = []
 
 func _init(mesh: ArrayMesh, surface_id: int, _material):
 	material = _material
+	if _material==null:
+		material = StandardMaterial3D.new()
+	if material.albedo_texture == null:
+		var albedo_size = 2 ** 9 #512 seems reasonable, may need to change this later
+		var new_albedo_image = Image.create(albedo_size,albedo_size,false, Image.FORMAT_RGBA8)
+		new_albedo_image.fill(material.albedo_color)
+		material.albedo_texture = ImageTexture.create_from_image(new_albedo_image)
 	surface_arrays = mesh.surface_get_arrays(surface_id)
 
 func get_albedo_texture_size():
