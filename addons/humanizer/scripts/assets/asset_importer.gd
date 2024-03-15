@@ -237,7 +237,7 @@ func _import_asset(path: String, asset_name: String, data: Dictionary):
 		mat_config.set_base_textures(HumanizerOverlay.from_dict(mat_dict))
 		mat_config.add_overlay(HumanizerOverlay.from_dict(data.textures.overlay))
 		mi.update_material()
-		ResourceSaver.save(mat, resource.material_path)
+		#ResourceSaver.save(mat, resource.material_path) #dont want to overwrite the base material albedo, overlay is added when material is loaded in the scene
 		
 	mesh.take_over_path(resource.mesh_path)
 	scene.pack(mi)
