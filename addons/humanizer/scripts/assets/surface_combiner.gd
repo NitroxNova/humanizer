@@ -54,12 +54,10 @@ func run() -> MeshInstance3D:
 		var new_island_position = packed_rect.get_position()
 		new_uv_image.blit_rect(old_texture_image,Rect2(old_island_position,island_size),new_island_position)
 
-	var albedo_path = path.path_join(name + '_albedo.png')
-	new_uv_image.save_png(albedo_path)
 	var texture := ImageTexture.create_from_image(new_uv_image)
-	var texture_path = path.path_join(name + '_albedo.png')
-	texture.take_over_path(texture_path)
-	ResourceSaver.save(texture, texture_path)
+	var albedo_path = path.path_join(name + '_albedo.res')
+	texture.take_over_path(albedo_path)
+	ResourceSaver.save(texture, albedo_path)
 	
 	var new_mesh = ArrayMesh.new()
 	var new_sf_arrays = []

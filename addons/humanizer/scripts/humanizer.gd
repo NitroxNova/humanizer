@@ -433,8 +433,9 @@ func bake_surface() -> void:
 		_bake_meshes, save_path.path_join(human_name), surf_name).run()
 	mi.name = 'Baked-' + surf_name
 	var rig: HumanizerRig = HumanizerRegistry.rigs[human_config.rig.split('-')[0]]
-	var skinned_mesh: ArrayMesh = MeshOperations.skin_mesh(rig, skeleton, mi.mesh)
-	mi.mesh = skinned_mesh
+	#cant set bones after bake because the clothes need to reference mhclo data
+	#var skinned_mesh: ArrayMesh = MeshOperations.skin_mesh(rig, skeleton, mi.mesh)
+	#mi.mesh = skinned_mesh
 	add_child(mi)
 	mi.owner = self
 	for mesh in _bake_meshes:
