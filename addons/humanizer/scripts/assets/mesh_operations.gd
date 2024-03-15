@@ -58,3 +58,55 @@ static func _calculate_scale(axis: String, helper_vertex_array: Array, mhclo: MH
 	var scale = basemesh_dist/scale_data.length
 	return scale
 	
+static func skin_mesh(rig: HumanizerRig, skeleton: Skeleton3D, basemesh: ArrayMesh) -> ArrayMesh:
+	# Load bone and weight arrays for base mesh
+	var mesh_arrays = basemesh.surface_get_arrays(0)
+	var lods := {}
+	var flags := basemesh.surface_get_format(0)
+	var weights = rig.load_bone_weights()
+	var helper_mesh = load("res://addons/humanizer/data/resources/base_helpers.res")
+	var mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(helper_mesh)
+	var mh_bone_array = []
+	var mh_weight_array = []
+	var len = mesh_arrays[Mesh.ARRAY_VERTEX].size()
+	mh_bone_array.resize(len)
+	mh_weight_array.resize(len)
+	# Read mh skeleton weights
+	for bone_name in weights:
+		var bone_id = skeleton.find_bone(bone_name)
+		for bw_pair in weights[bone_name]:
+			var mh_id = bw_pair[0]
+			if mh_id >= len:  # Helper verts
+				continue
+			var weight = bw_pair[1]
+			if mh_bone_array[mh_id] == null:
+				mh_bone_array[mh_id] = PackedInt32Array()
+				mh_weight_array[mh_id] = PackedFloat32Array()
+			mh_bone_array[mh_id].append(bone_id)
+			mh_weight_array[mh_id].append(weight)
+	# Normalize
+	for mh_id in mh_bone_array.size():
+		var array = mh_weight_array[mh_id]
+		var multiplier : float = 0
+		for weight in array:
+			multiplier += weight
+		multiplier = 1 / multiplier
+		for i in array.size():
+			array[i] *= multiplier
+		mh_weight_array[mh_id] = array
+		mh_bone_array[mh_id].resize(8)
+		mh_weight_array[mh_id].resize(8)
+	# Convert to godot vertex format
+	mesh_arrays[Mesh.ARRAY_BONES] = PackedInt32Array()
+	mesh_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
+	for gd_id in mesh_arrays[Mesh.ARRAY_VERTEX].size():
+		var mh_id = mesh_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+		mesh_arrays[Mesh.ARRAY_BONES].append_array(mh_bone_array[mh_id])
+		mesh_arrays[Mesh.ARRAY_WEIGHTS].append_array(mh_weight_array[mh_id])
+	# Build new mesh
+	var skinned_mesh = ArrayMesh.new()
+	skinned_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
+	for bs in basemesh.get_blend_shape_count():
+		skinned_mesh.add_blend_shape(basemesh.get_blend_shape_name(bs))
+	skinned_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh_arrays, [], lods, flags)
+	return skinned_mesh

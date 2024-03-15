@@ -432,6 +432,9 @@ func bake_surface() -> void:
 	var mi: MeshInstance3D = HumanizerSurfaceCombiner.new(
 		_bake_meshes, save_path.path_join(human_name), surf_name).run()
 	mi.name = 'Baked-' + surf_name
+	var rig: HumanizerRig = HumanizerRegistry.rigs[human_config.rig.split('-')[0]]
+	var skinned_mesh: ArrayMesh = MeshOperations.skin_mesh(rig, skeleton, mi.mesh)
+	mi.mesh = skinned_mesh
 	add_child(mi)
 	mi.owner = self
 	for mesh in _bake_meshes:
@@ -479,7 +482,6 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	for child in get_children():
 		if child is Skeleton3D:
 			_delete_child_node(child)
-			
 	if rig_name == '':
 		return
 	if baked:
@@ -492,58 +494,8 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	var rig: HumanizerRig = HumanizerRegistry.rigs[rig_name.split('-')[0]]
 	human_config.rig = rig_name
 	skeleton = rig.load_skeleton()  # Json file needs base skeleton names
+	var skinned_mesh: ArrayMesh = MeshOperations.skin_mesh(rig, skeleton, basemesh)
 
-	# Load bone and weight arrays for base mesh
-	var mesh_arrays = basemesh.surface_get_arrays(0)
-	var lods := {}
-	var flags := basemesh.surface_get_format(0)
-	var weights = rig.load_bone_weights()
-	var helper_mesh = load("res://addons/humanizer/data/resources/base_helpers.res")
-	var mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(helper_mesh)
-	var mh_bone_array = []
-	var mh_weight_array = []
-	var len = mesh_arrays[Mesh.ARRAY_VERTEX].size()
-	mh_bone_array.resize(len)
-	mh_weight_array.resize(len)
-	# Read mh skeleton weights
-	for bone_name in weights:
-		var bone_id = skeleton.find_bone(bone_name)
-		for bw_pair in weights[bone_name]:
-			var mh_id = bw_pair[0]
-			if mh_id >= len:  # Helper verts
-				continue
-			var weight = bw_pair[1]
-			if mh_bone_array[mh_id] == null:
-				mh_bone_array[mh_id] = PackedInt32Array()
-				mh_weight_array[mh_id] = PackedFloat32Array()
-			mh_bone_array[mh_id].append(bone_id)
-			mh_weight_array[mh_id].append(weight)
-	# Normalize
-	for mh_id in mh_bone_array.size():
-		var array = mh_weight_array[mh_id]
-		var multiplier : float = 0
-		for weight in array:
-			multiplier += weight
-		multiplier = 1 / multiplier
-		for i in array.size():
-			array[i] *= multiplier
-		mh_weight_array[mh_id] = array
-		mh_bone_array[mh_id].resize(8)
-		mh_weight_array[mh_id].resize(8)
-	# Convert to godot vertex format
-	mesh_arrays[Mesh.ARRAY_BONES] = PackedInt32Array()
-	mesh_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
-	for gd_id in mesh_arrays[Mesh.ARRAY_VERTEX].size():
-		var mh_id = mesh_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-		mesh_arrays[Mesh.ARRAY_BONES].append_array(mh_bone_array[mh_id])
-		mesh_arrays[Mesh.ARRAY_WEIGHTS].append_array(mh_weight_array[mh_id])
-	# Build new mesh
-	var skinned_mesh = ArrayMesh.new()
-	skinned_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
-	for bs in basemesh.get_blend_shape_count():
-		skinned_mesh.add_blend_shape(basemesh.get_blend_shape_name(bs))
-	skinned_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh_arrays, [], lods, flags)
-	
 	# Set rig in scene
 	if retargeted:
 		skeleton = rig.load_retargeted_skeleton()
@@ -555,7 +507,6 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	_set_body_mesh(skinned_mesh)
 	body_mesh.set_surface_override_material(0, mat)
 	body_mesh.skeleton = skeleton.get_path()
-
 	adjust_skeleton()
 	set_shapekeys(human_config.shapekeys)
 	
