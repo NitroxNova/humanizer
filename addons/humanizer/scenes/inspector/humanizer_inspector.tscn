@@ -350,8 +350,27 @@ size_flags_stretch_ratio = 5.0
 tooltip_text = "Set the baked_meshes list to contain all MeshInstances whose transparency is enabled"
 text = "Select Transparent"
 
-[node name="BakeSurfaceButton" type="Button" parent="VBoxContainer"]
+[node name="BakedMeshSelectors2" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="VBoxContainer/BakedMeshSelectors2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Surface Name:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="SurfaceName" type="LineEdit" parent="VBoxContainer/BakedMeshSelectors2"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.03
+placeholder_text = "Surface0"
+
+[node name="BakeSurfaceButton" type="Button" parent="VBoxContainer/BakedMeshSelectors2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 4.0
 tooltip_text = "Combine all meshes into a single mesh.  "
 text = "Bake Selected Meshes To Surface"

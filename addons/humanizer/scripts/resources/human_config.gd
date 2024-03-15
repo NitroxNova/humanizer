@@ -18,3 +18,7 @@ extends Resource
 @export var clothes := []
 @export var clothes_materials := {}
 
+## Colors
+@export var skin_color: Color = Color.WHITE
+@export var eye_color: Color = Color.SKY_BLUE
+@export var hair_color: Color = Color.BLACK

@@ -33,12 +33,27 @@ var shapekey_data: Dictionary:
 			_shapekey_data = HumanizerUtils.get_shapekey_data()
 		return _shapekey_data
 var _helper_vertex: PackedVector3Array = []
+var save_path: String:
+	get:
+		var path = HumanizerConfig.human_export_path
+		if path == null:
+			path = 'res://data/humans'
+		return path
+var human_name: String = 'MyHuman'
+var _save_path_valid: bool:
+	get:
+		if FileAccess.file_exists(save_path.path_join(human_name).path_join(human_name + '.tscn')):
+			printerr('A human with this name has already been saved.  Use a different name.')
+			return false
+		return true
+var bake_surface_name: String
 
 var skin_color: Color = Color.WHITE:
 	set(value):
 		skin_color = value
 		if scene_loaded and body_mesh.material_config.overlays.size() == 0:
 			return
+		human_config.skin_color = skin_color
 		body_mesh.material_config.overlays[0].color = skin_color
 		body_mesh.material_config.update_material()
 var hair_color: Color = Color.WEB_MAROON:
@@ -46,6 +61,7 @@ var hair_color: Color = Color.WEB_MAROON:
 		hair_color = value
 		if human_config == null:
 			return
+		human_config.hair_color = hair_color
 		var slots: Array = [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows', &'Hair']
 		for slot in slots:
 			if not human_config.body_parts.has(slot):
@@ -58,6 +74,7 @@ var eye_color: Color = Color.SKY_BLUE:
 		eye_color = value
 		if human_config == null:
 			return
+		human_config.eye_color = eye_color
 		var slots: Array = [&'RightEye', &'LeftEye', &'Eyes']
 		for slot in slots:
 			if not human_config.body_parts.has(slot):
@@ -85,7 +102,7 @@ var eye_color: Color = Color.SKY_BLUE:
 	set(value):
 		_animator = value
 		_reset_animator()
-## THe renderingn layers for the human's 3d mesh instances
+## THe rendering layers for the human's 3d mesh instances
 @export_flags_3d_render var _render_layers:
 	set(value):
 		_render_layers = value
@@ -201,18 +218,13 @@ func deserialize() -> void:
 	
 func serialize(name: String) -> void:
 	## Save to files for easy load later
-	var path = HumanizerConfig.human_export_path
-	if path == null:
-		path = 'res://data/humans'
-	path = path.path_join(name)
-	if DirAccess.dir_exists_absolute(path):
-		printerr('A human with this name has already been saved.  Use a different name.')
+	if not _save_path_valid:
 		return
-	DirAccess.make_dir_recursive_absolute(path)
-	ResourceSaver.save(human_config, path.path_join(name + '.res'))
-	human_config.take_over_path(path.path_join(name + '.res'))
-	ResourceSaver.save(body_mesh.mesh, path.path_join('mesh.res'))
-	print('Saved human to : ' + path)
+	DirAccess.make_dir_recursive_absolute(save_path)
+	ResourceSaver.save(human_config, save_path.path_join(name + '.res'))
+	human_config.take_over_path(save_path.path_join(name + '.res'))
+	ResourceSaver.save(body_mesh.mesh, save_path.path_join('mesh.res'))
+	print('Saved human to : ' + save_path)
 	## TODO
 	## Maybe store base mesh with all occluded vertices restored
 	## will make swapping clothes later easier.  if many shapekeys
@@ -221,6 +233,7 @@ func serialize(name: String) -> void:
 	## than standard base mesh
 	
 	## Generate packed scene
+
 
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
@@ -409,7 +422,22 @@ func standard_bake() -> void:
 	baked = true
 
 func bake_surface() -> void:
-	HumanizerSurfaceCombiner.new(_bake_meshes)
+	var surf_name = bake_surface_name
+	if surf_name in [null, '']:
+		surf_name = 'Surface0'
+	for child in get_children():
+		if child.name == 'Baked-' + surf_name:
+			printerr('Surface ' + surf_name + ' already exists.  Choose a different name.')
+			return
+	var mi: MeshInstance3D = HumanizerSurfaceCombiner.new(
+		_bake_meshes, save_path.path_join(human_name), surf_name).run()
+	mi.name = 'Baked-' + surf_name
+	add_child(mi)
+	mi.owner = self
+	for mesh in _bake_meshes:
+		remove_child(mesh)
+		mesh.queue_free()
+	_bake_meshes = []
 	baked = true
 
 #### Materials ####

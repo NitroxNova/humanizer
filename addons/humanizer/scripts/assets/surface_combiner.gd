@@ -1,9 +1,20 @@
 class_name HumanizerSurfaceCombiner
 
-func _init(mesh_instances: Array[MeshInstance3D]) -> void:
+var mesh_instances: Array[MeshInstance3D]
+var path: String
+var name: String
+
+func _init(_mesh_instances: Array[MeshInstance3D], _path: String, _name: String) -> void:
+	mesh_instances = _mesh_instances
+	path = _path
+	name = _name
+	
+func run() -> MeshInstance3D:
 	var rect_array: Array = []
 	var bin_size: int = 2 ** 12
 	var surfaces: Array = []
+	
+	DirAccess.make_dir_recursive_absolute(path)
 	
 	for mesh: MeshInstance3D in mesh_instances:
 		var surface_id = surfaces.size()
@@ -27,7 +38,6 @@ func _init(mesh_instances: Array[MeshInstance3D]) -> void:
 		var old_island_size = surface.island_boxes[packed_rect.island_id].size
 		var new_island_size = packed_rect.get_size() / bin_size
 		var island_scale = new_island_size/old_island_size
-		#print(island_scale)
 		var xform = Rect2(offset,island_scale)
 		surface.island_transform[packed_rect.island_id] = xform
 	
@@ -42,8 +52,13 @@ func _init(mesh_instances: Array[MeshInstance3D]) -> void:
 		var island_size =  packed_rect.get_size()
 		var new_island_position = packed_rect.get_position()
 		new_uv_image.blit_rect(old_texture_image,Rect2(old_island_position,island_size),new_island_position)
-		
-	new_uv_image.save_png("res://baked_uv.png")
+
+	var albedo_path = path.path_join(name + '_albedo.png')
+	new_uv_image.save_png(albedo_path)
+	var texture := ImageTexture.create_from_image(new_uv_image)
+	var texture_path = path.path_join(name + '_albedo.png')
+	texture.take_over_path(texture_path)
+	ResourceSaver.save(texture, texture_path)
 	
 	var new_mesh = ArrayMesh.new()
 	var new_sf_arrays = []
@@ -75,9 +90,18 @@ func _init(mesh_instances: Array[MeshInstance3D]) -> void:
 		vertex_offset += surface.surface_arrays[Mesh.ARRAY_VERTEX].size()
 		
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_sf_arrays)
-	return
-	var new_material = StandardMaterial3D.new()
-	new_material.albedo_texture = load("res://baked_uv.png")
-	new_mesh.surface_set_material(0,new_material)
-	ResourceSaver.save(new_mesh,"res://output_mesh.res")
+
+	var material_path: String = path.path_join(name + '_material.tres')
+	var new_material := StandardMaterial3D.new()
+	new_material.albedo_texture = load(albedo_path)
+	new_material.take_over_path(material_path)
+	ResourceSaver.save(new_material, material_path)
 	
+	new_mesh.surface_set_material(0, new_material)
+	var mesh_path: String = path.path_join(name + '_mesh.tres')
+	new_mesh.take_over_path(mesh_path)
+	ResourceSaver.save(new_mesh, mesh_path)
+	
+	var mi = MeshInstance3D.new()
+	mi.mesh = new_mesh
+	return mi

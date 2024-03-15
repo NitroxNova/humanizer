@@ -10,18 +10,12 @@ func _parse_category(human, category):
 	var scene = load("res://addons/humanizer/scenes/inspector/humanizer_inspector.tscn").instantiate()
 	add_custom_control(scene)
 	
-	# Action buttons
+	# Header Section
 	scene.get_node('%ResetButton').pressed.connect(func(): human.human_config = HumanConfig.new())
 	scene.get_node('%AdjustSkeletonButton').pressed.connect(human.adjust_skeleton)
-	scene.get_node('%SaveButton').pressed.connect(_save_human.bind(human, scene.get_node('%HumanName')))
 	scene.get_node('%RigOptionButton').human = human
-	scene.get_node('%HideVerticesButton').pressed.connect(human.update_hide_vertices)
-	scene.get_node('%SelectAllButton').pressed.connect(human.set_bake_meshes.bind('All'))
-	scene.get_node('%SelectOpaqueButton').pressed.connect(human.set_bake_meshes.bind('Opaque'))
-	scene.get_node('%SelectTransparentButton').pressed.connect(human.set_bake_meshes.bind('Transparent'))
-	scene.get_node('%StandardBakeButton').pressed.connect(human.standard_bake)
-	scene.get_node('%BakeSurfaceButton').pressed.connect(human.bake_surface)
-	# Colors
+
+	## Color pickers
 	scene.get_node('%SkinColorPicker').color = human.skin_color
 	scene.get_node('%HairColorPicker').color = human.hair_color
 	scene.get_node('%EyeColorPicker').color = human.eye_color
@@ -34,7 +28,19 @@ func _parse_category(human, category):
 	scene.get_node('%RagdollCheckBox').button_pressed = 'ragdoll' in human.human_config.components
 	scene.get_node('%MainColliderCheckBox').toggled.connect(human.set_component_state.bind(&'main_collider'))
 	scene.get_node('%RagdollCheckBox').toggled.connect(human.set_component_state.bind(&'ragdoll'))
+	
+	## Baking section
+	scene.get_node('%SelectAllButton').pressed.connect(human.set_bake_meshes.bind('All'))
+	scene.get_node('%SelectOpaqueButton').pressed.connect(human.set_bake_meshes.bind('Opaque'))
+	scene.get_node('%SelectTransparentButton').pressed.connect(human.set_bake_meshes.bind('Transparent'))
+	scene.get_node('%StandardBakeButton').pressed.connect(human.standard_bake)
+	scene.get_node('%SurfaceName').text_changed.connect(func(value: String): human.bake_surface_name = value)
+	scene.get_node('%BakeSurfaceButton').pressed.connect(human.bake_surface)
+	scene.get_node('%HumanName').text_changed.connect(func(value: String): human.human_name = value)
+	scene.get_node('%SaveButton').pressed.connect(_save_human.bind(human))
 
+	## Assets
+	scene.get_node('%HideVerticesButton').pressed.connect(human.update_hide_vertices)
 	# BodyParts inspector
 	var bp_container = scene.get_node('%BodyPartsContainer') as BodyPartsInspector
 	scene.get_node('%BodyPartsButton').pressed.connect(func(): bp_container.visible = not bp_container.visible)
