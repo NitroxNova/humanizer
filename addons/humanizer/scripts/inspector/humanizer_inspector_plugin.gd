@@ -38,7 +38,7 @@ func _parse_category(human, category):
 	scene.get_node('%SurfaceName').text_changed.connect(func(value: String): human.bake_surface_name = value)
 	scene.get_node('%BakeSurfaceButton').pressed.connect(human.bake_surface)
 	scene.get_node('%HumanName').text_changed.connect(func(value: String): human.human_name = value)
-	scene.get_node('%SaveButton').pressed.connect(human.serialize)
+	scene.get_node('%SaveButton').pressed.connect(human.save_human_scene)
 
 	## Assets
 	scene.get_node('%HideVerticesButton').pressed.connect(human.update_hide_vertices)

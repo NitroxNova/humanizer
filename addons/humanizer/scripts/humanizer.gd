@@ -217,7 +217,7 @@ func deserialize() -> void:
 	for component in human_config.components:
 		set_component_state(true, component)
 	
-func serialize() -> void:
+func save_human_scene() -> void:
 	## Save to files for easy load later
 	if not _save_path_valid:
 		return
@@ -233,6 +233,8 @@ func serialize() -> void:
 	elif _baked_root_node == &'RigidBody3D':
 		root_node = RigidBody3D.new()
 	var mi = MeshInstance3D.new()
+	if HumanizerGlobal.config.default_human_script != '':
+		mi.set_script(load(HumanizerGlobal.config.default_human_script))
 	
 	var sk = skeleton.duplicate(true) as Skeleton3D
 	root_node.add_child(sk)
@@ -285,7 +287,6 @@ func serialize() -> void:
 	scene.pack(root_node)
 	ResourceSaver.save(scene, save_path.path_join(human_name + '.tscn'))
 	print('Saved human to : ' + save_path)
-	return
 
 	## TODO
 	## Maybe store base mesh with all occluded vertices restored
