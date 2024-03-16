@@ -32,6 +32,61 @@ static func get_shapekey_data() -> Dictionary:
 	shapekey_data.shapekeys = file.get_var(true)
 	file.close()
 	return shapekey_data
+
+static func get_shapekey_categories(shapekeys) -> Dictionary:
+	var categories := {
+		'RaceAge': [],
+		'MuscleWeight': [],
+		'Head': [],
+		'Eyes': [],
+		'Mouth': [],
+		'Nose': [],
+		'Ears': [],
+		'Face': [],
+		'Neck': [],
+		'Chest': [],
+		'Breasts': [],
+		'Hips': [],
+		'Arms': [],
+		'Legs': [],
+		'Misc': [],
+	}
+	for name in shapekeys.shapekeys:
+		if 'penis' in name.to_lower():
+			continue
+		if 'caucasian' in name.to_lower() or 'african' in name.to_lower() or 'asian' in name.to_lower():
+			categories['RaceAge'].append(name)
+		elif 'cup' in name.to_lower() or 'bust' in name.to_lower() or 'breast' in name.to_lower() or 'nipple' in name.to_lower():
+			categories['Breasts'].append(name)
+		elif 'averagemuscle' in name.to_lower() or 'minmuscle' in name.to_lower() or 'maxmuscle' in name.to_lower():
+			categories['MuscleWeight'].append(name)
+		elif 'head' in name.to_lower() or 'brown' in name.to_lower() or 'top' in name.to_lower():
+			categories['Head'].append(name)
+		elif 'eye' in name.to_lower():
+			categories['Eyes'].append(name)
+		elif 'mouth' in name.to_lower():
+			categories['Mouth'].append(name)
+		elif 'nose' in name.to_lower():
+			categories['Nose'].append(name)
+		elif 'ear' in name.to_lower():
+			categories['Ears'].append(name)
+		elif 'jaw' in name.to_lower() or 'cheek' in name.to_lower() or 'temple' in name.to_lower() or 'chin' in name.to_lower():
+			categories['Face'].append(name)
+		elif 'arm' in name.to_lower() or 'hand' in name.to_lower() or 'finger' in name.to_lower() or 'wrist' in name.to_lower():
+			categories['Arms'].append(name)
+		elif 'leg' in name.to_lower() or 'calf' in name.to_lower() or 'foot' in name.to_lower() or 'butt' in name.to_lower() or 'ankle' in name.to_lower() or 'thigh' in name.to_lower() or 'knee' in name.to_lower():
+			categories['Legs'].append(name)
+		elif 'torso' in name.to_lower() or 'chest' in name.to_lower() or 'shoulder' in name.to_lower():
+			categories['Chest'].append(name)
+		elif 'hip' in name.to_lower() or 'trunk' in name.to_lower() or 'pelvis' in name.to_lower() or 'waist' in name.to_lower() or 'pelvis' in name.to_lower() or 'stomach' in name.to_lower() or 'bulge' in name.to_lower():
+			categories['Hips'].append(name)
+		elif 'hand' in name.to_lower() or 'finger' in name.to_lower():
+			categories['Hands'].append(name)
+		elif 'neck' in name.to_lower():
+			categories['Neck'].append(name)
+		else:
+			categories['Misc'].append(name)
+	return categories
 	
 static func show_window(interior, closeable: bool = true, size=Vector2i(500, 500)) -> void:
 	if not Engine.is_editor_hint():
