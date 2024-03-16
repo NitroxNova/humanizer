@@ -19,7 +19,6 @@ func _ready() -> void:
 	_set_rig_options()
 	
 	item_selected.connect(_on_rig_selected)
-	human.on_human_reset.connect(func(): selected = -1)
 	
 	selected = -1
 	for item in item_count:

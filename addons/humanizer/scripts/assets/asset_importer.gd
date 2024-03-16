@@ -83,7 +83,7 @@ func _scan_path(path: String) -> void:
 			# Eyes come with two textures for coloring iris, base and overlay
 			if 'overlay' in file_name.get_file():
 				textures['overlay'] = {'albedo': file_name}
-			if file_name.rsplit('.', true, 1)[-2].ends_with('normal'):
+			elif file_name.rsplit('.', true, 1)[-2].ends_with('normal'):
 				textures['normal'] = file_name
 			elif file_name.rsplit('.', true, 1)[-2].ends_with('ao'):
 				textures['ao'] = file_name
@@ -163,7 +163,7 @@ func _import_asset(path: String, asset_name: String, data: Dictionary):
 		printerr('Unrecognized slot type ' + str(slot))
 	resource.path = path
 	resource.resource_name = asset_name
-	resource.textures = data.textures
+	resource.textures = data.textures.duplicate()
 	if data.has('overlay'):
 		HumanizerRegistry.overlays[asset_name] = HumanizerOverlay.from_dict(data.overlay)
 	if resource.scene_path in EditorInterface.get_open_scenes():
@@ -221,8 +221,10 @@ func _import_asset(path: String, asset_name: String, data: Dictionary):
 	add_child(mi)
 	mi.owner = self
 	
-	if data.textures.has('overlay'):
+	if resource.textures.has('overlay'):
 		resource.default_overlay = HumanizerOverlay.from_dict(data.textures.overlay)	
+		resource.textures.erase('overlay')
+		
 	ResourceSaver.save(resource, resource.resource_path)
 	mesh.take_over_path(resource.mesh_path)
 	scene.pack(mi)

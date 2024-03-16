@@ -69,7 +69,6 @@ var hair_color: Color = _DEFAULT_HAIR_COLOR:
 		for slot in slots:
 			if not human_config.body_parts.has(slot):
 				return
-			print(slot)
 			var mesh = get_node(human_config.body_parts[slot].resource_name)
 			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = hair_color
 var eye_color: Color = _DEFAULT_EYE_COLOR:
@@ -132,6 +131,7 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 @export_flags_3d_physics var _ragdoll_mask:
 	set(value):
 		_ragdoll_mask = value
+
 
 
 func _ready() -> void:
@@ -249,8 +249,10 @@ func set_body_part(bp: HumanBodyPart) -> void:
 		var current = human_config.body_parts[bp.slot]
 		_delete_child_by_name(current.resource_name)
 	human_config.body_parts[bp.slot] = bp
-	var bp_scene = load(bp.scene_path).instantiate() as MeshInstance3D
-	_add_child_node(bp_scene)
+	var mi = load(bp.scene_path).instantiate() as MeshInstance3D
+	if bp.default_overlay != null:
+		setup_overlay_material(bp, mi)
+	_add_child_node(mi)
 	_add_bone_weights(bp)
 	set_shapekeys(human_config.shapekeys)
 	#notify_property_list_changed()
@@ -272,6 +274,8 @@ func apply_clothes(cl: HumanClothes) -> void:
 	if not cl in human_config.clothes:
 		human_config.clothes.append(cl)
 	var mi = load(cl.scene_path).instantiate()
+	if cl.default_overlay != null:
+		setup_overlay_material(cl, mi)
 	_add_child_node(mi)
 	_add_bone_weights(cl)
 	set_shapekeys(human_config.shapekeys)
@@ -434,10 +438,6 @@ func bake_surface() -> void:
 	var mi: MeshInstance3D = HumanizerSurfaceCombiner.new(
 		_bake_meshes, save_path.path_join(human_name), surf_name).run()
 	mi.name = 'Baked-' + surf_name
-	var rig: HumanizerRig = HumanizerRegistry.rigs[human_config.rig.split('-')[0]]
-	#cant set bones after bake because the clothes need to reference mhclo data
-	#var skinned_mesh: ArrayMesh = MeshOperations.skin_mesh(rig, skeleton, mi.mesh)
-	#mi.mesh = skinned_mesh
 	add_child(mi)
 	mi.owner = self
 	mi.skeleton = skeleton.get_path()
@@ -480,39 +480,51 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 	#print('setting material ' + texture + ' on ' + set_slot)
 	var bp: HumanBodyPart = human_config.body_parts[set_slot]
 	human_config.body_part_materials[set_slot] = texture
-	var mesh = get_node(bp.resource_name)
+	var mi = get_node(bp.resource_name) as MeshInstance3D
 	if bp.default_overlay != null:
-		setup_overlay_material(bp, texture)
-		await get_tree().process_frame
+		var mat_config: HumanizerMaterial = (get_node(bp.resource_name) as HumanizerMeshInstance).material_config
+		var overlay_dict = {'albedo': bp.textures[texture]}
+		if mi.get_surface_override_material(0).normal_texture != null:
+			overlay_dict['normal'] = mi.get_surface_override_material(0).normal_texture.resource_path
+		if mi.get_surface_override_material(0).ao_texture != null:
+			overlay_dict['ao'] = mi.get_surface_override_material(0).ao_texture.resource_path
+		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	else:
-		var mat: BaseMaterial3D = (mesh as MeshInstance3D).get_surface_override_material(0)
+		var mat: BaseMaterial3D = mi.get_surface_override_material(0)
 		mat.albedo_texture = load(bp.textures[texture])
 	if bp.slot in [&'LeftEye', &'RightEye', &'Eyes']:
 		await get_tree().process_frame
-		mesh.material_config.overlays[1].color = eye_color
+		mi.material_config.overlays[1].color = eye_color
 	if bp.slot in [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows', &'Hair']:
-		mesh.get_surface_override_material(0).albedo_color = hair_color
+		await get_tree().process_frame
+		mi.get_surface_override_material(0).albedo_color = hair_color
 
 func set_clothes_material(cl_name: String, texture: String) -> void:
-	print('setting material ' + texture + ' on ' + cl_name)
+	#print('setting material ' + texture + ' on ' + cl_name)
 	var cl: HumanClothes = HumanizerRegistry.clothes[cl_name]
-	for child in get_children():
-		if child.name == name:
-			if cl.default_overlay != null:
-				setup_overlay_material(cl, texture)
-			else:
-				(child as MeshInstance3D).get_surface_override_material(0).albedo_texture = load(texture)
+	var mi: MeshInstance3D = get_node(cl.resource_name)
 
-func setup_overlay_material(asset: HumanAsset, texture: String) -> void:
-	var mi: MeshInstance3D = get_node(asset.resource_name)
+	if cl.default_overlay != null:
+		var mat_config: HumanizerMaterial = (mi as HumanizerMeshInstance).mat_config
+		var overlay_dict = HumanizerOverlay.from_dict({'albedo': cl.textures[texture]})
+		if mi.get_surface_override_material(0).normal_texture != null:
+			overlay_dict['normal'] = mi.get_surface_override_material(0).normal_texture.resource_path
+		if mi.get_surface_override_material(0).ao_texture != null:
+			overlay_dict['ao'] = mi.get_surface_override_material(0).ao_texture.resource_path
+		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
+	else:
+		mi.get_surface_override_material(0).albedo_texture = load(texture)
+
+func setup_overlay_material(asset: HumanAsset, mi: MeshInstance3D) -> void:
 	mi.set_script(load("res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd"))
-	# Already in tree so call _ready manually
-	mi._ready()
+	await get_tree().process_frame
 	var mat_config = mi.material_config as HumanizerMaterial
-	var base = HumanizerOverlay.from_dict({
-		'albedo': asset.path.path_join(texture)
-	})
-	mat_config.set_base_textures(base)
+	var overlay_dict = {'albedo': asset.textures.values()[0]}
+	if mi.get_surface_override_material(0).normal_texture != null:
+		overlay_dict['normal'] = mi.get_surface_override_material(0).normal_texture.resource_path
+	if mi.get_surface_override_material(0).ao_texture != null:
+		overlay_dict['ao'] = mi.get_surface_override_material(0).ao_texture.resource_path
+	mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	mat_config.add_overlay(asset.default_overlay)
 	
 #### Animation ####

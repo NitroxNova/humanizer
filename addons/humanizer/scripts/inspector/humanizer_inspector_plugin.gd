@@ -48,7 +48,6 @@ func _parse_category(human, category):
 	bp_container.body_slot_cleared.connect(func(slot): human.clear_body_part(slot))
 	bp_container.material_set.connect(func(slot, idx): human.set_body_part_material(slot, idx))
 	bp_container.config = human.human_config
-	human.on_human_reset.connect(bp_container.reset)
 
 	# Clothes inspector
 	var cl_container = scene.get_node('%ClothesContainer') as ClothesInspector
@@ -57,14 +56,11 @@ func _parse_category(human, category):
 	cl_container.clothes_cleared.connect(func(sl): human.clear_clothes_in_slot(sl))
 	cl_container.material_set.connect(func(cl, idx): human.set_clothes_material(cl, idx))
 	cl_container.config = human.human_config
-	human.on_human_reset.connect(cl_container.reset)
-	human.on_clothes_removed.connect(cl_container.clear_clothes)
 
 	# Skin controls
 	var skin_options = scene.get_node('%SkinOptionsButton')
 	skin_options.skin_selected.connect(human.set_skin_texture)
 	skin_options.config = human.human_config
-	human.on_human_reset.connect(skin_options.reset)
 	
 	# Add shapekey categories and sliders
 	var sliders = {
@@ -139,7 +135,6 @@ func _parse_category(human, category):
 		button.pressed.connect(func(): cat_container.visible = not cat_container.visible)
 		cat_container.shapekey_value_changed.connect(human.set_shapekeys)
 		cat_container.config = human.human_config
-		human.on_human_reset.connect(cat_container.reset_sliders)
 
 func _save_human(human: Humanizer, name: LineEdit) -> void:
 	var save_name: String

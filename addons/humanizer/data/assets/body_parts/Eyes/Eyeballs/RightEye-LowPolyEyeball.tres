@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="1_170jo"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="2_ahy11"]
 
-[sub_resource type="Resource" id="Resource_n3dal"]
+[sub_resource type="Resource" id="Resource_alq7u"]
 resource_name = "overlay_iris"
 script = ExtResource("1_170jo")
 albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/overlay_iris_albedo.png"
@@ -16,11 +16,7 @@ resource_name = "RightEye-LowPolyEyeball"
 script = ExtResource("2_ahy11")
 slot = "RightEye"
 textures = {
-"eyeball_albedo.png": "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/eyeball_albedo.png",
-"overlay": {
-"albedo": "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/overlay_iris_albedo.png"
-},
-"overlay_iris_albedo.png": "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/overlay_iris_albedo.png"
+"eyeball_albedo.png": "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/eyeball_albedo.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs"
-default_overlay = SubResource("Resource_n3dal")
+default_overlay = SubResource("Resource_alq7u")
