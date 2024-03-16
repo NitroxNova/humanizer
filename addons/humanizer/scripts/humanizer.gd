@@ -440,6 +440,7 @@ func bake_surface() -> void:
 	#mi.mesh = skinned_mesh
 	add_child(mi)
 	mi.owner = self
+	mi.skeleton = skeleton.get_path()
 	for mesh in _bake_meshes:
 		remove_child(mesh)
 		mesh.queue_free()

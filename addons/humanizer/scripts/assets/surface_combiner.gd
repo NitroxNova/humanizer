@@ -64,12 +64,27 @@ func run() -> MeshInstance3D:
 	new_sf_arrays[Mesh.ARRAY_NORMAL] = PackedVector3Array()
 	new_sf_arrays[Mesh.ARRAY_INDEX] = PackedInt32Array()
 	new_sf_arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
+	new_sf_arrays[Mesh.ARRAY_BONES] = PackedInt32Array()
+	new_sf_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
+	
+	#issue is the human mesh has 4 bones per vertex and the clothes have 8
+	var mesh_bone_count = 0 #get the max bone count for all surfaces, might be better to just set it to 8
+	for surface in surfaces:
+		var sf_bone_count = surface.surface_arrays[Mesh.ARRAY_BONES].size()/surface.surface_arrays[Mesh.ARRAY_VERTEX].size()
+		if sf_bone_count > mesh_bone_count:
+			mesh_bone_count = sf_bone_count	
 	
 	var vertex_offset = 0
 	for surface in surfaces:		
 		new_sf_arrays[Mesh.ARRAY_VERTEX].append_array(surface.surface_arrays[Mesh.ARRAY_VERTEX])
 		new_sf_arrays[Mesh.ARRAY_TANGENT].append_array(surface.surface_arrays[Mesh.ARRAY_TANGENT])
 		new_sf_arrays[Mesh.ARRAY_NORMAL].append_array(surface.surface_arrays[Mesh.ARRAY_NORMAL])
+		
+		var sf_bone_count = surface.surface_arrays[Mesh.ARRAY_BONES].size()/surface.surface_arrays[Mesh.ARRAY_VERTEX].size()
+		if sf_bone_count == mesh_bone_count:
+			new_sf_arrays[Mesh.ARRAY_BONES].append_array(surface.surface_arrays[Mesh.ARRAY_BONES])
+			new_sf_arrays[Mesh.ARRAY_WEIGHTS].append_array(surface.surface_arrays[Mesh.ARRAY_WEIGHTS])
+		
 		for i in surface.surface_arrays[Mesh.ARRAY_INDEX]:
 			i += vertex_offset
 			new_sf_arrays[Mesh.ARRAY_INDEX].append(i)
@@ -83,6 +98,16 @@ func run() -> MeshInstance3D:
 			var new_offset = old_offset * island_xform.size
 			new_uv += new_offset
 			new_sf_arrays[Mesh.ARRAY_TEX_UV].append(new_uv)
+						
+			if sf_bone_count < mesh_bone_count:
+				var bone_slice = surface.surface_arrays[Mesh.ARRAY_BONES].slice(vertex_id*sf_bone_count,(vertex_id+1)*sf_bone_count)
+				var weight_slice = surface.surface_arrays[Mesh.ARRAY_WEIGHTS].slice(vertex_id*sf_bone_count,(vertex_id+1)*sf_bone_count)
+				while bone_slice.size() < mesh_bone_count:
+					bone_slice.append(0)
+					weight_slice.append(0)
+				new_sf_arrays[Mesh.ARRAY_BONES].append_array(bone_slice)
+				new_sf_arrays[Mesh.ARRAY_WEIGHTS].append_array(weight_slice)
+				
 		vertex_offset += surface.surface_arrays[Mesh.ARRAY_VERTEX].size()
 		
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_sf_arrays)
