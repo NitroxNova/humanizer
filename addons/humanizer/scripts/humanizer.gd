@@ -295,9 +295,9 @@ func save_human_scene() -> void:
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	_delete_child_by_name(_BASE_MESH_NAME)
 	body_mesh = MeshInstance3D.new()
-	body_mesh.set_surface_override_material(0, StandardMaterial3D.new())
 	body_mesh.name = _BASE_MESH_NAME
 	body_mesh.mesh = meshdata
+	body_mesh.set_surface_override_material(0, StandardMaterial3D.new())
 	body_mesh.set_script(humanizer_mesh_instance)
 	if skeleton != null:
 		body_mesh.skeleton = skeleton.get_path()
