@@ -41,7 +41,7 @@ var save_path: String:
 		var path = HumanizerConfig.human_export_path
 		if path == null:
 			path = 'res://data/humans'
-		return path
+		return path.path_join(human_name)
 var human_name: String = 'MyHuman'
 var _save_path_valid: bool:
 	get:
@@ -221,24 +221,78 @@ func serialize() -> void:
 	## Save to files for easy load later
 	if not _save_path_valid:
 		return
-	
-	_combine_meshes()
-	return
-		
 	DirAccess.make_dir_recursive_absolute(save_path)
-	ResourceSaver.save(human_config, save_path.path_join(human_name + '.res'))
-	human_config.take_over_path(save_path.path_join(human_name + '.res'))
-	ResourceSaver.save(body_mesh.mesh, save_path.path_join('mesh.res'))
-	body_mesh.mesh.take_over_path(save_path.path_join('mesh.res'))
+	
+	var new_mesh = _combine_meshes()
+	var scene = PackedScene.new()
+	var root_node: Node
+	if _baked_root_node == &'StaticBody3D':
+		root_node = StaticBody3D.new()
+	elif _baked_root_node == &'CharacterBody3D':
+		root_node = CharacterBody3D.new()
+	elif _baked_root_node == &'RigidBody3D':
+		root_node = RigidBody3D.new()
+	var mi = MeshInstance3D.new()
+	
+	var sk = skeleton.duplicate(true) as Skeleton3D
+	root_node.add_child(sk)
+	sk.owner = root_node
+	
+	if main_collider != null:
+		var coll = main_collider.duplicate(true)
+		root_node.add_child(coll)
+		coll.owner = root_node
+	
+	var animator = get_node_or_null(^'AnimationTree')
+	if animator == null:
+		animator = get_node_or_null(^'AnimationPlayer')
+	if animator != null:
+		animator = animator.duplicate(true)
+		root_node.add_child(animator)
+		animator.owner = root_node
+	
+	root_node.name = human_name
+	mi.mesh = new_mesh
+	root_node.add_child(mi)
+	mi.owner = root_node
+	mi.skeleton = NodePath('../' + sk.name)
+	mi.skin = sk.create_skin_from_rest_transforms()
+	
+	for surface in mi.mesh.get_surface_count():
+		var mat = mi.mesh.surface_get_material(surface)
+		var surf_name: String = mi.mesh.surface_get_name(surface)
+		if mat.albedo_texture != null:
+			var path := save_path.path_join(surf_name + '_albedo.png')
+			ResourceSaver.save(mat.albedo_texture, path)
+			mat.albedo_texture.take_over_path(path)
+		if mat.normal_texture != null:
+			var path := save_path.path_join(surf_name + '_normal.png')
+			ResourceSaver.save(mat.albedo_texture, path)
+			mat.normal_texture.take_over_path(path)
+		if mat.ao_texture != null:
+			var path := save_path.path_join(surf_name + '_ao.png')
+			ResourceSaver.save(mat.albedo_texture, path)
+			mat.ao_texture.take_over_path(path)
+		var path := save_path.path_join(surf_name + '_material.tres')
+		ResourceSaver.save(mat, path)
+		mat.take_over_path(path)
+		
+	var path := save_path.path_join('mesh.tres')
+	ResourceSaver.save(mi.mesh, path)
+	mi.mesh.take_over_path(path)
+	path = save_path.path_join(human_name + '.res')
+	ResourceSaver.save(human_config, save_path.path_join(human_name + '_config.res'))
+	scene.pack(root_node)
+	ResourceSaver.save(scene, save_path.path_join(human_name + '.tscn'))
 	print('Saved human to : ' + save_path)
+	return
+
 	## TODO
 	## Maybe store base mesh with all occluded vertices restored
 	## will make swapping clothes later easier.  if many shapekeys
 	## are set reloading and rebaking may be slow.  Will need to 
 	## re-write logic in this script to allow starting points other 
 	## than standard base mesh
-	
-	## Generate packed scene
 
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
@@ -464,7 +518,7 @@ func bake_surface() -> void:
 	_bake_meshes = []
 	baked = true
 
-func _combine_meshes() -> void:
+func _combine_meshes() -> ArrayMesh:
 	var new_mesh = ArrayMesh.new()
 	new_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
 	var i = 0
@@ -477,10 +531,12 @@ func _combine_meshes() -> void:
 		var format = child.mesh.surface_get_format(0)
 		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_arrays, blend_shape_arrays, lods, format)
 		new_mesh.surface_set_name(i, child.name)
-		new_mesh.surface_set_material(i, child.get_surface_override_material(0).duplicate(true))
+		if child.get_surface_override_material(0) != null:
+			new_mesh.surface_set_material(i, child.get_surface_override_material(0).duplicate(true))
+		else:
+			new_mesh.surface_set_material(i, child.mesh.surface_get_material(0).duplicate(true))
 		i += 1
-		child.queue_free()
-	_set_body_mesh(new_mesh)
+	return new_mesh
 
 #### Materials ####
 func set_skin_texture(name: String) -> void:
