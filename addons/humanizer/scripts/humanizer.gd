@@ -336,6 +336,9 @@ func update_hide_vertices() -> void:
 	new_arrays[Mesh.ARRAY_CUSTOM0] = PackedFloat32Array()
 	new_arrays[Mesh.ARRAY_INDEX] = PackedInt32Array()
 	new_arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
+	new_arrays[Mesh.ARRAY_BONES] = PackedInt32Array()
+	new_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
+	var bone_count = arrays[Mesh.ARRAY_BONES].size()/arrays[Mesh.ARRAY_VERTEX].size()
 	var lods := {}
 	var fmt = body_mesh.mesh.surface_get_format(0)
 	for gd_id in delete_verts_gd.size():
@@ -343,6 +346,8 @@ func update_hide_vertices() -> void:
 			new_arrays[Mesh.ARRAY_VERTEX].append(arrays[Mesh.ARRAY_VERTEX][gd_id])
 			new_arrays[Mesh.ARRAY_CUSTOM0].append(arrays[Mesh.ARRAY_CUSTOM0][gd_id])
 			new_arrays[Mesh.ARRAY_TEX_UV].append(arrays[Mesh.ARRAY_TEX_UV][gd_id])
+			new_arrays[Mesh.ARRAY_BONES].append_array(arrays[Mesh.ARRAY_BONES].slice(gd_id * bone_count, (gd_id + 1) * bone_count))
+			new_arrays[Mesh.ARRAY_WEIGHTS].append_array(arrays[Mesh.ARRAY_WEIGHTS].slice(gd_id * bone_count, (gd_id + 1) * bone_count))
 	for i in arrays[Mesh.ARRAY_INDEX].size()/3:
 		var slice = arrays[Mesh.ARRAY_INDEX].slice(i*3,(i+1)*3)
 		if delete_verts_gd[slice[0]] or delete_verts_gd[slice[1]] or delete_verts_gd[slice[2]]:
@@ -353,6 +358,7 @@ func update_hide_vertices() -> void:
 	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
 	_set_body_mesh(new_mesh)
 	body_mesh.set_surface_override_material(0, skin_mat)
+	body_mesh.skeleton = skeleton.get_path()
 
 func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 	var prev_sk = human_config.shapekeys.duplicate()
