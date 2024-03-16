@@ -72,7 +72,9 @@ func fill_table(config: HumanConfig) -> void:
 				if clothes.resource_name == options.get_item_text(item):
 					options.selected = item
 					if config.clothes_materials.has(clothes.resource_name):
-						materials.selected = config.clothes_materials[clothes.resource_name]
+						for mat in materials.item_count:
+							if materials.get_item_text(mat) == config.clothes_materials[clothes.resource_name]:
+								materials.selected = mat
 			
 func reset() -> void:
 	for slot in HumanizerConfig.clothing_slots:
@@ -118,7 +120,6 @@ func _material_selected(idx: int, slot: String) -> void:
 	var texture_name: String = material_option_buttons[slot].get_item_text(idx)
 	var options = asset_option_buttons[slot] as OptionButton
 	var name: String = options.get_item_text(options.selected)
-	print(idx, slot, name)
 	
 	var slots := []
 	for sl in asset_option_buttons:

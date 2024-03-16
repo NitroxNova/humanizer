@@ -252,6 +252,8 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	var mi = load(bp.scene_path).instantiate() as MeshInstance3D
 	if bp.default_overlay != null:
 		setup_overlay_material(bp, mi)
+	else:
+		mi.get_surface_override_material(0).resource_path = ''
 	_add_child_node(mi)
 	_add_bone_weights(bp)
 	set_shapekeys(human_config.shapekeys)
@@ -358,6 +360,9 @@ func update_hide_vertices() -> void:
 	body_mesh.set_surface_override_material(0, skin_mat)
 	body_mesh.skeleton = skeleton.get_path()
 
+func restore_hidden_vertices() -> void:
+	load_human()
+
 func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 	var prev_sk = human_config.shapekeys.duplicate()
 	if override_zero:
@@ -414,8 +419,12 @@ func set_bake_meshes(subset: String) -> void:
 		add = add or subset == 'Opaque' and mat != null and mat.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED
 		add = add or subset == 'Transparent' and mat != null and mat.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED
 		if add:
+			bake_surface_name = subset
 			_bake_meshes.append(child)
-			
+		else:
+			bake_surface_name = ''
+	notify_property_list_changed()
+	
 func standard_bake() -> void:
 	if baked:
 		printerr('Already baked.  Reload the scene, load a human_config, or reset human to start over.')
@@ -435,8 +444,7 @@ func bake_surface() -> void:
 		if child.name == 'Baked-' + surf_name:
 			printerr('Surface ' + surf_name + ' already exists.  Choose a different name.')
 			return
-	var mi: MeshInstance3D = HumanizerSurfaceCombiner.new(
-		_bake_meshes, save_path.path_join(human_name), surf_name).run()
+	var mi: MeshInstance3D = HumanizerSurfaceCombiner.new(_bake_meshes, surf_name).run()
 	mi.name = 'Baked-' + surf_name
 	add_child(mi)
 	mi.owner = self
@@ -482,7 +490,7 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 	human_config.body_part_materials[set_slot] = texture
 	var mi = get_node(bp.resource_name) as MeshInstance3D
 	if bp.default_overlay != null:
-		var mat_config: HumanizerMaterial = (get_node(bp.resource_name) as HumanizerMeshInstance).material_config
+		var mat_config: HumanizerMaterial = (mi as HumanizerMeshInstance).material_config
 		var overlay_dict = {'albedo': bp.textures[texture]}
 		if mi.get_surface_override_material(0).normal_texture != null:
 			overlay_dict['normal'] = mi.get_surface_override_material(0).normal_texture.resource_path
@@ -500,7 +508,7 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 		mi.get_surface_override_material(0).albedo_color = hair_color
 
 func set_clothes_material(cl_name: String, texture: String) -> void:
-	#print('setting material ' + texture + ' on ' + cl_name)
+	#print('setting texture ' + texture + ' on ' + cl_name)
 	var cl: HumanClothes = HumanizerRegistry.clothes[cl_name]
 	var mi: MeshInstance3D = get_node(cl.resource_name)
 
@@ -514,6 +522,7 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	else:
 		mi.get_surface_override_material(0).albedo_texture = load(cl.textures[texture])
+	human_config.clothes_materials[cl_name] = texture
 
 func setup_overlay_material(asset: HumanAsset, mi: MeshInstance3D) -> void:
 	mi.set_script(load("res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd"))
@@ -526,7 +535,7 @@ func setup_overlay_material(asset: HumanAsset, mi: MeshInstance3D) -> void:
 		overlay_dict['ao'] = mi.get_surface_override_material(0).ao_texture.resource_path
 	mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	mat_config.add_overlay(asset.default_overlay)
-	
+
 #### Animation ####
 func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	# Delete existing skeleton
@@ -564,15 +573,18 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 		_add_bone_weights(cl)
 	for bp in human_config.body_parts.values():
 		_add_bone_weights(bp)
-	
+
 func _add_bone_weights(asset: HumanAsset) -> void:
+	var mi: MeshInstance3D = get_node_or_null(asset.resource_name)
+	if mi == null:
+		return
+		
 	var rig = human_config.rig.split('-')[0]
 	var bone_weights = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].bone_weights_json_path)
 	var bone_count = bone_weights.bones[0].size()
 	var mhclo: MHCLO = load(asset.mhclo_path) 
 	var mh2gd_index = mhclo.mh2gd_index
 	var mesh: ArrayMesh
-	var mi: MeshInstance3D = get_node(asset.resource_name)
 
 	mesh = mi.mesh as ArrayMesh
 	var new_sf_arrays = mesh.surface_get_arrays(0)

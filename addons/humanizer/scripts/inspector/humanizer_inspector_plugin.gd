@@ -34,6 +34,7 @@ func _parse_category(human, category):
 	scene.get_node('%SelectOpaqueButton').pressed.connect(human.set_bake_meshes.bind('Opaque'))
 	scene.get_node('%SelectTransparentButton').pressed.connect(human.set_bake_meshes.bind('Transparent'))
 	scene.get_node('%StandardBakeButton').pressed.connect(human.standard_bake)
+	scene.get_node('%SurfaceName').text = human.bake_surface_name
 	scene.get_node('%SurfaceName').text_changed.connect(func(value: String): human.bake_surface_name = value)
 	scene.get_node('%BakeSurfaceButton').pressed.connect(human.bake_surface)
 	scene.get_node('%HumanName').text_changed.connect(func(value: String): human.human_name = value)
@@ -41,6 +42,8 @@ func _parse_category(human, category):
 
 	## Assets
 	scene.get_node('%HideVerticesButton').pressed.connect(human.update_hide_vertices)
+	scene.get_node('%UnHideVerticesButton').pressed.connect(human.restore_hidden_vertices)
+	
 	# BodyParts inspector
 	var bp_container = scene.get_node('%BodyPartsContainer') as BodyPartsInspector
 	scene.get_node('%BodyPartsButton').pressed.connect(func(): bp_container.visible = not bp_container.visible)

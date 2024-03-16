@@ -1,21 +1,17 @@
 class_name HumanizerSurfaceCombiner
 
 var mesh_instances: Array[MeshInstance3D]
-var path: String
 var name: String
 
-func _init(_mesh_instances: Array[MeshInstance3D], _path: String, _name: String) -> void:
+func _init(_mesh_instances: Array[MeshInstance3D], _name: String) -> void:
 	mesh_instances = _mesh_instances
-	path = _path
 	name = _name
 	
 func run() -> MeshInstance3D:
 	var rect_array: Array = []
 	var bin_size: int = 2 ** 12
 	var surfaces: Array = []
-	
-	DirAccess.make_dir_recursive_absolute(path)
-	
+
 	for mesh: MeshInstance3D in mesh_instances:
 		var surface_id = surfaces.size()
 		var mat = mesh.get_surface_override_material(0)
@@ -51,10 +47,8 @@ func run() -> MeshInstance3D:
 		var new_island_position = packed_rect.get_position()
 		new_uv_image.blit_rect(old_texture_image,Rect2(old_island_position,island_size),new_island_position)
 
-	var texture := ImageTexture.create_from_image(new_uv_image)
-	var albedo_path = path.path_join(name + '_albedo.res')
-	texture.take_over_path(albedo_path)
-	ResourceSaver.save(texture, albedo_path)
+	new_uv_image.generate_mipmaps()
+	var albedo_texture := ImageTexture.create_from_image(new_uv_image)
 	
 	var new_mesh = ArrayMesh.new()
 	var new_sf_arrays = []
@@ -112,16 +106,9 @@ func run() -> MeshInstance3D:
 		
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_sf_arrays)
 
-	var material_path: String = path.path_join(name + '_material.tres')
-	var new_material := StandardMaterial3D.new()
-	new_material.albedo_texture = load(albedo_path)
-	new_material.take_over_path(material_path)
-	ResourceSaver.save(new_material, material_path)
-	
+	var new_material := mesh_instances[0].get_surface_override_material(0).duplicate()
+	new_material.albedo_texture = albedo_texture
 	new_mesh.surface_set_material(0, new_material)
-	var mesh_path: String = path.path_join(name + '_mesh.tres')
-	new_mesh.take_over_path(mesh_path)
-	ResourceSaver.save(new_mesh, mesh_path)
 	
 	var mi = MeshInstance3D.new()
 	mi.mesh = new_mesh
