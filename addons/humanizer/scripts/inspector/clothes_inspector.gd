@@ -15,7 +15,7 @@ signal material_set(name: String, material_index: int)
 func _ready() -> void:
 	build_grid()
 	await get_tree().process_frame
-	for slot in HumanizerConfig.clothing_slots:
+	for slot in HumanizerGlobal.config.clothing_slots:
 		asset_option_buttons[slot] = get_node('%' + slot + 'OptionButton')
 		material_option_buttons[slot] = get_node('%' + slot + 'TextureOptionButton')
 		
@@ -38,7 +38,7 @@ func _ready() -> void:
 
 func build_grid() -> void:
 	var grid = get_node('%GridContainer')
-	for slot in HumanizerConfig.clothing_slots:
+	for slot in HumanizerGlobal.config.clothing_slots:
 		var label = Label.new()
 		label.text = slot
 		grid.add_child(label)
@@ -77,7 +77,7 @@ func fill_table(config: HumanConfig) -> void:
 								materials.selected = mat
 			
 func reset() -> void:
-	for slot in HumanizerConfig.clothing_slots:
+	for slot in HumanizerGlobal.config.clothing_slots:
 		(asset_option_buttons[slot] as OptionButton).selected = 0
 		(material_option_buttons[slot] as OptionButton).selected = -1
 

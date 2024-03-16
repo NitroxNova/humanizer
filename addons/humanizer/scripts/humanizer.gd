@@ -38,7 +38,7 @@ var shapekey_data: Dictionary:
 var _helper_vertex: PackedVector3Array = []
 var save_path: String:
 	get:
-		var path = HumanizerConfig.human_export_path
+		var path = HumanizerGlobal.config.human_export_path
 		if path == null:
 			path = 'res://data/humans'
 		return path.path_join(human_name)
@@ -91,14 +91,14 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 	set(value):
 		human_config = value
 		if human_config.rig == '':
-			human_config.rig = HumanizerConfig.default_skeleton
+			human_config.rig = HumanizerGlobal.config.default_skeleton
 		# This gets set before _ready causing issues so make sure we're loaded
 		if scene_loaded:
 			load_human()
 
 @export_group('Node Overrides')
 ## The root node type for baked humans
-@export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D") var _baked_root_node: String = HumanizerConfig.default_baked_root_node
+@export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D") var _baked_root_node: String = HumanizerGlobal.config.default_baked_root_node
 ## The scene to be added as an animator for the character
 @export var _animator: PackedScene:
 	set(value):
@@ -146,7 +146,7 @@ func _add_child_node(node: Node) -> void:
 	if node is MeshInstance3D:
 		var render_layers = _render_layers
 		if render_layers == null:
-			render_layers = HumanizerConfig.default_character_render_layers
+			render_layers = HumanizerGlobal.config.default_character_render_layers
 		(node as MeshInstance3D).layers = render_layers
 
 func _delete_child_node(node: Node) -> void:
@@ -748,7 +748,7 @@ func _reset_animator() -> void:
 			_delete_child_node(child)
 	var animator: PackedScene = _animator
 	if animator == null:
-		animator = HumanizerConfig.default_animation_tree
+		animator = HumanizerGlobal.config.default_animation_tree
 	if animator != null:
 		var tree := animator.instantiate() as AnimationTree
 		if tree == null:
@@ -794,9 +794,9 @@ func _add_physical_skeleton() -> void:
 	var layers = _ragdoll_layers
 	var mask = _ragdoll_mask
 	if layers == null:
-		layers = HumanizerConfig.default_physical_bone_layers
+		layers = HumanizerGlobal.config.default_physical_bone_layers
 	if mask == null:
-		mask = HumanizerConfig.default_physical_bone_mask
+		mask = HumanizerGlobal.config.default_physical_bone_mask
 	HumanizerPhysicalSkeleton.new(skeleton, _helper_vertex, layers, mask).run()
 	skeleton.physical_bones_start_simulation()
 

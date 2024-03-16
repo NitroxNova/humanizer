@@ -17,7 +17,7 @@ config/icon="res://addons/humanizer/icon.png"
 
 [autoload]
 
-HumanizerConfig="*res://addons/humanizer/scenes/humanizer_config.tscn"
+HumanizerGlobal="*res://addons/humanizer/scenes/humanizer_global.tscn"
 
 [editor_plugins]
 

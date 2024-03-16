@@ -23,7 +23,7 @@ func run():
 
 	# Get individual shapekey data
 	shapekey_data.shapekeys = {}
-	for path in HumanizerConfig.asset_import_paths:
+	for path in HumanizerGlobal.config.asset_import_paths:
 		_get_shape_keys(path + 'targets/')
 	var file := FileAccess.open("res://addons/humanizer/data/resources/shapekeys.dat", FileAccess.WRITE)
 	file.store_var(shapekey_data.basis)
