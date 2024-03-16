@@ -10,9 +10,8 @@ signal on_material_updated
 		for ov in overlays:
 			if ov == null:
 				continue
-			if ov.on_overlay_updated.is_connected(update_material):
+			if not ov.on_overlay_updated.is_connected(update_material):
 				ov.on_overlay_updated.connect(update_material)
-
 var albedo_texture: Texture2D
 var normal_texture: Texture2D
 var ao_texture: Texture2D
@@ -48,7 +47,7 @@ func update_material() -> void:
 			blend_color(overlay, overlays[texture].color)
 			var start = Vector2i()
 			albedo.blend_rect(overlay, Rect2i(start, overlay.get_size()), start)
-	
+
 	## Create output textures
 	normal_texture = null
 	albedo_texture = null
@@ -76,9 +75,10 @@ func blend_color(image: Image, color: Color) -> void:
 
 func set_base_textures(overlay: HumanizerOverlay) -> void:
 	if overlays.size() == 0:
+		# Don't append, we want to call the setter 
 		overlays = [overlay]
 	overlays[0] = overlay
-	if overlay.on_overlay_updated.is_connected(update_material):
+	if not overlay.on_overlay_updated.is_connected(update_material):
 		overlay.on_overlay_updated.connect(update_material)
 	update_material()
 
@@ -87,8 +87,7 @@ func add_overlay(overlay: HumanizerOverlay) -> void:
 		printerr('Overlay already present?')
 		return
 	overlays.append(overlay)
-
-	if overlay.on_overlay_updated.is_connected(update_material):
+	if not overlay.on_overlay_updated.is_connected(update_material):
 		overlay.on_overlay_updated.connect(update_material)
 	update_material()
 	

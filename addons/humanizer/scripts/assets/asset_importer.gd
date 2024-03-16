@@ -82,9 +82,7 @@ func _scan_path(path: String) -> void:
 		if file_name.get_extension() in ["png"]:
 			# Eyes come with two textures for coloring iris, base and overlay
 			if 'overlay' in file_name.get_file():
-				for k in asset_data:
-					textures['overlay'] = {'albedo': file_name}
-				continue
+				textures['overlay'] = {'albedo': file_name}
 			if file_name.rsplit('.', true, 1)[-2].ends_with('normal'):
 				textures['normal'] = file_name
 			elif file_name.rsplit('.', true, 1)[-2].ends_with('ao'):
@@ -206,7 +204,6 @@ func _import_asset(path: String, asset_name: String, data: Dictionary):
 	mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(mesh)
 	resource.take_over_path(path.path_join(asset_name + '.tres'))
 	ResourceSaver.save(mhclo, resource.mhclo_path)
-	ResourceSaver.save(resource, resource.resource_path)
 
 	# Put main resource in registry for easy access later
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
@@ -225,20 +222,8 @@ func _import_asset(path: String, asset_name: String, data: Dictionary):
 	mi.owner = self
 	
 	if data.textures.has('overlay'):
-		mi.set_script(load("res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd"))
-		var mat_config = mi.material_config as HumanizerMaterial
-		var mat_dict := {}
-		if mat.albedo_texture != null:
-			mat_dict['albedo'] = mat.albedo_texture.resource_path
-		if mat.normal_texture != null:
-			mat_dict['normal'] = mat.normal_texture.resource_path
-		if mat.ao_texture != null:
-			mat_dict['ao'] = mat.ao_texture.resource_path
-		mat_config.set_base_textures(HumanizerOverlay.from_dict(mat_dict))
-		mat_config.add_overlay(HumanizerOverlay.from_dict(data.textures.overlay))
-		mi.update_material()
-		#ResourceSaver.save(mat, resource.material_path) #dont want to overwrite the base material albedo, overlay is added when material is loaded in the scene
-		
+		resource.default_overlay = HumanizerOverlay.from_dict(data.textures.overlay)	
+	ResourceSaver.save(resource, resource.resource_path)
 	mesh.take_over_path(resource.mesh_path)
 	scene.pack(mi)
 	ResourceSaver.save(mesh, resource.mesh_path)

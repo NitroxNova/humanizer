@@ -3,6 +3,7 @@ extends Resource
 class_name HumanAsset
 
 @export_dir var path: String
+@export var default_overlay: HumanizerOverlay = null
 
 var scene_path: String:
 	get:
