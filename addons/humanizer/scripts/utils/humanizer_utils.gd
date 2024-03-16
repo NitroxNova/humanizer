@@ -33,7 +33,8 @@ static func get_shapekey_data() -> Dictionary:
 	file.close()
 	return shapekey_data
 
-static func get_shapekey_categories(shapekeys) -> Dictionary:
+static func get_shapekey_categories() -> Dictionary:
+	var shapekeys = get_shapekey_data()
 	var categories := {
 		'RaceAge': [],
 		'MuscleWeight': [],
