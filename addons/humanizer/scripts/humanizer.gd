@@ -134,10 +134,6 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 		_ragdoll_mask = value
 
 
-signal on_human_reset
-signal on_clothes_removed(clothes: HumanClothes)
-
-
 func _ready() -> void:
 	scene_loaded = true
 	load_human()
@@ -199,7 +195,6 @@ func reset_human(reset_config: bool = true) -> void:
 	main_collider = null
 	if reset_config:
 		human_config = HumanConfig.new()
-	on_human_reset.emit()
 	skin_color = _DEFAULT_SKIN_COLOR
 	hair_color = _DEFAULT_HAIR_COLOR
 	eye_color = _DEFAULT_EYE_COLOR
@@ -239,7 +234,6 @@ func serialize(name: String) -> void:
 	## than standard base mesh
 	
 	## Generate packed scene
-
 
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
@@ -293,7 +287,6 @@ func remove_clothes(cl: HumanClothes) -> void:
 		if child.name == cl.resource_name:
 			#print('removing ' + cl.resource_name + ' clothes')
 			_delete_child_node(child)
-			on_clothes_removed.emit(cl)
 	human_config.clothes.erase(cl)
 
 func update_hide_vertices() -> void:
@@ -409,6 +402,8 @@ func set_bake_meshes(subset: String) -> void:
 	for child in get_children():
 		if not child is MeshInstance3D:
 			continue
+		if child.name.begins_with('Baked-'):
+			continue
 		var mat = (child as MeshInstance3D).get_surface_override_material(0) as BaseMaterial3D
 		var add: bool = false
 		add = add or subset == 'All'
@@ -450,6 +445,24 @@ func bake_surface() -> void:
 		mesh.queue_free()
 	_bake_meshes = []
 	baked = true
+
+func _combine_meshes() -> void:
+	var new_mesh = ArrayMesh.new()
+	new_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
+	var i = 0
+	for child in get_children():
+		if not child is MeshInstance3D:
+			continue
+		var surface_arrays = child.mesh.surface_get_arrays(0)
+		var blend_shape_arrays = child.mesh.surface_get_blend_shape_arrays(0)
+		var lods := {}
+		var format = child.mesh.surface_get_format(0)
+		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_arrays, blend_shape_arrays, lods, format)
+		new_mesh.surface_set_name(i, child.name)
+		new_mesh.surface_set_material(i,  child.get_surface_override_material(0))
+		i += 1
+		child.queue_free()
+	_set_body_mesh(new_mesh)
 
 #### Materials ####
 func set_skin_texture(name: String) -> void:
