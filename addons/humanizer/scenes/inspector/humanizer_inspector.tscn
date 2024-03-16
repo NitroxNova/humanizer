@@ -52,6 +52,7 @@ layout_mode = 2
 [node name="ResetButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Reset all configuration settings and start over with the base mesh only"
 text = "Reset Human"
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
@@ -65,6 +66,7 @@ text = "Rig:"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+tooltip_text = "Select which registered rig to use"
 script = SubResource("GDScript_5ptqy")
 
 [node name="AdjustSkeletonButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
@@ -109,6 +111,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+tooltip_text = "Set up a physical skeleton"
 text = "Ragdoll"
 
 [node name="HSeparator5" type="HSeparator" parent="VBoxContainer"]
@@ -137,6 +140,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
+tooltip_text = "Skin texture selector"
 item_count = 23
 selected = 0
 popup/item_0/text = "None"
@@ -190,6 +194,7 @@ script = ExtResource("1_teqt2")
 [node name="BodyPartsButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Click to open body parts options"
 text = "Body Parts"
 
 [node name="BodyPartsContainer" parent="VBoxContainer" instance=ExtResource("2_cyqhb")]
@@ -200,6 +205,7 @@ layout_mode = 2
 [node name="ClothesButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+tooltip_text = "Click to open clothes options"
 text = "Clothes"
 
 [node name="ClothesContainer" parent="VBoxContainer" instance=ExtResource("3_tceog")]
@@ -253,7 +259,7 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-tooltip_text = "Remove vertices which should be occluded by clothes from the body mesh"
+tooltip_text = "Remove vertices which should be occluded by clothes from the body mesh so they don't poke through the clothes"
 text = "Remove Occluded Vertices"
 
 [node name="UnHideVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons"]
@@ -313,14 +319,8 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 5.0
-tooltip_text = "Create andn save a new scene for this human"
+tooltip_text = "Create a new mesh with a separate surface for each existing mesh and save to a new scene for this human"
 text = "Save To File"
-
-[node name="StandardBakeButton" type="Button" parent="VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-tooltip_text = "Bake all opaque meshes to one surface, and all transparent meshes (hair, eyelashes, eyebrows) to a second surface."
-text = "Standard Bake"
 
 [node name="BakedMeshSelectors" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -371,5 +371,11 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 4.0
-tooltip_text = "Combine all meshes into a single mesh.  "
-text = "Bake Selected Meshes To Surface"
+tooltip_text = "Combine all meshes in the bake_meshes property  into a single mesh with a single surface."
+text = "Bake Selected Meshes"
+
+[node name="StandardBakeButton" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Bake all opaque meshes to one mesh, and all transparent meshes (hair, eyelashes, eyebrows) to a second mesh."
+text = "Standard Bake"

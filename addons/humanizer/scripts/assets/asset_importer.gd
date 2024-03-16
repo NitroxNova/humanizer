@@ -95,7 +95,7 @@ func _scan_path(path: String) -> void:
 		asset_data[asset].textures = textures
 		_import_asset(path, asset, asset_data[asset])
 
-func _generate_material(path: String, textures: Dictionary) -> void:
+func _generate_material(path: String, textures: Dictionary) -> void:p
 	# Create material
 	print('Generating material for ' + path.get_file())
 	var mat = StandardMaterial3D.new()

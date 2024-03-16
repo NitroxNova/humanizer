@@ -14,12 +14,6 @@ func _ready() -> void:
 		get_surface_override_material(0).resource_path = ''
 	material_config.resource_path = ''
 	
-	# For signal connection issues in editor
-	#for ov in material_config.overlays:
-	#	ov.resource_path = ''
-	#	if not ov.on_overlay_updated.is_connected(material_config.update_material):
-	#		ov.on_overlay_updated.connect(material_config.update_material)
-
 func update_material() -> void:
 	var mat: BaseMaterial3D = get_surface_override_material(0)
 	if mat == null:
