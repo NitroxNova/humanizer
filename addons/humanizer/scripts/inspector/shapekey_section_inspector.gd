@@ -62,4 +62,5 @@ func _on_randomize_sliders(human: Humanizer, randomization: HSlider, asymmetry: 
 		get_node('%' + sk).value = value
 		values[sk] = value
 	human.set_shapekeys(values)
+	human.adjust_skeleton()
 	print('Randomized ' + name + ' sliders')
