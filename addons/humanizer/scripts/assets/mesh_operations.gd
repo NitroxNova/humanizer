@@ -1,6 +1,8 @@
 class_name MeshOperations
 
 
+
+
 static func generate_normals_and_tangents(import_mesh:ArrayMesh):
 	var ST = SurfaceTool.new()
 	ST.clear()
@@ -110,3 +112,99 @@ static func skin_mesh(rig: HumanizerRig, skeleton: Skeleton3D, basemesh: ArrayMe
 		skinned_mesh.add_blend_shape(basemesh.get_blend_shape_name(bs))
 	skinned_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh_arrays, [], lods, flags)
 	return skinned_mesh
+
+
+const macro_ranges :Dictionary = {
+		age = [["baby",0],["child",12.0],["young",25.0],["old",100]],
+		gender = [["female",0.0],["male",1.0]],
+		height = [["minheight",0],["",.5],["maxheight",1]],
+		muscle = [["minmuscle",0],["averagemuscle",0.5],["maxmuscle",1]],
+		proportions = [["uncommonproportions",0],["",0.5],["idealproportions",1]],
+		weight = [["minweight",0],["averageweight",0.5],["maxweight",1]],
+		cupsize = [["mincup",0],["averagecup",0.5],["maxcup",1]],
+		firmness = [["minfirmness",0],["averagefirmness",0.5],["maxfirmness",1]]
+	}
+
+const macro_combos : Dictionary = {
+		"racegenderage": ["race", "gender", "age"],
+		"genderagemuscleweight": ["universal", "gender", "age", "muscle", "weight"],
+		"genderagemuscleweightproportions": ["gender", "age", "muscle", "weight", "proportions"],
+		"genderagemuscleweightheight": ["gender", "age", "muscle", "weight", "height"],
+		"genderagemuscleweightcupsizefirmness": ["gender", "age", "muscle", "weight", "cupsize", "firmness"]
+	}
+
+static func get_macro_options():
+	return ["age","gender","height","weight","muscle","proportions","cupsize","firmness"]
+
+static func get_race_options():
+	return ["african","asian","caucasian"]
+
+#call this from the menu to get the new shapekeys
+#this does not include reseting the previous shapekeys tho
+#need to pass previous macro values as well	
+static func get_macro_shapekey_values(macros:Dictionary,race:Dictionary,changed_name:String=""):
+	var new_shapekeys = {} #shapekey name / value pairs
+	var macro_data = {}
+	macro_data.race = race
+	for macro_name in macros:
+		macro_data[macro_name] = get_macro_category_offset(macro_name,macros[macro_name])
+	for combo_name in macro_combos:
+		if changed_name == "" or changed_name in macro_combos[combo_name]:
+			new_shapekeys.append_array(get_combination_shapekeys(combo_name,macro_data))
+	return new_shapekeys
+	
+static func get_combination_shapekeys(combo_name:String,data:Dictionary):
+	var next_shapes = {}
+	var combo_shapekeys = {""=1} # shapekey name / value pairs
+	for macro_name in macro_combos[combo_name]:
+		if macro_name == "universal":
+			next_shapes = {"universal"=1}
+		elif macro_name == "race":
+			next_shapes = data.race.duplicate()
+		else:
+			var curr_macro = data[macro_name]
+			for shape_name in combo_shapekeys:
+				for offset_counter in curr_macro.offset.size():
+					var offset_id = curr_macro.offset[offset_counter]
+					var new_shape_name = shape_name 
+					if not shape_name == "":
+						new_shape_name += "-"
+					new_shape_name += curr_macro.category[offset_id][0]
+					var new_shape_value = combo_shapekeys[shape_name] * curr_macro.ratio[offset_counter]
+					next_shapes[new_shape_name] = new_shape_value
+		combo_shapekeys = next_shapes
+		next_shapes = {}
+		
+	## cant check for missing shapekeys without the shapekey_data dictionary, it is expected that not all shapekeys are present
+	## will have to ignore missing shapekeys elsewhere
+	#for shape_name in curr_shapes.keys():
+		#if not shape_name in shapekey_data.shapekeys:
+			#curr_shapes.erase(shape_name)
+	
+	return combo_shapekeys
+	
+static func get_macro_category_offset(macro_name,macro_value):
+	var category = macro_ranges[macro_name]
+	var offset : Array = [] # low and high offset
+	var ratio : Array = [] #ratio between low (0) and high (1)
+	
+	var counter = 0
+	for i in category.size():
+		if macro_value == category[i][1]:
+			offset = [i]
+			ratio = [1]
+			break
+		elif macro_value < category[i][1]:
+			offset = [i-1,i]
+			ratio = []
+			var high_ratio = (macro_value-category[i-1][1])/(category[i][1]-category[i-1][1])
+			ratio.append(1-high_ratio)
+			ratio.append(high_ratio)
+			break
+	for i in range(offset.size()-1,-1,-1): #loop backwards so it doesnt skip any when removing
+		if category[offset[i]][0] == "":
+			offset.remove_at(i)
+			ratio.remove_at(i)
+	
+	return {offset=offset,ratio=ratio}
+	
