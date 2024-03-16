@@ -52,12 +52,14 @@ func _on_value_changed(value, key: String) -> void:
 
 func _on_randomize_sliders(human: Humanizer, randomization: HSlider, asymmetry: HSlider) -> void:
 	var rng = RandomNumberGenerator.new()
+	var values := {}
 	for sk in shapekeys:
 		var value: float
 		if 'asym' in sk:
 			value = rng.randfn(0, 0.5 * randomization.value)
 		else:
 			value = rng.randfn(0, 0.5 * asymmetry.value)
-		human.set_shapekey(value, sk)
 		get_node('%' + sk).value = value
+		values[sk] = value
+	human.set_shapekeys(values)
 	print('Randomized ' + name + ' sliders')
