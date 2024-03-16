@@ -217,14 +217,19 @@ func deserialize() -> void:
 	for component in human_config.components:
 		set_component_state(true, component)
 	
-func serialize(name: String) -> void:
+func serialize() -> void:
 	## Save to files for easy load later
 	if not _save_path_valid:
 		return
+	
+	_combine_meshes()
+	return
+		
 	DirAccess.make_dir_recursive_absolute(save_path)
-	ResourceSaver.save(human_config, save_path.path_join(name + '.res'))
-	human_config.take_over_path(save_path.path_join(name + '.res'))
+	ResourceSaver.save(human_config, save_path.path_join(human_name + '.res'))
+	human_config.take_over_path(save_path.path_join(human_name + '.res'))
 	ResourceSaver.save(body_mesh.mesh, save_path.path_join('mesh.res'))
+	body_mesh.mesh.take_over_path(save_path.path_join('mesh.res'))
 	print('Saved human to : ' + save_path)
 	## TODO
 	## Maybe store base mesh with all occluded vertices restored
@@ -239,9 +244,13 @@ func serialize(name: String) -> void:
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	_delete_child_by_name(_BASE_MESH_NAME)
 	body_mesh = MeshInstance3D.new()
+	body_mesh.set_surface_override_material(0, StandardMaterial3D.new())
 	body_mesh.name = _BASE_MESH_NAME
 	body_mesh.mesh = meshdata
 	body_mesh.set_script(humanizer_mesh_instance)
+	if skeleton != null:
+		body_mesh.skeleton = skeleton.get_path()
+		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
 	_add_child_node(body_mesh)
 
 func set_body_part(bp: HumanBodyPart) -> void:
@@ -468,7 +477,7 @@ func _combine_meshes() -> void:
 		var format = child.mesh.surface_get_format(0)
 		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_arrays, blend_shape_arrays, lods, format)
 		new_mesh.surface_set_name(i, child.name)
-		new_mesh.surface_set_material(i,  child.get_surface_override_material(0))
+		new_mesh.surface_set_material(i, child.get_surface_override_material(0).duplicate(true))
 		i += 1
 		child.queue_free()
 	_set_body_mesh(new_mesh)

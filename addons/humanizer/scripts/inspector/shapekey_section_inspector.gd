@@ -33,6 +33,7 @@ func _ready() -> void:
 		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		%GridContainer.add_child(slider)
 		slider.value_changed.connect(_on_value_changed.bind(key))
+		slider.drag_ended.connect(func(_val): human.adjust_skeleton())
 		slider.owner = self
 		slider.unique_name_in_owner = true
 

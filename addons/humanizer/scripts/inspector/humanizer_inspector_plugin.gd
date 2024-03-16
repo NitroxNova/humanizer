@@ -38,7 +38,7 @@ func _parse_category(human, category):
 	scene.get_node('%SurfaceName').text_changed.connect(func(value: String): human.bake_surface_name = value)
 	scene.get_node('%BakeSurfaceButton').pressed.connect(human.bake_surface)
 	scene.get_node('%HumanName').text_changed.connect(func(value: String): human.human_name = value)
-	scene.get_node('%SaveButton').pressed.connect(_save_human.bind(human))
+	scene.get_node('%SaveButton').pressed.connect(human.serialize)
 
 	## Assets
 	scene.get_node('%HideVerticesButton').pressed.connect(human.update_hide_vertices)
@@ -139,10 +139,3 @@ func _parse_category(human, category):
 		cat_container.shapekey_value_changed.connect(human.set_shapekeys)
 		cat_container.config = human.human_config
 
-func _save_human(human: Humanizer, name: LineEdit) -> void:
-	var save_name: String
-	if name.text == null or name.text == '':
-		save_name = 'MyHuman'
-	else: 
-		save_name = name.text
-	human.serialize(save_name)
