@@ -115,8 +115,10 @@ func _item_selected(index: int, slot: String):
 		_material_selected(0, slot)
 
 func _material_selected(idx: int, slot: String) -> void:
+	var texture_name: String = material_option_buttons[slot].get_item_text(idx)
 	var options = asset_option_buttons[slot] as OptionButton
 	var name: String = options.get_item_text(options.selected)
+	print(idx, slot, name)
 	
 	var slots := []
 	for sl in asset_option_buttons:
@@ -124,7 +126,8 @@ func _material_selected(idx: int, slot: String) -> void:
 		if options.get_item_text(options.selected) == name:
 			slots.append(sl)
 	
-	for sl in material_option_buttons:
+	for sl in slots:
 		var materials: OptionButton = material_option_buttons[sl]
 		materials.selected = idx
-	material_set.emit(name, name)
+		
+	material_set.emit(name, texture_name)

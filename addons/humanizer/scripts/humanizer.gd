@@ -513,7 +513,7 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 			overlay_dict['ao'] = mi.get_surface_override_material(0).ao_texture.resource_path
 		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	else:
-		mi.get_surface_override_material(0).albedo_texture = load(texture)
+		mi.get_surface_override_material(0).albedo_texture = load(cl.textures[texture])
 
 func setup_overlay_material(asset: HumanAsset, mi: MeshInstance3D) -> void:
 	mi.set_script(load("res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd"))
