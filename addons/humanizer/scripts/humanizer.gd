@@ -560,6 +560,10 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	body_mesh.skeleton = skeleton.get_path()
 	adjust_skeleton()
 	set_shapekeys(human_config.shapekeys)
+	for cl in human_config.clothes:
+		_add_bone_weights(cl)
+	for bp in human_config.body_parts.values():
+		_add_bone_weights(bp)
 	
 func _add_bone_weights(asset: HumanAsset) -> void:
 	var rig = human_config.rig.split('-')[0]
@@ -568,10 +572,8 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 	var mhclo: MHCLO = load(asset.mhclo_path) 
 	var mh2gd_index = mhclo.mh2gd_index
 	var mesh: ArrayMesh
-	var mi: MeshInstance3D
-	for child in get_children():
-		if child is MeshInstance3D and child.name == asset.resource_name:
-			mi = child
+	var mi: MeshInstance3D = get_node(asset.resource_name)
+
 	mesh = mi.mesh as ArrayMesh
 	var new_sf_arrays = mesh.surface_get_arrays(0)
 	
