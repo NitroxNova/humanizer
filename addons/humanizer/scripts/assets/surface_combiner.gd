@@ -1,11 +1,9 @@
 class_name HumanizerSurfaceCombiner
 
 var mesh_instances: Array[MeshInstance3D]
-var name: String
 
-func _init(_mesh_instances: Array[MeshInstance3D], _name: String) -> void:
-	mesh_instances = _mesh_instances
-	name = _name
+func _init(_mesh_instances: Array[MeshInstance3D]) -> void:
+	mesh_instances = _mesh_instances	
 	
 func run() -> MeshInstance3D:
 	var rect_array: Array = []

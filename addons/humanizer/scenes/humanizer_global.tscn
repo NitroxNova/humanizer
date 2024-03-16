@@ -14,6 +14,7 @@ script/source = "extends Node
 script = ExtResource("1_ra40r")
 asset_import_paths = Array[String](["res://addons/humanizer/data/assets/"])
 human_export_path = "res://data/humans/"
+default_human_script = "res://addons/humanizer/scripts/utils/human_controller.gd"
 body_part_slots = Array[String](["RightEye", "LeftEye", "RightEyebrow", "LeftEyebrow", "RightEyelash", "LeftEyelash", "Hair", "Tongue", "Teeth"])
 clothing_slots = Array[String](["Head", "Eyes", "Mouth", "Hands", "Arms", "Torso", "Legs", "Feet"])
 default_skeleton = "game_engine-RETARGETED"
@@ -24,6 +25,7 @@ default_character_physics_mask = 3
 default_physical_bone_layers = 4
 default_physical_bone_mask = 5
 default_character_render_layers = 1
+atlas_resolution = null
 
 [node name="HumanizerConfig" type="Node"]
 script = SubResource("GDScript_lwy01")

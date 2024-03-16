@@ -45,7 +45,7 @@ var save_path: String:
 var human_name: String = 'MyHuman'
 var _save_path_valid: bool:
 	get:
-		if FileAccess.file_exists(save_path.path_join(human_name).path_join(human_name + '.tscn')):
+		if FileAccess.file_exists(save_path.path_join(human_name + '.tscn')):
 			printerr('A human with this name has already been saved.  Use a different name.')
 			return false
 		return true
@@ -174,14 +174,9 @@ func load_human() -> void:
 		reset_human()
 	else:
 		var mesh_path := human_config.resource_path.get_base_dir().path_join('mesh.res')
-		if FileAccess.file_exists(mesh_path):
-			baked = true
-			set_rig(human_config.rig, load(mesh_path))
-			name = human_config.resource_path.get_file().replace('.res', '')
-		else:
-			baked = false
-			reset_human(false)
-			deserialize()
+		baked = false
+		reset_human(false)
+		deserialize()
 		notify_property_list_changed()
 
 func reset_human(reset_config: bool = true) -> void:
@@ -232,9 +227,9 @@ func save_human_scene() -> void:
 		root_node = CharacterBody3D.new()
 	elif _baked_root_node == &'RigidBody3D':
 		root_node = RigidBody3D.new()
-	var mi = MeshInstance3D.new()
-	if HumanizerGlobal.config.default_human_script != '':
-		mi.set_script(load(HumanizerGlobal.config.default_human_script))
+
+	if HumanizerGlobal.config.default_human_script not in ['', null]:
+		root_node.set_script(load(HumanizerGlobal.config.default_human_script))
 	
 	var sk = skeleton.duplicate(true) as Skeleton3D
 	root_node.add_child(sk)
@@ -254,6 +249,7 @@ func save_human_scene() -> void:
 		animator.owner = root_node
 	
 	root_node.name = human_name
+	var mi = MeshInstance3D.new()
 	mi.mesh = new_mesh
 	root_node.add_child(mi)
 	mi.owner = root_node
@@ -494,22 +490,21 @@ func standard_bake() -> void:
 		printerr('Already baked.  Reload the scene, load a human_config, or reset human to start over.')
 		return
 	adjust_skeleton()
+	update_hide_vertices()
 	set_bake_meshes('Opaque')
 	bake_surface()
 	set_bake_meshes('Transparent')
 	bake_surface()
-	baked = true
 
 func bake_surface() -> void:
-	var surf_name = bake_surface_name
-	if surf_name in [null, '']:
-		surf_name = 'Surface0'
+	if bake_surface_name in [null, '']:
+		bake_surface_name = 'Surface0'
 	for child in get_children():
-		if child.name == 'Baked-' + surf_name:
-			printerr('Surface ' + surf_name + ' already exists.  Choose a different name.')
+		if child.name == 'Baked-' + bake_surface_name:
+			printerr('Surface ' + bake_surface_name + ' already exists.  Choose a different name.')
 			return
-	var mi: MeshInstance3D = HumanizerSurfaceCombiner.new(_bake_meshes, surf_name).run()
-	mi.name = 'Baked-' + surf_name
+	var mi: MeshInstance3D = HumanizerSurfaceCombiner.new(_bake_meshes).run()
+	mi.name = 'Baked-' + bake_surface_name
 	add_child(mi)
 	mi.owner = self
 	mi.skeleton = skeleton.get_path()
