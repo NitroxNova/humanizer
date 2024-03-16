@@ -4,6 +4,9 @@ extends Node3D
 
 const humanizer_mesh_instance = preload('res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd')
 const _BASE_MESH_NAME: String = 'Human'
+const _DEFAULT_SKIN_COLOR = Color.WHITE
+const _DEFAULT_EYE_COLOR = Color.SKY_BLUE
+const _DEFAULT_HAIR_COLOR = Color.WEB_MAROON
 ## Vertex ids
 const shoulder_id: int = 16951 
 const waist_id: int = 17346
@@ -48,7 +51,7 @@ var _save_path_valid: bool:
 		return true
 var bake_surface_name: String
 
-var skin_color: Color = Color.WHITE:
+var skin_color: Color = _DEFAULT_SKIN_COLOR:
 	set(value):
 		skin_color = value
 		if scene_loaded and body_mesh.material_config.overlays.size() == 0:
@@ -56,7 +59,7 @@ var skin_color: Color = Color.WHITE:
 		human_config.skin_color = skin_color
 		body_mesh.material_config.overlays[0].color = skin_color
 		body_mesh.material_config.update_material()
-var hair_color: Color = Color.WEB_MAROON:
+var hair_color: Color = _DEFAULT_HAIR_COLOR:
 	set(value):
 		hair_color = value
 		if human_config == null:
@@ -69,7 +72,7 @@ var hair_color: Color = Color.WEB_MAROON:
 			print(slot)
 			var mesh = get_node(human_config.body_parts[slot].resource_name)
 			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = hair_color
-var eye_color: Color = Color.SKY_BLUE:
+var eye_color: Color = _DEFAULT_EYE_COLOR:
 	set(value):
 		eye_color = value
 		if human_config == null:
@@ -197,6 +200,9 @@ func reset_human(reset_config: bool = true) -> void:
 	if reset_config:
 		human_config = HumanConfig.new()
 	on_human_reset.emit()
+	skin_color = _DEFAULT_SKIN_COLOR
+	hair_color = _DEFAULT_HAIR_COLOR
+	eye_color = _DEFAULT_EYE_COLOR
 	notify_property_list_changed()
 	print('Reset human')
 
