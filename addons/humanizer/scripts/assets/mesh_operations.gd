@@ -169,7 +169,7 @@ static func get_combination_shapekeys(combo_name:String,data:Dictionary):
 					var new_shape_name = shape_name 
 					if not shape_name == "":
 						new_shape_name += "-"
-					new_shape_name += curr_macro.category[offset_id][0]
+					new_shape_name += macro_ranges[macro_name][offset_id][0]
 					var new_shape_value = combo_shapekeys[shape_name] * curr_macro.ratio[offset_counter]
 					next_shapes[new_shape_name] = new_shape_value
 		combo_shapekeys = next_shapes
