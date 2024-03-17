@@ -431,10 +431,10 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 
 	var macro_sk := {}
 	for sk in MeshOperations.get_macro_options():
-		macro_sk[sk] = shapekeys.get(sk, prev_sk.get(sk, 0))
+		macro_sk[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.5))
 	var race_sk := {}
 	for sk in MeshOperations.get_race_options():
-		race_sk[sk] = shapekeys.get(sk, prev_sk.get(sk, 0))
+		race_sk[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.3))
 	macro_sk = MeshOperations.get_macro_shapekey_values(macro_sk, race_sk)
 	for sk in macro_sk:
 		shapekeys[sk] = macro_sk[sk]
@@ -750,7 +750,7 @@ func adjust_skeleton() -> void:
 			child.skin = skeleton.create_skin_from_rest_transforms()
 	
 	skeleton.motion_scale = _base_motion_scale * _helper_vertex[hips_id].y / _base_hips_height
-	print('Fit skeleton to mesh')
+	#print('Fit skeleton to mesh')
 
 func _reset_animator() -> void:
 	for child in get_children():

@@ -25,11 +25,15 @@ func _ready() -> void:
 		slider.editable = true
 		slider.min_value = -1
 		slider.max_value = 1
+
 		slider.step = 0.01
 		if config != null and config.shapekeys.has(key):
 			slider.value = config.shapekeys[key]
 		else:
 			slider.value = 0
+			if name.begins_with('Macro') or name.begins_with('Race') or key in ['cupsize', 'firmness']:
+				slider.min_value = 0
+				slider.value = 0.5
 		slider.custom_minimum_size = Vector2i(150, 10)
 		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		%GridContainer.add_child(slider)
