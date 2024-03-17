@@ -150,7 +150,9 @@ static func get_macro_shapekey_values(macros:Dictionary,race:Dictionary,changed_
 		macro_data[macro_name] = get_macro_category_offset(macro_name,macros[macro_name])
 	for combo_name in macro_combos:
 		if changed_name == "" or changed_name in macro_combos[combo_name]:
-			new_shapekeys.append_array(get_combination_shapekeys(combo_name,macro_data))
+			var combo_shapekeys = get_combination_shapekeys(combo_name,macro_data)
+			for shapekey_name in combo_shapekeys:
+				new_shapekeys[shapekey_name] = combo_shapekeys[shapekey_name]
 	return new_shapekeys
 	
 static func get_combination_shapekeys(combo_name:String,data:Dictionary):
