@@ -1,8 +1,6 @@
 class_name MeshOperations
 
 
-
-
 static func generate_normals_and_tangents(import_mesh:ArrayMesh):
 	var ST = SurfaceTool.new()
 	ST.clear()
