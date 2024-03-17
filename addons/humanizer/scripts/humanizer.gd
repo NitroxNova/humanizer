@@ -426,8 +426,9 @@ func restore_hidden_vertices() -> void:
 func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 	var prev_sk = human_config.shapekeys.duplicate()
 	if override_zero:
-		for sk in prev_sk:
-			prev_sk[sk] = 0
+		for sk in prev_sk: 
+			if sk in shapekey_data.shapekeys:
+				prev_sk[sk] = 0
 
 	var macro_sk := {}
 	for sk in MeshOperations.get_macro_options():

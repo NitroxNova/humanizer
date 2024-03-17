@@ -69,19 +69,21 @@ func _on_randomize_sliders(human: Humanizer, randomization: HSlider, asymmetry: 
 	var values := {}
 	for sk in shapekeys:
 		var value: float
+		var mean = (randomization.min_value + randomization.max_value) * 0.5
 		# Explicitly asymmetric shapekeys
 		if 'asym' in sk or sk.ends_with('-in') or sk.ends_with('-out'):
-			value = rng.randfn(0, 0.5 * asymmetry.value)
+			value = rng.randfn(mean, 0.5 * asymmetry.value)
 		else:
 			# Check for l- and r- versions and apply asymmetry
 			var lkey = ''
 			if sk.begins_with('r-'):
 				lkey = 'l-' + sk.split('r-', true, 1)[1]
 			if lkey in values:
-				value = values[lkey] + rng.randfn(0, 0.5 * asymmetry.value)
+				value = values[lkey] + rng.randfn(mean, 0.5 * asymmetry.value)
 			else:
 				# Should be symmetric shapekey
-				value = rng.randfn(0, 0.5 * randomization.value)
+				value = rng.randfn(mean, 0.5 * randomization.value)
+		value = clamp(value, randomization.min_value, randomization.max_value)
 		get_node('%' + sk).value = value
 		values[sk] = value
 	human.set_shapekeys(values)
