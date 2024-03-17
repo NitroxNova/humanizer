@@ -15,6 +15,7 @@ enum AssetType {
 
 
 func _enter_tree() -> void:
+	print('wtf')
 	load_all()
 
 static func load_all() -> void:
