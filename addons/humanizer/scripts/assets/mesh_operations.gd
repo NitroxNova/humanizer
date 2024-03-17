@@ -113,7 +113,7 @@ static func skin_mesh(rig: HumanizerRig, skeleton: Skeleton3D, basemesh: ArrayMe
 
 
 const macro_ranges :Dictionary = {
-		age = [["baby",0],["child",12.0],["young",25.0],["old",100]],
+		age = [["baby",0],["child",.12],["young",.25],["old",1]],
 		gender = [["female",0.0],["male",1.0]],
 		height = [["minheight",0],["",.5],["maxheight",1]],
 		muscle = [["minmuscle",0],["averagemuscle",0.5],["maxmuscle",1]],
@@ -143,7 +143,7 @@ static func get_race_options():
 static func get_macro_shapekey_values(macros:Dictionary,race:Dictionary,changed_name:String=""):
 	var new_shapekeys = {} #shapekey name / value pairs
 	var macro_data = {}
-	macro_data.race = race
+	macro_data.race = normalize_race_values(race)
 	for macro_name in macros:
 		macro_data[macro_name] = get_macro_category_offset(macro_name,macros[macro_name])
 	for combo_name in macro_combos:
@@ -152,6 +152,23 @@ static func get_macro_shapekey_values(macros:Dictionary,race:Dictionary,changed_
 			for shapekey_name in combo_shapekeys:
 				new_shapekeys[shapekey_name] = combo_shapekeys[shapekey_name]
 	return new_shapekeys
+
+static func normalize_race_values(race_data:Dictionary):
+	var new_data = {}
+	var total = 0
+	for race in race_data:
+		total += race_data[race]
+	if total == 0:
+		for race in race_data:
+			new_data[race] = 1/race_data.size()
+		return new_data
+	else:
+		var ratio = 1/total
+		for race in race_data:
+			new_data[race] = race_data[race] * ratio
+		return new_data
+		
+	
 	
 static func get_combination_shapekeys(combo_name:String,data:Dictionary):
 	var next_shapes = {}
