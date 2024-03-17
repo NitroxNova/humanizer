@@ -58,8 +58,10 @@ func _on_value_changed(value, key: String) -> void:
 func _on_reset_sliders(human: Humanizer) -> void:
 	var values := {}
 	for sk in shapekeys:
-		get_node('%' + sk).value = 0
-		values[sk] = 0
+		var slider: HSlider = get_node('%' + sk)
+		var value = (slider.min_value + slider.max_value) * 0.5
+		slider.value = value
+		values[sk] = value
 	human.set_shapekeys(values)
 	human.adjust_skeleton()
 	print('Reset ' + name + ' sliders')
