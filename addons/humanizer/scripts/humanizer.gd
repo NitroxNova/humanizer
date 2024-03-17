@@ -435,12 +435,15 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 	var race_sk := {}
 	for sk in MeshOperations.get_race_options():
 		race_sk[sk] = shapekeys.get(sk, prev_sk.get(sk, 0))
-	print(macro_sk, race_sk)
 	macro_sk = MeshOperations.get_macro_shapekey_values(macro_sk, race_sk)
+	for sk in macro_sk:
+		shapekeys[sk] = macro_sk[sk]
 	
 	for sk in shapekeys:
 		var prev_val: float = prev_sk.get(sk, 0)
 		if prev_val == shapekeys[sk]:
+			continue
+		if sk not in shapekey_data.shapekeys:
 			continue
 		for mh_id in shapekey_data.shapekeys[sk]:
 			_helper_vertex[mh_id] += shapekey_data.shapekeys[sk][mh_id] * (shapekeys[sk] - prev_val)
@@ -727,6 +730,8 @@ func adjust_skeleton() -> void:
 			var coords = shapekey_data.basis[mh_id]
 			for sk_name in human_config.shapekeys:
 				var sk_value = human_config.shapekeys[sk_name]
+				if sk_name not in shapekey_data.shapekeys:
+					continue
 				if sk_value != 0:
 					if mh_id in shapekey_data.shapekeys[sk_name]:
 						coords += sk_value * shapekey_data.shapekeys[sk_name][mh_id]
