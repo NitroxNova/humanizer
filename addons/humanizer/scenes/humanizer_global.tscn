@@ -5,7 +5,8 @@
 [ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_registry.gd" id="57_651fh"]
 
 [sub_resource type="GDScript" id="GDScript_lwy01"]
-script/source = "extends Node
+script/source = "@tool
+extends Node
 
 @export var config := HumanizerConfig.new()
 "
@@ -25,7 +26,7 @@ default_character_physics_mask = 3
 default_physical_bone_layers = 4
 default_physical_bone_mask = 5
 default_character_render_layers = 1
-atlas_resolution = null
+atlas_resolution = 0
 
 [node name="HumanizerConfig" type="Node"]
 script = SubResource("GDScript_lwy01")
