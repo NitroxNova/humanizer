@@ -435,9 +435,13 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 	var race_sk := {}
 	for sk in MeshOperations.get_race_options():
 		race_sk[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.3))
-	macro_sk = MeshOperations.get_macro_shapekey_values(macro_sk, race_sk)
+	var sk_values = MeshOperations.get_macro_shapekey_values(macro_sk, race_sk)
 	for sk in macro_sk:
 		shapekeys[sk] = macro_sk[sk]
+	for sk in race_sk:
+		shapekeys[sk] = race_sk[sk]
+	for sk in sk_values:
+		shapekeys[sk] = sk_values[sk]
 	
 	for sk in shapekeys:
 		var prev_val: float = prev_sk.get(sk, 0)
