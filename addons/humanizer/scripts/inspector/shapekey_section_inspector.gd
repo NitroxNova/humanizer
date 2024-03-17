@@ -13,7 +13,8 @@ func _ready() -> void:
 		
 	# Connect randomization controls
 	%RandomizeButton.pressed.connect(_on_randomize_sliders.bind(human, %RandomizationSlider, %AsymmetrySlider))
-		
+	%ResetButton.pressed.connect(_on_reset_sliders.bind(human))
+
 	for key in shapekeys:
 		var label = Label.new()
 		label.text = key
@@ -50,15 +51,33 @@ func reset_sliders() -> void:
 func _on_value_changed(value, key: String) -> void:
 	shapekey_value_changed.emit({key: float(value)})
 
+func _on_reset_sliders(human: Humanizer) -> void:
+	var values := {}
+	for sk in shapekeys:
+		get_node('%' + sk).value = 0
+		values[sk] = 0
+	human.set_shapekeys(values)
+	human.adjust_skeleton()
+	print('Reset ' + name + ' sliders')
+	
 func _on_randomize_sliders(human: Humanizer, randomization: HSlider, asymmetry: HSlider) -> void:
 	var rng = RandomNumberGenerator.new()
 	var values := {}
 	for sk in shapekeys:
 		var value: float
-		if 'asym' in sk:
-			value = rng.randfn(0, 0.5 * randomization.value)
-		else:
+		# Explicitly asymmetric shapekeys
+		if 'asym' in sk or sk.ends_with('-in') or sk.ends_with('-out'):
 			value = rng.randfn(0, 0.5 * asymmetry.value)
+		else:
+			# Check for l- and r- versions and apply asymmetry
+			var lkey = ''
+			if sk.begins_with('r-'):
+				lkey = 'l-' + sk.split('r-', true, 1)[1]
+			if lkey in values:
+				value = values[lkey] + rng.randfn(0, 0.5 * asymmetry.value)
+			else:
+				# Should be symmetric shapekey
+				value = rng.randfn(0, 0.5 * randomization.value)
 		get_node('%' + sk).value = value
 		values[sk] = value
 	human.set_shapekeys(values)

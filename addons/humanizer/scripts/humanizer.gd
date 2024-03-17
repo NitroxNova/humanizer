@@ -424,6 +424,22 @@ func restore_hidden_vertices() -> void:
 	load_human()
 
 func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
+	var macro_keys: Array = MeshOperations.get_macro_options()
+	var macro_sk := {}
+	for sk in shapekeys:
+		if sk in macro_keys:
+			macro_sk[sk] = shapekeys[sk]
+			shapekeys.erase(sk)
+	
+	var race_keys: Array = MeshOperations.get_race_options()
+	var race_sk := {}
+	for sk in shapekeys:
+		if sk in race_keys:
+			race_sk[sk] = shapekeys[sk]
+			shapekeys.erase(sk)
+	
+	macro_sk = MeshOperations.get_macro_shapekey_values(macro_sk, race_sk)
+	
 	var prev_sk = human_config.shapekeys.duplicate()
 	if override_zero:
 		for sk in prev_sk:

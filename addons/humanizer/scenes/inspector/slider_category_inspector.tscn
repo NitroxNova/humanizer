@@ -30,9 +30,16 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Randomize"
 
+[node name="ResetButton" type="Button" parent="PanelContainer/MarginContainer/VBoxContainer/RandomizationControls"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Reset"
+
 [node name="GridContainer" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer/RandomizationControls"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
 columns = 2
 
 [node name="Label" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer/RandomizationControls/GridContainer"]

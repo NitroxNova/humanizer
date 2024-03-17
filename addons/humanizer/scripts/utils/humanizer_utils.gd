@@ -36,8 +36,8 @@ static func get_shapekey_data() -> Dictionary:
 static func get_shapekey_categories() -> Dictionary:
 	var shapekeys = get_shapekey_data()
 	var categories := {
-		'RaceAge': [],
-		'MuscleWeight': [],
+		'Macro': [],
+		'Race': [],
 		'Head': [],
 		'Eyes': [],
 		'Mouth': [],
@@ -53,14 +53,12 @@ static func get_shapekey_categories() -> Dictionary:
 		'Misc': [],
 	}
 	for name in shapekeys.shapekeys:
-		if 'penis' in name.to_lower():
+		if 'penis' in name.to_lower():# or name.ends_with('firmness'):
 			continue
 		if 'caucasian' in name.to_lower() or 'african' in name.to_lower() or 'asian' in name.to_lower():
-			categories['RaceAge'].append(name)
-		elif 'cup' in name.to_lower() or 'bust' in name.to_lower() or 'breast' in name.to_lower() or 'nipple' in name.to_lower():
-			categories['Breasts'].append(name)
+			continue#categories['RaceAge'].append(name)
 		elif 'averagemuscle' in name.to_lower() or 'minmuscle' in name.to_lower() or 'maxmuscle' in name.to_lower():
-			categories['MuscleWeight'].append(name)
+			continue#categories['MuscleWeight'].append(name)
 		elif 'head' in name.to_lower() or 'brown' in name.to_lower() or 'top' in name.to_lower():
 			categories['Head'].append(name)
 		elif 'eye' in name.to_lower():
@@ -77,6 +75,8 @@ static func get_shapekey_categories() -> Dictionary:
 			categories['Arms'].append(name)
 		elif 'leg' in name.to_lower() or 'calf' in name.to_lower() or 'foot' in name.to_lower() or 'butt' in name.to_lower() or 'ankle' in name.to_lower() or 'thigh' in name.to_lower() or 'knee' in name.to_lower():
 			categories['Legs'].append(name)
+		elif 'cup' in name.to_lower() or 'bust' in name.to_lower() or 'breast' in name.to_lower() or 'nipple' in name.to_lower():
+			categories['Breasts'].append(name)
 		elif 'torso' in name.to_lower() or 'chest' in name.to_lower() or 'shoulder' in name.to_lower():
 			categories['Chest'].append(name)
 		elif 'hip' in name.to_lower() or 'trunk' in name.to_lower() or 'pelvis' in name.to_lower() or 'waist' in name.to_lower() or 'pelvis' in name.to_lower() or 'stomach' in name.to_lower() or 'bulge' in name.to_lower():
@@ -87,6 +87,13 @@ static func get_shapekey_categories() -> Dictionary:
 			categories['Neck'].append(name)
 		else:
 			categories['Misc'].append(name)
+	
+	categories['Macro'] = MeshOperations.get_macro_options()
+	categories['Race'].append_array(MeshOperations.get_race_options())
+	categories['Macro'].erase('cupsize')
+	categories['Macro'].erase('firmness')
+	categories['Breasts'].append('cupsize')
+	categories['Breasts'].append('firmness')
 	return categories
 	
 static func show_window(interior, closeable: bool = true, size=Vector2i(500, 500)) -> void:
