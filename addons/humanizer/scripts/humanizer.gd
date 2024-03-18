@@ -464,34 +464,30 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
 	var _foot_offset = Vector3.UP * offset
 	
+	var mesh := body_mesh.mesh as ArrayMesh
+	var surf_arrays = mesh.surface_get_arrays(0)
+	var fmt = mesh.surface_get_format(0)
+	var lods = {}
+	var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
+	for i in _helper_vertex.size():
+		_helper_vertex[i] -= _foot_offset
+	surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
+	for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
+		var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+		surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
+	mesh.clear_surfaces()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], lods, fmt)
+	
 	# Apply to body parts and clothes
 	for child in get_children():
 		if not child is MeshInstance3D:
 			continue
-		var mesh: ArrayMesh = child.mesh
-
 		var res: HumanAsset = _get_asset_by_name(child.name)
 		if res != null:   # Body parts/clothes
 			var mhclo: MHCLO = load(res.mhclo_path)
-			var new_mesh = MeshOperations.build_fitted_mesh(mesh, _helper_vertex, mhclo)
+			var new_mesh = MeshOperations.build_fitted_mesh(child.mesh, _helper_vertex, mhclo)
 			child.mesh = new_mesh
-		else:             # Base mesh
-			if child.name != _BASE_MESH_NAME:
-				printerr('Failed to match asset resource for mesh ' + child.name + ' which is not the base mesh.')
-				return
-			var surf_arrays = (mesh as ArrayMesh).surface_get_arrays(0)
-			var fmt = mesh.surface_get_format(0)
-			var lods = {}
-			var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
-			for i in _helper_vertex.size():
-				_helper_vertex[i] -= _foot_offset
-			surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
-			for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
-				var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-				surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
-			mesh.clear_surfaces()
-			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], lods, fmt)
-	
+			
 	human_config.shapekeys = shapekeys.duplicate()
 	if main_collider != null:
 		_adjust_main_collider()

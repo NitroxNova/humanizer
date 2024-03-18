@@ -27,7 +27,6 @@ func _ready() -> void:
 
 		slider.step = 0.01
 		if human.human_config != null and human.human_config.shapekeys.has(key):
-			print(key)
 			slider.value = human.human_config.shapekeys[key]
 		else:
 			slider.value = 0
