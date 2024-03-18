@@ -824,9 +824,11 @@ func _add_physical_skeleton() -> void:
 	skeleton.physical_bones_start_simulation()
 
 func _adjust_main_collider():
-	var height = _helper_vertex[14570].y
+	var head_height = _helper_vertex[14570].y
+	var foot_height = min( _helper_vertex[15505].y ,  _helper_vertex[16809].y)
+	var height = head_height - foot_height
 	main_collider.shape.height = height
-	main_collider.position.y = height/2
+	main_collider.position.y = height/2 + foot_height
 
 	var width_ids = [shoulder_id,waist_id,hips_id]
 	var max_width = 0
