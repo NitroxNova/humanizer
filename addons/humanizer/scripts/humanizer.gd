@@ -492,7 +492,7 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 			mesh.clear_surfaces()
 			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], lods, fmt)
 	
-	human_config.shapekeys = shapekeys
+	human_config.shapekeys = shapekeys.duplicate()
 	if main_collider != null:
 		_adjust_main_collider()
 
@@ -747,7 +747,6 @@ func adjust_skeleton() -> void:
 	var skeleton_config = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].config_json_path)
 	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
 	var _foot_offset = Vector3.UP * offset
-	var _root_offset = 0.5 * (_helper_vertex[feet_ids[0]].y + _helper_vertex[feet_ids[1]].y)
 	
 	for bone_id in skeleton.get_bone_count():
 		var bone_data = skeleton_config[bone_id]
@@ -758,7 +757,7 @@ func adjust_skeleton() -> void:
 		if skeleton.get_bone_name(bone_id) != 'Root':
 			bone_pos -= _foot_offset
 		else:
-			bone_pos *= 0
+			bone_pos *= 0  # Root should always be at origin
 		var parent_id = skeleton.get_bone_parent(bone_id)
 		if not parent_id == -1:
 			var parent_xform = skeleton.get_bone_global_pose(parent_id)
@@ -770,7 +769,7 @@ func adjust_skeleton() -> void:
 		if child is MeshInstance3D:
 			child.skin = skeleton.create_skin_from_rest_transforms()
 	
-	skeleton.motion_scale = _base_motion_scale * (_helper_vertex[hips_id].y + _foot_offset.y) / _base_hips_height
+	skeleton.motion_scale = _base_motion_scale * (_helper_vertex[hips_id].y - _foot_offset.y) / _base_hips_height
 	#print('Fit skeleton to mesh')
 
 func _reset_animator() -> void:

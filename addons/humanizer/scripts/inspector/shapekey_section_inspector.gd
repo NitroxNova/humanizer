@@ -3,7 +3,6 @@ extends MarginContainer
 
 var shapekeys
 var human: Humanizer
-var config: HumanConfig
 
 func _ready() -> void:
 	if shapekeys == null:
@@ -27,8 +26,9 @@ func _ready() -> void:
 			slider.min_value = 0
 
 		slider.step = 0.01
-		if config != null and config.shapekeys.has(key):
-			slider.value = config.shapekeys[key]
+		if human.human_config != null and human.human_config.shapekeys.has(key):
+			print(key)
+			slider.value = human.human_config.shapekeys[key]
 		else:
 			slider.value = 0
 
@@ -36,7 +36,6 @@ func _ready() -> void:
 		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		%GridContainer.add_child(slider)
 		slider.drag_ended.connect(_on_value_changed.bind(slider))
-		#slider.drag_ended.connect(func(_val): human.adjust_skeleton())
 		slider.owner = self
 		slider.unique_name_in_owner = true
 
@@ -49,19 +48,20 @@ func _on_value_changed(changed: bool, slider: HSlider) -> void:
 	var key = slider.name
 	var value = slider.value
 	if name == 'RaceContainer':
-		var total: float = 0
+		# Do some normalization so race shapekeys always sum to 1
 		var sliders := {}
 		for sk in shapekeys:
-			sliders[sk] = get_node('%' + sk)
-		for sk in sliders:
-			total += sliders[sk].value
+			sliders[sk] = get_node('%' + sk) as HSlider
+		# Get sum of other races
 		var other_total: float = 0
 		for sk in sliders:
 			if sk != key:
 				other_total += sliders[sk].value
+		# Set new values on other races in same ratio, but everything sums to 1
 		for sk in sliders:
 			if sk != key:
 				sliders[sk].value *= (1 - value) / other_total
+		# Send all results back to human
 		var values := {}
 		for sk in sliders:
 			values[sk] = sliders[sk].value

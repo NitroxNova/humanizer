@@ -83,5 +83,4 @@ func _parse_category(human, category):
 		scene.get_node('%ShapekeysVBoxContainer').add_child(button)
 		scene.get_node('%ShapekeysVBoxContainer').add_child(cat_container)
 		button.pressed.connect(func(): cat_container.visible = not cat_container.visible)
-		cat_container.config = human.human_config
 
