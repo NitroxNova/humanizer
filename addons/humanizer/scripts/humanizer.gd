@@ -37,7 +37,6 @@ var shapekey_data: Dictionary:
 			_shapekey_data = HumanizerUtils.get_shapekey_data()
 		return _shapekey_data
 var _helper_vertex: PackedVector3Array = []
-var _foot_offset := Vector3.ZERO
 var save_path: String:
 	get:
 		var path = HumanizerGlobal.config.human_export_path
@@ -462,7 +461,7 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 		for mh_id in shapekey_data.shapekeys[sk]:
 			_helper_vertex[mh_id] += shapekey_data.shapekeys[sk][mh_id] * (shapekeys[sk] - prev_val)
 	
-	var offset = min(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
+	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
 	var _foot_offset = Vector3.UP * offset
 	
 	# Apply to body parts and clothes
@@ -484,10 +483,12 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 			var fmt = mesh.surface_get_format(0)
 			var lods = {}
 			var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
+			for i in _helper_vertex.size():
+				_helper_vertex[i] -= _foot_offset
 			surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
 			for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
 				var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-				surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id] # - _foot_offset
+				surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
 			mesh.clear_surfaces()
 			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], lods, fmt)
 	
@@ -744,13 +745,20 @@ func adjust_skeleton() -> void:
 	skeleton.reset_bone_poses()
 	var rig = human_config.rig.split('-')[0]
 	var skeleton_config = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].config_json_path)
+	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
+	var _foot_offset = Vector3.UP * offset
+	var _root_offset = 0.5 * (_helper_vertex[feet_ids[0]].y + _helper_vertex[feet_ids[1]].y)
+	
 	for bone_id in skeleton.get_bone_count():
 		var bone_data = skeleton_config[bone_id]
 		var bone_pos = Vector3.ZERO
 		for vid in bone_data.head.vertex_indices:
 			bone_pos += _helper_vertex[int(vid)]
 		bone_pos /= bone_data.head.vertex_indices.size()
-		#bone_pos -= _foot_offset
+		if skeleton.get_bone_name(bone_id) != 'Root':
+			bone_pos -= _foot_offset
+		else:
+			bone_pos *= 0
 		var parent_id = skeleton.get_bone_parent(bone_id)
 		if not parent_id == -1:
 			var parent_xform = skeleton.get_bone_global_pose(parent_id)
@@ -762,7 +770,7 @@ func adjust_skeleton() -> void:
 		if child is MeshInstance3D:
 			child.skin = skeleton.create_skin_from_rest_transforms()
 	
-	skeleton.motion_scale = _base_motion_scale * _helper_vertex[hips_id].y / _base_hips_height
+	skeleton.motion_scale = _base_motion_scale * (_helper_vertex[hips_id].y + _foot_offset.y) / _base_hips_height
 	#print('Fit skeleton to mesh')
 
 func _reset_animator() -> void:
@@ -825,10 +833,10 @@ func _add_physical_skeleton() -> void:
 
 func _adjust_main_collider():
 	var head_height = _helper_vertex[14570].y
-	var foot_height = min( _helper_vertex[15505].y ,  _helper_vertex[16809].y)
-	var height = head_height - foot_height
+	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
+	var height = head_height - offset
 	main_collider.shape.height = height
-	main_collider.position.y = height/2 + foot_height
+	main_collider.position.y = height/2 + offset
 
 	var width_ids = [shoulder_id,waist_id,hips_id]
 	var max_width = 0
