@@ -137,66 +137,22 @@ static func get_macro_options():
 static func get_race_options():
 	return ["african","asian","caucasian"]
 
-static func init_macro_shapekey_values(macros:Dictionary,race:Dictionary):
-	var shapekeys = {}
+#call this from the menu to get the new shapekeys
+#this does not include reseting the previous shapekeys tho
+#need to pass previous macro values as well	
+static func get_macro_shapekey_values(macros:Dictionary,race:Dictionary,changed_name:String=""):
+	var new_shapekeys = {} #shapekey name / value pairs
 	var macro_data = {}
 	macro_data.race = normalize_race_values(race)
 	for macro_name in macros:
 		macro_data[macro_name] = get_macro_category_offset(macro_name,macros[macro_name])
 	for combo_name in macro_combos:
-		var combo_shapekeys = get_combination_shapekeys(combo_name,macro_data)
-		for shapekey_name in combo_shapekeys:
-			shapekeys[shapekey_name] = combo_shapekeys[shapekey_name]
-	return shapekeys
-		
-#call this from the menu to get the new shapekeys
-#this does not include reseting the previous shapekeys tho
-#need to pass previous macro values as well	
-static func get_macro_shapekey_values(prev_macros:Dictionary,prev_race:Dictionary,changed_values:Dictionary={}):
-	var prev_shapekeys = {} #shapekey name / value pairs
-	var new_shapekeys = {} #shapekey name / value pairs
-	var new_macro_data = {}
-	var prev_macro_data = {}
-	prev_macro_data.race = normalize_race_values(prev_race)
-	for macro_name in prev_macros:
-		prev_macro_data[macro_name] = get_macro_category_offset(macro_name,prev_macros[macro_name])
+		if changed_name == "" or changed_name in macro_combos[combo_name]:
+			var combo_shapekeys = get_combination_shapekeys(combo_name,macro_data)
+			for shapekey_name in combo_shapekeys:
+				new_shapekeys[shapekey_name] = combo_shapekeys[shapekey_name]
+	return new_shapekeys
 
-	new_macro_data = prev_macro_data.duplicate()
-	for macro_name in changed_values:
-		if macro_name in MeshOperations.get_race_options():
-			new_macro_data.race[macro_name] = changed_values[macro_name]
-		else:
-			new_macro_data[macro_name] = get_macro_category_offset(macro_name,changed_values[macro_name])
-	
-	new_macro_data.race = normalize_race_values(new_macro_data.race)
-	
-	for combo_name in macro_combos:
-		var update_combo = false
-		if changed_values.size() == 0:
-			update_combo = true
-		for changed_name in changed_values:
-			if changed_name in macro_combos[combo_name]:
-				update_combo = true
-		if update_combo:
-			var prev_combo_shapekeys = get_combination_shapekeys(combo_name,prev_macro_data)
-			for shapekey_name in prev_combo_shapekeys:
-				prev_shapekeys[shapekey_name] = prev_combo_shapekeys[shapekey_name]
-			var new_combo_shapekeys = get_combination_shapekeys(combo_name,new_macro_data)
-			for shapekey_name in new_combo_shapekeys:
-				new_shapekeys[shapekey_name] = new_combo_shapekeys[shapekey_name]
-	
-				
-	return _get_adjusted_shapekeys(prev_shapekeys,new_shapekeys)
-
-static func _get_adjusted_shapekeys(prev_shapekeys:Dictionary,new_shapekeys:Dictionary):
-	var output = {}
-	for sk_name in new_shapekeys:
-		output[sk_name] = new_shapekeys[sk_name]
-	for sk_name in prev_shapekeys:
-		if sk_name not in new_shapekeys:
-			output[sk_name] = 0
-	return output
-	
 static func normalize_race_values(race_data:Dictionary):
 	var new_data = {}
 	var total = 0

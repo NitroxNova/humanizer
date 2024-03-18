@@ -430,36 +430,20 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 			if sk in shapekey_data.shapekeys:
 				prev_sk[sk] = 0
 
-	var null_macro = false
 	var macro_sk := {}
-	var changed_macro = {}
 	for sk in MeshOperations.get_macro_options():
-		macro_sk[sk] = prev_sk.get(sk)
-		if macro_sk[sk] == null:
-			null_macro = true
-			macro_sk[sk] = .5
-		if sk in shapekeys:
-			changed_macro[sk] = shapekeys[sk]
+		macro_sk[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.5))
 	var race_sk := {}
 	for sk in MeshOperations.get_race_options():
-		race_sk[sk] = prev_sk.get(sk)
-		if race_sk[sk] == null:
-			null_macro = true
-			race_sk[sk] = 1.0/MeshOperations.get_race_options().size()
-		if sk in shapekeys:
-			changed_macro[sk] = shapekeys[sk]
-	var macro_sk_values = {}
-	if null_macro:
-		macro_sk_values = MeshOperations.init_macro_shapekey_values(macro_sk,race_sk)
-	elif changed_macro.size() > 0:
-		macro_sk_values = MeshOperations.get_macro_shapekey_values(macro_sk, race_sk, changed_macro)
-	
+		race_sk[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.3))
+	var sk_values = MeshOperations.get_macro_shapekey_values(macro_sk, race_sk)
 	for sk in macro_sk:
 		shapekeys[sk] = macro_sk[sk]
 	for sk in race_sk:
 		shapekeys[sk] = race_sk[sk]
-	for sk in macro_sk_values:
-		shapekeys[sk] = macro_sk_values[sk]
+	for sk in sk_values:
+		shapekeys[sk] = sk_values[sk]
+	
 	for sk in shapekeys:
 		var prev_val: float = prev_sk.get(sk, 0)
 		if prev_val == shapekeys[sk]:
