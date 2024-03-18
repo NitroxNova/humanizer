@@ -25,9 +25,15 @@ func run():
 	shapekey_data.shapekeys = {}
 	for path in HumanizerGlobal.config.asset_import_paths:
 		_get_shape_keys(path + 'targets/')
+	
+	shapekey_data.macro_shapekeys = []
+	for sk in shapekey_data.shapekeys:
+		if sk.begins_with('african') or sk.begins_with('asian') or sk.begins_with('caucasian')\
+				or sk.begins_with('female') or sk.begins_with('male') or sk.begins_with('universal'):
+			shapekey_data.macro_shapekeys.append(sk)
+	
 	var file := FileAccess.open("res://addons/humanizer/data/resources/shapekeys.dat", FileAccess.WRITE)
-	file.store_var(shapekey_data.basis)
-	file.store_var(shapekey_data.shapekeys)
+	file.store_var(shapekey_data)
 	file.close()
 	print('Finished collecting shapekey data')
 
@@ -47,16 +53,9 @@ func _process_shapekey(path: String):
 		shapekey_data.shapekeys[shape_name][sk_index] = sk_coords
 		
 func _get_shape_keys(path):
-	var dir = DirAccess.open(path)
-	if dir:
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
-		while file_name != "":
-			if dir.current_is_dir():
-				_get_shape_keys(path + file_name + '/')
-			elif file_name.get_extension() == "target":
-				_process_shapekey(path + file_name)
-			file_name = dir.get_next()
-		dir.list_dir_end()
-	else:
-		print("An error occurred when trying to access the path.")
+	var contents = OSPath.get_contents(path)
+	for dir in contents.dirs:
+		_get_shape_keys(dir)
+	for file in contents.files:
+		if file.get_extension() == 'target':
+			_process_shapekey(file)

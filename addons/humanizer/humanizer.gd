@@ -139,10 +139,6 @@ func _purge_assets() -> void:
 	HumanizerAssetImporter.new().run(true)
 	
 func _test() -> void:
-	var path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/RightEye-LowPolyEyeball_mhclo.res"
-	var res = load(path)
-	print(res)
-	for i in 50:
-		await get_tree().process_frame
-	print(res is MHCLO)
+	print(HumanizerUtils.get_shapekey_data().keys())
+	print(HumanizerUtils.get_shapekey_data().macro_shapekeys)
 #endregion

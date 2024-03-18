@@ -1,8 +1,6 @@
 @tool
 extends MarginContainer
 
-signal shapekey_value_changed(shapekeys: Dictionary)
-
 var shapekeys
 var human: Humanizer
 var config: HumanConfig
@@ -37,8 +35,8 @@ func _ready() -> void:
 		slider.custom_minimum_size = Vector2i(150, 10)
 		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		%GridContainer.add_child(slider)
-		slider.value_changed.connect(_on_value_changed.bind(key))
-		slider.drag_ended.connect(func(_val): human.adjust_skeleton())
+		slider.drag_ended.connect(_on_value_changed.bind(slider))
+		#slider.drag_ended.connect(func(_val): human.adjust_skeleton())
 		slider.owner = self
 		slider.unique_name_in_owner = true
 
@@ -47,14 +45,32 @@ func _ready() -> void:
 		#line_edit.text_changed.connect(_on_value_changed.bind(key))
 		#line_edit.text_changed.connect(set_shapekey.bind(key))
 
-func reset_sliders() -> void:
-	for child in %GridContainer.get_children():
-		if child is HSlider:
-			child.value = 0
-		
-func _on_value_changed(value, key: String) -> void:
-	shapekey_value_changed.emit({key: float(value)})
-
+func _on_value_changed(changed: bool, slider: HSlider) -> void:
+	var key = slider.name
+	var value = slider.value
+	if name == 'RaceContainer':
+		var total: float = 0
+		var sliders := {}
+		for sk in shapekeys:
+			sliders[sk] = get_node('%' + sk)
+		for sk in sliders:
+			total += sliders[sk].value
+		var other_total: float = 0
+		for sk in sliders:
+			if sk != key:
+				other_total += sliders[sk].value
+		for sk in sliders:
+			if sk != key:
+				sliders[sk].value *= (1 - value) / other_total
+		var values := {}
+		for sk in sliders:
+			values[sk] = sliders[sk].value
+		human.set_shapekeys(values)
+	else:
+		human.set_shapekeys({key: float(value)})
+	human.adjust_skeleton()
+	human.recalculate_normals()
+	
 func _on_reset_sliders(human: Humanizer) -> void:
 	var values := {}
 	for sk in shapekeys:
@@ -64,14 +80,16 @@ func _on_reset_sliders(human: Humanizer) -> void:
 		values[sk] = value
 	human.set_shapekeys(values)
 	human.adjust_skeleton()
+	human.recalculate_normals()
 	print('Reset ' + name + ' sliders')
 	
 func _on_randomize_sliders(human: Humanizer, randomization: HSlider, asymmetry: HSlider) -> void:
 	var rng = RandomNumberGenerator.new()
 	var values := {}
 	for sk in shapekeys:
+		var slider: HSlider = get_node('%' + sk)
 		var value: float
-		var mean = (randomization.min_value + randomization.max_value) * 0.5
+		var mean = (slider.min_value + slider.max_value) * 0.5
 		# Explicitly asymmetric shapekeys
 		if 'asym' in sk or sk.ends_with('-in') or sk.ends_with('-out'):
 			value = rng.randfn(mean, 0.5 * asymmetry.value)
@@ -90,4 +108,5 @@ func _on_randomize_sliders(human: Humanizer, randomization: HSlider, asymmetry: 
 		values[sk] = value
 	human.set_shapekeys(values)
 	human.adjust_skeleton()
-	print('Randomized ' + name + ' sliders')
+	human.recalculate_normals()
+	print('Randomized ' + name.replace('Container', '') + ' sliders')

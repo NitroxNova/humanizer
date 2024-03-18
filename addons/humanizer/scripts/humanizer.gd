@@ -11,6 +11,7 @@ const _DEFAULT_HAIR_COLOR = Color.WEB_MAROON
 const shoulder_id: int = 16951 
 const waist_id: int = 17346
 const hips_id: int = 18127
+const feet_ids: Array[int] = [15500, 16804]
 
 var skeleton: Skeleton3D
 var body_mesh: MeshInstance3D
@@ -36,6 +37,7 @@ var shapekey_data: Dictionary:
 			_shapekey_data = HumanizerUtils.get_shapekey_data()
 		return _shapekey_data
 var _helper_vertex: PackedVector3Array = []
+var _foot_offset := Vector3.ZERO
 var save_path: String:
 	get:
 		var path = HumanizerGlobal.config.human_export_path
@@ -68,7 +70,7 @@ var hair_color: Color = _DEFAULT_HAIR_COLOR:
 		var slots: Array = [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows', &'Hair']
 		for slot in slots:
 			if not human_config.body_parts.has(slot):
-				return
+				continue
 			var mesh = get_node(human_config.body_parts[slot].resource_name)
 			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = hair_color
 var eye_color: Color = _DEFAULT_EYE_COLOR:
@@ -80,7 +82,7 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 		var slots: Array = [&'RightEye', &'LeftEye', &'Eyes']
 		for slot in slots:
 			if not human_config.body_parts.has(slot):
-				return
+				continue
 			var mesh = get_node(human_config.body_parts[slot].resource_name)
 			mesh.material_config.overlays[1].color = eye_color
 
@@ -430,20 +432,27 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 			if sk in shapekey_data.shapekeys:
 				prev_sk[sk] = 0
 
-	var macro_sk := {}
+	# Set default macro/race values
+	var macro_vals := {}
 	for sk in MeshOperations.get_macro_options():
-		macro_sk[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.5))
-	var race_sk := {}
+		macro_vals[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.5))
+	var race_vals := {}
 	for sk in MeshOperations.get_race_options():
-		race_sk[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.3))
-	var sk_values = MeshOperations.get_macro_shapekey_values(macro_sk, race_sk)
-	for sk in macro_sk:
-		shapekeys[sk] = macro_sk[sk]
-	for sk in race_sk:
-		shapekeys[sk] = race_sk[sk]
+		race_vals[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.333))
+	
+	for sk in macro_vals:
+		shapekeys[sk] = macro_vals[sk]
+	for sk in race_vals:
+		shapekeys[sk] = race_vals[sk]
+	
+	# Clear all macro shapekeys then re-apply results from macro sliders
+	for sk in shapekey_data.macro_shapekeys:
+		shapekeys[sk] = 0
+	var sk_values = MeshOperations.get_macro_shapekey_values(macro_vals, race_vals)
 	for sk in sk_values:
 		shapekeys[sk] = sk_values[sk]
 	
+	# Apply shapekey changes to base mesh
 	for sk in shapekeys:
 		var prev_val: float = prev_sk.get(sk, 0)
 		if prev_val == shapekeys[sk]:
@@ -452,7 +461,11 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 			continue
 		for mh_id in shapekey_data.shapekeys[sk]:
 			_helper_vertex[mh_id] += shapekey_data.shapekeys[sk][mh_id] * (shapekeys[sk] - prev_val)
-				
+	
+	var offset = min(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
+	var _foot_offset = Vector3.UP * offset
+	
+	# Apply to body parts and clothes
 	for child in get_children():
 		if not child is MeshInstance3D:
 			continue
@@ -474,12 +487,11 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 			surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
 			for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
 				var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-				surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
+				surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id] # - _foot_offset
 			mesh.clear_surfaces()
 			mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], lods, fmt)
 	
-	for sk in shapekeys:
-		human_config.shapekeys[sk] = shapekeys[sk]
+	human_config.shapekeys = shapekeys
 	if main_collider != null:
 		_adjust_main_collider()
 
@@ -551,6 +563,11 @@ func _combine_meshes() -> ArrayMesh:
 		i += 1
 	return new_mesh
 
+func recalculate_normals() -> void:
+	var mat = body_mesh.get_surface_override_material(0)
+	_set_body_mesh(MeshOperations.generate_normals_and_tangents(body_mesh.mesh))
+	body_mesh.set_surface_override_material(0, mat)
+	
 #### Materials ####
 func set_skin_texture(name: String) -> void:
 	var base_texture: String
@@ -731,18 +748,9 @@ func adjust_skeleton() -> void:
 		var bone_data = skeleton_config[bone_id]
 		var bone_pos = Vector3.ZERO
 		for vid in bone_data.head.vertex_indices:
-			var mh_id = int(vid)
-			var coords = shapekey_data.basis[mh_id]
-			for sk_name in human_config.shapekeys:
-				var sk_value = human_config.shapekeys[sk_name]
-				if sk_name not in shapekey_data.shapekeys:
-					continue
-				if sk_value != 0:
-					if mh_id in shapekey_data.shapekeys[sk_name]:
-						coords += sk_value * shapekey_data.shapekeys[sk_name][mh_id]
-			bone_pos += coords
+			bone_pos += _helper_vertex[int(vid)]
 		bone_pos /= bone_data.head.vertex_indices.size()
-
+		#bone_pos -= _foot_offset
 		var parent_id = skeleton.get_bone_parent(bone_id)
 		if not parent_id == -1:
 			var parent_xform = skeleton.get_bone_global_pose(parent_id)

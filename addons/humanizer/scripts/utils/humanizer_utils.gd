@@ -27,9 +27,7 @@ static func save_json(file_path, data):
 static func get_shapekey_data() -> Dictionary:
 	var shapekey_data: Dictionary
 	var file := FileAccess.open("res://addons/humanizer/data/resources/shapekeys.dat", FileAccess.READ)	
-	
-	shapekey_data.basis = file.get_var(true)
-	shapekey_data.shapekeys = file.get_var(true)
+	shapekey_data = file.get_var(true)
 	file.close()
 	return shapekey_data
 
@@ -55,10 +53,8 @@ static func get_shapekey_categories() -> Dictionary:
 	for name in shapekeys.shapekeys:
 		if 'penis' in name.to_lower():# or name.ends_with('firmness'):
 			continue
-		if 'caucasian' in name.to_lower() or 'african' in name.to_lower() or 'asian' in name.to_lower():
-			continue#categories['RaceAge'].append(name)
-		elif 'averagemuscle' in name.to_lower() or 'minmuscle' in name.to_lower() or 'maxmuscle' in name.to_lower():
-			continue#categories['MuscleWeight'].append(name)
+		if name in shapekeys.macro_shapekeys:
+			continue
 		elif 'head' in name.to_lower() or 'brown' in name.to_lower() or 'top' in name.to_lower():
 			categories['Head'].append(name)
 		elif 'eye' in name.to_lower():
