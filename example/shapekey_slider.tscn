@@ -1,0 +1,36 @@
+[gd_scene load_steps=2 format=3 uid="uid://b6ev2l6eqac40"]
+
+[sub_resource type="GDScript" id="GDScript_5iea7"]
+script/source = "extends VBoxContainer
+
+signal change_shapekeys (values:Dictionary)
+
+var label_name : String
+var shapekeys = [] #for lefts and rights
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	$Label.text = label_name
+
+
+func slider_drag_ended(value_changed):
+	var data = {}
+	for shapekey_name in shapekeys:
+		data[shapekey_name] = $Slider.value / 100	
+	change_shapekeys.emit(data)
+	#print(\"setting shapekeys\")
+	#print(data)
+"
+
+[node name="Shapekey_Slider" type="VBoxContainer"]
+offset_right = 40.0
+offset_bottom = 40.0
+script = SubResource("GDScript_5iea7")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 2
+
+[node name="Slider" type="HSlider" parent="."]
+layout_mode = 2
+
+[connection signal="drag_ended" from="Slider" to="." method="slider_drag_ended"]

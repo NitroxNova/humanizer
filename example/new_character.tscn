@@ -1,0 +1,118 @@
+[gd_scene load_steps=8 format=3 uid="uid://b6apa4vss8dou"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/humanizer.gd" id="1_3utgn"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_config.gd" id="2_gjt2b"]
+
+[sub_resource type="GDScript" id="GDScript_yutiq"]
+script/source = "extends Control
+
+@onready var humanizer = $Split_Screen/Viewport/SubViewport/Humanizer
+var shapekey_opposites = [[\"decr\",\"incr\"], [\"down\",\"up\"],   [\"in\",\"out\"],   [\"backward\",\"forward\"],  [\"concave\",\"convex\"],  [\"compress\",\"uncompress\"], [\"square\",\"round\"], [\"pointed\",\"triangle\"]]
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	var skin_textures = HumanizerRegistry.skin_textures
+	humanizer.set_skin_texture(\"middleage_caucasian_male\")
+	var shapekey_categories = HumanizerUtils.get_shapekey_categories()
+	for category_name in shapekey_categories:
+		var options_panel = ScrollContainer.new()
+		options_panel.name = category_name
+		var options_vbox = VBoxContainer.new()
+		options_panel.add_child(options_vbox)
+		var base_keys = {}
+		for shapekey_name in shapekey_categories[category_name]:
+			var base_key_name = shapekey_name
+			if shapekey_name.begins_with(\"l-\") or shapekey_name.begins_with(\"r-\"):
+				base_key_name = base_key_name.substr(2)
+			if base_key_name not in base_keys:
+				base_keys[base_key_name] = []
+			base_keys[base_key_name].append(shapekey_name)
+			#print(base_key_name)
+		#print(base_keys)
+		#print(base_key_name.get_slice(\"-\",base_key_name.get_slice_count(\"-\")-1))
+		for key_name in base_keys:
+			var slider = load(\"res://example/shapekey_slider.tscn\").instantiate()
+			slider.label_name = key_name
+			slider.shapekeys = base_keys[key_name]
+			slider.change_shapekeys.connect(set_shapekeys)
+			options_vbox.add_child(slider)
+		$Split_Screen/Menu_Options.add_child(options_panel)
+
+func set_shapekeys(shapekey_values:Dictionary):
+	#print(\"setting shapekeys\")
+	#print(shapekey_values)
+	humanizer.set_shapekeys(shapekey_values)
+	humanizer.adjust_skeleton()
+"
+
+[sub_resource type="Resource" id="Resource_c1m1w"]
+script = ExtResource("2_gjt2b")
+rig = "game_engine-RETARGETED"
+shapekeys = {}
+components = []
+body_parts = {}
+body_part_materials = {}
+clothes = []
+clothes_materials = {}
+skin_color = Color(1, 1, 1, 1)
+eye_color = Color(0.529412, 0.807843, 0.921569, 1)
+hair_color = Color(0.501961, 0, 0, 1)
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_f0duq"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_sm1kj"]
+sky_material = SubResource("ProceduralSkyMaterial_f0duq")
+
+[sub_resource type="Environment" id="Environment_yvgqs"]
+background_mode = 2
+sky = SubResource("Sky_sm1kj")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="New_Character" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_yutiq")
+
+[node name="Split_Screen" type="HSplitContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Menu_Options" type="TabContainer" parent="Split_Screen"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="Viewport" type="SubViewportContainer" parent="Split_Screen"]
+layout_mode = 2
+size_flags_horizontal = 3
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Split_Screen/Viewport"]
+handle_input_locally = false
+size = Vector2i(940, 648)
+render_target_update_mode = 4
+
+[node name="Humanizer" type="Node3D" parent="Split_Screen/Viewport/SubViewport"]
+script = ExtResource("1_3utgn")
+human_config = SubResource("Resource_c1m1w")
+_baked_root_node = "CharacterBody3D"
+
+[node name="Camera3D" type="Camera3D" parent="Split_Screen/Viewport/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.797534, 1.63952)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Split_Screen/Viewport/SubViewport"]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Split_Screen/Viewport/SubViewport"]
+environment = SubResource("Environment_yvgqs")
