@@ -145,9 +145,20 @@ func process_bone_weight_line(vertex_line):
 			var vertex_weight = vertex_line.weight[i]
 			var merge = {bones=BONE_WEIGHTS.bones[mh_id],weights=BONE_WEIGHTS.weights[mh_id]}
 			merge_bone_weights(output,merge,vertex_weight)
-	
-	output.bones.resize(8)
-	output.weights.resize(8)
+			
+	var total_weight = 0
+	#for i in output.weights:
+		#total_weight += i
+	#var ratio = 1/total_weight
+	#for i in output.weights.size():
+		#output.weights[i] *= ratio
+	if output.bones.size() > 8:
+		print("more than 8 bones!")
+	while output.bones.size()<8:
+		output.bones.append(0)
+		output.weights.append(0)
+	#output.bones.resize(8)
+	#output.weights.resize(8)
 	return output
 
 func merge_bone_weights(existing:Dictionary,merge:Dictionary,vertex_weight:float):
@@ -162,6 +173,7 @@ func merge_bone_weights(existing:Dictionary,merge:Dictionary,vertex_weight:float
 			else:
 				existing.bones.append(bone_id)
 				existing.weights.append(weight)
+	
 	
 func find_mhclo():
 	var path = INPUT_FOLDER.path_join(clothes_path)
