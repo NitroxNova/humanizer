@@ -55,8 +55,13 @@ func _ready():
 			
 	for mh_id in mh_bone_array.size():
 		mh_weight_array[mh_id] = normalize_weights_array(mh_weight_array[mh_id])
+		if mh_bone_array[mh_id].size() > 8:
+			print(\"more than 8 weights!\")
 		mh_bone_array[mh_id].resize(8)
 		mh_weight_array[mh_id].resize(8)
+	
+	var bw_data_json = {bones=mh_bone_array,weights=mh_weight_array}
+	Utils.save_json(\"res://experimental/build_skeleton/bone_weights.json\",bw_data_json)
 	
 	for gd_id in sf_arrays[Mesh.ARRAY_VERTEX].size():
 		var mh_id = sf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]

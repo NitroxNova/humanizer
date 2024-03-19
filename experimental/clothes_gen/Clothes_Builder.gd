@@ -147,11 +147,11 @@ func process_bone_weight_line(vertex_line):
 			merge_bone_weights(output,merge,vertex_weight)
 			
 	var total_weight = 0
-	#for i in output.weights:
-		#total_weight += i
-	#var ratio = 1/total_weight
-	#for i in output.weights.size():
-		#output.weights[i] *= ratio
+	for i in output.weights:
+		total_weight += i
+	var ratio = 1/total_weight
+	for i in output.weights.size():
+		output.weights[i] *= ratio
 	if output.bones.size() > 8:
 		print("more than 8 bones!")
 	while output.bones.size()<8:
