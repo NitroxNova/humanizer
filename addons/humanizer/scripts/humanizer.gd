@@ -59,7 +59,6 @@ var skin_color: Color = _DEFAULT_SKIN_COLOR:
 			return
 		human_config.skin_color = skin_color
 		body_mesh.material_config.overlays[0].color = skin_color
-		body_mesh.material_config.update_material()
 var hair_color: Color = _DEFAULT_HAIR_COLOR:
 	set(value):
 		hair_color = value
@@ -574,7 +573,6 @@ func set_skin_texture(name: String) -> void:
 		human_config.body_part_materials['skin'] = name
 		base_texture = HumanizerRegistry.skin_textures[name].albedo
 	body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict({'name': name, 'albedo': base_texture, 'color': skin_color}))
-	body_mesh.update_material()
 
 func set_body_part_material(set_slot: String, texture: String) -> void:
 	#print('setting material ' + texture + ' on ' + set_slot)

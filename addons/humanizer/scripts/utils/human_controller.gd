@@ -3,9 +3,8 @@ extends Node
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	print('Human ready to use')
+	var msg: String = 'This script was automatically added to your generated human. '
+	msg += 'You can set a different default script in your HumanizerConfig resource '
+	msg += 'on the humanizer_global.tscn scene root node.'
+	print(msg)
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
