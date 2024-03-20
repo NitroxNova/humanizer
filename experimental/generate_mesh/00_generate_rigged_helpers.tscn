@@ -5,7 +5,7 @@
 [sub_resource type="GDScript" id="GDScript_2cmt6"]
 script/source = "extends Node3D
 
-var mixamo_weights = load_bone_weights()
+var mixamo_weights = Utils.read_json(\"res://experimental/build_skeleton/bone_weights.json\")
 var vertex_groups = Utils.read_json(\"res://addons/humanizer/data/resources/basemesh_vertex_groups.json\")
 var mh2gd_index = []
 var sf_arrays = []
@@ -34,39 +34,18 @@ func _ready():
 	for gd_id in sf_arrays[Mesh.ARRAY_VERTEX].size():
 		sf_arrays[Mesh.ARRAY_VERTEX][gd_id] -= ground_offset
 		sf_arrays[Mesh.ARRAY_VERTEX][gd_id] *= Utils.MH_Scale_Factor
-	
-	var mh_bone_array = []
-	var mh_weight_array = []
-	mh_bone_array.resize(mh2gd_index.size())
-	mh_weight_array.resize(mh2gd_index.size())
-	
-	for bone_name in mixamo_weights:
-		#print(bone_name)
-		var bone_id = basis_skeleton.find_bone(bone_name)
-		for bw_pair in mixamo_weights[bone_name]:
-			#print(bw_pair)
-			var mh_id = bw_pair[0]
-			var weight = bw_pair[1]
-			if mh_bone_array[mh_id] == null:
-				mh_bone_array[mh_id] = PackedInt32Array()
-				mh_weight_array[mh_id] = PackedFloat32Array()
-			mh_bone_array[mh_id].append(bone_id)
-			mh_weight_array[mh_id].append(weight)
-			
-	for mh_id in mh_bone_array.size():
-		mh_weight_array[mh_id] = normalize_weights_array(mh_weight_array[mh_id])
-		if mh_bone_array[mh_id].size() > 8:
-			print(\"more than 8 weights!\")
-		mh_bone_array[mh_id].resize(8)
-		mh_weight_array[mh_id].resize(8)
-	
-	var bw_data_json = {bones=mh_bone_array,weights=mh_weight_array}
-	Utils.save_json(\"res://experimental/build_skeleton/bone_weights.json\",bw_data_json)
-	
-	for gd_id in sf_arrays[Mesh.ARRAY_VERTEX].size():
+		
 		var mh_id = sf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-		sf_arrays[Mesh.ARRAY_BONES].append_array(mh_bone_array[mh_id])
-		sf_arrays[Mesh.ARRAY_WEIGHTS].append_array(mh_weight_array[mh_id])
+		var bones = PackedInt32Array(mixamo_weights.bones[mh_id])
+		var weights = PackedFloat32Array(mixamo_weights.weights[mh_id])
+		weights = normalize_weights_array(weights)
+		if bones.size() > 8:
+			print(\"too many bones!\")
+		while bones.size() < 8:
+			bones.append(0)
+			weights.append(0)
+		sf_arrays[Mesh.ARRAY_BONES].append_array(bones)
+		sf_arrays[Mesh.ARRAY_WEIGHTS].append_array(weights)
 	
 	#generate uv helper data for hiding vertices
 	generate_mh_uv_index()
@@ -99,18 +78,13 @@ func normalize_weights_array(array:PackedFloat32Array):
 	var multiplier : float = 0
 	for weight in array:
 		multiplier += weight
+	#print(multiplier)
 	multiplier = 1 / multiplier
 	for i in array.size():
 		array[i] *= multiplier
 	return array
 	
-func load_bone_weights():
-	var in_weights:Dictionary = Utils.read_json(\"res://addons/humanizer/data/assets/rigs/mixamo/weights.mixamo.json\").weights
-	for in_name:String in in_weights.keys():
-		var out_name = in_name.replace(\":\",\"_\")
-		in_weights[out_name] = in_weights[in_name]
-		in_weights.erase(in_name)
-	return in_weights
+
 "
 
 [node name="generate_rigged_helpers" type="Node3D"]

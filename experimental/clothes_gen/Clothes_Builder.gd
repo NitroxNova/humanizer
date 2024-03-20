@@ -79,6 +79,7 @@ func build_fitted_arrays(helper_vertex_array:PackedVector3Array,bone_weights_ena
 			
 	if bone_weights_enabled:
 		add_bone_weights(new_sf_arrays)		
+		#MH_Clothes_Weights.interpolate_weights("clothes", clothes_data)
 	return new_sf_arrays
 
 func calculate_scale(axis:String,helper_vertex_array:Array): # axis = x y or z
@@ -124,7 +125,8 @@ func add_bone_weights(sf_arrays:Array):
 	#print(new_sf_arrays[Mesh.ARRAY_BONES].size())
 	for mh_id in clothes_data.vertex.size():
 		var vertex_line = clothes_data.vertex[mh_id]
-		var vertex_data = process_bone_weight_line(vertex_line)
+		var vertex_data = process_bone_weight_line(vertex_line,mh_id)
+
 		var g_id_array = clothes_data.mh2gd_index[mh_id]
 		for g_id in g_id_array:
 			for i in BONE_COUNT:
@@ -133,7 +135,7 @@ func add_bone_weights(sf_arrays:Array):
 
 	return sf_arrays
 
-func process_bone_weight_line(vertex_line):
+func process_bone_weight_line(vertex_line,clothes_vertex_id):
 	var output = {bones=PackedInt32Array(),weights=PackedFloat32Array()}
 	if vertex_line.format == "single":
 		var mh_id = vertex_line.vertex[0]
@@ -145,27 +147,36 @@ func process_bone_weight_line(vertex_line):
 			var vertex_weight = vertex_line.weight[i]
 			var merge = {bones=BONE_WEIGHTS.bones[mh_id],weights=BONE_WEIGHTS.weights[mh_id]}
 			merge_bone_weights(output,merge,vertex_weight)
-			
+
+	for weight_id in range(output.weights.size()-1,-1,-1):
+		output.weights[weight_id] /= (vertex_line.weight[0] + vertex_line.weight[1] + vertex_line.weight[2])
+		if output.weights[weight_id] > 1:
+			output.weights[weight_id] = 1
+		elif output.weights[weight_id] < 0.001: #small weights and NEGATIVE
+			output.weights.remove_at(weight_id)
+			output.bones.remove_at(weight_id)
+		
+	#normalize		
 	var total_weight = 0
-	for i in output.weights:
-		total_weight += i
+	for weight in output.weights:
+		total_weight += weight
 	var ratio = 1/total_weight
-	for i in output.weights.size():
-		output.weights[i] *= ratio
+	for weight_id in output.weights.size():
+		output.weights[weight_id] *= ratio
+		
 	if output.bones.size() > 8:
 		print("more than 8 bones!")
 	while output.bones.size()<8:
 		output.bones.append(0)
 		output.weights.append(0)
-	#output.bones.resize(8)
-	#output.weights.resize(8)
+
 	return output
 
 func merge_bone_weights(existing:Dictionary,merge:Dictionary,vertex_weight:float):
-	for j in BONE_COUNT:
-		var weight = merge.weights[j]
+	for merge_id in merge.bones.size():
+		var weight = merge.weights[merge_id]
 		if not weight == 0:
-			var bone_id = merge.bones[j]
+			var bone_id = merge.bones[merge_id]
 			weight *= vertex_weight
 			if bone_id in existing.bones:
 				var array_id = existing.bones.find(bone_id)

@@ -140,7 +140,7 @@ stretch = true
 
 [node name="SubViewport" type="SubViewport" parent="Split_Screen/SubViewportContainer"]
 handle_input_locally = false
-size = Vector2i(881, 648)
+size = Vector2i(2, 2)
 render_target_update_mode = 4
 
 [node name="Human" parent="Split_Screen/SubViewportContainer/SubViewport" instance=ExtResource("1_y8lm3")]
