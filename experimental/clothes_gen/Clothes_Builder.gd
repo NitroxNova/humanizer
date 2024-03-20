@@ -149,7 +149,8 @@ func process_bone_weight_line(vertex_line,clothes_vertex_id):
 			merge_bone_weights(output,merge,vertex_weight)
 
 	for weight_id in range(output.weights.size()-1,-1,-1):
-		output.weights[weight_id] /= (vertex_line.weight[0] + vertex_line.weight[1] + vertex_line.weight[2])
+		if vertex_line.format == "triangle":
+			output.weights[weight_id] /= (vertex_line.weight[0] + vertex_line.weight[1] + vertex_line.weight[2])
 		if output.weights[weight_id] > 1:
 			output.weights[weight_id] = 1
 		elif output.weights[weight_id] < 0.001: #small weights and NEGATIVE

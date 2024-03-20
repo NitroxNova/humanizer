@@ -12,6 +12,8 @@ var shapekeys = [] #for lefts and rights
 func _ready():
 	$Label.text = label_name
 
+func set_value(value:int):
+	$Slider.value = value
 
 func slider_drag_ended(value_changed):
 	var data = {}
