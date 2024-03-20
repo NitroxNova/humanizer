@@ -52,15 +52,27 @@ func run():
 			var data := {}
 			data.bones = []
 			data.weights = []
-			var surface_arrays = load(rig.rigged_mesh_path).surface_get_arrays(0)
-			var bone_count = surface_arrays[Mesh.ARRAY_BONES].size() / surface_arrays[Mesh.ARRAY_VERTEX].size()
-			var b2g_index = Utils.create_unique_index(surface_arrays[Mesh.ARRAY_VERTEX])
-			for i in b2g_index.size():
-				var g_index = b2g_index[i][0]
-				var local_bones = surface_arrays[Mesh.ARRAY_BONES].slice(g_index*bone_count,(g_index+1)*bone_count)
-				var local_weights = surface_arrays[Mesh.ARRAY_WEIGHTS].slice(g_index*bone_count,(g_index+1)*bone_count)
-				data.bones.append(local_bones)
-				data.weights.append(local_weights)
+			var skeleton_weights:Dictionary = HumanizerUtils.read_json(dir.path_join("weights."+name+".json")).weights
+			for in_name:String in skeleton_weights.keys():
+				var out_name = in_name.replace(":","_")
+				if not in_name == out_name:
+					skeleton_weights[out_name] = skeleton_weights[in_name]
+					skeleton_weights.erase(in_name)
+			for bone_name in skeleton_weights:
+				#print(bone_name)
+				var bone_id = skeleton.find_bone(bone_name)
+				for vertex_weight_pair in skeleton_weights[bone_name]:
+					var mh_id = vertex_weight_pair[0]
+					var weight = vertex_weight_pair[1]
+					if data.bones.size() <= mh_id:
+						data.bones.resize(mh_id+1)
+						data.weights.resize(mh_id+1)
+					if data.bones[mh_id] == null:
+						data.bones[mh_id] = []
+						data.weights[mh_id] = []
+					data.bones[mh_id].append(bone_id)
+					data.weights[mh_id].append(weight)
+			# do not normalize here, otherwise the clothes wont work correctly
 			rig.bone_weights_json_path = dir.path_join('bone_weights.json')
 			HumanizerUtils.save_json(rig.bone_weights_json_path, data)
 			print('Finished creating skeleton config')
