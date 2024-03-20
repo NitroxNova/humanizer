@@ -24,7 +24,7 @@ static func load_all() -> void:
 	_get_skin_textures()
 
 static func add_body_part_asset(asset: HumanBodyPart) -> void:
-	print('Registering body part ' + asset.resource_name)
+	#print('Registering body part ' + asset.resource_name)
 	if not body_parts.has(asset.slot):
 		body_parts[asset.slot] = {}
 	if body_parts[asset.slot].has(asset.resource_name):
@@ -32,7 +32,7 @@ static func add_body_part_asset(asset: HumanBodyPart) -> void:
 	body_parts[asset.slot][asset.resource_name] = asset
 
 static func add_clothes_asset(asset: HumanClothes) -> void:
-	print('Registering clothes ' + asset.resource_name)
+	#print('Registering clothes ' + asset.resource_name)
 	if clothes.has(asset.resource_name):
 		clothes.erase(asset.resource_name)
 	clothes[asset.resource_name] = asset

@@ -502,7 +502,7 @@ func set_bake_meshes(subset: String) -> void:
 		var add: bool = false
 		add = add or subset == 'All'
 		add = add or subset == 'Opaque' and mat != null and mat.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED
-		add = add or subset == 'Transparent' and mat != null and mat.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED
+		add = add or subset == 'Transparent' and mat != null and mat.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
 		if add:
 			bake_surface_name = subset
 			_bake_meshes.append(child)

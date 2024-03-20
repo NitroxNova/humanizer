@@ -72,7 +72,8 @@ func _init(filename:String):
 					else:
 						printerr(line)
 				else:
-					printerr(line)
+					if not line.begins_with('material'):
+						printerr(line)
 					
 func parse_scale_data(line:String, index:String): #index is x, y, or z
 	var scale_data = line.split_floats(" ",false)

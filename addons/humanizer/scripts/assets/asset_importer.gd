@@ -103,7 +103,7 @@ func _generate_material(path: String, textures: Dictionary) -> void:
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
 		if 'eyelash' in path.to_lower() or 'eyebrow' in path.to_lower() or 'hair' in path.to_lower():
 			# For eyebrows/eyelashes alpha looks better but scissor is cheaper
-			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
 			mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 			#mat.grow = true
 			#mat.grow_amount = 0.0005
