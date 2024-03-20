@@ -13,30 +13,55 @@ var shapekey_opposites = [[\"decr\",\"incr\"], [\"down\",\"up\"],   [\"in\",\"ou
 func _ready():
 	var skin_textures = HumanizerRegistry.skin_textures
 	humanizer.set_skin_texture(\"middleage_caucasian_male\")
+	humanizer.set_shapekeys({gender=1})
 	var shapekey_categories = HumanizerUtils.get_shapekey_categories()
+	for category_name in shapekey_categories:
+		var category_keys = {}
+		for shapekey_name in shapekey_categories[category_name]:
+			var base_key_name = shapekey_name
+			if shapekey_name.begins_with(\"l-\") or shapekey_name.begins_with(\"r-\"):
+				base_key_name = base_key_name.substr(2)
+			if base_key_name not in category_keys:
+				category_keys[base_key_name] = []
+			category_keys[base_key_name].append(shapekey_name)
+			
+		shapekey_categories[category_name] = category_keys
+		#print(base_key_name.get_slice(\"-\",base_key_name.get_slice_count(\"-\")-1))
+		
 	for category_name in shapekey_categories:
 		var options_panel = ScrollContainer.new()
 		options_panel.name = category_name
 		var options_vbox = VBoxContainer.new()
 		options_panel.add_child(options_vbox)
-		var base_keys = {}
-		for shapekey_name in shapekey_categories[category_name]:
-			var base_key_name = shapekey_name
-			if shapekey_name.begins_with(\"l-\") or shapekey_name.begins_with(\"r-\"):
-				base_key_name = base_key_name.substr(2)
-			if base_key_name not in base_keys:
-				base_keys[base_key_name] = []
-			base_keys[base_key_name].append(shapekey_name)
-			#print(base_key_name)
-		#print(base_keys)
-		#print(base_key_name.get_slice(\"-\",base_key_name.get_slice_count(\"-\")-1))
-		for key_name in base_keys:
-			var slider = load(\"res://example/shapekey_slider.tscn\").instantiate()
-			slider.label_name = key_name
-			slider.shapekeys = base_keys[key_name]
-			slider.change_shapekeys.connect(set_shapekeys)
-			options_vbox.add_child(slider)
 		$Split_Screen/Menu_Options.add_child(options_panel)
+		
+		if category_name == \"Macro\":
+			var label = Label.new()
+			label.text = \"Gender\"
+			options_vbox.add_child(label)
+			var dropdown = OptionButton.new()
+			dropdown.add_item(\"Male\")
+			dropdown.add_item(\"Female\")
+			dropdown.item_selected.connect(gender_changed)
+			options_vbox.add_child(dropdown)
+		
+		var category_keys = shapekey_categories[category_name]	
+		for key_name in category_keys:
+			if not key_name == \"gender\":
+				var slider = load(\"res://example/shapekey_slider.tscn\").instantiate()
+				slider.label_name = key_name
+				slider.shapekeys = category_keys[key_name]
+				if category_name == \"Macro\":
+					slider.set_value(50)
+				slider.change_shapekeys.connect(set_shapekeys)
+				options_vbox.add_child(slider)
+
+func gender_changed(option_id:int):
+	if option_id == 0:
+		set_shapekeys({gender=1})
+	else:
+		set_shapekeys({gender=0})
+		
 
 func set_shapekeys(shapekey_values:Dictionary):
 	#print(\"setting shapekeys\")

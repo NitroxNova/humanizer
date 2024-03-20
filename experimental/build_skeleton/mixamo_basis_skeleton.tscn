@@ -1,100 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://ccgu1uqlo8efb"]
+[gd_scene format=3 uid="uid://bvedgbhnremya"]
 
-[ext_resource type="ArrayMesh" uid="uid://cpehijpj3f0hc" path="res://experimental/generate_mesh/rigged_helpers.res" id="2_0hlti"]
-
-[sub_resource type="GDScript" id="GDScript_2cmt6"]
-script/source = "extends Node3D
-
-var mixamo_weights = Utils.read_json(\"res://experimental/build_skeleton/bone_weights.json\")
-var vertex_groups = Utils.read_json(\"res://addons/humanizer/data/resources/basemesh_vertex_groups.json\")
-var mh2gd_index = []
-var sf_arrays = []
-var obj_data
-@onready var basis_skeleton = $mixamo_basis_skeleton/Human_rig/Skeleton3D
-
-func _ready():
-	var obj_to_mesh = OBJ_to_Mesh.new(\"res://experimental/generate_mesh/base.obj\")
-	var helper_mesh = obj_to_mesh.run().mesh
-	obj_data = obj_to_mesh.obj_arrays
-	sf_arrays = helper_mesh.surface_get_arrays(0)
-	sf_arrays[Mesh.ARRAY_BONES] = PackedInt32Array()
-	sf_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
-	mh2gd_index = obj_to_mesh.mh2gd_index
-	
-	# need to move human mesh upward, so the helper cube between the feet is centered at 0,0,0
-	#print(vertex_groups[\"joint-ground\"][0]) 	# \"joint-ground\" 19150-19157
-	var joint_ground = vertex_groups[\"joint-ground\"][0]
-	var ground_offset = Vector3.ZERO
-	for mh_id in range(joint_ground[0],joint_ground[1]+1):
-		var gd_id = mh2gd_index[mh_id][0]
-		var v_pos = sf_arrays[Mesh.ARRAY_VERTEX][gd_id]
-		ground_offset += v_pos
-	ground_offset /= 8
-	#print(ground_offset)
-	for gd_id in sf_arrays[Mesh.ARRAY_VERTEX].size():
-		sf_arrays[Mesh.ARRAY_VERTEX][gd_id] -= ground_offset
-		sf_arrays[Mesh.ARRAY_VERTEX][gd_id] *= Utils.MH_Scale_Factor
-		
-		var mh_id = sf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-		var bones = PackedInt32Array(mixamo_weights.bones[mh_id])
-		var weights = PackedFloat32Array(mixamo_weights.weights[mh_id])
-		weights = normalize_weights_array(weights)
-		if bones.size() > 8:
-			print(\"too many bones!\")
-		while bones.size() < 8:
-			bones.append(0)
-			weights.append(0)
-		sf_arrays[Mesh.ARRAY_BONES].append_array(bones)
-		sf_arrays[Mesh.ARRAY_WEIGHTS].append_array(weights)
-	
-	#generate uv helper data for hiding vertices
-	generate_mh_uv_index()
-		
-	var new_mesh = ArrayMesh.new()
-	var flags = helper_mesh.surface_get_format(0)
-	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,sf_arrays,[],{},flags)
-	ResourceSaver.save(new_mesh,\"res://experimental/generate_mesh/rigged_helpers.res\")
-
-func generate_mh_uv_index():
-	
-	var mh_uv_index = {face=[], uv=[], mh_index_size = mh2gd_index.size()}
-	
-	for face_id in obj_data.face.size():
-		var face_data = PackedInt32Array()
-		var uv_data = PackedVector2Array()
-		for i in 4:
-			face_data.append(obj_data.face[face_id][i][0])
-			var uv_id = obj_data.face[face_id][i][1]
-			uv_data.append(obj_data.uv[uv_id])
-		mh_uv_index.face.append(face_data)
-		mh_uv_index.uv.append(uv_data)
-	
-	
-	var save_file = FileAccess.open(\"res://experimental/generate_mesh/mh_uv_index.dat\",FileAccess.WRITE)
-	save_file.store_var(mh_uv_index)
-	save_file.close()
-
-func normalize_weights_array(array:PackedFloat32Array):
-	var multiplier : float = 0
-	for weight in array:
-		multiplier += weight
-	#print(multiplier)
-	multiplier = 1 / multiplier
-	for i in array.size():
-		array[i] *= multiplier
-	return array
-	
-
-"
-
-[node name="generate_rigged_helpers" type="Node3D"]
-script = SubResource("GDScript_2cmt6")
-
-[node name="mixamo_basis_skeleton" type="Node3D" parent="."]
-
-[node name="Human_rig" type="Node3D" parent="mixamo_basis_skeleton"]
-
-[node name="Skeleton3D" type="Skeleton3D" parent="mixamo_basis_skeleton/Human_rig"]
+[node name="Skeleton3D" type="Skeleton3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0510185, -1.19209e-07, -0.584443)
 bones/0/name = "mixamorig_Hips"
 bones/0/parent = -1
 bones/0/rest = Transform3D(0.999901, -0.0100109, 0.00991871, 0.0103713, 0.999262, -0.0369731, -0.00954126, 0.0370723, 0.999267, 0.001095, 0.911363, 0.026105)
@@ -107,7 +14,7 @@ bones/1/parent = 0
 bones/1/rest = Transform3D(-0.988562, 0.102594, -0.110553, -0.111044, -0.991118, 0.0731787, -0.102064, 0.0846178, 0.991173, 0.108924, -0.0465777, -0.0110521)
 bones/1/enabled = true
 bones/1/position = Vector3(0.108924, -0.0465777, -0.0110521)
-bones/1/rotation = Quaternion(0.053475, -0.539525, -0.996525, 0.053475)
+bones/1/rotation = Quaternion(0.053349, -0.0395936, -0.99635, 0.0536052)
 bones/1/scale = Vector3(1, 1, 1)
 bones/2/name = "mixamorig_LeftLeg"
 bones/2/parent = 1
@@ -459,8 +366,3 @@ bones/51/enabled = true
 bones/51/position = Vector3(2.98023e-08, 0.0359245, -1.19209e-07)
 bones/51/rotation = Quaternion(-0.0307159, -0.0719614, -0.0193606, 0.996746)
 bones/51/scale = Vector3(1, 1, 1)
-
-[node name="Output" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.20666, 0, 0)
-mesh = ExtResource("2_0hlti")
-skeleton = NodePath("../mixamo_basis_skeleton/Human_rig/Skeleton3D")

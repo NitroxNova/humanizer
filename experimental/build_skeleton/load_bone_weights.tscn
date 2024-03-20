@@ -1,40 +1,51 @@
-[gd_scene load_steps=3 format=3 uid="uid://be1jk3hg2vxnh"]
+[gd_scene load_steps=2 format=3 uid="uid://cenv3ym2vailr"]
 
-[ext_resource type="ArrayMesh" uid="uid://ddemstvhj3eal" path="res://experimental/generate_mesh/rigged_helpers.res" id="1_dlcco"]
-
-[sub_resource type="GDScript" id="GDScript_kdu0g"]
+[sub_resource type="GDScript" id="GDScript_5kh8w"]
 script/source = "extends Node3D
 
-var surface_arrays
-var bone_count
-var b2g_index
-var data = {}
-
+var mixamo_bone_weights :Dictionary = load_bone_weights()
+var mixamo_skeleton :Skeleton3D = load(\"res://experimental/build_skeleton/mixamo_basis_skeleton.tscn\").instantiate()
+ 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	data.bones = []
-	data.weights = []
-	
-	surface_arrays = $RiggedHelpers.mesh.surface_get_arrays(0)
-	bone_count = surface_arrays[Mesh.ARRAY_BONES].size() / surface_arrays[Mesh.ARRAY_VERTEX].size()
-	b2g_index = Utils.create_unique_index(surface_arrays[Mesh.ARRAY_VERTEX])
-	print(bone_count)
-	for i in b2g_index.size():
-		var g_index = b2g_index[i][0]
-		var local_bones = surface_arrays[Mesh.ARRAY_BONES].slice(g_index*bone_count,(g_index+1)*bone_count)
-		var local_weights = surface_arrays[Mesh.ARRAY_WEIGHTS].slice(g_index*bone_count,(g_index+1)*bone_count)
-		data.bones.append(local_bones)
-		data.weights.append(local_weights)
-	Utils.save_json(\"res://experimental/build_skeleton/bone_weights.json\",data)
+	#print(mixamo_bone_weights)	
+	var output = {bones=[],weights=[]}
+	for bone_name in mixamo_bone_weights:
+		var bone_id = mixamo_skeleton.find_bone(bone_name)
+		for vertex_weight_pair in mixamo_bone_weights[bone_name]:
+			var mh_id = vertex_weight_pair[0]
+			var weight = vertex_weight_pair[1]
+			if output.bones.size() <= mh_id:
+				output.bones.resize(mh_id+1)
+				output.weights.resize(mh_id+1)
+			if output.bones[mh_id] == null:
+				output.bones[mh_id] = []
+				output.weights[mh_id] = []
+			output.bones[mh_id].append(bone_id)
+			output.weights[mh_id].append(weight)
+	#for mh_id in output.bones.size():
+		#output.weights[mh_id] = normalize_weights_array(output.weights[mh_id])	
+	Utils.save_json(\"res://experimental/build_skeleton/bone_weights.json\",output)
 
+#func normalize_weights_array(array:Array):
+	#var multiplier : float = 0
+	#for weight in array:
+		#multiplier += weight
+	##print(multiplier)
+	#multiplier = 1 / multiplier
+	#for i in array.size():
+		#array[i] *= multiplier
+	#return array
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
+func load_bone_weights():
+	var in_weights:Dictionary = Utils.read_json(\"res://addons/humanizer/data/assets/rigs/mixamo/weights.mixamo.json\")
+	in_weights = in_weights.weights
+	for in_name:String in in_weights.keys():
+		var out_name = in_name.replace(\":\",\"_\")
+		in_weights[out_name] = in_weights[in_name]
+		in_weights.erase(in_name)
+	return in_weights
 "
 
-[node name="Load_Bone_Weights" type="Node3D"]
-script = SubResource("GDScript_kdu0g")
-
-[node name="RiggedHelpers" type="MeshInstance3D" parent="."]
-mesh = ExtResource("1_dlcco")
+[node name="load_bone_weights" type="Node3D"]
+script = SubResource("GDScript_5kh8w")
