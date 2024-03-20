@@ -671,7 +671,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 		
 	var rig = human_config.rig.split('-')[0]
 	var bone_weights = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].bone_weights_json_path)
-	var bone_count = bone_weights.bones[0].size()
+	var bone_count = 8
 	var mhclo: MHCLO = load(asset.mhclo_path) 
 	var mh2gd_index = mhclo.mh2gd_index
 	var mesh: ArrayMesh
@@ -698,7 +698,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 				var v_weight = v_data.weight[i]
 				var vb_id = bone_weights.bones[v_id]
 				var vb_weights = bone_weights.weights[v_id]
-				for j in bone_count:
+				for j in vb_weights.size():
 					var l_weight = vb_weights[j]
 					if not l_weight == 0:
 						var l_bone = vb_id[j]
@@ -709,9 +709,24 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 						else:
 							bones.append(l_bone)
 							weights.append(l_weight)
+							
+		for weight_id in range(weights.size()-1,-1,-1):
+			if v_data.format == "triangle":
+				weights[weight_id] /= (v_data.weight[0] + v_data.weight[1] + v_data.weight[2])
+			if weights[weight_id] > 1:
+				weights[weight_id] = 1
+			elif weights[weight_id] < 0.001: #small weights and NEGATIVE
+				weights.remove_at(weight_id)
+				bones.remove_at(weight_id)
+		
+		#normalize		
+		var total_weight = 0
+		for weight in weights:
+			total_weight += weight
+		var ratio = 1/total_weight
+		for weight_id in weights.size():
+			weights[weight_id] *= ratio
 						
-		# only 4 bone weights, this may cause problems later
-		# also, should probably normalize weights array, but tested weights were close enough to 1				
 		while bones.size() < bone_count:
 			bones.append(0)
 			weights.append(0)
