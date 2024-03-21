@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://ds1no7ln0ui6x"
+path="res://.godot/imported/bob02.obj-712a76267dac1e1a3192f7e0415d9825.mesh"
+
+[deps]
+
+files=["res://.godot/imported/bob02.obj-712a76267dac1e1a3192f7e0415d9825.mesh"]
+
+source_file="res://addons/humanizer/data/assets/body_parts/Hair/bob02/bob02.obj"
+dest_files=["res://.godot/imported/bob02.obj-712a76267dac1e1a3192f7e0415d9825.mesh", "res://.godot/imported/bob02.obj-712a76267dac1e1a3192f7e0415d9825.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://c6iyd2sh3rcm5"]
+
+[ext_resource type="ArrayMesh" uid="uid://c4lr2g5s1rfud" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/false_eyelashes/RightEyelash-False_mesh.tres" id="1_h57sc"]
+[ext_resource type="Material" uid="uid://c8v8rjtldvpyu" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/false_eyelashes/false_eyelashes_material.tres" id="2_kw5kx"]
+
+[node name="RightEyelash-False" type="MeshInstance3D"]
+mesh = ExtResource("1_h57sc")
+surface_material_override/0 = ExtResource("2_kw5kx")
