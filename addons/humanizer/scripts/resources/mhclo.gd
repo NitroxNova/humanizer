@@ -13,7 +13,7 @@ enum SECTION {header,vertices,delete_vertices}
 @export var mh2gd_index := []
 var obj_file_name :String
 
-func _init(filename:String):
+func parse_file(filename:String):
 	var unique_lines = {}
 	var file = FileAccess.open(filename,FileAccess.READ)
 	var current_section = SECTION.header

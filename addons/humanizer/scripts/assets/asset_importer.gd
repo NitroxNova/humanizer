@@ -67,7 +67,8 @@ func _scan_path(path: String) -> void:
 	for file_name in OSPath.get_files(path):
 		if file_name.get_extension() == "mhclo":
 			var fl = file_name.get_file().rsplit('.', true, 1)[0]
-			var _mhclo := MHCLO.new(file_name)
+			var _mhclo := MHCLO.new()
+			_mhclo.parse_file(file_name)
 			var obj = _mhclo.obj_file_name
 			obj_data = ObjToMesh.new(file_name.get_base_dir().path_join(obj)).run()
 			asset_data[fl] = {}
