@@ -10,29 +10,48 @@ var shapekeys = [] #for lefts and rights
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	$Label.text = label_name
+	$Label_Container/Label.text = label_name
+	$Label_Container/Value_Edit.text = str($Slider.value)
 
 func set_value(value:int):
 	$Slider.value = value
 
 func slider_drag_ended(value_changed):
+	$Label_Container/Value_Edit.text = str($Slider.value)
 	var data = {}
 	for shapekey_name in shapekeys:
 		data[shapekey_name] = $Slider.value / 100	
 	change_shapekeys.emit(data)
 	#print(\"setting shapekeys\")
 	#print(data)
+
+func slider_value_changed(value):
+	$Label_Container/Value_Edit.text = str(value)
+
+
 "
 
 [node name="Shapekey_Slider" type="VBoxContainer"]
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 72.0
+offset_bottom = 51.0
 script = SubResource("GDScript_5iea7")
 
-[node name="Label" type="Label" parent="."]
+[node name="Label_Container" type="HBoxContainer" parent="."]
 layout_mode = 2
+
+[node name="Label" type="Label" parent="Label_Container"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Value_Edit" type="LineEdit" parent="Label_Container"]
+layout_mode = 2
+size_flags_horizontal = 8
+text = "0"
+alignment = 1
+max_length = 4
 
 [node name="Slider" type="HSlider" parent="."]
 layout_mode = 2
 
 [connection signal="drag_ended" from="Slider" to="." method="slider_drag_ended"]
+[connection signal="value_changed" from="Slider" to="." method="slider_value_changed"]
