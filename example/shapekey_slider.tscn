@@ -11,13 +11,9 @@ var shapekeys = [] #for lefts and rights
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	$Label_Container/Label.text = label_name
-	$Label_Container/Value_Edit.text = str($Slider.value)
+	set_line_edit_from_slider_value()
 
-func set_value(value:int):
-	$Slider.value = value
-
-func slider_drag_ended(value_changed):
-	$Label_Container/Value_Edit.text = str($Slider.value)
+func emit_shapekeys():
 	var data = {}
 	for shapekey_name in shapekeys:
 		data[shapekey_name] = $Slider.value / 100	
@@ -25,10 +21,31 @@ func slider_drag_ended(value_changed):
 	#print(\"setting shapekeys\")
 	#print(data)
 
+func set_line_edit_from_slider_value():
+	$Label_Container/Value_Edit.text = str($Slider.value)
+	
+func set_value(value:int):
+	$Slider.value = value
+
+func slider_drag_ended(value_changed):
+	set_line_edit_from_slider_value()
+	emit_shapekeys()
+
 func slider_value_changed(value):
-	$Label_Container/Value_Edit.text = str(value)
+	set_line_edit_from_slider_value()
 
-
+func value_edit_text_submitted(new_text):
+	if new_text.is_valid_float():
+		var new_value = new_text.to_float()
+		if new_value < $Slider.min_value:
+			new_value = $Slider.min_value
+		elif new_value > $Slider.max_value:
+			new_value = $Slider.max_value
+			
+		$Slider.value = new_value
+		emit_shapekeys()
+	else:
+		set_line_edit_from_slider_value()
 "
 
 [node name="Shapekey_Slider" type="VBoxContainer"]
@@ -48,10 +65,10 @@ layout_mode = 2
 size_flags_horizontal = 8
 text = "0"
 alignment = 1
-max_length = 4
 
 [node name="Slider" type="HSlider" parent="."]
 layout_mode = 2
 
+[connection signal="text_submitted" from="Label_Container/Value_Edit" to="." method="value_edit_text_submitted"]
 [connection signal="drag_ended" from="Slider" to="." method="slider_drag_ended"]
 [connection signal="value_changed" from="Slider" to="." method="slider_value_changed"]
