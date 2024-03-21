@@ -8,12 +8,16 @@ script/source = "extends Control
 
 @onready var humanizer = $Split_Screen/Viewport/SubViewport/Humanizer
 var shapekey_opposites = [[\"decr\",\"incr\"], [\"down\",\"up\"],   [\"in\",\"out\"],   [\"backward\",\"forward\"],  [\"concave\",\"convex\"],  [\"compress\",\"uncompress\"], [\"square\",\"round\"], [\"pointed\",\"triangle\"]]
+var registry = HumanizerRegistry
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	var skin_textures = HumanizerRegistry.skin_textures
+	humanizer.reset_human()
 	humanizer.set_skin_texture(\"middleage_caucasian_male\")
 	humanizer.set_shapekeys({gender=1})
+	#print(registry.body_parts.RightEye[\"RightEye-LowPolyEyeball\"])
+	humanizer.set_body_part(registry.body_parts.RightEye[\"RightEye-LowPolyEyeball\"])
 	var shapekey_categories = HumanizerUtils.get_shapekey_categories()
 	for category_name in shapekey_categories:
 		var category_keys = {}
