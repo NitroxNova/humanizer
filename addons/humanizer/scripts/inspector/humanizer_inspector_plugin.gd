@@ -66,7 +66,7 @@ func _parse_category(human, category):
 	skin_options.config = human.human_config
 	
 	# Add shapekey categories and sliders
-	var sliders = HumanizerUtils.get_shapekey_categories()
+	var sliders = HumanizerUtils.get_shapekey_categories(human.shapekey_data)
 	var cat_scene = load("res://addons/humanizer/scenes/inspector/slider_category_inspector.tscn")
 	for cat in sliders:
 		if sliders[cat].size() == 0:
