@@ -1,13 +1,9 @@
 @tool
-extends Control
+extends Node
 
-@export var human: Humanizer = null:
+var human: Humanizer:
 	set(value):
 		human = value
-		_setup_controls()
-
-func _ready() -> void:
-	if human != null:
 		_setup_controls()
 
 func _setup_controls():
