@@ -136,8 +136,10 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 
 func _ready() -> void:
 	scene_loaded = true
+	$Control/ScrollContainer/MarginContainer.human = self
 	load_human()
-	skeleton.physical_bones_start_simulation()
+	
+	#skeleton.physical_bones_start_simulation()
 
 ####  HumanConfig Resource Management ####
 func _add_child_node(node: Node) -> void:

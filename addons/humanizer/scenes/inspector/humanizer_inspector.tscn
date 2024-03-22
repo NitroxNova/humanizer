@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://bjevkufa7lstr"]
+[gd_scene load_steps=7 format=3 uid="uid://bjevkufa7lstr"]
 
 [ext_resource type="Theme" uid="uid://ckdypew3dhoqq" path="res://addons/humanizer/data/resources/humanizer_inspector_theme.tres" id="1_i577l"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/inspector/skins_options.gd" id="1_teqt2"]
 [ext_resource type="PackedScene" uid="uid://btqkb1j3i8dm2" path="res://addons/humanizer/scenes/inspector/body_parts_inspector_container.tscn" id="2_cyqhb"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/inspector/humanizer_inspector_ui.gd" id="2_fnvxy"]
 [ext_resource type="PackedScene" uid="uid://bjun3ufto0k57" path="res://addons/humanizer/scenes/inspector/clothes_inspector_container.tscn" id="3_tceog"]
 
 [sub_resource type="GDScript" id="GDScript_5ptqy"]
@@ -37,13 +38,14 @@ func _on_rig_selected(idx: int) -> void:
 	human.set_rig(get_item_text(idx))
 "
 
-[node name="MarginContainer" type="MarginContainer"]
+[node name="HumanizerUI" type="MarginContainer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_i577l")
+script = ExtResource("2_fnvxy")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
