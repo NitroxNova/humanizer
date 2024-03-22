@@ -139,6 +139,5 @@ func _purge_assets() -> void:
 	HumanizerAssetImporter.new().run(true)
 	
 func _test() -> void:
-	print(HumanizerUtils.get_shapekey_data().keys())
-	print(HumanizerUtils.get_shapekey_data().macro_shapekeys)
+	print("test")
 #endregion

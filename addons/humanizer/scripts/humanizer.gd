@@ -750,7 +750,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 	mi.skin = skeleton.create_skin_from_rest_transforms()
 
 func adjust_skeleton() -> void:
-	var shapekey_data = HumanizerUtils.get_shapekey_data()
+	shapekey_data
 	skeleton.reset_bone_poses()
 	var rig = human_config.rig.split('-')[0]
 	var skeleton_config = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].config_json_path)
