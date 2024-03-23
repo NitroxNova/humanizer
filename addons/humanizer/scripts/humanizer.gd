@@ -214,8 +214,8 @@ func deserialize() -> void:
 	
 func save_human_scene() -> void:
 	## Save to files for easy load later
-	if not _save_path_valid:
-		return
+	#if not _save_path_valid:
+	#	return
 	DirAccess.make_dir_recursive_absolute(save_path)
 	
 	var new_mesh = _combine_meshes()
