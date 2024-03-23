@@ -362,9 +362,13 @@ func update_hide_vertices() -> void:
 	delete_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
 	var delete_verts_mh := []
 	delete_verts_mh.resize(_helper_vertex.size())
-	var remap_verts_gd := [] #old to new
+	var remap_verts_gd = PackedInt32Array() #old to new
 	remap_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
 	remap_verts_gd.fill(-1)
+	var keep_faces := []
+	var new_mesh = ArrayMesh.new()
+	var lods := {}
+	var fmt = body_mesh.mesh.surface_get_format(0)
 	
 	for child in get_children():
 		if not child is MeshInstance3D:
@@ -383,38 +387,43 @@ func update_hide_vertices() -> void:
 		if delete_verts_mh[mh_id]:
 			delete_verts_gd[gd_id] = true
 	
-	var new_gd_id = 0
-	for old_gd_id in arrays[Mesh.ARRAY_VERTEX].size():
-		if not delete_verts_gd[old_gd_id]:
-			remap_verts_gd[old_gd_id] = new_gd_id
-			new_gd_id += 1
 	
-	var new_mesh = ArrayMesh.new()
-	var new_arrays := []
-	new_arrays.resize(Mesh.ARRAY_MAX)
-	new_arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
-	new_arrays[Mesh.ARRAY_CUSTOM0] = PackedFloat32Array()
-	new_arrays[Mesh.ARRAY_INDEX] = PackedInt32Array()
-	new_arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
-	new_arrays[Mesh.ARRAY_BONES] = PackedInt32Array()
-	new_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
-	var bone_count = arrays[Mesh.ARRAY_BONES].size()/arrays[Mesh.ARRAY_VERTEX].size()
-	var lods := {}
-	var fmt = body_mesh.mesh.surface_get_format(0)
-	for gd_id in delete_verts_gd.size():
-		if not delete_verts_gd[gd_id]:
-			new_arrays[Mesh.ARRAY_VERTEX].append(arrays[Mesh.ARRAY_VERTEX][gd_id])
-			new_arrays[Mesh.ARRAY_CUSTOM0].append(arrays[Mesh.ARRAY_CUSTOM0][gd_id])
-			new_arrays[Mesh.ARRAY_TEX_UV].append(arrays[Mesh.ARRAY_TEX_UV][gd_id])
-			new_arrays[Mesh.ARRAY_BONES].append_array(arrays[Mesh.ARRAY_BONES].slice(gd_id * bone_count, (gd_id + 1) * bone_count))
-			new_arrays[Mesh.ARRAY_WEIGHTS].append_array(arrays[Mesh.ARRAY_WEIGHTS].slice(gd_id * bone_count, (gd_id + 1) * bone_count))
-	for i in arrays[Mesh.ARRAY_INDEX].size()/3:
-		var slice = arrays[Mesh.ARRAY_INDEX].slice(i*3,(i+1)*3)
-		if delete_verts_gd[slice[0]] or delete_verts_gd[slice[1]] or delete_verts_gd[slice[2]]:
-			continue
-		slice = [remap_verts_gd[slice[0]], remap_verts_gd[slice[1]], remap_verts_gd[slice[2]]]
-		new_arrays[Mesh.ARRAY_INDEX].append_array(slice)
-	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_arrays, [], lods, fmt)
+	for face_id in arrays[Mesh.ARRAY_INDEX].size()/3:
+		var slice = arrays[Mesh.ARRAY_INDEX].slice(face_id*3,(face_id+1)*3)
+		if not (delete_verts_gd[slice[0]] and delete_verts_gd[slice[1]] and delete_verts_gd[slice[2]]):
+			keep_faces.append(slice)
+	
+	delete_verts_gd.fill(true)
+	for slice in keep_faces:
+		for sl_id in 3:
+			delete_verts_gd[slice[sl_id]] = false
+	
+	var new_vertex_size = 0
+	for old_id in delete_verts_gd.size():
+		if not delete_verts_gd[old_id]:
+			remap_verts_gd[old_id] = new_vertex_size
+			new_vertex_size += 1
+			
+	var bone_count = arrays[Mesh.ARRAY_BONES].size()/arrays[Mesh.ARRAY_VERTEX].size()	
+	for gd_id in range(delete_verts_gd.size()-1,-1,-1):
+		if delete_verts_gd[gd_id]:
+			arrays[Mesh.ARRAY_VERTEX].remove_at(gd_id)
+			arrays[Mesh.ARRAY_CUSTOM0].remove_at(gd_id)
+			arrays[Mesh.ARRAY_TEX_UV].remove_at(gd_id)
+			for bone_inc in bone_count:
+				arrays[Mesh.ARRAY_BONES].remove_at(gd_id*bone_count)
+				arrays[Mesh.ARRAY_WEIGHTS].remove_at(gd_id*bone_count)
+	
+	arrays[Mesh.ARRAY_INDEX].resize(0)		
+	for slice in keep_faces:
+		for sl_id in 3:
+			var new_gd_id = remap_verts_gd[slice[sl_id]]
+			arrays[Mesh.ARRAY_INDEX].append(new_gd_id)
+	
+	arrays[Mesh.ARRAY_NORMAL] = null
+	arrays[Mesh.ARRAY_TANGENT] = null
+			
+	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], lods, fmt)
 	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
 	_set_body_mesh(new_mesh)
 	body_mesh.set_surface_override_material(0, skin_mat)
