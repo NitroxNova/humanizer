@@ -14,7 +14,7 @@ advance_mode = 2
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_enrgu"]
 xfade_time = 0.2
 advance_mode = 2
-advance_expression = "true"
+advance_expression = "moving"
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_x18jg"]
 xfade_time = 0.2
