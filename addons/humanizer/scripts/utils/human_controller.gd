@@ -17,6 +17,7 @@ func _ready():
 	print(msg)
 	
 	var anim = $AnimationTree as AnimationTree
+	# Seems like animation tree has to be inactivated for this to work
 	anim.active = false
 	anim.advance_expression_base_node = get_path()
 	anim.active = true
@@ -34,15 +35,14 @@ func _physics_process(delta):
 		&'ui_left', &'ui_right', &'ui_down', &'ui_up')
 	moving = move_input.length() > 0.1  # Give a little deadzone
 
-	# IDK why negative signs but it works
-	var movement: Vector3 = -move_input.x * cam_right - move_input.y * cam_forward
+	var movement: Vector3 = move_input.x * cam_right + move_input.y * cam_forward
 	if moving:
-		transform.basis = Basis.looking_at(movement)
+		# IDK why negative signs but it works
+		transform.basis = Basis.looking_at(-movement)
 	
 	movement = movement * move_speed
-	# Minus signs again?
-	velocity.x = -movement.x
-	velocity.z = -movement.z
+	velocity.x = movement.x
+	velocity.z = movement.z
 	velocity.y -= GRAVITY * delta
 
 	move_and_slide()
