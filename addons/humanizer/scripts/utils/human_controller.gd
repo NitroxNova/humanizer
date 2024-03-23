@@ -30,6 +30,8 @@ func _physics_process(delta):
 	var cam_forward: Vector3 = -_camera.basis.z
 	cam_right.y = 0
 	cam_forward.y = 0
+	cam_right = cam_right.normalized()
+	cam_forward = cam_forward.normalized()
 	
 	var move_input: Vector2 = Input.get_vector(
 		&'ui_left', &'ui_right', &'ui_down', &'ui_up')
