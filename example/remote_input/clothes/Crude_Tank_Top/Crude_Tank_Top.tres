@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HumanClothes" load_steps=2 format=3 uid="uid://dff2r7l6kv3is"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_clothes.gd" id="1_e1tas"]
+
+[resource]
+resource_name = "Crude_Tank_Top"
+script = ExtResource("1_e1tas")
+slots = Array[String]([])
+textures = {}
+path = "res://example/remote_input/clothes/Crude_Tank_Top"

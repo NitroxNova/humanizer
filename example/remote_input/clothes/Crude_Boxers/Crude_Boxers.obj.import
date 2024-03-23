@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://dy3y4b4uv2mjn"
+path="res://.godot/imported/Crude_Boxers.obj-4913b6ed824905b8ddaee5c9147e5e7b.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Crude_Boxers.obj-4913b6ed824905b8ddaee5c9147e5e7b.mesh"]
+
+source_file="res://example/remote_input/clothes/Crude_Boxers/Crude_Boxers.obj"
+dest_files=["res://.godot/imported/Crude_Boxers.obj-4913b6ed824905b8ddaee5c9147e5e7b.mesh", "res://.godot/imported/Crude_Boxers.obj-4913b6ed824905b8ddaee5c9147e5e7b.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

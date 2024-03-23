@@ -20,6 +20,9 @@ func _ready():
 	#print(registry.body_parts.RightEye[\"RightEye-LowPolyEyeball\"])
 	humanizer.set_body_part(registry.body_parts.LeftEye[\"LeftEye-LowPolyEyeball\"])
 	humanizer.set_body_part(registry.body_parts.RightEye[\"RightEye-LowPolyEyeball\"])
+	humanizer.apply_clothes(load(\"res://example/remote_input/clothes/Crude_Boxers/Crude_Boxers.tres\"))
+	humanizer.apply_clothes(load(\"res://example/remote_input/clothes/Crude_Tank_Top/Crude_Tank_Top.tres\"))
+	humanizer.update_hide_vertices()
 	var shapekey_categories = HumanizerUtils.get_shapekey_categories()
 	for category_name in shapekey_categories:
 		var category_keys = {}

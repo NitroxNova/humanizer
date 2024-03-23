@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://bo6w1i2xe8nsh"]
+
+[ext_resource type="ArrayMesh" uid="uid://b0qp83jwbny0m" path="res://example/remote_input/clothes/Crude_Boxers/Crude_Boxers_mesh.tres" id="1_abjoe"]
+[ext_resource type="Material" uid="uid://dshlkij0gfci3" path="res://example/remote_input/clothes/Crude_Boxers/Crude_Boxers_material.tres" id="2_qhdxk"]
+
+[node name="Crude_Boxers" type="MeshInstance3D"]
+mesh = ExtResource("1_abjoe")
+surface_material_override/0 = ExtResource("2_qhdxk")
