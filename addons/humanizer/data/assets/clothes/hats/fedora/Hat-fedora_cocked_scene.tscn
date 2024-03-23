@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://dqqmy0n4uyqta"]
+
+[ext_resource type="ArrayMesh" uid="uid://htav05xpsk16" path="res://addons/humanizer/data/assets/clothes/hats/fedora/Hat-fedora_cocked_mesh.tres" id="1_ip4kj"]
+[ext_resource type="Material" uid="uid://deut2xijdgyyd" path="res://addons/humanizer/data/assets/clothes/hats/fedora/fedora_material.tres" id="2_3toa4"]
+
+[node name="Hat-fedora_cocked" type="MeshInstance3D"]
+mesh = ExtResource("1_ip4kj")
+surface_material_override/0 = ExtResource("2_3toa4")

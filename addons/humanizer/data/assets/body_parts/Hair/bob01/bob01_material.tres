@@ -1,9 +1,9 @@
 [gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://dbdc1d4ugesaw"]
 
-[ext_resource type="Texture2D" uid="uid://du1ujmotjc3jg" path="res://addons/humanizer/data/assets/body_parts/Hair/bob01/bob01_diffuse.png" id="1_r6r6c"]
+[ext_resource type="Texture2D" uid="uid://du1ujmotjc3jg" path="res://addons/humanizer/data/assets/body_parts/Hair/bob01/bob01_diffuse.png" id="1_injpr"]
 
 [resource]
 transparency = 4
 cull_mode = 2
 specular_mode = 2
-albedo_texture = ExtResource("1_r6r6c")
+albedo_texture = ExtResource("1_injpr")

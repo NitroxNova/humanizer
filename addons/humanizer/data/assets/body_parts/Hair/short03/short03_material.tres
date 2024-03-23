@@ -1,9 +1,9 @@
 [gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://c4dflby2q8ka3"]
 
-[ext_resource type="Texture2D" uid="uid://df0kptfh53kot" path="res://addons/humanizer/data/assets/body_parts/Hair/short03/short03_diffuse.png" id="1_1dtie"]
+[ext_resource type="Texture2D" uid="uid://df0kptfh53kot" path="res://addons/humanizer/data/assets/body_parts/Hair/short03/short03_diffuse.png" id="1_qjsi7"]
 
 [resource]
 transparency = 4
 cull_mode = 2
 specular_mode = 2
-albedo_texture = ExtResource("1_1dtie")
+albedo_texture = ExtResource("1_qjsi7")

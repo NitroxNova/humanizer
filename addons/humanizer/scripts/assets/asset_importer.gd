@@ -198,6 +198,10 @@ func _import_asset(path: String, asset_name: String, data: Dictionary):
 			resource.slots.append('Legs')
 		elif asset_name.begins_with('Shirt'):
 			resource.slots.append('Torso')
+		elif asset_name.begins_with('Hat'):
+			resource.slots.append('Hat')
+		elif asset_name.begins_with('Shoes'):
+			resource.slots.append('Feet')
 		if HumanizerRegistry.clothes.has(asset_name):
 			HumanizerRegistry.clothes.erase(asset_name)
 	# Save resources
