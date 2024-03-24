@@ -635,6 +635,9 @@ func setup_overlay_material(asset: HumanAsset, mi: MeshInstance3D) -> void:
 	mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	mat_config.add_overlay(asset.default_overlay)
 
+func get_helper_vertex_value(mh_id:int):
+	return _helper_vertex[mh_id]
+
 #### Animation ####
 func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	# Delete existing skeleton
