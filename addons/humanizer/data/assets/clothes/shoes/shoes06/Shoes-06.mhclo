@@ -17,8 +17,9 @@ uuid 35abc230-ebaa-48d4-8ff7-6d84168291a0
 basemesh hm08
 tag MakeHuman™
 tag Shoes
+tag Feet
 
-name shoes06
+name Shoes06
 obj_file shoes06.obj
 x_scale 12839 12860 0.7045
 z_scale 11609 12442 2.5390

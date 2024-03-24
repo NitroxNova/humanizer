@@ -92,9 +92,9 @@ func _scan_path(path: String) -> void:
 				textures[file_name.get_file()] = file_name
 	_generate_material(path, textures)
 	
-	for asset in asset_data:
-		asset_data[asset].textures = textures
-		_import_asset(path, asset, asset_data[asset])
+	for asset in asset_data.values():
+		asset.textures = textures
+		_import_asset(path, asset)
 
 func _generate_material(path: String, textures: Dictionary) -> void:
 	# Create material
@@ -151,28 +151,28 @@ func _generate_material(path: String, textures: Dictionary) -> void:
 	var mat_path = path.path_join(path.get_file() + '_material.tres')
 	ResourceSaver.save(mat, mat_path)
 
-func _import_asset(path: String, asset_name: String, data: Dictionary):
-	print('Importing asset ' + asset_name)
+func _import_asset(path: String, data: Dictionary):
 	# Build resource object
 	var resource: HumanAsset
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
 		resource = HumanBodyPart.new()
 	elif asset_type == HumanizerRegistry.AssetType.Clothes:
 		resource = HumanClothes.new()
-	else:
-		printerr('Unrecognized slot type ' + str(slot))
-	resource.path = path
-	resource.resource_name = asset_name
-	resource.textures = data.textures.duplicate()
-	if data.has('overlay'):
-		HumanizerRegistry.overlays[asset_name] = HumanizerOverlay.from_dict(data.overlay)
-	if resource.scene_path in EditorInterface.get_open_scenes():
-		printerr('Cannot process ' + asset_name + ' because its scene is open in the editor')
-		return
-	
+
 	var mesh = data.mesh
 	var mh2gd_index = data.mh2gd_index
 	var mhclo = data.mhclo
+
+	resource.path = path
+	resource.resource_name = mhclo.resource_name
+	print('Importing asset ' + resource.resource_name)	
+	
+	resource.textures = data.textures.duplicate()
+	if data.has('overlay'):
+		HumanizerRegistry.overlays[resource.resource_name] = HumanizerOverlay.from_dict(data.overlay)
+	if resource.scene_path in EditorInterface.get_open_scenes():
+		printerr('Cannot process ' + resource.resource_name + ' because its scene is open in the editor')
+		return
 	
 	# Mesh operations
 	var new_sf_arrays = mesh.surface_get_arrays(0)
@@ -180,33 +180,28 @@ func _import_asset(path: String, asset_name: String, data: Dictionary):
 	
 	# Set slot(s)
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
-		slot = asset_name.split('-')[0].split('_')[0]
-		if slot not in HumanizerGlobal.config.body_part_slots:
-			printerr('File should be named {slot}-{asset}.mhclo.  Slot not recognized : ' + slot)
+		for tag in mhclo.tags:
+			if tag in HumanizerGlobal.config.body_part_slots:
+				resource.slot = tag
+		if resource.slot in ['', null]:
+			printerr('Slot not recognized.  Check your mhclo tags.')
 			return
 		if HumanizerRegistry.body_parts.has(slot):
-			if HumanizerRegistry.body_parts[slot].has(asset_name):
-				HumanizerRegistry.body_parts[slot].erase(asset_name)
-		resource.slot = slot
+			if HumanizerRegistry.body_parts[slot].has(resource.resource_name):
+				HumanizerRegistry.body_parts[slot].erase(resource.resource_name)
 	elif asset_type == HumanizerRegistry.AssetType.Clothes:
-		for slot in clothing_slots:
-			if slot not in HumanizerGlobal.config.clothing_slots:
-				printerr('clothing slot not recognized : ' + slot)
-				return
-		# TODO SET CLOTHING SLOTS
-		if asset_name.begins_with('Pants') or asset_name.begins_with('Shorts') or asset_name.begins_with('Skirt'):
-			resource.slots.append('Legs')
-		elif asset_name.begins_with('Shirt'):
-			resource.slots.append('Torso')
-		elif asset_name.begins_with('Hat'):
-			resource.slots.append('Hat')
-		elif asset_name.begins_with('Shoes'):
-			resource.slots.append('Feet')
-		if HumanizerRegistry.clothes.has(asset_name):
-			HumanizerRegistry.clothes.erase(asset_name)
+		if HumanizerRegistry.clothes.has(resource.resource_name):
+			HumanizerRegistry.clothes.erase(resource.resource_name)
+		for tag in mhclo.tags:
+			if tag in HumanizerGlobal.config.clothing_slots:
+				resource.slots.append(tag)
+		if resource.slots.size() == 0:
+			printerr('No slots found for clothes.  Check your mhclo tags.')
+			return
+
 	# Save resources
 	mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(mesh)
-	resource.take_over_path(path.path_join(asset_name + '.tres'))
+	resource.take_over_path(path.path_join(resource.resource_name + '.tres'))
 	ResourceSaver.save(mhclo, resource.mhclo_path)
 
 	# Put main resource in registry for easy access later
@@ -220,7 +215,7 @@ func _import_asset(path: String, asset_name: String, data: Dictionary):
 	var scene = PackedScene.new()
 	var mat = load(resource.material_path)
 	mi.mesh = mesh
-	mi.name = asset_name
+	mi.name = resource.resource_name
 	mi.set_surface_override_material(0, mat)
 	add_child(mi)
 	mi.owner = self

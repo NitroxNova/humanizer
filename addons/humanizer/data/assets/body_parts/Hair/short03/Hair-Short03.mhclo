@@ -16,9 +16,10 @@
 uuid a6cb8ad2-2e0d-4655-81ef-bfce1676ec67
 basemesh hm08
 tag MakeHuman™
-name short03
+name Short03
 tag Short
 tag Female
+tag Hair
 
 obj_file short03.obj
 x_scale 5399 11998 1.3980

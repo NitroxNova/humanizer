@@ -16,8 +16,9 @@
 uuid 0a5ec82a-0d5f-43ce-a765-8f076f95692d
 basemesh hm08
 tag MakeHuman™
+tag Teeth
 
-name Teeth_Base
+name Teeth00
 obj_file teeth_base.obj
 x_scale 15077 15111 0.5002
 z_scale 15061 15068 0.4465

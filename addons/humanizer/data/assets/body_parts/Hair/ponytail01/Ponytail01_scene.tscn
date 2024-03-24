@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://bu2exf3r1pp40"]
+
+[ext_resource type="ArrayMesh" uid="uid://bfwwvl665p51u" path="res://addons/humanizer/data/assets/body_parts/Hair/ponytail01/Ponytail01_mesh.tres" id="1_rskkj"]
+[ext_resource type="Material" uid="uid://ocxf2biare7v" path="res://addons/humanizer/data/assets/body_parts/Hair/ponytail01/ponytail01_material.tres" id="2_3gvyo"]
+
+[node name="Ponytail01" type="MeshInstance3D"]
+mesh = ExtResource("1_rskkj")
+surface_material_override/0 = ExtResource("2_3gvyo")

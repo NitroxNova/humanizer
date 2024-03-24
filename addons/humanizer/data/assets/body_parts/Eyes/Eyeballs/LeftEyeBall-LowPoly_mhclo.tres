@@ -1,0 +1,172 @@
+[gd_resource type="Resource" script_class="MHCLO" load_steps=2 format=3 uid="uid://ckn1sbnwflotf"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_mbcfe"]
+
+[resource]
+resource_name = "LeftEyeBall-LowPoly"
+script = ExtResource("1_mbcfe")
+vertex_data = [{
+"format": "single",
+"vertex": [14666.0]
+}, {
+"format": "single",
+"vertex": [14665.0]
+}, {
+"format": "single",
+"vertex": [14664.0]
+}, {
+"format": "single",
+"vertex": [14663.0]
+}, {
+"format": "single",
+"vertex": [14662.0]
+}, {
+"format": "single",
+"vertex": [14661.0]
+}, {
+"format": "single",
+"vertex": [14657.0]
+}, {
+"format": "single",
+"vertex": [14656.0]
+}, {
+"format": "single",
+"vertex": [14655.0]
+}, {
+"format": "single",
+"vertex": [14654.0]
+}, {
+"format": "single",
+"vertex": [14653.0]
+}, {
+"format": "single",
+"vertex": [14652.0]
+}, {
+"format": "single",
+"vertex": [14648.0]
+}, {
+"format": "single",
+"vertex": [14647.0]
+}, {
+"format": "single",
+"vertex": [14646.0]
+}, {
+"format": "single",
+"vertex": [14645.0]
+}, {
+"format": "single",
+"vertex": [14644.0]
+}, {
+"format": "single",
+"vertex": [14643.0]
+}, {
+"format": "single",
+"vertex": [14639.0]
+}, {
+"format": "single",
+"vertex": [14638.0]
+}, {
+"format": "single",
+"vertex": [14637.0]
+}, {
+"format": "single",
+"vertex": [14636.0]
+}, {
+"format": "single",
+"vertex": [14635.0]
+}, {
+"format": "single",
+"vertex": [14634.0]
+}, {
+"format": "single",
+"vertex": [14630.0]
+}, {
+"format": "single",
+"vertex": [14629.0]
+}, {
+"format": "single",
+"vertex": [14628.0]
+}, {
+"format": "single",
+"vertex": [14627.0]
+}, {
+"format": "single",
+"vertex": [14626.0]
+}, {
+"format": "single",
+"vertex": [14625.0]
+}, {
+"format": "single",
+"vertex": [14621.0]
+}, {
+"format": "single",
+"vertex": [14620.0]
+}, {
+"format": "single",
+"vertex": [14619.0]
+}, {
+"format": "single",
+"vertex": [14618.0]
+}, {
+"format": "single",
+"vertex": [14617.0]
+}, {
+"format": "single",
+"vertex": [14616.0]
+}, {
+"format": "single",
+"vertex": [14612.0]
+}, {
+"format": "single",
+"vertex": [14611.0]
+}, {
+"format": "single",
+"vertex": [14610.0]
+}, {
+"format": "single",
+"vertex": [14609.0]
+}, {
+"format": "single",
+"vertex": [14608.0]
+}, {
+"format": "single",
+"vertex": [14607.0]
+}, {
+"format": "single",
+"vertex": [14603.0]
+}, {
+"format": "single",
+"vertex": [14602.0]
+}, {
+"format": "single",
+"vertex": [14601.0]
+}, {
+"format": "single",
+"vertex": [14600.0]
+}, {
+"format": "single",
+"vertex": [14599.0]
+}, {
+"format": "single",
+"vertex": [14598.0]
+}]
+delete_vertices = []
+scale_config = {
+"x": {
+"end": 14645.0,
+"length": 1.0,
+"start": 14618.0
+},
+"y": {
+"end": 14663.0,
+"length": 1.0,
+"start": 14636.0
+},
+"z": {
+"end": 14658.0,
+"length": 0.0032,
+"start": 14650.0
+}
+}
+mh2gd_index = [PackedInt32Array(4), PackedInt32Array(0), PackedInt32Array(1), PackedInt32Array(38), PackedInt32Array(39), PackedInt32Array(46), PackedInt32Array(5), PackedInt32Array(3), PackedInt32Array(2), PackedInt32Array(34), PackedInt32Array(37), PackedInt32Array(45), PackedInt32Array(30), PackedInt32Array(29), PackedInt32Array(31), PackedInt32Array(35), PackedInt32Array(36), PackedInt32Array(44), PackedInt32Array(21), PackedInt32Array(22), PackedInt32Array(23), PackedInt32Array(25), PackedInt32Array(27), PackedInt32Array(43), PackedInt32Array(20), PackedInt32Array(19), PackedInt32Array(24), PackedInt32Array(26), PackedInt32Array(28), PackedInt32Array(40), PackedInt32Array(33), PackedInt32Array(32), PackedInt32Array(8), PackedInt32Array(9), PackedInt32Array(11), PackedInt32Array(41), PackedInt32Array(18), PackedInt32Array(16), PackedInt32Array(7), PackedInt32Array(6), PackedInt32Array(10), PackedInt32Array(42), PackedInt32Array(17), PackedInt32Array(15), PackedInt32Array(14), PackedInt32Array(13), PackedInt32Array(12), PackedInt32Array(47)]
+tags = PackedStringArray("LeftEye")

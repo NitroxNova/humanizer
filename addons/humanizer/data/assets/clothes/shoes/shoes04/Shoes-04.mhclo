@@ -17,8 +17,9 @@ uuid 0d753f2e-55f9-4d60-9a78-261f42b494fc
 basemesh hm08
 tag MakeHuman™
 tag Shoes
+tag Feet
 
-name shoes04
+name Shoes04
 obj_file shoes04.obj
 x_scale 12839 12860 0.7045
 z_scale 11609 12442 2.5390

@@ -8,7 +8,8 @@
 basemesh hm08
 
 # Basic info:
-name Pants-SkinnyJeans
+tag Legs
+name SkinnyJeans
 obj_file Pants-SkinnyJeans.obj
 material Pants-SkinnyJeans.mhmat
 

@@ -17,9 +17,10 @@ uuid c104cd4a-1edc-43f9-8b94-f63345a44638
 basemesh hm08
 tag MakeHuman™
 material short02.mhmat
-name short02
+name Short02
 tag Short
 tag Male
+tag Hair
 
 obj_file short02.obj
 x_scale 5399 11998 1.4340

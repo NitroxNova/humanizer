@@ -8,7 +8,8 @@
 basemesh hm08
 
 # Basic info:
-name Shirt-MakeHumanTShirt
+tag Torso
+name MakeHumanTShirt
 obj_file Shirt-MakeHumanTShirt.obj
 material Shirt-MakeHumanTShirt.mhmat
 

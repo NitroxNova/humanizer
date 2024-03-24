@@ -9,6 +9,7 @@ basemesh hm08
 
 # Basic info:
 name RightEyebrow-002
+tag RightEyebrow
 obj_file RightEyebrow-Eyebrow002.obj
 material RightEyebrow-Eyebrow002.mhmat
 

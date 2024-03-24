@@ -16,9 +16,9 @@
 uuid 4cd07df0-831a-401f-86de-77a7d5e28142
 basemesh hm08
 tag MakeHuman™
-tag Hats
+tag Hat
 
-name fedora_cocked
+name Fedora-Cocked
 obj_file fedora_cocked.obj
 x_scale 5399 11998 1.4800
 z_scale 962 5320 1.9221

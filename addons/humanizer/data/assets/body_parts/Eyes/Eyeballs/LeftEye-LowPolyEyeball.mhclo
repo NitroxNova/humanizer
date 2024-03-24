@@ -8,7 +8,8 @@
 basemesh hm08
 
 # Basic info:
-name LeftEye-LowPolyEyeball
+name LeftEyeBall-LowPoly
+tag LeftEye
 obj_file LeftEye-LowPolyEyeball.obj
 material LeftEye-LowPolyEyeball.mhmat
 

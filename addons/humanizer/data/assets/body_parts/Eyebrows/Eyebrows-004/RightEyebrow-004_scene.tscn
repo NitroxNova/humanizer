@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://cwo2a2wwvy8to"]
+[gd_scene load_steps=3 format=3 uid="uid://iq0tnlx52jj7"]
 
-[ext_resource type="ArrayMesh" uid="uid://tscw6g1m3yjw" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-004/RightEyebrow-004_mesh.tres" id="1_c40i2"]
+[ext_resource type="ArrayMesh" uid="uid://cwnn5yufll7jl" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-004/RightEyebrow-004_mesh.tres" id="1_c40i2"]
 [ext_resource type="Material" uid="uid://dg77fwenecbxo" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-004/Eyebrows-004_material.tres" id="2_jxf2c"]
 
 [node name="RightEyebrow-004" type="MeshInstance3D"]

@@ -16,11 +16,11 @@
 uuid a153cb9b-2a28-45fa-a526-04e45146268e
 basemesh hm08
 tag MakeHuman™
-tag Bob
 tag Short
 tag Female
+tag Hair
 
-name bob01
+name Bob01
 obj_file bob01.obj
 x_scale 5399 11998 1.3980
 z_scale 962 5320 1.8461

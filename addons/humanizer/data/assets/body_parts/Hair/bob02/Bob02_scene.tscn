@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://c3x53jvdakqcf"]
+
+[ext_resource type="ArrayMesh" uid="uid://cbgglkwexsd10" path="res://addons/humanizer/data/assets/body_parts/Hair/bob02/Bob02_mesh.tres" id="1_3gplp"]
+[ext_resource type="Material" uid="uid://d34sd816ker67" path="res://addons/humanizer/data/assets/body_parts/Hair/bob02/bob02_material.tres" id="2_o6tkh"]
+
+[node name="Bob02" type="MeshInstance3D"]
+mesh = ExtResource("1_3gplp")
+surface_material_override/0 = ExtResource("2_o6tkh")

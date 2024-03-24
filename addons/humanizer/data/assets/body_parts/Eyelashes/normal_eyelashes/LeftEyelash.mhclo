@@ -9,6 +9,7 @@ basemesh hm08
 
 # Basic info:
 name LeftEyelash
+tag LeftEyelash
 obj_file LeftEyelash.obj
 material LeftEyelash.mhmat
 

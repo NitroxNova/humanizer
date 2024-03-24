@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://chmh3w1nib68t"]
+[gd_scene load_steps=3 format=3 uid="uid://c728t4j5epcfa"]
 
-[ext_resource type="ArrayMesh" uid="uid://lgc1r4i4oelf" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/normal_eyelashes/LeftEyelash_mesh.tres" id="1_fsdpi"]
+[ext_resource type="ArrayMesh" uid="uid://cmbvoofjcg3" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/normal_eyelashes/LeftEyelash_mesh.tres" id="1_fsdpi"]
 [ext_resource type="Material" uid="uid://de5wp7pi5yi26" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/normal_eyelashes/normal_eyelashes_material.tres" id="2_auk04"]
 
 [node name="LeftEyelash" type="MeshInstance3D"]

@@ -18,8 +18,9 @@ basemesh hm08
 tag MakeHuman™
 tag Male
 tag Short
+tag Hair
 
-name short01
+name Short01
 obj_file short01.obj
 x_scale 5399 11998 1.6682
 z_scale 962 5320 2.3542

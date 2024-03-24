@@ -8,7 +8,8 @@
 basemesh hm08
 
 # Basic info:
-name LeftEyebrow-Eyebrow005
+name LeftEyebrow-005
+tag LeftEyebrow
 obj_file LeftEyebrow-Eyebrow005.obj
 material LeftEyebrow-Eyebrow005.mhmat
 

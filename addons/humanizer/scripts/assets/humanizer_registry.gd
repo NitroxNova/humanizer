@@ -82,11 +82,13 @@ static func _get_skin_textures() -> void:
 					skin_textures[filename] = mat
 
 static func _load_body_parts() -> void:
+	body_parts = {}
 	for path in HumanizerGlobal.config.asset_import_paths:
 		for dir in OSPath.get_dirs(path.path_join('body_parts')):
 			_scan_dir(dir, AssetType.BodyPart)
 			
 static func _load_clothes() -> void:
+	clothes = {}
 	for path in HumanizerGlobal.config.asset_import_paths:
 		for dir in OSPath.get_dirs(path.path_join('clothes')):
 			_scan_dir(dir, AssetType.Clothes)

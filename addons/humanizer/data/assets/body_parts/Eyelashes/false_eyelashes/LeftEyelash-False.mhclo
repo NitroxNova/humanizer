@@ -8,7 +8,8 @@
 basemesh hm08
 
 # Basic info:
-name LeftEyelash-False
+name FalseLeftEyelash
+tag LeftEyelash
 obj_file LeftEyelash-False.obj
 material LeftEyelash-False.mhmat
 

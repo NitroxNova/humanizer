@@ -17,8 +17,9 @@ uuid 59627022-32e9-4126-9cf1-036d4b9335fc
 basemesh hm08
 tag MakeHuman™
 tag Afro
+tag Hair
 
-name Hair-Afro01
+name Afro01
 obj_file Hair-Afro01.obj
 x_scale 5399 11998 1.7412
 z_scale 962 5320 2.2613

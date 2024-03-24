@@ -18,6 +18,7 @@ basemesh hm08
 tag MakeHuman™
 tag Long
 tag Female
+tag Hair
 
 name Braid01
 obj_file braid01.obj

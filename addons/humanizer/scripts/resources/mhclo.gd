@@ -11,7 +11,9 @@ enum SECTION {header,vertices,delete_vertices}
 	z={start=0, end=0, length=0}
 }
 @export var mh2gd_index := []
-var obj_file_name :String
+@export var tags := PackedStringArray()
+var obj_file_name: String
+
 
 func parse_file(filename:String):
 	var unique_lines = {}
@@ -25,7 +27,9 @@ func parse_file(filename:String):
 			elif line.begins_with("obj_file "):
 				obj_file_name = line.get_slice(" ",1)
 			elif line.begins_with("name"):
-				resource_name = line.get_slice(' ', 1)
+				resource_name = line.get_slice(' ', 1).strip_edges()
+			elif line.begins_with("tag"):
+				tags.append(line.get_slice(' ', 1).strip_edges())
 			elif line.begins_with("x_scale "):
 				parse_scale_data(line,"x")
 			elif line.begins_with("y_scale "):

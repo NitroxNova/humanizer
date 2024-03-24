@@ -17,9 +17,10 @@ uuid 44e0340e-c7a6-4d22-814c-0632968d2dde
 basemesh hm08
 tag MakeHuman™
 tag Female
+tag Hair
 tag Long
 
-name ponytail01
+name Ponytail01
 obj_file ponytail01.obj
 x_scale 5399 11998 1.3980
 z_scale 962 5320 1.8461

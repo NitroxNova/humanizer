@@ -16,9 +16,9 @@
 uuid 566dbd52-71d1-4d76-a799-0474a5a384db
 basemesh hm08
 tag MakeHuman™
-tag Hats
+tag Hat
 
-name fedora
+name Fedora
 obj_file fedora.obj
 x_scale 5399 11998 1.4800
 z_scale 962 5320 1.9221
