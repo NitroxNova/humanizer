@@ -6,12 +6,36 @@
 [sub_resource type="GDScript" id="GDScript_yutiq"]
 script/source = "extends Control
 
-@onready var humanizer = $Split_Screen/Viewport/SubViewport/Humanizer
+@onready var humanizer = $Split_Screen/Right_Side/Viewport/SubViewport/Humanizer
 var shapekey_opposites = [[\"decr\",\"incr\"], [\"down\",\"up\"],   [\"in\",\"out\"],   [\"backward\",\"forward\"],  [\"concave\",\"convex\"],  [\"compress\",\"uncompress\"], [\"square\",\"round\"], [\"pointed\",\"triangle\"]]
 var registry = HumanizerRegistry
+@onready var camera = $Split_Screen/Right_Side/Viewport/SubViewport/Camera3D
+var camera_zoom = 0
+var zoom_in_offset = 0
+var zoom_out_offset = 1.5
+var zoom_in_size = .25
+var zoom_out_size = 3
+var zoom_mid_ratio = 0
+var zoom_mid_offset = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	camera.position.y = 0
+	camera.position.x = 0
+	camera.position.z = 1
+	camera.v_offset = zoom_out_offset
+	camera.size = zoom_out_size
+	build_menu()
+	get_camera_min_max()
+
+func get_camera_min_max():
+	var middle_eyes = humanizer.get_helper_vertex_position(5063)
+	zoom_in_offset = middle_eyes.y 
+	var top_head = humanizer.get_helper_vertex_position(14570)
+	zoom_mid_ratio = top_head.y / (zoom_out_size - zoom_in_size)
+	zoom_mid_offset = top_head.y / 2
+	
+func build_menu():
 	var skin_textures = HumanizerRegistry.skin_textures
 	#humanizer.reset_human()
 	humanizer.set_skin_texture(\"middleage_caucasian_male\")
@@ -82,15 +106,17 @@ func _ready():
 	var hair_panel = ScrollContainer.new()
 	hair_panel.name = \"Hair & Eyes\"
 	$Split_Screen/Menu_Options.add_child(hair_panel)
+	var hair_vbox = VBoxContainer.new()
+	hair_panel.add_child(hair_vbox)
 	label = Label.new()
 	label.text = \"Eye Color\"
-	hair_panel.add_child(label)
+	hair_vbox.add_child(label)
 	label = Label.new()
 	label.text = \"Hair Color\"
-	hair_panel.add_child(label)
+	hair_vbox.add_child(label)
 	
 	var eyebrow_options = OptionButton.new()
-	hair_panel.add_child(eyebrow_options)
+	hair_vbox.add_child(eyebrow_options)
 	for eyebrow_name : String in registry.body_parts.RightEyebrow:
 		var id = eyebrow_name.get_slice(\"-\",1)
 		#print(id)
@@ -127,6 +153,20 @@ func set_shapekeys(shapekey_values:Dictionary):
 	#print(shapekey_values)
 	humanizer.set_shapekeys(shapekey_values)
 	humanizer.adjust_skeleton()
+	get_camera_min_max()
+	_on_zoom_slider_value_changed($Split_Screen/Right_Side/Right_Side/zoom_slider.value)
+
+
+#smooth zoom, so nice wow
+func _on_zoom_slider_value_changed(value):
+	var invr_value = 1-value
+	camera.size = ((zoom_out_size-zoom_in_size) * invr_value) + zoom_in_size
+	if invr_value < zoom_mid_ratio:
+		camera.v_offset = ((zoom_mid_offset-zoom_in_offset) * (invr_value/zoom_mid_ratio)) + zoom_in_offset
+	else:
+		camera.v_offset = ((zoom_out_offset-zoom_mid_offset) * ((invr_value-zoom_mid_ratio)/(1-zoom_mid_ratio))) + zoom_mid_offset
+	
+	
 "
 
 [sub_resource type="Resource" id="Resource_c1m1w"]
@@ -173,33 +213,69 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Menu_Options" type="TabContainer" parent="Split_Screen"]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 
-[node name="Viewport" type="SubViewportContainer" parent="Split_Screen"]
+[node name="Right_Side" type="PanelContainer" parent="Split_Screen"]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="Viewport" type="SubViewportContainer" parent="Split_Screen/Right_Side"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 stretch = true
 
-[node name="SubViewport" type="SubViewport" parent="Split_Screen/Viewport"]
+[node name="SubViewport" type="SubViewport" parent="Split_Screen/Right_Side/Viewport"]
 handle_input_locally = false
-size = Vector2i(940, 648)
+size = Vector2i(840, 648)
 render_target_update_mode = 4
 
-[node name="Humanizer" type="Node3D" parent="Split_Screen/Viewport/SubViewport"]
+[node name="Humanizer" type="Node3D" parent="Split_Screen/Right_Side/Viewport/SubViewport"]
 script = ExtResource("1_3utgn")
 human_config = SubResource("Resource_c1m1w")
 _baked_root_node = "CharacterBody3D"
 
-[node name="Camera3D" type="Camera3D" parent="Split_Screen/Viewport/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.671381, 0.909181)
-v_offset = 0.2
+[node name="Camera3D" type="Camera3D" parent="Split_Screen/Right_Side/Viewport/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.16017, 1)
 projection = 1
 size = 2.0
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Split_Screen/Viewport/SubViewport"]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Split_Screen/Right_Side/Viewport/SubViewport"]
 transform = Transform3D(0.989127, -0.127363, 0.0735333, -9.83845e-09, 0.5, 0.866026, -0.147067, -0.856609, 0.494563, 0, 0, 0)
 shadow_enabled = true
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="Split_Screen/Viewport/SubViewport"]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Split_Screen/Right_Side/Viewport/SubViewport"]
 environment = SubResource("Environment_yvgqs")
+
+[node name="Right_Side" type="VBoxContainer" parent="Split_Screen/Right_Side"]
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="zoom_label" type="Label" parent="Split_Screen/Right_Side/Right_Side"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 20
+text = "zoom"
+horizontal_alignment = 1
+
+[node name="zoom_slider" type="VSlider" parent="Split_Screen/Right_Side/Right_Side"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+max_value = 1.0
+step = 0.01
+allow_greater = true
+
+[node name="Button" type="Button" parent="Split_Screen/Right_Side/Right_Side"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "  Next  "
+
+[node name="padding" type="Label" parent="Split_Screen/Right_Side/Right_Side"]
+layout_mode = 2
+
+[connection signal="value_changed" from="Split_Screen/Right_Side/Right_Side/zoom_slider" to="." method="_on_zoom_slider_value_changed"]
