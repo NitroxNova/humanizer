@@ -79,6 +79,25 @@ func _ready():
 	shapekey_categories.erase(\"Race\")
 	shapekey_categories.erase(\"Misc\") #verify this is still empty
 	
+	var hair_panel = ScrollContainer.new()
+	hair_panel.name = \"Hair & Eyes\"
+	$Split_Screen/Menu_Options.add_child(hair_panel)
+	label = Label.new()
+	label.text = \"Eye Color\"
+	hair_panel.add_child(label)
+	label = Label.new()
+	label.text = \"Hair Color\"
+	hair_panel.add_child(label)
+	
+	var eyebrow_options = OptionButton.new()
+	hair_panel.add_child(eyebrow_options)
+	for eyebrow_name : String in registry.body_parts.RightEyebrow:
+		var id = eyebrow_name.get_slice(\"-\",1)
+		#print(id)
+		var icon = load(\"res://example/remote_input/thumbnails/eyebrow\"+id+\".png\")
+		eyebrow_options.add_icon_item(icon,\"\")
+		
+	
 	var details_panel = ScrollContainer.new()
 	details_panel.name = \"Details\"
 	$Split_Screen/Menu_Options.add_child(details_panel)
@@ -173,10 +192,13 @@ human_config = SubResource("Resource_c1m1w")
 _baked_root_node = "CharacterBody3D"
 
 [node name="Camera3D" type="Camera3D" parent="Split_Screen/Viewport/SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.797534, 1.63952)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.671381, 0.909181)
+v_offset = 0.2
+projection = 1
+size = 2.0
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Split_Screen/Viewport/SubViewport"]
-transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+transform = Transform3D(0.989127, -0.127363, 0.0735333, -9.83845e-09, 0.5, 0.866026, -0.147067, -0.856609, 0.494563, 0, 0, 0)
 shadow_enabled = true
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Split_Screen/Viewport/SubViewport"]

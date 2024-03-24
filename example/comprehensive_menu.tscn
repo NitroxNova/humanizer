@@ -53,7 +53,7 @@ stretch = true
 
 [node name="SubViewport" type="SubViewport" parent="Split_Screen/Viewport"]
 handle_input_locally = false
-size = Vector2i(2, 2)
+size = Vector2i(755, 648)
 render_target_update_mode = 4
 
 [node name="Humanizer" type="Node3D" parent="Split_Screen/Viewport/SubViewport"]
