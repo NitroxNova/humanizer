@@ -18,6 +18,26 @@ var next_limb_bone = {
 	&'Foot': &'Toes',
 }
 
+#refer to mpfb2_plugin.data/mesh_metadata/hm08.mirror for opposites
+var vertex_names = {
+	"LeftUpperArmFront" = 8114,
+	"LeftUpperArmBack" = 8330,
+	"RightUpperArmFront" = 1426,
+	"RightUpperArmBack" = 1658,
+	"LeftLowerArmFront" = 10541,
+	"LeftLowerArmBack" = 10110,
+	"RightLowerArmFront" = 3876,
+	"RightLowerArmBack" = 3442,
+	"LeftLowerLegFront" = 11325,
+	"LeftLowerLegBack" = 11339,
+	"RightLowerLegFront" = 4707,
+	"RightLowerLegBack" = 4721,
+	"LeftUpperLegFront" = 11116,
+	"LeftUpperLegBack" = 13340,
+	"RightUpperLegFront" = 4498,
+	"RightUpperLegBack" = 6744,
+}
+
 func _init(_skeleton: Skeleton3D, _helper_vertex, _layers, _mask):
 	skeleton = _skeleton
 	helper_vertex = _helper_vertex
@@ -141,7 +161,26 @@ func _add_collider(bone, next=null, shape='capsule') -> void:
 		### Do resizing here
 		if shape == 'capsule':
 			collider.shape.height = (next_position - this_position).length()
-			collider.shape.radius = 0.07
+			if bone == "LeftUpperArm":
+				collider.shape.radius = distance_between_vertex("LeftUpperArmFront","LeftUpperArmBack")/2
+			elif bone == "RightUpperArm":
+				collider.shape.radius = distance_between_vertex("RightUpperArmFront","RightUpperArmBack")/2
+			elif bone == "LeftLowerArm":
+				collider.shape.radius = distance_between_vertex("LeftLowerArmFront","LeftLowerArmBack")/2
+			elif bone == "RightLowerArm":
+				collider.shape.radius = distance_between_vertex("RightLowerArmFront","RightLowerArmBack")/2
+			elif bone == "LeftLowerLeg":
+				collider.shape.radius = distance_between_vertex("LeftLowerLegFront","LeftLowerLegBack")/2
+			elif bone == "RightLowerLeg":
+				collider.shape.radius = distance_between_vertex("RightLowerLegFront","RightLowerLegBack")/2
+			elif bone == "LeftUpperLeg":
+				collider.shape.radius = distance_between_vertex("LeftUpperLegFront","LeftUpperLegBack")/2
+			elif bone == "RightUpperLeg":
+				collider.shape.radius = distance_between_vertex("RightUpperLegFront","RightUpperLegBack")/2
+			else:
+				collider.shape.radius = 0.07
 		elif shape == 'box':
 			collider.shape.size.z
-		
+
+func distance_between_vertex(vertex_1:String,vertex_2:String): #vertex_1 and vertex_2 are string names from the vertex_names dictionary
+	return helper_vertex[vertex_names[vertex_1]].distance_to(helper_vertex[vertex_names[vertex_2]])
