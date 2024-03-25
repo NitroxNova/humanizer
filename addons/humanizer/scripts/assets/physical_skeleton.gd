@@ -35,8 +35,14 @@ func run() -> void:
 	physical_bone.collision_mask = mask
 	physical_bone.bone_name = bone_name
 	collider.shape = BoxShape3D.new()
+	#outer left hip to outer right hip
+	collider.shape.size.x = helper_vertex[10920].distance_to(helper_vertex[4290])
+	#crotch to bellybutton
+	collider.shape.size.y = helper_vertex[4372].distance_to(helper_vertex[4110])
+	#stomach to booty
+	collider.shape.size.z = helper_vertex[4367].distance_to(helper_vertex[10847])
 	
-	bone_name = &'Spine'
+	bone_name = &'UpperChest'
 	physical_bone = PhysicalBone3D.new()
 	collider = CollisionShape3D.new()
 	physical_bone.name = &'Physical Bone ' + bone_name
@@ -49,4 +55,31 @@ func run() -> void:
 	physical_bone.collision_mask = mask
 	physical_bone.bone_name = bone_name
 	collider.shape = BoxShape3D.new()
+	#outer left hip to outer right hip
+	collider.shape.size.x = helper_vertex[10920].distance_to(helper_vertex[4290])
+	#shoulder to bellybutton
+	collider.shape.size.y = helper_vertex[1396].distance_to(helper_vertex[4110])
+	#middle chest to middle back
+	collider.shape.size.z = helper_vertex[1891].distance_to(helper_vertex[1598])
+	var spine_offset_z = helper_vertex[13659].distance_to(helper_vertex[3932])
+	collider.position.z += collider.shape.size.z / 2 - spine_offset_z
+	#spine to shoulder
+	var spine_offset_y = helper_vertex[13651].distance_to(helper_vertex[15879])
+	collider.position.y += spine_offset_y - (collider.shape.size.y / 2)
+	
+	
+	bone_name = &'LeftUpperArm'
+	physical_bone = PhysicalBone3D.new()
+	collider = CollisionShape3D.new()
+	physical_bone.name = &'Physical Bone ' + bone_name
+	physical_bone.add_child(collider)
+	skeleton.add_child(physical_bone)
+	physical_bone.owner = skeleton
+	collider.owner = skeleton
+
+	physical_bone.collision_layer = layers
+	physical_bone.collision_mask = mask
+	physical_bone.bone_name = bone_name
+	collider.shape = CapsuleShape3D.new()
+	
 
