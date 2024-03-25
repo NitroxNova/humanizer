@@ -852,6 +852,9 @@ func _add_main_collider() -> void:
 	_adjust_main_collider()
 
 func _add_physical_skeleton() -> void:
+	$AnimationTree.active = false
+	skeleton.animate_physical_bones = false
+	
 	var layers = _ragdoll_layers
 	var mask = _ragdoll_mask
 	if layers == null:
@@ -859,6 +862,9 @@ func _add_physical_skeleton() -> void:
 	if mask == null:
 		mask = HumanizerGlobal.config.default_physical_bone_mask
 	HumanizerPhysicalSkeleton.new(skeleton, _helper_vertex, layers, mask).run()
+	skeleton.reset_bone_poses()
+	$AnimationTree.active = true
+	skeleton.animate_physical_bones = true
 
 func _adjust_main_collider():
 	var head_height = _helper_vertex[14570].y
