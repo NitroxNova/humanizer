@@ -58,11 +58,12 @@ var skin_color: Color = _DEFAULT_SKIN_COLOR:
 		if scene_loaded and body_mesh.material_config.overlays.size() == 0:
 			return
 		human_config.skin_color = skin_color
-		body_mesh.material_config.overlays[0].color = skin_color
+		if body_mesh.material_config.overlays.size() > 0:
+			body_mesh.material_config.overlays[0].color = skin_color
 var hair_color: Color = _DEFAULT_HAIR_COLOR:
 	set(value):
 		hair_color = value
-		if human_config == null:
+		if human_config == null or not scene_loaded:
 			return
 		human_config.hair_color = hair_color
 		var slots: Array = [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows', &'Hair']
@@ -74,7 +75,7 @@ var hair_color: Color = _DEFAULT_HAIR_COLOR:
 var eye_color: Color = _DEFAULT_EYE_COLOR:
 	set(value):
 		eye_color = value
-		if human_config == null:
+		if human_config == null or not scene_loaded:
 			return
 		human_config.eye_color = eye_color
 		var slots: Array = [&'RightEye', &'LeftEye', &'Eyes']
@@ -133,11 +134,20 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 		_ragdoll_mask = value
 
 
+func _process(delta):
+	if Input.is_key_pressed(KEY_SPACE):
+		if (skeleton.get_child(0) as PhysicalBone3D).is_simulating_physics():
+			skeleton.physical_bones_stop_simulation()
+			$AnimationTree.active = true
+		else:
+			$AnimationTree.active = false
+			skeleton.physical_bones_start_simulation()
 
 func _ready() -> void:
-	scene_loaded = true
 	load_human()
-	skeleton.physical_bones_start_simulation()
+	skeleton.physical_bones_stop_simulation()
+	skeleton.animate_physical_bones
+	scene_loaded = true
 
 ####  HumanConfig Resource Management ####
 func _add_child_node(node: Node) -> void:
@@ -849,7 +859,6 @@ func _add_physical_skeleton() -> void:
 	if mask == null:
 		mask = HumanizerGlobal.config.default_physical_bone_mask
 	HumanizerPhysicalSkeleton.new(skeleton, _helper_vertex, layers, mask).run()
-	skeleton.physical_bones_start_simulation()
 
 func _adjust_main_collider():
 	var head_height = _helper_vertex[14570].y

@@ -22,6 +22,7 @@ advance_mode = 2
 advance_expression = "not moving"
 
 [sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_1sk7a"]
+states/Start/position = Vector2(249, 115)
 states/animations_Idle/node = SubResource("AnimationNodeAnimation_veuch")
 states/animations_Idle/position = Vector2(430, 115)
 states/animations_Run/node = SubResource("AnimationNodeAnimation_6i8n6")
