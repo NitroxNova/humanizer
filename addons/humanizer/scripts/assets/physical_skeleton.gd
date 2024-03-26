@@ -20,22 +20,22 @@ var next_limb_bone = {
 
 #refer to mpfb2_plugin.data/mesh_metadata/hm08.mirror for opposites
 var vertex_names = {
-	"LeftUpperArmFront" = 8114,
-	"LeftUpperArmBack" = 8330,
-	"RightUpperArmFront" = 1426,
-	"RightUpperArmBack" = 1658,
-	"LeftLowerArmFront" = 10541,
-	"LeftLowerArmBack" = 10110,
-	"RightLowerArmFront" = 3876,
-	"RightLowerArmBack" = 3442,
-	"LeftLowerLegFront" = 11325,
-	"LeftLowerLegBack" = 11339,
-	"RightLowerLegFront" = 4707,
-	"RightLowerLegBack" = 4721,
-	"LeftUpperLegFront" = 11116,
-	"LeftUpperLegBack" = 13340,
-	"RightUpperLegFront" = 4498,
-	"RightUpperLegBack" = 6744,
+	&"LeftUpperArmFront" = 8114,
+	&"LeftUpperArmBack" = 8330,
+	&"RightUpperArmFront" = 1426,
+	&"RightUpperArmBack" = 1658,
+	&"LeftLowerArmFront" = 10541,
+	&"LeftLowerArmBack" = 10110,
+	&"RightLowerArmFront" = 3876,
+	&"RightLowerArmBack" = 3442,
+	&"LeftLowerLegFront" = 11325,
+	&"LeftLowerLegBack" = 11339,
+	&"RightLowerLegFront" = 4707,
+	&"RightLowerLegBack" = 4721,
+	&"LeftUpperLegFront" = 11116,
+	&"LeftUpperLegBack" = 13340,
+	&"RightUpperLegFront" = 4498,
+	&"RightUpperLegBack" = 6744,
 }
 
 func _init(_skeleton: Skeleton3D, _helper_vertex, _layers, _mask):
@@ -110,7 +110,7 @@ func _add_collider(bone, next=null, shape='capsule') -> void:
 		elif shape == 'box':
 			collider.shape.size.z
 
-func distance_between_vertices(bone: String): #vertex_1 and vertex_2 are string names from the vertex_names dictionary
+func distance_between_vertices(bone: String):
 	var vertex_1 := bone + &'Front'
 	var vertex_2 := bone + &'Back'
 	return helper_vertex[vertex_names[vertex_1]].distance_to(helper_vertex[vertex_names[vertex_2]])

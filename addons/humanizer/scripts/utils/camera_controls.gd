@@ -28,7 +28,6 @@ func _process(delta):
 
 func _unhandled_input(event):
 	if event is InputEventMouseMotion:
-		print(event.relative)
 		pitch -= event.relative.y * look_speed * get_process_delta_time()
 		yaw -= event.relative.x * look_speed * get_process_delta_time()
 	pitch = clampf(pitch, -PI * .45, PI * .45)
