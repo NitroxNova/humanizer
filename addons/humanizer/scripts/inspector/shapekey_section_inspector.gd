@@ -102,7 +102,7 @@ func _on_randomize_sliders(human: Humanizer, randomization: HSlider, asymmetry: 
 			else:
 				# Should be symmetric shapekey
 				value = rng.randfn(mean, 0.5 * randomization.value)
-		value = clamp(value, randomization.min_value, randomization.max_value)
+		value = clamp(value, slider.min_value, slider.max_value)
 		get_node('%' + sk).value = value
 		values[sk] = value
 	human.set_shapekeys(values)
