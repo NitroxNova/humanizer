@@ -75,8 +75,8 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 		var next_position: Vector3 = skeleton.get_bone_global_pose(next_id).origin
 		var this_position: Vector3 = skeleton.get_bone_global_pose(skeleton.find_bone(bone)).origin
 		var up = Basis.looking_at(this_position - next_position).z
-		var forward = up.cross(skeleton.basis.z)  # Choose a random vector normal to up
 		if shape == ColliderShape.CAPSULE:
+			var forward = up.cross(skeleton.basis.x)  # Choose a random vector normal to up
 			collider.global_basis = Basis.looking_at(forward, up) 
 		else:
 			collider.global_basis = Basis.looking_at(up) 

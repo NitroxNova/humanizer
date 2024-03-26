@@ -587,9 +587,9 @@ func recalculate_normals() -> void:
 func set_skin_texture(name: String) -> void:
 	var base_texture: String
 	if not HumanizerRegistry.skin_textures.has(name):
-		human_config.body_part_materials['skin'] = ''
+		human_config.body_part_materials[&'skin'] = &''
 	else:
-		human_config.body_part_materials['skin'] = name
+		human_config.body_part_materials[&'skin'] = name
 		base_texture = HumanizerRegistry.skin_textures[name].albedo
 	body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict({'name': name, 'albedo': base_texture, 'color': skin_color}))
 
@@ -600,11 +600,11 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 	var mi = get_node(bp.resource_name) as MeshInstance3D
 	if bp.default_overlay != null:
 		var mat_config: HumanizerMaterial = (mi as HumanizerMeshInstance).material_config
-		var overlay_dict = {'albedo': bp.textures[texture]}
+		var overlay_dict = {&'albedo': bp.textures[texture]}
 		if mi.get_surface_override_material(0).normal_texture != null:
-			overlay_dict['normal'] = mi.get_surface_override_material(0).normal_texture.resource_path
+			overlay_dict[&'normal'] = mi.get_surface_override_material(0).normal_texture.resource_path
 		if mi.get_surface_override_material(0).ao_texture != null:
-			overlay_dict['ao'] = mi.get_surface_override_material(0).ao_texture.resource_path
+			overlay_dict[&'ao'] = mi.get_surface_override_material(0).ao_texture.resource_path
 		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	else:
 		var mat: BaseMaterial3D = mi.get_surface_override_material(0)

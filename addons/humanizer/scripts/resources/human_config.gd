@@ -1,3 +1,4 @@
+@tool
 class_name HumanConfig
 extends Resource
 
@@ -22,3 +23,4 @@ extends Resource
 @export var skin_color: Color = Color.WHITE
 @export var eye_color: Color = Color.SKY_BLUE
 @export var hair_color: Color = Color.BLACK
+
