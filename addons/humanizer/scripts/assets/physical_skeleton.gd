@@ -86,12 +86,13 @@ func _add_collider(bone, next=null, shape='capsule') -> void:
 		### Do resizing here
 		if shape == 'capsule':
 			collider.shape.height = (next_position - this_position).length()
-			collider.shape.radius = distance_between_vertices(bone) * 0.5
+			var vertex_bounds = get_vertex_bounds(bone)
+			collider.shape.radius = vertex_bounds.distance * 0.5
 			
 		elif shape == 'box':
 			collider.shape.size.z
 
-func distance_between_vertices(bone: String):
+func get_vertex_bounds(bone: String) -> Dictionary:
 	#refer to mpfb2_plugin.data/mesh_metadata/hm08.mirror for opposites
 	var vertex_names = {
 		"LeftUpperArmFront" = 8114,
@@ -113,4 +114,7 @@ func distance_between_vertices(bone: String):
 	}
 	var vertex_1 : int = vertex_names[bone + &'Front']
 	var vertex_2 : int = vertex_names[bone + &'Back']
-	return helper_vertex[vertex_1].distance_to(helper_vertex[vertex_2])
+	return {
+		'distance': helper_vertex[vertex_1].distance_to(helper_vertex[vertex_2]),
+		'center': 0.5 * (helper_vertex[vertex_1] + helper_vertex[vertex_2])
+	}
