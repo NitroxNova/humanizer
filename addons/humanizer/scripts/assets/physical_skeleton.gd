@@ -5,6 +5,12 @@ var helper_vertex: Array
 var layers
 var mask
 
+enum ColliderShape {
+	BOX,
+	CAPSULE,
+	SPHERE
+}
+
 
 func _init(_skeleton: Skeleton3D, _helper_vertex, _layers, _mask):
 	skeleton = _skeleton
@@ -16,8 +22,6 @@ func run() -> void:
 	for child in skeleton.get_children():
 		skeleton.remove_child(child)
 		child.queue_free()
-	
-	_add_collider(&'Head', null, 'sphere')
 	
 	var next_limb_bone = {
 		&'Hips': &'UpperChest',
@@ -31,18 +35,18 @@ func run() -> void:
 		&'Hand': &'MiddleDistal',
 		&'Foot': &'Toes',
 	}
-
+	_add_collider(&'Head', null, ColliderShape.SPHERE)
 	for bone in next_limb_bone:
-		var shape := 'capsule'
+		var shape := ColliderShape.CAPSULE
 		if 'Hand' in bone or 'Foot' in bone or 'Hips' in bone or 'Chest' in bone:
-			shape = 'box'
+			shape = ColliderShape.BOX
 		if skeleton.find_bone(bone) > -1:
 			_add_collider(bone, next_limb_bone[bone], shape)
 		else:
 			for side in [&'Left', &'Right']:
 				_add_collider(side + bone, side + next_limb_bone[bone], shape)
 
-func _add_collider(bone, next=null, shape='capsule') -> void:
+func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 	var physical_bone = PhysicalBone3D.new()
 	var collider = CollisionShape3D.new()
 	physical_bone.name = &'Physical Bone ' + bone
@@ -55,18 +59,13 @@ func _add_collider(bone, next=null, shape='capsule') -> void:
 	physical_bone.collision_mask = mask
 	physical_bone.bone_name = bone
 	
-	if shape == 'capsule':
+	if shape == ColliderShape.CAPSULE:
 		collider.shape = CapsuleShape3D.new()
-	elif shape == 'box':
+	elif shape == ColliderShape.BOX:
 		collider.shape = BoxShape3D.new()
-	elif shape == 'sphere':
+	elif shape == ColliderShape.SPHERE:
 		collider.shape = SphereShape3D.new()
 
-	if shape == 'box': 
-		collider.shape.size = Vector3.ONE * 0.1
-	elif shape == 'sphere':
-		collider.shape.radius = 0.1
-		
 	if next == null:
 		collider.global_basis = physical_bone.global_basis
 		collider.global_position = physical_bone.global_position
@@ -77,19 +76,19 @@ func _add_collider(bone, next=null, shape='capsule') -> void:
 		var this_position: Vector3 = skeleton.get_bone_global_pose(skeleton.find_bone(bone)).origin
 		var up = Basis.looking_at(this_position - next_position).z
 		var forward = up.cross(skeleton.basis.z)  # Choose a random vector normal to up
-		if shape == 'capsule':
+		if shape == ColliderShape.CAPSULE:
 			collider.global_basis = Basis.looking_at(forward, up) 
 		else:
 			collider.global_basis = Basis.looking_at(up) 
 		collider.global_position = 0.5 * (this_position + next_position)
 		
 		### Do resizing here
-		if shape == 'capsule':
+		if shape == ColliderShape.CAPSULE:
 			collider.shape.height = (next_position - this_position).length()
 			var vertex_bounds = get_vertex_bounds(bone)
 			collider.shape.radius = vertex_bounds.distance * 0.5
 			
-		elif shape == 'box':
+		elif shape == ColliderShape.BOX:
 			collider.shape.size.z
 
 func get_vertex_bounds(bone: String) -> Dictionary:
