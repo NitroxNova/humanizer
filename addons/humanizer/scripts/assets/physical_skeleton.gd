@@ -87,6 +87,9 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 			collider.shape.height = (next_position - this_position).length()
 			var vertex_bounds = get_vertex_bounds(bone)
 			collider.shape.radius = vertex_bounds.distance * 0.5
+			var bone_y_cross_ratio = (vertex_bounds.center.y - this_position.y)/(next_position.y-this_position.y)
+			var bone_y_cross = this_position.lerp(next_position,bone_y_cross_ratio)
+			collider.position.z += vertex_bounds.center.z - bone_y_cross.z
 			
 		elif shape == ColliderShape.BOX:
 			collider.shape.size.z
