@@ -28,7 +28,7 @@ func run() -> void:
 		&'UpperLeg': &'LowerLeg',
 		&'LowerLeg': &'Foot',
 		&'Neck': &'Head',
-		&'Hand': &'MiddleProximal',
+		&'Hand': &'MiddleDistal',
 		&'Foot': &'Toes',
 	}
 
