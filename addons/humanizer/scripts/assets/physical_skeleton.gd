@@ -111,6 +111,6 @@ func distance_between_vertices(bone: String):
 		"RightUpperLegFront" = 4498,
 		"RightUpperLegBack" = 6744,
 	}
-	var vertex_1 := bone + &'Front'
-	var vertex_2 := bone + &'Back'
-	return helper_vertex[vertex_names[vertex_1]].distance_to(helper_vertex[vertex_names[vertex_2]])
+	var vertex_1 : int = vertex_names[bone + &'Front']
+	var vertex_2 : int = vertex_names[bone + &'Back']
+	return helper_vertex[vertex_1].distance_to(helper_vertex[vertex_2])
