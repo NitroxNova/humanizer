@@ -16,10 +16,15 @@ script = ExtResource("2_gxs3g")
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="RandomizeButton" type="Button" parent="VBoxContainer"]
+[node name="RandomizeBodyPartsButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Randomize"
+text = "Randomize BodyParts"
+
+[node name="RandomizeShapekeysButton" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Randomize Shapekeys"
 
 [node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
 layout_mode = 2
@@ -44,7 +49,6 @@ horizontal_alignment = 2
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 5
-size_flags_stretch_ratio = 2.0
 max_value = 1.0
 step = 0.01
 value = 0.2
@@ -60,7 +64,6 @@ horizontal_alignment = 2
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 5
-size_flags_stretch_ratio = 2.0
 max_value = 1.0
 step = 0.01
 value = 0.1

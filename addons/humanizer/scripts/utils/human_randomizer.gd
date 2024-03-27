@@ -9,7 +9,19 @@ var asymmetry: Dictionary
 var shapekeys: Dictionary
 
 
-func randomize() -> void:
+func randomize_body_parts() -> void:
+	randomize_eyebrows()
+
+func randomize_eyebrows() -> void:
+	## Assumes left and right eyebrow slots
+	## Assumes same number of entries for both slots
+	var rng = RandomNumberGenerator.new()
+	var i := rng.randi_range(0, HumanizerRegistry.body_parts[&'LeftEyebrow'].size() - 1)
+	var eyebrow_name = HumanizerRegistry.body_parts[&'LeftEyebrow'].keys()[i]
+	human.set_body_part(HumanizerRegistry.body_parts[&'LeftEyebrow'][eyebrow_name])
+	human.set_body_part(HumanizerRegistry.body_parts[&'RightEyebrow'][eyebrow_name.replace('Left', 'Right')])
+
+func randomize_shapekeys() -> void:
 	var rng = RandomNumberGenerator.new()
 	var values := {}
 	for cat in categories:

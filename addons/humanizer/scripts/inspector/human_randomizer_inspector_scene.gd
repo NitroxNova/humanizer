@@ -13,7 +13,8 @@ func setup(_human_rnd: HumanRandomizer):
 	if human_rnd.human == null:
 		hbox.queue_free()
 		return
-	%RandomizeButton.pressed.connect(_randomize_sliders)
+	%RandomizeShapekeysButton.pressed.connect(_randomize_shapekeys)
+	%RandomizeBodyPartsButton.pressed.connect(human_rnd.randomize_body_parts)
 	shapekeys = HumanizerUtils.get_shapekey_categories(human_rnd.human.shapekey_data)
 	for cat in shapekeys:
 		if shapekeys[cat].size() == 0:
@@ -31,7 +32,7 @@ func setup(_human_rnd: HumanRandomizer):
 		cat_box.owner = self
 	hbox.queue_free()
 
-func _randomize_sliders() -> void:
+func _randomize_shapekeys() -> void:
 	var categories := {}
 	var randomization := {}
 	var asymmetry := {}
@@ -43,4 +44,4 @@ func _randomize_sliders() -> void:
 	human_rnd.categories = categories
 	human_rnd.randomization = randomization
 	human_rnd.asymmetry = asymmetry
-	human_rnd.randomize()
+	human_rnd.randomize_shapekeys()
