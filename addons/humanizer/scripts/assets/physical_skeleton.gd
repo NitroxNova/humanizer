@@ -72,8 +72,8 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 		#### May need to adjust positions here
 	else:
 		var next_id: int = skeleton.find_bone(next)
-		var next_position: Vector3 = skeleton.get_bone_global_pose(next_id).origin
-		var this_position: Vector3 = skeleton.get_bone_global_pose(skeleton.find_bone(bone)).origin
+		var next_position: Vector3 = skeleton.get_bone_global_pose(next_id).origin * skeleton.global_transform.inverse()
+		var this_position: Vector3 = skeleton.get_bone_global_pose(skeleton.find_bone(bone)).origin * skeleton.global_transform.inverse()
 		var up = Basis.looking_at(this_position - next_position).z
 		if shape == ColliderShape.CAPSULE:
 			var forward = up.cross(skeleton.basis.x)  # Choose a random vector normal to up
@@ -89,8 +89,9 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 			collider.shape.radius = vertex_bounds.distance * 0.5
 			var bone_y_cross_ratio = (vertex_bounds.center.y - this_position.y)/(next_position.y-this_position.y)
 			var bone_y_cross = this_position.lerp(next_position,bone_y_cross_ratio)
-			collider.global_position.z += vertex_bounds.center.z - bone_y_cross.z
-			collider.global_position.x += vertex_bounds.center.x - bone_y_cross.x
+			## need to fix offset
+			#collider.global_position.z += vertex_bounds.center.z - bone_y_cross.z
+			#collider.global_position.x += vertex_bounds.center.x - bone_y_cross.x
 			
 		elif shape == ColliderShape.BOX:
 			collider.shape.size.z
