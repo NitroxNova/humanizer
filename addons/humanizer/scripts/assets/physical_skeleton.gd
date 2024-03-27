@@ -115,6 +115,13 @@ func get_vertex_bounds(bone: String) -> Dictionary:
 		"LeftUpperLegBack" = 13340,
 		"RightUpperLegFront" = 4498,
 		"RightUpperLegBack" = 6744,
+		"NeckFront" = 791,
+		"NeckBack" = 856,
+		"LeftShoulderFront" = 8057,
+		"LeftShoulderBack" = 8281,
+		"RightShoulderFront" = 1365,
+		"RightShoulderBack" = 1609,
+		
 	}
 	var vertex_1 : int = vertex_names[bone + &'Front']
 	var vertex_2 : int = vertex_names[bone + &'Back']
