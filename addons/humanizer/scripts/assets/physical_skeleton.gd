@@ -78,14 +78,14 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 		if shape == ColliderShape.CAPSULE:
 			var forward = up.cross(skeleton.basis.x)  # Choose a random vector normal to up
 			collider.global_basis = Basis.looking_at(forward, up) 
+			collider.global_position = 0.5 * (this_position + next_position)
 		else:
 			collider.global_basis = Basis.looking_at(up) 
-		collider.global_position = 0.5 * (this_position + next_position)
 		
 		### Do resizing here
 		if shape == ColliderShape.CAPSULE:
 			collider.shape.height = (next_position - this_position).length()
-			var vertex_bounds = get_vertex_bounds(bone)
+			var vertex_bounds = get_capsule_vertex_bounds(bone)
 			collider.shape.radius = vertex_bounds.distance * 0.5
 			var bone_y_cross_ratio = (vertex_bounds.center.y - this_position.y)/(next_position.y-this_position.y)
 			var bone_y_cross = this_position.lerp(next_position,bone_y_cross_ratio)
@@ -94,9 +94,70 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 			#collider.global_position.x += vertex_bounds.center.x - bone_y_cross.x
 			
 		elif shape == ColliderShape.BOX:
-			collider.shape.size.z
+			var vertex_bounds = get_box_vertex_bounds(bone)
+			collider.shape.size = vertex_bounds.size
 
-func get_vertex_bounds(bone: String) -> Dictionary:
+func get_box_vertex_bounds(bone: String) -> Dictionary:
+	var vertex_names = {
+		"HipsTop" = 4154,
+		"HipsBottom" = 4370,
+		"HipsFront" = 4110,
+		"HipsBack" = 11006,
+		"HipsLeft" = 10899,
+		"HipsRight" = 4269,
+		"UpperChestTop" = 1524,
+		"UpperChestBottom" = 4154,
+		"UpperChestFront" = 4070,
+		"UpperChestBack" = 8259,
+		"UpperChestLeft" = 10602,
+		"UpperChestRight" = 3938,
+		"LeftFootFront" = 13146,
+		"LeftFootBack" = 12442,
+		"LeftFootRight" = 13300,
+		"LeftFootLeft" = 12808,
+		"LeftFootTop" = 12818,
+		"LeftFootBottom" = 12877,
+		"RightFootFront" = 6550,
+		"RightFootBack" = 5845,
+		"RightFootRight" = 6211,
+		"RightFootLeft" = 6704,
+		"RightFootTop" = 6221,
+		"RightFootBottom" = 6280,
+		"LeftHandTop" = 10492,
+		"LeftHandBottom" = 8929,
+		"LeftHandFront" = 8600,
+		"LeftHandBack" = 10535,
+		"LeftHandLeft" = 9390,
+		"LeftHandRight" = 8983,
+		"RightHandTop" = 3826,
+		"RightHandBottom" = 2261,
+		"RightHandFront" = 1932,
+		"RightHandBack" = 3870,
+		"RightHandLeft" = 2315,
+		"RightHandRight" = 2722,
+		}
+		
+	var top : int = vertex_names[bone + 'Top']
+	var bottom : int = vertex_names[bone + 'Bottom']
+	var left : int = vertex_names[bone + 'Left']
+	var right : int = vertex_names[bone + 'Right']
+	var front : int = vertex_names[bone + 'Front']
+	var back : int = vertex_names[bone + 'Back']
+	
+		
+	var size = Vector3.ZERO
+	size.x = abs(helper_vertex[left].x - helper_vertex[right].x)
+	size.y = abs(helper_vertex[top].y - helper_vertex[bottom].y)
+	size.z = abs(helper_vertex[front].z - helper_vertex[back].z)
+	
+	var center = Vector3.ZERO
+	center.x = (helper_vertex[left].x + helper_vertex[right].x) * .5
+	center.y = (helper_vertex[top].y + helper_vertex[bottom].y) * .5
+	center.z = (helper_vertex[front].z + helper_vertex[back].z) * .5
+	
+	return {size=size, center=center}
+
+func get_capsule_vertex_bounds(bone: String) -> Dictionary:
 	#refer to mpfb2_plugin.data/mesh_metadata/hm08.mirror for opposites
 	var vertex_names = {
 		"LeftUpperArmFront" = 8114,
