@@ -31,7 +31,7 @@ func run() -> void:
 		&'LowerArm': &'Hand',
 		&'UpperLeg': &'LowerLeg',
 		&'LowerLeg': &'Foot',
-		&'Neck': &'Head',
+		#&'Neck': &'Head',  ## Don't think we need this collider
 		&'Hand': &'MiddleDistal',
 		&'Foot': &'Toes',
 	}
@@ -67,21 +67,22 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 		collider.shape = SphereShape3D.new()
 
 	if next == null:
-		collider.global_basis = physical_bone.global_basis
-		collider.global_position = physical_bone.global_position
-		#### May need to adjust positions here
+		if shape == ColliderShape.SPHERE:
+			collider.shape.radius = 0.12
 	else:
 		var next_id: int = skeleton.find_bone(next)
-		var next_position: Vector3 = skeleton.get_bone_global_pose(next_id).origin * skeleton.global_transform.inverse()
-		var this_position: Vector3 = skeleton.get_bone_global_pose(skeleton.find_bone(bone)).origin * skeleton.global_transform.inverse()
+		var next_position: Vector3 = skeleton.get_bone_global_pose(next_id).origin 
+		var this_position: Vector3 = skeleton.get_bone_global_pose(skeleton.find_bone(bone)).origin
 		var up = Basis.looking_at(this_position - next_position).z
-		var forward = up.cross(skeleton.basis.x)
-		if shape == ColliderShape.CAPSULE:
-			collider.global_basis = Basis.looking_at(forward, up) 
+		var forward = Vector3.FORWARD
+		var right = up.cross(forward)
+		forward = right.cross(up)
+		if 'Foot' not in bone:
+			physical_bone.global_basis = Basis.looking_at(forward, up) 
 		else:
-			collider.global_basis = Basis.looking_at(up, forward) 
+			physical_bone.global_basis = Basis.looking_at(up, forward)
 		collider.global_position = 0.5 * (this_position + next_position)
-		
+
 		### Do resizing here
 		if shape == ColliderShape.CAPSULE:
 			collider.shape.height = (next_position - this_position).length()
@@ -90,22 +91,21 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 			var bone_y_cross_ratio = (vertex_bounds.center.y - this_position.y)/(next_position.y-this_position.y)
 			var bone_y_cross = this_position.lerp(next_position,bone_y_cross_ratio)
 			## need to fix offset
-			#collider.global_position.z += vertex_bounds.center.z - bone_y_cross.z
-			#collider.global_position.x += vertex_bounds.center.x - bone_y_cross.x
+			collider.global_position.z += vertex_bounds.center.z - bone_y_cross.z
+			collider.global_position.x += vertex_bounds.center.x - bone_y_cross.x
 			
 		elif shape == ColliderShape.BOX:
 			var bounds = get_box_vertex_bounds(bone)
 			var size: Vector3 = bounds.size
 			var center: Vector3 = bounds.center
 			collider.global_position = center
-			if 'Hips' in bone or 'Chest' in bone:
-				size = Vector3(size.y, size.z, size.x)
+			collider.shape.size = size
 			if 'RightHand' in bone:
 				collider.rotate_y(30)
 			elif 'LeftHand' in bone:
 				collider.rotate_y(-30)
 
-			collider.shape.size = size
+		physical_bone.transform = skeleton.global_transform * physical_bone.transform			
 
 func get_box_vertex_bounds(bone: String) -> Dictionary:
 	var vertex_names = {
