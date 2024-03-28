@@ -19,6 +19,10 @@ config/icon="res://addons/humanizer/icon.png"
 
 HumanizerGlobal="*res://addons/humanizer/scenes/humanizer_global.tscn"
 
+[debug]
+
+shapes/collision/shape_color=Color(0.898039, 0.254902, 0, 0.862745)
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/humanizer/plugin.cfg")
