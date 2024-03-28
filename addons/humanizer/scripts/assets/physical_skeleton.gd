@@ -78,9 +78,9 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 		if shape == ColliderShape.CAPSULE:
 			var forward = up.cross(skeleton.basis.x)  # Choose a random vector normal to up
 			collider.global_basis = Basis.looking_at(forward, up) 
-			collider.global_position = 0.5 * (this_position + next_position)
 		else:
 			collider.global_basis = Basis.looking_at(up) 
+		collider.global_position = 0.5 * (this_position + next_position)
 		
 		### Do resizing here
 		if shape == ColliderShape.CAPSULE:
