@@ -5,6 +5,8 @@ func _can_handle(human):
 	return human is Humanizer
 	
 func _parse_category(human, category):
+	if not Engine.is_editor_hint():
+		return
 	if category != 'humanizer.gd':
 		return
 	var scene = load("res://addons/humanizer/scenes/inspector/humanizer_inspector.tscn").instantiate()

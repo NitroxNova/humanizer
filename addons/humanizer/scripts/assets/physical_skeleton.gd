@@ -78,9 +78,9 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 		var right = up.cross(forward)
 		forward = right.cross(up)
 		if 'Foot' not in bone:
-			physical_bone.global_basis = Basis.looking_at(forward, up) 
+			collider.global_basis = Basis.looking_at(forward, up) 
 		else:
-			physical_bone.global_basis = Basis.looking_at(up, forward)
+			collider.global_basis = Basis.looking_at(up, forward)
 		collider.global_position = 0.5 * (this_position + next_position)
 
 		### Do resizing here
@@ -106,7 +106,7 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 			elif 'LeftHand' in bone:
 				collider.rotate_y(-30)
 
-		physical_bone.transform = skeleton.global_transform * physical_bone.transform			
+		collider.global_transform = skeleton.global_transform * collider.global_transform
 
 func get_box_vertex_bounds(bone: String) -> Dictionary:
 	var vertex_names = {
