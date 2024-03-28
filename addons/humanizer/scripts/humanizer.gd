@@ -105,7 +105,8 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 @export var _animator_scene: PackedScene:
 	set(value):
 		_animator_scene = value
-		_reset_animator()
+		if scene_loaded and skeleton != null:
+			_reset_animator()
 ## THe rendering layers for the human's 3d mesh instances
 @export_flags_3d_render var _render_layers:
 	set(value):
