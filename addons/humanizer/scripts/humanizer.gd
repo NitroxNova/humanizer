@@ -136,15 +136,6 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 		_ragdoll_mask = value
 
 
-func _process(delta):
-	if Input.is_key_pressed(KEY_SPACE):
-		if (skeleton.get_child(0) as PhysicalBone3D).is_simulating_physics():
-			skeleton.physical_bones_stop_simulation()
-			$AnimationTree.active = true
-		else:
-			$AnimationTree.active = false
-			skeleton.physical_bones_start_simulation()
-
 func _ready() -> void:
 	load_human()
 	skeleton.physical_bones_stop_simulation()
@@ -863,6 +854,7 @@ func _add_physical_skeleton() -> void:
 		mask = HumanizerGlobal.config.default_physical_bone_mask
 	HumanizerPhysicalSkeleton.new(skeleton, _helper_vertex, layers, mask).run()
 	skeleton.reset_bone_poses()
+	return
 	animator.active = true
 	skeleton.animate_physical_bones = true
 

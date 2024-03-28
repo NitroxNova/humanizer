@@ -1,10 +1,12 @@
 extends Camera3D
 
+@export var human: Humanizer
 @export_range(0.1, 1.) var look_speed: float = 0.4
 @export_range(0.5, 5.) var move_speed: float = 1.
 
 @onready var pitch: float = rotation.y
 @onready var yaw: float = rotation.x
+var simulating := false
 
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -24,7 +26,14 @@ func _process(delta):
 		position -= basis.y * move_speed * delta
 	if Input.is_key_pressed(KEY_E):
 		position += basis.y * move_speed * delta
-			
+	if Input.is_key_pressed(KEY_SPACE):
+		if human != null:
+			if simulating:
+				human.skeleton.physical_bones_stop_simulation()
+			else:
+				human.skeleton.physical_bones_start_simulation()
+			simulating = not simulating
+		
 
 func _unhandled_input(event):
 	if event is InputEventMouseMotion:
