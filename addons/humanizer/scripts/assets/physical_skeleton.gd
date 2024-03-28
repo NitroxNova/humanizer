@@ -75,11 +75,11 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 		var next_position: Vector3 = skeleton.get_bone_global_pose(next_id).origin * skeleton.global_transform.inverse()
 		var this_position: Vector3 = skeleton.get_bone_global_pose(skeleton.find_bone(bone)).origin * skeleton.global_transform.inverse()
 		var up = Basis.looking_at(this_position - next_position).z
+		var forward = up.cross(skeleton.basis.x)
 		if shape == ColliderShape.CAPSULE:
-			var forward = up.cross(skeleton.basis.x)  # Choose a random vector normal to up
 			collider.global_basis = Basis.looking_at(forward, up) 
 		else:
-			collider.global_basis = Basis.looking_at(up) 
+			collider.global_basis = Basis.looking_at(up, forward) 
 		collider.global_position = 0.5 * (this_position + next_position)
 		
 		### Do resizing here
