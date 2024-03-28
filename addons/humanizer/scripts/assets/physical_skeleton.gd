@@ -94,8 +94,13 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 			#collider.global_position.x += vertex_bounds.center.x - bone_y_cross.x
 			
 		elif shape == ColliderShape.BOX:
-			var vertex_bounds = get_box_vertex_bounds(bone)
-			collider.shape.size = vertex_bounds.size
+			var bounds = get_box_vertex_bounds(bone)
+			var size: Vector3 = bounds.size
+			var center: Vector3 = bounds.center
+			if 'Hips' in bone or 'Chest' in bone:
+				size = Vector3(size.y, size.z, size.x)
+				collider.global_position = center
+			collider.shape.size = size
 
 func get_box_vertex_bounds(bone: String) -> Dictionary:
 	var vertex_names = {
@@ -145,12 +150,12 @@ func get_box_vertex_bounds(bone: String) -> Dictionary:
 	var back : int = vertex_names[bone + 'Back']
 	
 		
-	var size = Vector3.ZERO
+	var size := Vector3.ZERO
 	size.x = abs(helper_vertex[left].x - helper_vertex[right].x)
 	size.y = abs(helper_vertex[top].y - helper_vertex[bottom].y)
 	size.z = abs(helper_vertex[front].z - helper_vertex[back].z)
 	
-	var center = Vector3.ZERO
+	var center := Vector3.ZERO
 	center.x = (helper_vertex[left].x + helper_vertex[right].x) * .5
 	center.y = (helper_vertex[top].y + helper_vertex[bottom].y) * .5
 	center.z = (helper_vertex[front].z + helper_vertex[back].z) * .5
