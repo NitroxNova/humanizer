@@ -862,8 +862,6 @@ func _add_physical_skeleton() -> void:
 		mask = HumanizerGlobal.config.default_physical_bone_mask
 	HumanizerPhysicalSkeleton.new(skeleton, _helper_vertex, layers, mask).run()
 	skeleton.reset_bone_poses()
-	await get_tree().process_frame
-	await get_tree().process_frame
 	animator.active = true
 	skeleton.animate_physical_bones = true
 

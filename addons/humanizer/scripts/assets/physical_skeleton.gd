@@ -100,8 +100,10 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 			collider.global_position = center
 			if 'Hips' in bone or 'Chest' in bone:
 				size = Vector3(size.y, size.z, size.x)
-			if 'Hand' in bone:
-				collider.rotation.x = 0#PI / 6
+			if 'RightHand' in bone:
+				collider.rotate_y(30)
+			elif 'LeftHand' in bone:
+				collider.rotate_y(-30)
 
 			collider.shape.size = size
 
