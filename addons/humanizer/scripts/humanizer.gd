@@ -18,6 +18,7 @@ var body_mesh: MeshInstance3D
 var baked := false
 var scene_loaded: bool = false
 var main_collider: CollisionShape3D
+var animator: Node
 var _base_motion_scale: float:
 	get:
 		var rig: HumanizerRig = HumanizerRegistry.rigs[human_config.rig.split('-')[0]]
@@ -101,9 +102,9 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 ## The root node type for baked humans
 @export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D") var _baked_root_node: String = HumanizerGlobal.config.default_baked_root_node
 ## The scene to be added as an animator for the character
-@export var _animator: PackedScene:
+@export var _animator_scene: PackedScene:
 	set(value):
-		_animator = value
+		_animator_scene = value
 		_reset_animator()
 ## THe rendering layers for the human's 3d mesh instances
 @export_flags_3d_render var _render_layers:
@@ -807,20 +808,19 @@ func _reset_animator() -> void:
 	for child in get_children():
 		if child is AnimationTree or child is AnimationPlayer:
 			_delete_child_node(child)
-	var animator: PackedScene = _animator
-	if animator == null:
-		animator = HumanizerGlobal.config.default_animation_tree
-	if animator != null:
-		var tree := animator.instantiate() as AnimationTree
-		if tree == null:
+	if _animator_scene == null:
+		_animator_scene = HumanizerGlobal.config.default_animation_tree
+	if _animator_scene != null:
+		animator = _animator_scene.instantiate()
+		if animator == null:
 			printerr('Default animation tree scene does not have an AnimationTree as its root node')
 			return
-		_add_child_node(tree)
-		tree.active = true
-		set_editable_instance(tree, true)
+		_add_child_node(animator)
+		animator.active = true
+		set_editable_instance(animator, true)
 		var root_bone = skeleton.get_bone_name(0)
-		if root_bone in ['Root']:
-			tree.root_motion_track = NodePath(str(skeleton.get_path()) + ":" + root_bone)
+		if animator is AnimationTree and root_bone in ['Root']:
+			animator.root_motion_track = NodePath(str(skeleton.get_path()) + ":" + root_bone)
 
 #### Additional Components ####
 func set_component_state(enabled: bool, component: String) -> void:
@@ -852,9 +852,8 @@ func _add_main_collider() -> void:
 	_adjust_main_collider()
 
 func _add_physical_skeleton() -> void:
-	$AnimationTree.active = false
-	skeleton.animate_physical_bones = false
-	
+	animator.active = false
+	skeleton.reset_bone_poses()
 	var layers = _ragdoll_layers
 	var mask = _ragdoll_mask
 	if layers == null:
@@ -863,7 +862,9 @@ func _add_physical_skeleton() -> void:
 		mask = HumanizerGlobal.config.default_physical_bone_mask
 	HumanizerPhysicalSkeleton.new(skeleton, _helper_vertex, layers, mask).run()
 	skeleton.reset_bone_poses()
-	$AnimationTree.active = true
+	await get_tree().process_frame
+	await get_tree().process_frame
+	animator.active = true
 	skeleton.animate_physical_bones = true
 
 func _adjust_main_collider():
