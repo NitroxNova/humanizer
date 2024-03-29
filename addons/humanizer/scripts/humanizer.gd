@@ -108,30 +108,30 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 		if scene_loaded and skeleton != null:
 			_reset_animator()
 ## THe rendering layers for the human's 3d mesh instances
-@export_flags_3d_render var _render_layers:
+@export_flags_3d_render var _render_layers = HumanizerGlobal.config.default_character_render_layers:
 	set(value):
 		_render_layers = value
 		for child in get_children():
 			if child is MeshInstance3D:
 				child.layers = _render_layers
 ## The physics layers the character collider resides in
-@export_flags_3d_physics var _character_layers:
+@export_flags_3d_physics var _character_layers = HumanizerGlobal.config.default_character_physics_layers:
 	set(value):
 		_character_layers = value
 		if main_collider != null:
 			pass
 ## The physics layers the character collider collides with
-@export_flags_3d_physics var _character_mask:
+@export_flags_3d_physics var _character_mask = HumanizerGlobal.config.default_character_physics_mask:
 	set(value):
 		_character_mask = value
 		if main_collider != null:
 			pass
 ## The physics layers the physical bones reside in
-@export_flags_3d_physics var _ragdoll_layers:
+@export_flags_3d_physics var _ragdoll_layers = HumanizerGlobal.config.default_physical_bone_layers:
 	set(value):
 		_ragdoll_layers = value
 ## The physics layers the physical bones collide with
-@export_flags_3d_physics var _ragdoll_mask:
+@export_flags_3d_physics var _ragdoll_mask = HumanizerGlobal.config.default_physical_bone_mask:
 	set(value):
 		_ragdoll_mask = value
 
@@ -147,10 +147,7 @@ func _add_child_node(node: Node) -> void:
 	add_child(node)
 	node.owner = self
 	if node is MeshInstance3D:
-		var render_layers = _render_layers
-		if render_layers == null:
-			render_layers = HumanizerGlobal.config.default_character_render_layers
-		(node as MeshInstance3D).layers = render_layers
+		(node as MeshInstance3D).layers = _render_layers
 
 func _delete_child_node(node: Node) -> void:
 	remove_child(node)
@@ -424,8 +421,8 @@ func update_hide_vertices() -> void:
 	arrays[Mesh.ARRAY_TANGENT] = null
 			
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], lods, fmt)
-	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
 	_set_body_mesh(new_mesh)
+	recalculate_normals()
 	body_mesh.set_surface_override_material(0, skin_mat)
 	body_mesh.skeleton = skeleton.get_path()
 
@@ -495,7 +492,8 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 			var mhclo: MHCLO = load(res.mhclo_path)
 			var new_mesh = MeshOperations.build_fitted_mesh(child.mesh, _helper_vertex, mhclo)
 			child.mesh = new_mesh
-			
+	
+	recalculate_normals()
 	human_config.shapekeys = shapekeys.duplicate()
 	if main_collider != null:
 		_adjust_main_collider()
@@ -572,6 +570,12 @@ func recalculate_normals() -> void:
 	var mat = body_mesh.get_surface_override_material(0)
 	_set_body_mesh(MeshOperations.generate_normals_and_tangents(body_mesh.mesh))
 	body_mesh.set_surface_override_material(0, mat)
+	
+	for mesh in get_children():
+		if not mesh is MeshInstance3D:
+			continue
+		mesh.mesh = MeshOperations.generate_normals_and_tangents(mesh.mesh)
+		
 	
 #### Materials ####
 func set_skin_texture(name: String) -> void:
@@ -845,13 +849,7 @@ func _add_physical_skeleton() -> void:
 		return
 	animator.active = false
 	skeleton.reset_bone_poses()
-	var layers = _ragdoll_layers
-	var mask = _ragdoll_mask
-	if layers == null:
-		layers = HumanizerGlobal.config.default_physical_bone_layers
-	if mask == null:
-		mask = HumanizerGlobal.config.default_physical_bone_mask
-	HumanizerPhysicalSkeleton.new(skeleton, _helper_vertex, layers, mask).run()
+	HumanizerPhysicalSkeleton.new(skeleton, _helper_vertex, _ragdoll_layers, _ragdoll_mask).run()
 	skeleton.reset_bone_poses()
 	animator.active = true
 	skeleton.animate_physical_bones = true
