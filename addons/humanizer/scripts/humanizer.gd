@@ -102,7 +102,7 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 ## The root node type for baked humans
 @export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D") var _baked_root_node: String = HumanizerGlobal.config.default_baked_root_node
 ## The scene to be added as an animator for the character
-@export var _animator_scene: PackedScene:
+@export var _animator_scene: PackedScene = HumanizerGlobal.config.default_animation_tree:
 	set(value):
 		_animator_scene = value
 		if scene_loaded and skeleton != null:
@@ -118,8 +118,6 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 @export_flags_3d_physics var _character_layers = HumanizerGlobal.config.default_character_physics_layers:
 	set(value):
 		_character_layers = value
-		if main_collider != null:
-			pass
 ## The physics layers the character collider collides with
 @export_flags_3d_physics var _character_mask = HumanizerGlobal.config.default_character_physics_mask:
 	set(value):
@@ -224,7 +222,9 @@ func save_human_scene() -> void:
 		root_node = CharacterBody3D.new()
 	elif _baked_root_node == &'RigidBody3D':
 		root_node = RigidBody3D.new()
-
+	root_node.collision_layer = _character_layers
+	root_node.collision_mask = _character_mask
+	
 	if HumanizerGlobal.config.default_human_script not in ['', null]:
 		root_node.set_script(load(HumanizerGlobal.config.default_human_script))
 	
@@ -575,7 +575,6 @@ func recalculate_normals() -> void:
 		if not mesh is MeshInstance3D:
 			continue
 		mesh.mesh = MeshOperations.generate_normals_and_tangents(mesh.mesh)
-		
 	
 #### Materials ####
 func set_skin_texture(name: String) -> void:
@@ -800,9 +799,8 @@ func adjust_skeleton() -> void:
 func _reset_animator() -> void:
 	for child in get_children():
 		if child is AnimationTree or child is AnimationPlayer:
+			print(child.name)
 			_delete_child_node(child)
-	if _animator_scene == null:
-		_animator_scene = HumanizerGlobal.config.default_animation_tree
 	if _animator_scene != null:
 		animator = _animator_scene.instantiate()
 		if animator == null:

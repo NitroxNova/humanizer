@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="MHCLO" load_steps=2 format=3 uid="uid://5ldlhuxvf0kw"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_yd5nj"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_ifkns"]
 
 [resource]
 resource_name = "LeftEyelash"
-script = ExtResource("1_yd5nj")
+script = ExtResource("1_ifkns")
 vertex_data = [{
 "format": "single",
 "vertex": [14742.0]

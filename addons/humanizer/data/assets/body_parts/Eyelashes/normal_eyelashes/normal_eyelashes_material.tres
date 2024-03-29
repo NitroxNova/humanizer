@@ -1,9 +1,9 @@
 [gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://de5wp7pi5yi26"]
 
-[ext_resource type="Texture2D" uid="uid://djfp1p3x3nc7s" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/normal_eyelashes/eyelashes01.png" id="1_efp2k"]
+[ext_resource type="Texture2D" uid="uid://djfp1p3x3nc7s" path="res://addons/humanizer/data/assets/body_parts/Eyelashes/normal_eyelashes/eyelashes01.png" id="1_yldyy"]
 
 [resource]
 transparency = 4
 cull_mode = 2
 specular_mode = 2
-albedo_texture = ExtResource("1_efp2k")
+albedo_texture = ExtResource("1_yldyy")

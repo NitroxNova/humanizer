@@ -1,11 +1,11 @@
 [gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://ispj55p53yom"]
 
-[ext_resource type="Texture2D" uid="uid://by0if3rtdupvn" path="res://addons/humanizer/data/assets/body_parts/Hair/short02/short02_diffuse.png" id="1_iapvt"]
-[ext_resource type="Texture2D" uid="uid://j2wqrlqbax70" path="res://addons/humanizer/data/assets/body_parts/Hair/short02/short02_normal.png" id="2_bq7cr"]
+[ext_resource type="Texture2D" uid="uid://by0if3rtdupvn" path="res://addons/humanizer/data/assets/body_parts/Hair/short02/short02_diffuse.png" id="1_ekcym"]
+[ext_resource type="Texture2D" uid="uid://j2wqrlqbax70" path="res://addons/humanizer/data/assets/body_parts/Hair/short02/short02_normal.png" id="2_hcapp"]
 
 [resource]
 transparency = 4
 cull_mode = 2
 specular_mode = 2
-albedo_texture = ExtResource("1_iapvt")
-normal_texture = ExtResource("2_bq7cr")
+albedo_texture = ExtResource("1_ekcym")
+normal_texture = ExtResource("2_hcapp")
