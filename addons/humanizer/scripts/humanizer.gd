@@ -137,9 +137,9 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 
 
 func _ready() -> void:
+	if human_config == null:
+		reset_human()
 	load_human()
-	skeleton.physical_bones_stop_simulation()
-	skeleton.animate_physical_bones
 	scene_loaded = true
 
 ####  HumanConfig Resource Management ####
@@ -173,14 +173,11 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 	return res
 
 func load_human() -> void:
-	if human_config == null:
-		reset_human()
-	else:
-		var mesh_path := human_config.resource_path.get_base_dir().path_join('mesh.res')
-		baked = false
-		reset_human(false)
-		deserialize()
-		notify_property_list_changed()
+	var mesh_path := human_config.resource_path.get_base_dir().path_join('mesh.res')
+	baked = false
+	reset_human(false)
+	deserialize()
+	notify_property_list_changed()
 
 func reset_human(reset_config: bool = true) -> void:
 	baked = false
@@ -197,7 +194,7 @@ func reset_human(reset_config: bool = true) -> void:
 	hair_color = _DEFAULT_HAIR_COLOR
 	eye_color = _DEFAULT_EYE_COLOR
 	notify_property_list_changed()
-	print('Reset human')
+	#print('Reset human')
 
 func deserialize() -> void:
 	set_shapekeys(human_config.shapekeys, true)
@@ -844,6 +841,8 @@ func _add_main_collider() -> void:
 	_adjust_main_collider()
 
 func _add_physical_skeleton() -> void:
+	if skeleton == null:
+		return
 	animator.active = false
 	skeleton.reset_bone_poses()
 	var layers = _ragdoll_layers
