@@ -429,8 +429,13 @@ func update_hide_vertices() -> void:
 	body_mesh.skeleton = skeleton.get_path()
 
 func restore_hidden_vertices() -> void:
-	load_human()
-
+	var mat = body_mesh.get_surface_override_material(0)
+	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
+	_helper_vertex = shapekey_data.basis.duplicate(true)
+	set_shapekeys(human_config.shapekeys)
+	body_mesh.set_surface_override_material(0, mat)
+	set_rig(human_config.rig, body_mesh.mesh)
+	
 func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 	var prev_sk = human_config.shapekeys.duplicate()
 	if override_zero:
@@ -804,9 +809,6 @@ func _reset_animator() -> void:
 			_delete_child_node(child)
 	if _animator_scene != null:
 		animator = _animator_scene.instantiate()
-		if animator == null:
-			printerr('Default animation tree scene does not have an AnimationTree as its root node')
-			return
 		_add_child_node(animator)
 		animator.active = true
 		set_editable_instance(animator, true)
