@@ -96,7 +96,7 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 			human_config.rig = HumanizerGlobal.config.default_skeleton
 		# This gets set before _ready causing issues so make sure we're loaded
 		if scene_loaded:
-			load_human()
+			_load_human()
 
 @export_group('Node Overrides')
 ## The root node type for baked humans
@@ -137,7 +137,7 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 func _ready() -> void:
 	if human_config == null:
 		reset_human()
-	load_human()
+	_load_human()
 	scene_loaded = true
 
 ####  HumanConfig Resource Management ####
@@ -167,11 +167,27 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 				res = cl as HumanClothes
 	return res
 
-func load_human() -> void:
+func _load_human() -> void:
 	baked = false
 	reset_human(false)
-	deserialize()
+	_deserialize()
 	notify_property_list_changed()
+
+func _deserialize() -> void:
+	set_shapekeys(human_config.shapekeys, true)
+	set_rig(human_config.rig, body_mesh.mesh)
+	for slot in human_config.body_parts:
+		var bp = human_config.body_parts[slot]
+		var mat = human_config.body_part_materials[slot]
+		set_body_part(bp)
+		set_body_part_material(bp.slot, mat)
+	for clothes in human_config.clothes:
+		_add_clothes_mesh(clothes)
+		set_clothes_material(clothes.resource_name, human_config.clothes_materials[clothes.resource_name])
+	if human_config.body_part_materials.has(&'skin'):
+		set_skin_texture(human_config.body_part_materials[&'skin'])
+	for component in human_config.components:
+		set_component_state(true, component)
 
 func reset_human(reset_config: bool = true) -> void:
 	baked = false
@@ -190,22 +206,6 @@ func reset_human(reset_config: bool = true) -> void:
 	notify_property_list_changed()
 	#print('Reset human')
 
-func deserialize() -> void:
-	set_shapekeys(human_config.shapekeys, true)
-	set_rig(human_config.rig, body_mesh.mesh)
-	for slot in human_config.body_parts:
-		var bp = human_config.body_parts[slot]
-		var mat = human_config.body_part_materials[slot]
-		set_body_part(bp)
-		set_body_part_material(bp.slot, mat)
-	for clothes in human_config.clothes:
-		_add_clothes_mesh(clothes)
-		set_clothes_material(clothes.resource_name, human_config.clothes_materials[clothes.resource_name])
-	if human_config.body_part_materials.has(&'skin'):
-		set_skin_texture(human_config.body_part_materials[&'skin'])
-	for component in human_config.components:
-		set_component_state(true, component)
-	
 func save_human_scene() -> void:
 	## Save to files for easy load later
 	#if not _save_path_valid:
@@ -424,7 +424,7 @@ func update_hide_vertices() -> void:
 			
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], lods, fmt)
 	_set_body_mesh(new_mesh)
-	recalculate_normals()
+	_recalculate_normals()
 	body_mesh.set_surface_override_material(0, skin_mat)
 	body_mesh.skeleton = skeleton.get_path()
 
@@ -500,7 +500,7 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 			var new_mesh = MeshOperations.build_fitted_mesh(child.mesh, _helper_vertex, mhclo)
 			child.mesh = new_mesh
 	
-	recalculate_normals()
+	_recalculate_normals()
 	human_config.shapekeys = shapekeys.duplicate()
 	if main_collider != null:
 		_adjust_main_collider()
@@ -565,7 +565,7 @@ func _combine_meshes() -> ArrayMesh:
 		var lods := {}
 		var format = child.mesh.surface_get_format(0)
 		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_arrays, blend_shape_arrays, lods, format)
-		new_mesh.surface_set_name(i, child.name)
+		new_mesh.surface_set_name(i, child.name.replace('Baked-', ''))
 		if child.get_surface_override_material(0) != null:
 			new_mesh.surface_set_material(i, child.get_surface_override_material(0).duplicate(true))
 		else:
@@ -573,7 +573,7 @@ func _combine_meshes() -> ArrayMesh:
 		i += 1
 	return new_mesh
 
-func recalculate_normals() -> void:
+func _recalculate_normals() -> void:
 	var mat = body_mesh.get_surface_override_material(0)
 	_set_body_mesh(MeshOperations.generate_normals_and_tangents(body_mesh.mesh))
 	body_mesh.set_surface_override_material(0, mat)
@@ -686,6 +686,38 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	for bp in human_config.body_parts.values():
 		_add_bone_weights(bp)
 
+func adjust_skeleton() -> void:
+	shapekey_data
+	skeleton.reset_bone_poses()
+	var rig = human_config.rig.split('-')[0]
+	var skeleton_config = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].config_json_path)
+	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
+	var _foot_offset = Vector3.UP * offset
+	
+	for bone_id in skeleton.get_bone_count():
+		var bone_data = skeleton_config[bone_id]
+		var bone_pos = Vector3.ZERO
+		for vid in bone_data.head.vertex_indices:
+			bone_pos += _helper_vertex[int(vid)]
+		bone_pos /= bone_data.head.vertex_indices.size()
+		if skeleton.get_bone_name(bone_id) != 'Root':
+			bone_pos -= _foot_offset
+		else:
+			bone_pos *= 0  # Root should always be at origin
+		var parent_id = skeleton.get_bone_parent(bone_id)
+		if not parent_id == -1:
+			var parent_xform = skeleton.get_bone_global_pose(parent_id)
+			bone_pos = bone_pos * parent_xform
+		skeleton.set_bone_pose_position(bone_id,bone_pos)
+		skeleton.set_bone_rest(bone_id,skeleton.get_bone_pose(bone_id))
+	skeleton.reset_bone_poses()
+	for child in get_children():
+		if child is MeshInstance3D:
+			child.skin = skeleton.create_skin_from_rest_transforms()
+	
+	skeleton.motion_scale = _base_motion_scale * (_helper_vertex[hips_id].y - _foot_offset.y) / _base_hips_height
+	#print('Fit skeleton to mesh')
+
 func _add_bone_weights(asset: HumanAsset) -> void:
 	var mi: MeshInstance3D = get_node_or_null(asset.resource_name)
 	if mi == null:
@@ -770,38 +802,6 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 	mi.mesh = mesh
 	mi.skeleton = skeleton.get_path()
 	mi.skin = skeleton.create_skin_from_rest_transforms()
-
-func adjust_skeleton() -> void:
-	shapekey_data
-	skeleton.reset_bone_poses()
-	var rig = human_config.rig.split('-')[0]
-	var skeleton_config = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].config_json_path)
-	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
-	var _foot_offset = Vector3.UP * offset
-	
-	for bone_id in skeleton.get_bone_count():
-		var bone_data = skeleton_config[bone_id]
-		var bone_pos = Vector3.ZERO
-		for vid in bone_data.head.vertex_indices:
-			bone_pos += _helper_vertex[int(vid)]
-		bone_pos /= bone_data.head.vertex_indices.size()
-		if skeleton.get_bone_name(bone_id) != 'Root':
-			bone_pos -= _foot_offset
-		else:
-			bone_pos *= 0  # Root should always be at origin
-		var parent_id = skeleton.get_bone_parent(bone_id)
-		if not parent_id == -1:
-			var parent_xform = skeleton.get_bone_global_pose(parent_id)
-			bone_pos = bone_pos * parent_xform
-		skeleton.set_bone_pose_position(bone_id,bone_pos)
-		skeleton.set_bone_rest(bone_id,skeleton.get_bone_pose(bone_id))
-	skeleton.reset_bone_poses()
-	for child in get_children():
-		if child is MeshInstance3D:
-			child.skin = skeleton.create_skin_from_rest_transforms()
-	
-	skeleton.motion_scale = _base_motion_scale * (_helper_vertex[hips_id].y - _foot_offset.y) / _base_hips_height
-	#print('Fit skeleton to mesh')
 
 func _reset_animator() -> void:
 	for child in get_children():

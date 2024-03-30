@@ -55,27 +55,6 @@ layout_mode = 2
 tooltip_text = "Reset all configuration settings and start over with the base mesh only"
 text = "Reset Human"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer2"]
-layout_mode = 2
-text = "Rig:"
-
-[node name="RigOptionButton" type="OptionButton" parent="VBoxContainer/HBoxContainer2"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-tooltip_text = "Select which registered rig to use"
-script = SubResource("GDScript_5ptqy")
-
-[node name="AdjustSkeletonButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-tooltip_text = "Fit skeleton bones to current mesh"
-text = "Adjust  Skeleton"
-
 [node name="TPoseButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 visible = false
@@ -126,13 +105,38 @@ horizontal_alignment = 1
 [node name="HSeparator6" type="HSeparator" parent="VBoxContainer"]
 layout_mode = 2
 
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Rig:"
+horizontal_alignment = 1
+
+[node name="RigOptionButton" type="OptionButton" parent="VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+tooltip_text = "Select which registered rig to use"
+script = SubResource("GDScript_5ptqy")
+
+[node name="AdjustSkeletonButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Fit skeleton bones to current mesh"
+text = "Adjust  Skeleton"
+
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
 [node name="Label" type="Label" parent="VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Skin"
+text = "Skin:"
 horizontal_alignment = 1
 
 [node name="SkinOptionsButton" type="OptionButton" parent="VBoxContainer/HBoxContainer"]
@@ -213,6 +217,23 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
+[node name="HideVerticesButtons" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="HideVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Remove vertices which should be occluded by clothes from the body mesh so they don't poke through the clothes"
+text = "Remove Occluded Vertices"
+
+[node name="UnHideVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Restore all vertices to the body mesh"
+text = "Show All Vertices"
+
 [node name="ColorOptions" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
@@ -252,23 +273,6 @@ text = "Eyes"
 color = Color(0.207843, 0.662745, 0.839216, 1)
 edit_alpha = false
 
-[node name="HideVerticesButtons" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="HideVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-tooltip_text = "Remove vertices which should be occluded by clothes from the body mesh so they don't poke through the clothes"
-text = "Remove Occluded Vertices"
-
-[node name="UnHideVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-tooltip_text = "Restore all vertices to the body mesh"
-text = "Show All Vertices"
-
 [node name="HSeparator3" type="HSeparator" parent="VBoxContainer"]
 layout_mode = 2
 
@@ -296,31 +300,6 @@ horizontal_alignment = 1
 
 [node name="HSeparator8" type="HSeparator" parent="VBoxContainer"]
 layout_mode = 2
-
-[node name="SaveMenu" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="VBoxContainer/SaveMenu"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Name:"
-horizontal_alignment = 2
-vertical_alignment = 1
-
-[node name="HumanName" type="LineEdit" parent="VBoxContainer/SaveMenu"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.03
-placeholder_text = "MyHuman"
-
-[node name="SaveButton" type="Button" parent="VBoxContainer/SaveMenu"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 5.0
-tooltip_text = "Create a new mesh with a separate surface for each existing mesh and save to a new scene for this human"
-text = "Save To File"
 
 [node name="BakedMeshSelectors" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -379,3 +358,28 @@ unique_name_in_owner = true
 layout_mode = 2
 tooltip_text = "Bake all opaque meshes to one mesh, and all transparent meshes (hair, eyelashes, eyebrows) to a second mesh."
 text = "Standard Bake"
+
+[node name="SaveMenu" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/SaveMenu"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Name:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="HumanName" type="LineEdit" parent="VBoxContainer/SaveMenu"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.03
+placeholder_text = "MyHuman"
+
+[node name="SaveButton" type="Button" parent="VBoxContainer/SaveMenu"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 5.0
+tooltip_text = "Create a new mesh with a separate surface for each existing mesh and save to a new scene for this human"
+text = "Save To File"
