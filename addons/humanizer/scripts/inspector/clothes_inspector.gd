@@ -2,6 +2,7 @@
 class_name ClothesInspector
 extends MarginContainer
 
+var last_equipped := {}
 var last_materials := {}
 var asset_option_buttons := {}
 var material_option_buttons := {}
@@ -81,12 +82,14 @@ func reset() -> void:
 		(asset_option_buttons[slot] as OptionButton).selected = 0
 		(material_option_buttons[slot] as OptionButton).selected = -1
 
-func clear_clothes(cl: HumanClothes) -> void:
-	for slot in asset_option_buttons:
-		var options = asset_option_buttons[slot] as OptionButton
-		if options.get_item_text(options.selected) == cl.resource_name:
+func clear_clothes(slot: String) -> void:
+	var cl = last_equipped[slot]
+	for sl in asset_option_buttons:
+		if last_equipped.has(sl) and last_equipped[sl] == cl:
+			last_equipped[sl] = null
+			var options = asset_option_buttons[sl] as OptionButton
 			options.selected = 0
-			material_option_buttons[slot].selected = -1
+			material_option_buttons[sl].selected = -1
 
 func _item_selected(index: int, slot: String):
 	var options: OptionButton = asset_option_buttons[slot]
@@ -96,6 +99,7 @@ func _item_selected(index: int, slot: String):
 	var name = options.get_item_text(index)
 	if name == 'None':
 		clothes_cleared.emit(slot)
+		clear_clothes(slot)
 		return
 	
 	var slots := []
@@ -112,8 +116,11 @@ func _item_selected(index: int, slot: String):
 		for mat in HumanizerRegistry.clothes[name].textures:
 			materials.add_item(mat.get_file().replace('.tres', ''))
 		
-	if config == null or not config.clothes.has(name):
-		clothes_changed.emit(HumanizerRegistry.clothes[name])
+	if config != null and not config.clothes.has(name):
+		var clothes: HumanClothes = HumanizerRegistry.clothes[name]
+		for sl in slots:
+			last_equipped[sl] = clothes
+		clothes_changed.emit(clothes)
 		_material_selected(0, slot)
 
 func _material_selected(idx: int, slot: String) -> void:
