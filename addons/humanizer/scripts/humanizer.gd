@@ -168,7 +168,6 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 	return res
 
 func load_human() -> void:
-	var mesh_path := human_config.resource_path.get_base_dir().path_join('mesh.res')
 	baked = false
 	reset_human(false)
 	deserialize()
@@ -200,7 +199,7 @@ func deserialize() -> void:
 		set_body_part(bp)
 		set_body_part_material(bp.slot, mat)
 	for clothes in human_config.clothes:
-		apply_clothes(clothes)
+		_add_clothes_mesh(clothes)
 		set_clothes_material(clothes.resource_name, human_config.clothes_materials[clothes.resource_name])
 	if human_config.body_part_materials.has(&'skin'):
 		set_skin_texture(human_config.body_part_materials[&'skin'])
@@ -330,6 +329,9 @@ func apply_clothes(cl: HumanClothes) -> void:
 			if slot in wearing.slots:
 				remove_clothes(wearing)
 	print('applying ' + cl.resource_name + ' clothes')
+	_add_clothes_mesh(cl)
+
+func _add_clothes_mesh(cl: HumanClothes) -> void:
 	if not cl in human_config.clothes:
 		human_config.clothes.append(cl)
 	var mi = load(cl.scene_path).instantiate()
@@ -799,7 +801,6 @@ func adjust_skeleton() -> void:
 func _reset_animator() -> void:
 	for child in get_children():
 		if child is AnimationTree or child is AnimationPlayer:
-			print(child.name)
 			_delete_child_node(child)
 	if _animator_scene != null:
 		animator = _animator_scene.instantiate()
