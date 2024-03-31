@@ -501,6 +501,7 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 			child.mesh = new_mesh
 	
 	recalculate_normals()
+	adjust_skeleton()
 	human_config.shapekeys = shapekeys.duplicate()
 	if main_collider != null:
 		_adjust_main_collider()
