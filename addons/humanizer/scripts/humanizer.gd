@@ -424,7 +424,7 @@ func update_hide_vertices() -> void:
 			
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], lods, fmt)
 	_set_body_mesh(new_mesh)
-	_recalculate_normals()
+	recalculate_normals()
 	body_mesh.set_surface_override_material(0, skin_mat)
 	body_mesh.skeleton = skeleton.get_path()
 
@@ -500,7 +500,7 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 			var new_mesh = MeshOperations.build_fitted_mesh(child.mesh, _helper_vertex, mhclo)
 			child.mesh = new_mesh
 	
-	_recalculate_normals()
+	recalculate_normals()
 	human_config.shapekeys = shapekeys.duplicate()
 	if main_collider != null:
 		_adjust_main_collider()
@@ -573,7 +573,7 @@ func _combine_meshes() -> ArrayMesh:
 		i += 1
 	return new_mesh
 
-func _recalculate_normals() -> void:
+func recalculate_normals() -> void:
 	var mat = body_mesh.get_surface_override_material(0)
 	_set_body_mesh(MeshOperations.generate_normals_and_tangents(body_mesh.mesh))
 	body_mesh.set_surface_override_material(0, mat)
