@@ -39,6 +39,7 @@ popup/item_1/text = "Clothes"
 popup/item_1/id = 1
 
 [node name="Label" type="Label" parent="VBoxContainer"]
+visible = false
 layout_mode = 2
 size_flags_vertical = 8
 text = "--------------- Clothes Slots ---------------"
@@ -46,6 +47,7 @@ horizontal_alignment = 1
 
 [node name="ClothingSlots" type="GridContainer" parent="VBoxContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 size_flags_vertical = 8
 columns = 4
