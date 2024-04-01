@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="MHCLO" load_steps=2 format=3 uid="uid://ct0pay2eb7vvt"]
+[gd_resource type="Resource" script_class="MHCLO" load_steps=2 format=3 uid="uid://bn726q1h03vc6"]
 
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_wu2ml"]
 
