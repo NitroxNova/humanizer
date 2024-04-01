@@ -2,6 +2,7 @@
 class_name BodyPartsInspector
 extends MarginContainer
 
+static var visible_setting := false
 var registry
 var last_materials := {}
 var asset_option_buttons := {}
@@ -14,6 +15,7 @@ signal material_set(slot: String, texture: String)
 
 
 func _ready() -> void:
+	visibility_changed.connect(_set_visibility)
 	build_grid()
 	await get_tree().process_frame
 	registry = HumanizerRegistry
@@ -38,6 +40,9 @@ func _ready() -> void:
 			
 	if config != null:
 		fill_table(config)
+
+func _set_visibility() -> void:
+	visible_setting = visible
 
 func build_grid() -> void:
 	var grid = get_node('%GridContainer')

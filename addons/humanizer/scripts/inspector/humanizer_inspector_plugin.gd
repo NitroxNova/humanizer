@@ -49,6 +49,7 @@ func _parse_category(human, category):
 	# BodyParts inspector
 	var bp_container = scene.get_node('%BodyPartsContainer') as BodyPartsInspector
 	scene.get_node('%BodyPartsButton').pressed.connect(func(): bp_container.visible = not bp_container.visible)
+	bp_container.visible = bp_container.visible_setting
 	bp_container.body_part_changed.connect(func(bp): human.set_body_part(bp))
 	bp_container.body_slot_cleared.connect(func(slot): human.clear_body_part(slot))
 	bp_container.material_set.connect(func(slot, idx): human.set_body_part_material(slot, idx))
@@ -57,6 +58,7 @@ func _parse_category(human, category):
 	# Clothes inspector
 	var cl_container = scene.get_node('%ClothesContainer') as ClothesInspector
 	scene.get_node('%ClothesButton').pressed.connect(func(): cl_container.visible = not cl_container.visible)
+	cl_container.visible = cl_container.visible_setting
 	cl_container.clothes_changed.connect(func(cl): human.apply_clothes(cl))
 	cl_container.clothes_cleared.connect(func(sl): human.clear_clothes_in_slot(sl))
 	cl_container.material_set.connect(func(cl, idx): human.set_clothes_material(cl, idx))

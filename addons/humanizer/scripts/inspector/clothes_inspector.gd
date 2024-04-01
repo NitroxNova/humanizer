@@ -2,6 +2,8 @@
 class_name ClothesInspector
 extends MarginContainer
 
+static var visible_setting := false
+
 var last_equipped := {}
 var last_materials := {}
 var asset_option_buttons := {}
@@ -14,6 +16,7 @@ signal material_set(name: String, material_index: int)
 
 
 func _ready() -> void:
+	visibility_changed.connect(_set_visibility)
 	build_grid()
 	await get_tree().process_frame
 	for slot in HumanizerGlobal.config.clothing_slots:
@@ -36,6 +39,10 @@ func _ready() -> void:
 	
 	if config != null:
 		fill_table(config)
+
+func _set_visibility() -> void:
+	# Refuses to work as an anonymous function for some reason
+	visible_setting = visible
 
 func build_grid() -> void:
 	var grid = get_node('%GridContainer')
@@ -151,11 +158,11 @@ func _item_selected(index: int, slot: String):
 
 func _material_selected(idx: int, slot: String) -> void:
 	var texture_name: String = material_option_buttons[slot].get_item_text(idx)
-	var options = asset_option_buttons[slot] as OptionButton
+	var options: OptionButton = asset_option_buttons[slot]
 	var name: String = options.get_item_text(options.selected)
 	
-	var slots := []
-	for sl in asset_option_buttons:
+	var slots: Array[String] = []
+	for sl: String in asset_option_buttons:
 		options = asset_option_buttons[sl] as OptionButton
 		if options.get_item_text(options.selected) == name:
 			slots.append(sl)

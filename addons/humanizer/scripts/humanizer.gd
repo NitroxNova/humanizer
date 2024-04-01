@@ -633,6 +633,7 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 	var mi: MeshInstance3D = get_node(cl.resource_name)
 
 	if cl.default_overlay != null:
+		## HumanizerMaterials are always local to scene
 		var mat_config: HumanizerMaterial = (mi as HumanizerMeshInstance).mat_config
 		var overlay_dict = HumanizerOverlay.from_dict({'albedo': cl.textures[texture]})
 		if mi.get_surface_override_material(0).normal_texture != null:
@@ -642,6 +643,14 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	else:
 		mi.get_surface_override_material(0).albedo_texture = load(cl.textures[texture])
+		## Need to set material settings for other assets sharing the same material
+		for other: HumanClothes in human_config.clothes:
+			if cl != other:
+				var other_mat: BaseMaterial3D = get_node(other.resource_name).get_surface_override_material(0)
+				var this_mat: BaseMaterial3D = mi.get_surface_override_material(0)
+				if other_mat.resource_path == this_mat.resource_path:
+					human_config.clothes_materials[other.resource_name] = texture
+					notify_property_list_changed()
 	human_config.clothes_materials[cl_name] = texture
 
 func setup_overlay_material(asset: HumanAsset, mi: MeshInstance3D) -> void:
