@@ -36,7 +36,7 @@ func update_material() -> void:
 		normal.decompress()
 	if ao != null and ao.is_compressed():
 		ao.decompress()
-		
+	
 	## Blend albedo color
 	if albedo != null:
 		blend_color(albedo, overlays[0].color)

@@ -289,14 +289,17 @@ func save_human_scene() -> void:
 
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
-	var mat_config = body_mesh.material_config.duplicate(true)
+	var mat_config: HumanizerMaterial = null
+	if body_mesh is HumanizerMeshInstance:
+		mat_config = body_mesh.material_config.duplicate(true)
 	_delete_child_by_name(_BASE_MESH_NAME)
 	body_mesh = MeshInstance3D.new()
 	body_mesh.name = _BASE_MESH_NAME
 	body_mesh.mesh = meshdata
 	body_mesh.set_surface_override_material(0, StandardMaterial3D.new())
 	body_mesh.set_script(humanizer_mesh_instance)
-	body_mesh.material_config = mat_config
+	if mat_config != null:
+		body_mesh.material_config = mat_config
 	if skeleton != null:
 		body_mesh.skeleton = skeleton.get_path()
 		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
