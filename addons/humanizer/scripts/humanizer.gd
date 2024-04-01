@@ -56,6 +56,8 @@ var bake_surface_name: String
 var skin_color: Color = _DEFAULT_SKIN_COLOR:
 	set(value):
 		skin_color = value
+		if body_mesh == null:
+			return
 		if scene_loaded and body_mesh.material_config.overlays.size() == 0:
 			return
 		human_config.skin_color = skin_color
@@ -195,6 +197,8 @@ func reset_human(reset_config: bool = true) -> void:
 	for child in get_children():
 		if child is MeshInstance3D:
 			_delete_child_node(child)
+	if body_mesh != null and body_mesh is HumanizerMeshInstance:
+		body_mesh.set_script(null)
 	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
 	_delete_child_by_name('MainCollider')
 	main_collider = null
@@ -290,7 +294,7 @@ func save_human_scene() -> void:
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	var mat_config: HumanizerMaterial = null
-	if body_mesh is HumanizerMeshInstance:
+	if body_mesh != null and body_mesh is HumanizerMeshInstance:
 		mat_config = body_mesh.material_config.duplicate(true)
 	_delete_child_by_name(_BASE_MESH_NAME)
 	body_mesh = MeshInstance3D.new()
