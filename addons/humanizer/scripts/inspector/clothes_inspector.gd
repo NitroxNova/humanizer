@@ -65,17 +65,19 @@ func build_grid() -> void:
 		child.owner = self
 		
 func fill_table(config: HumanConfig) -> void:
-	for clothes in config.clothes:
+	for clothes: HumanClothes in config.clothes:
 		for slot in asset_option_buttons:
 			var options = asset_option_buttons[slot] as OptionButton
 			var materials = material_option_buttons[slot] as OptionButton 
 			for item in options.item_count:
 				if clothes.resource_name == options.get_item_text(item):
 					options.selected = item
-					if config.clothes_materials.has(clothes.resource_name):
-						for mat in materials.item_count:
-							if materials.get_item_text(mat) == config.clothes_materials[clothes.resource_name]:
-								materials.selected = mat
+					var mat: int = 0
+					for texture in clothes.textures:
+						materials.add_item(texture)
+						if materials.get_item_text(mat) == config.clothes_materials[clothes.resource_name]:
+							materials.selected = mat
+						mat += 1
 			
 func reset() -> void:
 	for slot in HumanizerGlobal.config.clothing_slots:
@@ -91,6 +93,15 @@ func clear_clothes(slot: String) -> void:
 			options.selected = 0
 			material_option_buttons[sl].selected = -1
 
+func _get_slots(index: int, slot: String) -> Array[String]:
+	var slots := []
+	for sl in asset_option_buttons:
+		var options = asset_option_buttons[sl] as OptionButton
+		for item in options.item_count:
+			if options.get_item_text(item) == name:
+				slots.append(sl)
+	return slots
+
 func _item_selected(index: int, slot: String):
 	var options: OptionButton = asset_option_buttons[slot]
 	var material_options = material_option_buttons[slot]
@@ -102,12 +113,11 @@ func _item_selected(index: int, slot: String):
 		clear_clothes(slot)
 		return
 	
-	var slots := []
-	for sl in asset_option_buttons:
+	var slots := _get_slots(index, slot)
+	for sl in slots:
 		options = asset_option_buttons[sl] as OptionButton
 		for item in options.item_count:
 			if options.get_item_text(item) == name:
-				slots.append(sl)
 				options.selected = item
 	
 	for sl in slots:

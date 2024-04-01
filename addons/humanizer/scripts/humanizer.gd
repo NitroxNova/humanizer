@@ -348,6 +348,8 @@ func clear_clothes_in_slot(slot: String) -> void:
 			remove_clothes(cl)
 
 func remove_clothes(cl: HumanClothes) -> void:
+	if human_config.clothes_materials.has(cl.resource_name):
+		human_config.clothes_materials.erase(cl.resource_name)
 	for child in get_children():
 		if child.name == cl.resource_name:
 			#print('removing ' + cl.resource_name + ' clothes')
@@ -688,7 +690,8 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 		_add_bone_weights(bp)
 
 func adjust_skeleton() -> void:
-	shapekey_data
+	if skeleton == null:
+		return
 	skeleton.reset_bone_poses()
 	var rig = human_config.rig.split('-')[0]
 	var skeleton_config = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].config_json_path)

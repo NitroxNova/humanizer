@@ -77,6 +77,9 @@ func _scan_path(path: String) -> void:
 			asset_data[fl]['mh2gd_index'] = obj_data.mh2gd_index
 	if asset_data.size() == 0:
 		return
+	
+	for dir in contents.dirs:
+		contents.files.append_array(OSPath.get_files(dir))
 		
 	# Get textures
 	for file_name in contents.files:
