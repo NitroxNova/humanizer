@@ -1,6 +1,0 @@
-[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://gu58i5cqrv8m"]
-
-[ext_resource type="Texture2D" uid="uid://cbdd7vvvymget" path="res://addons/humanizer/data/assets/clothes/outfits/male-elegantsuit/male_elegantsuit01_diffuse.png" id="1_rwr8p"]
-
-[resource]
-albedo_texture = ExtResource("1_rwr8p")

@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="MHCLO" load_steps=2 format=3 uid="uid://esmfr2xbdbag"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_jlwj2"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_wu6cg"]
 
 [resource]
 resource_name = "RightEyeball-LowPoly"
-script = ExtResource("1_jlwj2")
+script = ExtResource("1_wu6cg")
 vertex_data = [{
 "format": "single",
 "vertex": [14738.0]

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="HumanClothes" load_steps=2 format=3 uid="uid://4u60gwe2e5kl"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_clothes.gd" id="1_wfw5w"]
+
+[resource]
+resource_name = "SuitSlacks"
+script = ExtResource("1_wfw5w")
+slots = Array[String](["Legs"])
+textures = {
+"male_elegantsuit01_Gray.png": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_gray/male_elegantsuit01_Gray.png"
+}
+path = "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_gray"

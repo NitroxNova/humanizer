@@ -1,8 +1,8 @@
 [gd_scene load_steps=3 format=3 uid="uid://cvulypcrqtwhf"]
 
-[ext_resource type="ArrayMesh" uid="uid://b1tgxxfb5wv6i" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/MakeHumanTShirt_mesh.tres" id="1_ash8v"]
-[ext_resource type="Material" uid="uid://bqfxyaulgl5us" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_material.tres" id="2_t3hqv"]
+[ext_resource type="ArrayMesh" uid="uid://b1tgxxfb5wv6i" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/MakeHumanTShirt_mesh.tres" id="1_w7dxq"]
+[ext_resource type="Material" uid="uid://bqfxyaulgl5us" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_material.tres" id="2_lpqir"]
 
 [node name="MakeHumanTShirt" type="MeshInstance3D"]
-mesh = ExtResource("1_ash8v")
-surface_material_override/0 = ExtResource("2_t3hqv")
+mesh = ExtResource("1_w7dxq")
+surface_material_override/0 = ExtResource("2_lpqir")

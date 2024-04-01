@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="MHCLO" load_steps=2 format=3 uid="uid://u6v0j6gqk6vl"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_idq3h"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_k8x2v"]
 
 [resource]
 resource_name = "HumanTongue"
-script = ExtResource("1_idq3h")
+script = ExtResource("1_k8x2v")
 vertex_data = [{
 "format": "single",
 "vertex": [13380.0]

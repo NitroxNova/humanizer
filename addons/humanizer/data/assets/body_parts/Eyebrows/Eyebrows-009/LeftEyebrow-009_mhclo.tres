@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="MHCLO" load_steps=2 format=3 uid="uid://ic64q20e7vdy"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_4nbv4"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_8lo38"]
 
 [resource]
 resource_name = "LeftEyebrow-009"
-script = ExtResource("1_4nbv4")
+script = ExtResource("1_8lo38")
 vertex_data = [{
 "format": "triangle",
 "offset": Vector3(0, 0, 0),

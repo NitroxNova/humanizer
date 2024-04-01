@@ -1,8 +1,8 @@
 [gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://b3xs20q5nd1wq"]
 
-[ext_resource type="Texture2D" uid="uid://cqps8gm3aayg" path="res://addons/humanizer/data/assets/clothes/shoes/shoes04/shoes04_diffuse.png" id="1_pgx63"]
-[ext_resource type="Texture2D" uid="uid://b1c0qc2fjbfgd" path="res://addons/humanizer/data/assets/clothes/shoes/shoes04/shoes04_normal.png" id="2_1cqgl"]
+[ext_resource type="Texture2D" uid="uid://cqps8gm3aayg" path="res://addons/humanizer/data/assets/clothes/shoes/shoes04/shoes04_diffuse.png" id="1_npkx2"]
+[ext_resource type="Texture2D" uid="uid://b1c0qc2fjbfgd" path="res://addons/humanizer/data/assets/clothes/shoes/shoes04/shoes04_normal.png" id="2_2t10b"]
 
 [resource]
-albedo_texture = ExtResource("1_pgx63")
-normal_texture = ExtResource("2_1cqgl")
+albedo_texture = ExtResource("1_npkx2")
+normal_texture = ExtResource("2_2t10b")
