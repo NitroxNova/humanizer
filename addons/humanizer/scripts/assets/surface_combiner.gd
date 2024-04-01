@@ -46,6 +46,7 @@ func run() -> MeshInstance3D:
 		new_uv_image.blit_rect(old_texture_image,Rect2(old_island_position,island_size),new_island_position)
 
 	new_uv_image.generate_mipmaps()
+	new_uv_image.compress(Image.COMPRESS_BPTC)
 	var albedo_texture := ImageTexture.create_from_image(new_uv_image)
 	
 	var new_mesh = ArrayMesh.new()
