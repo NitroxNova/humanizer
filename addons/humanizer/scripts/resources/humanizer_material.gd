@@ -54,15 +54,15 @@ func update_material() -> void:
 	ao_texture = null
 	if albedo != null:
 		albedo.generate_mipmaps()
-		albedo.compress(Image.COMPRESS_BPTC)
+		#albedo.compress(Image.COMPRESS_BPTC)
 		albedo_texture = ImageTexture.create_from_image(albedo)
 	if normal != null:
 		normal.generate_mipmaps()
-		normal.compress(Image.COMPRESS_BPTC)
+		#normal.compress(Image.COMPRESS_BPTC)
 		normal_texture = ImageTexture.create_from_image(normal)
 	if ao != null:
 		ao.generate_mipmaps()
-		ao.compress(Image.COMPRESS_BPTC)
+		#ao.compress(Image.COMPRESS_BPTC)
 		ao_texture = ImageTexture.create_from_image(normal)
 	on_material_updated.emit()
 

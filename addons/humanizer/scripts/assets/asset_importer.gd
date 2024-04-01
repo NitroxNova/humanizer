@@ -140,8 +140,10 @@ func _generate_material(path: String, textures: Dictionary) -> void:
 		if albedo != '':
 			mat.albedo_texture = load(albedo)
 		if normal != '':
+			mat.normal_enabled = true
 			mat.normal_texture = load(normal)
 		if ao != '':
+			mat.ao_enabled = true
 			mat.ao_texture = load(ao)
 	
 	# For the list of textures in the asset resource we only keep albedo textures

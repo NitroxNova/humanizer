@@ -1,6 +1,6 @@
 [gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://0x3o2v1moiru"]
 
-[ext_resource type="Texture2D" uid="uid://dxd6w6uvxhifa" path="res://addons/humanizer/data/assets/body_parts/Teeth/basic_teeth/teeth.png" id="1_eq01e"]
+[ext_resource type="Texture2D" uid="uid://dxd6w6uvxhifa" path="res://addons/humanizer/data/assets/body_parts/Teeth/basic_teeth/teeth.png" id="1_aeax1"]
 
 [resource]
-albedo_texture = ExtResource("1_eq01e")
+albedo_texture = ExtResource("1_aeax1")

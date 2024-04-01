@@ -6,5 +6,7 @@
 
 [resource]
 albedo_texture = ExtResource("1_ln5bu")
+normal_enabled = true
 normal_texture = ExtResource("3_ju6jq")
+ao_enabled = true
 ao_texture = ExtResource("2_4gq7v")

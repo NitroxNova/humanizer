@@ -1,6 +1,6 @@
 [gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://d1n8cy7kj7hdp"]
 
-[ext_resource type="Texture2D" uid="uid://yoc627ojmwnn" path="res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/male_elegantsuit01_diffuse.png" id="1_dpntm"]
+[ext_resource type="Texture2D" uid="uid://yoc627ojmwnn" path="res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/male_elegantsuit01_diffuse.png" id="1_jhqui"]
 
 [resource]
-albedo_texture = ExtResource("1_dpntm")
+albedo_texture = ExtResource("1_jhqui")
