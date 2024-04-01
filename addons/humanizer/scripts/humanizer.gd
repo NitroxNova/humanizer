@@ -438,11 +438,10 @@ func update_hide_vertices() -> void:
 func restore_hidden_vertices() -> void:
 	var mat = body_mesh.get_surface_override_material(0)
 	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
-	_helper_vertex = shapekey_data.basis.duplicate(true)
 	set_shapekeys(human_config.shapekeys)
 	body_mesh.set_surface_override_material(0, mat)
 	set_rig(human_config.rig, body_mesh.mesh)
-	
+
 func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 	var prev_sk = human_config.shapekeys.duplicate()
 	if override_zero:

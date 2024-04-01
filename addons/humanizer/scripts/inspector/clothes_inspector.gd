@@ -94,38 +94,54 @@ func clear_clothes(slot: String) -> void:
 			material_option_buttons[sl].selected = -1
 
 func _get_slots(index: int, slot: String) -> Array[String]:
-	var slots := []
+	var slots: Array[String] = []
+	var selected = asset_option_buttons[slot].selected
+	var name = asset_option_buttons[slot].get_item_text(selected)
 	for sl in asset_option_buttons:
 		var options = asset_option_buttons[sl] as OptionButton
 		for item in options.item_count:
+			print(options.get_item_text(item))
 			if options.get_item_text(item) == name:
 				slots.append(sl)
 	return slots
 
 func _item_selected(index: int, slot: String):
+	## Get corresponding slot option and material buttons
 	var options: OptionButton = asset_option_buttons[slot]
 	var material_options = material_option_buttons[slot]
 	material_options.clear()
 	
+	## Get selected item name
 	var name = options.get_item_text(index)
 	if name == 'None':
 		clothes_cleared.emit(slot)
 		clear_clothes(slot)
 		return
 	
-	var slots := _get_slots(index, slot)
+	## Find other slots with same item (same name)
+	var slots: Array[String] = []
+	var selected = asset_option_buttons[slot].selected
+	for sl in asset_option_buttons:
+		options = asset_option_buttons[sl] as OptionButton
+		for item in options.item_count:
+			if options.get_item_text(item) == name:
+				slots.append(sl)
+	
+	## Choose same item in those slots
 	for sl in slots:
 		options = asset_option_buttons[sl] as OptionButton
 		for item in options.item_count:
 			if options.get_item_text(item) == name:
 				options.selected = item
 	
+	## Fill material options for each
 	for sl in slots:
 		var materials: OptionButton = material_option_buttons[sl]
 		materials.clear()
 		for mat in HumanizerRegistry.clothes[name].textures:
 			materials.add_item(mat.get_file().replace('.tres', ''))
-		
+	
+	## Emit signals and set to default material
 	if config != null and not config.clothes.has(name):
 		var clothes: HumanClothes = HumanizerRegistry.clothes[name]
 		for sl in slots:
