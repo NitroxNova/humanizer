@@ -2,7 +2,6 @@
 class_name Humanizer
 extends Node3D
 
-const humanizer_mesh_instance = preload('res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd')
 const _BASE_MESH_NAME: String = 'Human'
 const _DEFAULT_SKIN_COLOR = Color.WHITE
 const _DEFAULT_EYE_COLOR = Color.SKY_BLUE
@@ -301,7 +300,7 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	body_mesh.name = _BASE_MESH_NAME
 	body_mesh.mesh = meshdata
 	body_mesh.set_surface_override_material(0, StandardMaterial3D.new())
-	body_mesh.set_script(humanizer_mesh_instance)
+	body_mesh.set_script(load('res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd'))
 	if mat_config != null:
 		body_mesh.material_config = mat_config
 	if skeleton != null:
