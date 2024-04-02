@@ -4,8 +4,8 @@ extends MarginContainer
 
 static var visible_setting := false
 
-var last_equipped := {}
-var last_materials := {}
+static var last_equipped := {}
+static var last_materials := {}
 var asset_option_buttons := {}
 var material_option_buttons := {}
 var config: HumanConfig
@@ -87,6 +87,8 @@ func fill_table(config: HumanConfig) -> void:
 						mat += 1
 			
 func reset() -> void:
+	last_equipped = {}
+	last_materials = {}
 	for slot in HumanizerGlobal.config.clothing_slots:
 		(asset_option_buttons[slot] as OptionButton).selected = 0
 		(material_option_buttons[slot] as OptionButton).selected = -1
@@ -95,7 +97,7 @@ func clear_clothes(slot: String) -> void:
 	var cl = last_equipped[slot]
 	for sl in asset_option_buttons:
 		if last_equipped.has(sl) and last_equipped[sl] == cl:
-			last_equipped[sl] = null
+			last_equipped.erase(sl)
 			var options = asset_option_buttons[sl] as OptionButton
 			options.selected = 0
 			material_option_buttons[sl].selected = -1
@@ -153,8 +155,8 @@ func _item_selected(index: int, slot: String):
 		var clothes: HumanClothes = HumanizerRegistry.clothes[name]
 		for sl in slots:
 			last_equipped[sl] = clothes
+		print(last_equipped)
 		clothes_changed.emit(clothes)
-		_material_selected(0, slot)
 
 func _material_selected(idx: int, slot: String) -> void:
 	var texture_name: String = material_option_buttons[slot].get_item_text(idx)

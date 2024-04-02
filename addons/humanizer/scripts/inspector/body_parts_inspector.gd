@@ -104,7 +104,6 @@ func _item_selected(index: int, slot: String):
 		
 	if config == null or not config.body_parts.has(slot) or config.body_parts[slot].resource_name != name:
 		body_part_changed.emit(registry.body_parts[slot][name])
-		_material_selected(0, slot)
-
+		
 func _material_selected(idx: int, slot: String) -> void:
 	material_set.emit(slot, (texture_option_buttons[slot] as OptionButton).get_item_text(idx))

@@ -21,6 +21,11 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Randomize BodyParts"
 
+[node name="RandomizeClothesButton" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Randomize Clothes"
+
 [node name="RandomizeShapekeysButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2

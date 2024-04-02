@@ -310,6 +310,8 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 
 func set_body_part(bp: HumanBodyPart) -> void:
 	if human_config.body_parts.has(bp.slot):
+		if human_config.body_parts[bp.slot] == bp:
+			return
 		var current = human_config.body_parts[bp.slot]
 		_delete_child_by_name(current.resource_name)
 	human_config.body_parts[bp.slot] = bp
@@ -319,6 +321,7 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	else:
 		mi.get_surface_override_material(0).resource_path = ''
 	_add_child_node(mi)
+	set_body_part_material(bp.slot, Random.choice(bp.textures.keys()))
 	_add_bone_weights(bp)
 	set_shapekeys(human_config.shapekeys)
 	#notify_property_list_changed()
@@ -332,6 +335,8 @@ func clear_body_part(clear_slot: String) -> void:
 			return
 
 func apply_clothes(cl: HumanClothes) -> void:
+	if human_config.clothes.has(cl):
+		return
 	for wearing in human_config.clothes:
 		for slot in cl.slots:
 			if slot in wearing.slots:
@@ -346,6 +351,7 @@ func _add_clothes_mesh(cl: HumanClothes) -> void:
 	if cl.default_overlay != null:
 		setup_overlay_material(cl, mi)
 	_add_child_node(mi)
+	set_clothes_material(cl.resource_name, Random.choice(cl.textures.keys()))
 	_add_bone_weights(cl)
 	set_shapekeys(human_config.shapekeys)
 
@@ -605,6 +611,7 @@ func set_skin_texture(name: String) -> void:
 
 func set_body_part_material(set_slot: String, texture: String) -> void:
 	#print('setting material ' + texture + ' on ' + set_slot)
+	print(texture)
 	var bp: HumanBodyPart = human_config.body_parts[set_slot]
 	human_config.body_part_materials[set_slot] = texture
 	var mi = get_node(bp.resource_name) as MeshInstance3D
@@ -625,6 +632,7 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 	if bp.slot in [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows', &'Hair']:
 		await get_tree().process_frame
 		mi.get_surface_override_material(0).albedo_color = hair_color
+	notify_property_list_changed()
 
 func set_clothes_material(cl_name: String, texture: String) -> void:
 	#print('setting texture ' + texture + ' on ' + cl_name)

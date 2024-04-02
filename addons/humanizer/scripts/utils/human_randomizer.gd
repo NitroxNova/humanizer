@@ -7,23 +7,59 @@ var categories: Dictionary
 var randomization: Dictionary
 var asymmetry: Dictionary
 var shapekeys: Dictionary
-
+var rng := RandomNumberGenerator.new()
 
 func randomize_body_parts() -> void:
+	randomize_skin()
 	randomize_eyebrows()
+	randomize_eyelashes()
+	randomize_eyes()
+	randomize_hair()
+
+func randomize_clothes() -> void:
+	var torso = Random.choice(HumanizerRegistry.filter_clothes({'slot': 'Torso'}))
+	var legs = Random.choice(HumanizerRegistry.filter_clothes({'slot': 'Legs'}))
+	var feet = Random.choice(HumanizerRegistry.filter_clothes({'slot': 'Feet'}))
+	human.apply_clothes(torso)
+	human.apply_clothes(legs)
+	human.apply_clothes(feet)
+
+func randomize_skin() -> void:
+	human.set_skin_texture(Random.choice(HumanizerRegistry.skin_textures.keys()))
 
 func randomize_eyebrows() -> void:
 	## Assumes left and right eyebrow slots
 	## Assumes same number of entries for both slots
-	var rng = RandomNumberGenerator.new()
-	var i := rng.randi_range(0, HumanizerRegistry.body_parts[&'LeftEyebrow'].size() - 1)
-	var eyebrow_name = HumanizerRegistry.body_parts[&'LeftEyebrow'].keys()[i]
+	var eyebrow_name = Random.choice(HumanizerRegistry.body_parts[&'LeftEyebrow'].keys())
 	human.set_body_part(HumanizerRegistry.body_parts[&'LeftEyebrow'][eyebrow_name])
 	human.set_body_part(HumanizerRegistry.body_parts[&'RightEyebrow'][eyebrow_name.replace('Left', 'Right')])
 
+func randomize_eyes() -> void:
+	var color: Color = Color.BLACK
+	color.r += rng.randf()
+	color.g += rng.randf()
+	color.b += rng.randf()
+	human.set_body_part(Random.choice(HumanizerRegistry.body_parts[&'LeftEye']))
+	human.set_body_part(Random.choice(HumanizerRegistry.body_parts[&'RightEye']))
+	human.eye_color = color
+
+func randomize_eyelashes() -> void:
+	var left = HumanizerRegistry.body_parts[&'LeftEyelash'][&'LeftEyelash']
+	var right = HumanizerRegistry.body_parts[&'RightEyelash'][&'RightEyelash']
+	human.set_body_part(left)
+	human.set_body_part(right)
+
+func randomize_hair() -> void:
+	var color: Color = Color.BLACK
+	color.r += rng.randf()
+	color.g += rng.randf()
+	color.b += rng.randf()
+	human.set_body_part(Random.choice(HumanizerRegistry.body_parts[&'Hair']))
+	human.hair_color = color
+	
 func randomize_shapekeys() -> void:
-	var rng = RandomNumberGenerator.new()
 	var values := {}
+	
 	for cat in categories:
 		if not categories[cat]:
 			continue

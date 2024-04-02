@@ -37,6 +37,15 @@ static func add_clothes_asset(asset: HumanClothes) -> void:
 		clothes.erase(asset.resource_name)
 	clothes[asset.resource_name] = asset
 
+static func filter_clothes(filter: Dictionary) -> Array[HumanClothes]:
+	var filtered_clothes: Array[HumanClothes]
+	for cl in clothes.values():
+		for key in filter:
+			if key == &'slot':
+				if filter[key] in cl.slots:
+					filtered_clothes.append(cl)
+	return filtered_clothes
+
 static func _get_rigs() -> void:
 	#  Create and/or cache rig resources
 	for folder in HumanizerGlobal.config.asset_import_paths:
