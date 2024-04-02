@@ -3,7 +3,7 @@ class_name UVUnwrapper
 var surface_arrays = []
 var islands = []
 var island_boxes = []
-var material
+var material : StandardMaterial3D
 var island_transform = [] #set elsewhere, after the row packer is done
 var island_vertex = []
 
@@ -23,6 +23,22 @@ func get_albedo_texture_size():
 
 func get_albedo_texture():
 	return material.albedo_texture
+
+func is_normal_enabled():
+	if material.normal_enabled and not material.normal_texture == null:
+		return true
+	return false
+
+func is_ao_enabled():
+	if material.ao_enabled and not material.ao_texture == null:
+		return true
+	return false
+	
+func get_normal_texture():
+	return material.normal_texture
+
+func get_ao_texture():
+	return material.ao_texture
 	
 func get_island_bounding_boxes():
 	island_boxes = []

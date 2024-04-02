@@ -33,21 +33,64 @@ func run() -> MeshInstance3D:
 		var xform = Rect2(new_island_position,island_scale)
 		surface.island_transform[packed_rect.island_id] = xform
 	
-	var new_uv_image = Image.create(bin_size, bin_size, false, Image.FORMAT_RGBA8)
+	var new_albedo_image = Image.create(bin_size, bin_size, false, Image.FORMAT_RGBA8)
+	var new_normal_image = Image.create(bin_size, bin_size, false, Image.FORMAT_RGBA8)
+	new_normal_image.fill(Color(.5,.5,1))
+	var new_ao_image = Image.create(bin_size, bin_size, false, Image.FORMAT_RGB8)
+	new_ao_image.fill(Color(1,1,1))
+	var has_normal = false
+	var has_ao = false
 	
-	for packed_rect in rect_packer.rects:
-		var surface = surfaces[packed_rect.surface_id]
-		var old_texture_image : Image = surface.get_albedo_texture().get_image()
-		old_texture_image.decompress()
-		old_texture_image.convert(new_uv_image.get_format())
-		var old_island_position = surface.island_boxes[packed_rect.island_id].position * surface.get_albedo_texture_size()
-		var island_size =  packed_rect.get_size()
-		var new_island_position = packed_rect.get_position()
-		new_uv_image.blit_rect(old_texture_image,Rect2(old_island_position,island_size),new_island_position)
+	var surface_rects_index = []
+	surface_rects_index.resize(surfaces.size())
+	for id in rect_packer.rects.size():
+		var rect = rect_packer.rects[id]
+		var surface_id = rect.surface_id
+		if surface_rects_index[surface_id] == null:
+			surface_rects_index[surface_id] = []
+		surface_rects_index[surface_id].append(id)
+	
+	for surface_id in surfaces.size():
+		var surface : UVUnwrapper = surfaces[surface_id]
+		var old_albedo_image : Image = surface.get_albedo_texture().get_image()
+		old_albedo_image.decompress()
+		old_albedo_image.convert(new_albedo_image.get_format())
+		var old_normal_image : Image
+		var old_ao_image : Image 
+		if surface.is_normal_enabled():
+			has_normal = true
+			old_normal_image = surface.get_normal_texture().get_image()
+			old_normal_image.decompress()
+			old_normal_image.convert(new_normal_image.get_format())
+			old_normal_image.resize(surface.get_albedo_texture_size().x,surface.get_albedo_texture_size().y)
+		if surface.is_ao_enabled():
+			has_ao = true
+			old_ao_image = surface.get_ao_texture().get_image()
+			old_ao_image.decompress()
+			old_ao_image.convert(new_ao_image.get_format())
+			old_ao_image.resize(surface.get_albedo_texture_size().x,surface.get_albedo_texture_size().y)
+				
+		
+		for rect_id in surface_rects_index[surface_id]:
+			var packed_rect = rect_packer.rects[rect_id]
+			var old_island_position = surface.island_boxes[packed_rect.island_id].position * surface.get_albedo_texture_size()
+			var island_size =  packed_rect.get_size()
+			var new_island_position = packed_rect.get_position()
+			new_albedo_image.blit_rect(old_albedo_image,Rect2(old_island_position,island_size),new_island_position)
+			if surface.is_normal_enabled():
+				#new_normal_image.blit_rect(old_normal_image,Rect2(old_island_position,island_size),new_island_position)
+				for x in island_size.x:
+					for y in island_size.y:
+						var old_color = old_normal_image.get_pixel(old_island_position.x + x,old_island_position.y + y)
+						var new_color = Color(old_color.r,old_color.a,0,1)
+						new_normal_image.set_pixel(new_island_position.x + x, new_island_position.y + y, new_color)
+						
+			if surface.is_ao_enabled():
+				new_ao_image.blit_rect(old_ao_image,Rect2(old_island_position,island_size),new_island_position)
 
-	new_uv_image.generate_mipmaps()
-	new_uv_image.compress(Image.COMPRESS_BPTC)
-	var albedo_texture := ImageTexture.create_from_image(new_uv_image)
+	new_albedo_image.generate_mipmaps()
+	new_albedo_image.compress(Image.COMPRESS_BPTC)
+	var albedo_texture := ImageTexture.create_from_image(new_albedo_image)
 	
 	var new_mesh = ArrayMesh.new()
 	var new_sf_arrays = []
@@ -107,6 +150,16 @@ func run() -> MeshInstance3D:
 
 	var new_material := mesh_instances[0].get_surface_override_material(0).duplicate()
 	new_material.albedo_texture = albedo_texture
+	if has_normal:
+		new_normal_image.generate_mipmaps(true)
+		new_normal_image.compress(Image.COMPRESS_S3TC,Image.COMPRESS_SOURCE_NORMAL)
+		new_material.normal_enabled = true
+		new_material.normal_texture = ImageTexture.create_from_image(new_normal_image)
+	if has_ao:
+		new_ao_image.generate_mipmaps()
+		new_ao_image.compress(Image.COMPRESS_BPTC)
+		new_material.ao_enabled = true
+		new_material.ao_texture = ImageTexture.create_from_image(new_ao_image)
 	new_mesh.surface_set_material(0, new_material)
 	
 	var mi = MeshInstance3D.new()
