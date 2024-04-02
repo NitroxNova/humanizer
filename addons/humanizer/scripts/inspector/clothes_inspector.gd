@@ -149,7 +149,7 @@ func _item_selected(index: int, slot: String):
 			materials.add_item(mat.get_file().replace('.tres', ''))
 	
 	## Emit signals and set to default material
-	if config != null and not config.clothes.has(name):
+	if config != null and not config.clothes.has(HumanizerRegistry.clothes[name]):
 		var clothes: HumanClothes = HumanizerRegistry.clothes[name]
 		for sl in slots:
 			last_equipped[sl] = clothes
