@@ -6,6 +6,7 @@
 [resource]
 transparency = 4
 cull_mode = 2
+diffuse_mode = 2
 specular_mode = 2
 albedo_texture = ExtResource("1_fxkff")
 normal_enabled = true

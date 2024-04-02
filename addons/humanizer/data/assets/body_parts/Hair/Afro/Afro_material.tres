@@ -1,9 +1,10 @@
 [gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://dojjo3ev5lmru"]
 
-[ext_resource type="Texture2D" uid="uid://g36tjyxachad" path="res://addons/humanizer/data/assets/body_parts/Hair/Afro/uncolored_afro_diffuse.png" id="1_fvys2"]
+[ext_resource type="Texture2D" uid="uid://cgoc1fvrqeink" path="res://addons/humanizer/data/assets/body_parts/Hair/Afro/afro_diffuse.png" id="1_xlrwv"]
 
 [resource]
 transparency = 4
 cull_mode = 2
+diffuse_mode = 2
 specular_mode = 2
-albedo_texture = ExtResource("1_fvys2")
+albedo_texture = ExtResource("1_xlrwv")
