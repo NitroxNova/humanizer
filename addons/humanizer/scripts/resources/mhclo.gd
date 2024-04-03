@@ -12,6 +12,7 @@ enum SECTION {header,vertices,delete_vertices}
 }
 @export var mh2gd_index := []
 @export var tags := PackedStringArray()
+@export var z_depth := 0
 var obj_file_name: String
 
 
@@ -36,6 +37,8 @@ func parse_file(filename:String):
 				parse_scale_data(line,"y")
 			elif line.begins_with("z_scale "):
 				parse_scale_data(line,"z")
+			elif line.begins_with("z_depth "):
+				z_depth = int(line.get_slice(' ',1))
 		elif current_section == SECTION.delete_vertices:
 			var dv_split = line.split(" ",false)
 			var new_element = true
