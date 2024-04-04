@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="1_h2ada"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="2_s4tpg"]
 
-[sub_resource type="Resource" id="Resource_vdutx"]
-resource_name = "overlay_iris"
+[sub_resource type="Resource" id="Resource_rxtuh"]
+resource_name = "overlay_iris_albedo"
 script = ExtResource("1_h2ada")
 albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/overlay_iris_albedo.png"
 normal_texture_path = ""
@@ -19,4 +19,4 @@ textures = {
 "eyeball_albedo.png": "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/eyeball_albedo.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs"
-default_overlay = SubResource("Resource_vdutx")
+default_overlay = SubResource("Resource_rxtuh")
