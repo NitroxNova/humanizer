@@ -406,11 +406,15 @@ func update_hide_vertices() -> void:
 		cl_delete_verts_gd.fill(false)
 		var any_deleted = false
 		
+		#refer to transferVertexMaskToProxy in makehuman/shared/proxy.py
 		for cl_mh_id in mhclo.vertex_data.size():
 			var v_data = mhclo.vertex_data[cl_mh_id]
+			var hidden_count = 0
 			for hu_mh_id in v_data.vertex:
 				if delete_verts_mh[hu_mh_id]:
-					cl_delete_verts_mh[cl_mh_id] = true
+					hidden_count += 1
+			if float(hidden_count)/v_data.vertex.size() >= .66: #if 2/3 or more vertices are hidden
+				cl_delete_verts_mh[cl_mh_id] = true
 		for gd_id in clothes_node.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size():
 			var mh_id = clothes_node.mesh.surface_get_arrays(0)[Mesh.ARRAY_CUSTOM0][gd_id]
 			if cl_delete_verts_mh[mh_id]:
