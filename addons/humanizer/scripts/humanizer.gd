@@ -381,10 +381,6 @@ func update_hide_vertices() -> void:
 	var remap_verts_gd = PackedInt32Array() #old to new
 	remap_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
 	remap_verts_gd.fill(-1)
-	var keep_faces := []
-	var new_mesh = ArrayMesh.new()
-	var lods := {}
-	var fmt = body_mesh.mesh.surface_get_format(0)
 	
 	var depth_sorted_clothes := []
 	for child in get_children():
