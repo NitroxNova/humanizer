@@ -31,6 +31,13 @@ static func get_shapekey_data() -> Dictionary:
 	file.close()
 	return shapekey_data
 
+static var _shapekey_data: Dictionary = {}
+static var shapekey_data: Dictionary:
+	get:
+		if _shapekey_data.size() == 0:
+			_shapekey_data = get_shapekey_data()
+		return _shapekey_data
+
 static func get_shapekey_categories(shapekeys=null) -> Dictionary:
 	if shapekeys == null:
 		shapekeys = get_shapekey_data()

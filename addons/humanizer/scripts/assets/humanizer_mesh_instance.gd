@@ -5,13 +5,17 @@ class_name HumanizerMeshInstance
 @export var material_config: HumanizerMaterial
 
 func _ready() -> void:
+	initialize()
+
+func initialize() -> void:
 	if material_config == null:
 		material_config = HumanizerMaterial.new()
 	# Make everything local
 	if get_surface_override_material(0) != null:
 		get_surface_override_material(0).resource_path = ''
 	material_config.resource_path = ''
-	material_config.on_material_updated.connect(update_material)
+	if not material_config.on_material_updated.is_connected(update_material):
+		material_config.on_material_updated.connect(update_material)
 	
 func update_material() -> void:
 	var mat: BaseMaterial3D = get_surface_override_material(0)
