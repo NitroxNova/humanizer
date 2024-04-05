@@ -23,6 +23,9 @@ func randomize_clothes() -> void:
 	human.apply_clothes(torso)
 	human.apply_clothes(legs)
 	human.apply_clothes(feet)
+	human.set_clothes_material(torso.resource_name, Random.choice(torso.textures.keys()))
+	human.set_clothes_material(legs.resource_name, Random.choice(legs.textures.keys()))
+	human.set_clothes_material(feet.resource_name, Random.choice(feet.textures.keys()))
 
 func randomize_skin() -> void:
 	human.set_skin_texture(Random.choice(HumanizerRegistry.skin_textures.keys()))

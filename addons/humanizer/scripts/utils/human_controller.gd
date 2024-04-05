@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-@export var _camera: Node
+@export var camera: Node
 @export_range(0.1, 5) var move_speed: float = 1
 
 const GRAVITY: float  = 9.8
@@ -23,11 +23,11 @@ func _ready():
 	anim.active = true
 
 func _physics_process(delta):
-	if _camera == null:
+	if camera == null:
 		return
 	
-	var cam_right: Vector3 = _camera.basis.x
-	var cam_forward: Vector3 = -_camera.basis.z
+	var cam_right: Vector3 = camera.basis.x
+	var cam_forward: Vector3 = -camera.basis.z
 	cam_right.y = 0
 	cam_forward.y = 0
 	cam_right = cam_right.normalized()

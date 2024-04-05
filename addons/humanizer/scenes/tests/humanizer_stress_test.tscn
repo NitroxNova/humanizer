@@ -29,6 +29,8 @@ func _process(delta) -> void:
 	elif new_human != null:
 		add_child(new_human)
 		new_human.global_position = pos
+		new_human.camera = $Camera3D
+		
 		pos.x += 1
 		if pos.x > 9.5:
 			pos.z += 1
@@ -49,14 +51,18 @@ func _process(delta) -> void:
 		thread.start(_generate_human)
 	
 func _generate_human() -> void:
+	print('starting new human')
 	var human = Humanizer.new()
 	human.load_human()
-
+	
+	print('randomizing')
 	randomizer.human = human
 	randomizer.randomize_body_parts()
 	randomizer.randomize_clothes()
 	randomizer.randomize_shapekeys()
+	human.set_component_state(true, &'main_collider')
 	
+	print('baking')
 	human.standard_bake()
 	new_human = human.save_human_scene(false).instantiate()
 "
@@ -87,6 +93,8 @@ script = SubResource("GDScript_avvx6")
 randomizer = NodePath("Randomizer")
 
 [node name="Floor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.605505, 0)
+collision_mask = 3
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
 mesh = SubResource("PlaneMesh_vyou0")

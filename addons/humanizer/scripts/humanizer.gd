@@ -177,14 +177,16 @@ func load_human() -> void:
 func _deserialize() -> void:
 	set_shapekeys(human_config.shapekeys, true)
 	set_rig(human_config.rig, body_mesh.mesh)
-	for slot in human_config.body_parts:
+	for slot: String in human_config.body_parts:
 		var bp = human_config.body_parts[slot]
 		var mat = human_config.body_part_materials[slot]
 		set_body_part(bp)
 		set_body_part_material(bp.slot, mat)
-	for clothes in human_config.clothes:
+	for clothes: HumanClothes in human_config.clothes:
+		print(clothes.resource_name)
 		_add_clothes_mesh(clothes)
-		set_clothes_material(clothes.resource_name, human_config.clothes_materials[clothes.resource_name])
+	for clothes: String in human_config.clothes_materials:
+		set_clothes_material(clothes, human_config.clothes_materials[clothes])
 	if human_config.body_part_materials.has(&'skin'):
 		set_skin_texture(human_config.body_part_materials[&'skin'])
 	for component in human_config.components:
@@ -303,14 +305,14 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	else:
 		body_mesh.material_config = HumanizerMaterial.new()
 	body_mesh.initialize()
-	if skeleton != null and get_tree() != null:
-		body_mesh.skeleton = skeleton.get_path()
+	if skeleton != null:
+		body_mesh.skeleton = &'../' + skeleton.name
 		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
 	_add_child_node(body_mesh)
 
 func set_body_part(bp: HumanBodyPart) -> void:
 	if human_config.body_parts.has(bp.slot):
-		if human_config.body_parts[bp.slot] == bp:
+		if get_node_or_null(bp.resource_name) != null:
 			return
 		var current = human_config.body_parts[bp.slot]
 		_delete_child_by_name(current.resource_name)
@@ -335,8 +337,6 @@ func clear_body_part(clear_slot: String) -> void:
 			return
 
 func apply_clothes(cl: HumanClothes) -> void:
-	if human_config.clothes.has(cl):
-		return
 	for wearing in human_config.clothes:
 		for slot in cl.slots:
 			if slot in wearing.slots:
@@ -345,13 +345,14 @@ func apply_clothes(cl: HumanClothes) -> void:
 	_add_clothes_mesh(cl)
 
 func _add_clothes_mesh(cl: HumanClothes) -> void:
+	if get_node_or_null(cl.resource_name) != null:
+		return
 	if not cl in human_config.clothes:
 		human_config.clothes.append(cl)
 	var mi = load(cl.scene_path).instantiate()
 	if cl.default_overlay != null:
 		setup_overlay_material(cl, mi)
 	_add_child_node(mi)
-	set_clothes_material(cl.resource_name, Random.choice(cl.textures.keys()))
 	_add_bone_weights(cl)
 	set_shapekeys(human_config.shapekeys)
 
@@ -390,7 +391,7 @@ func update_hide_vertices() -> void:
 		if not child is MeshInstance3D:
 			continue
 		var res: HumanAsset = _get_asset_by_name(child.name)
-		if res != null:
+		if res is HumanClothes: #!= null:
 			depth_sorted_clothes.append(child)
 	
 	depth_sorted_clothes.sort_custom(_sort_clothes_by_z_depth)
@@ -476,7 +477,7 @@ func update_hide_vertices() -> void:
 	_set_body_mesh(new_mesh)
 	recalculate_normals()
 	body_mesh.set_surface_override_material(0, skin_mat)
-	body_mesh.skeleton = skeleton.get_path()
+	body_mesh.skeleton = &'../' + skeleton.name
 
 func _sort_clothes_by_z_depth(clothes_a,clothes_b): # from highest to lowest
 	var res_a: HumanAsset = _get_asset_by_name(clothes_a.name)
@@ -586,7 +587,7 @@ func standard_bake() -> void:
 		printerr('Already baked.  Reload the scene, load a human_config, or reset human to start over.')
 		return
 	adjust_skeleton()
-	update_hide_vertices()
+	#update_hide_vertices()
 	set_bake_meshes('Opaque')
 	bake_surface()
 	set_bake_meshes('Transparent')
@@ -603,7 +604,7 @@ func bake_surface() -> void:
 	mi.name = 'Baked-' + bake_surface_name
 	add_child(mi)
 	mi.owner = self
-	mi.skeleton = skeleton.get_path()
+	mi.skeleton = &'../' + skeleton.name
 	for mesh in _bake_meshes:
 		remove_child(mesh)
 		mesh.queue_free()
@@ -623,6 +624,7 @@ func _combine_meshes() -> ArrayMesh:
 		var format = child.mesh.surface_get_format(0)
 		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_arrays, blend_shape_arrays, lods, format)
 		new_mesh.surface_set_name(i, child.name.replace('Baked-', ''))
+		print(child.name)
 		if child.get_surface_override_material(0) != null:
 			new_mesh.surface_set_material(i, child.get_surface_override_material(0).duplicate(true))
 		else:
@@ -642,7 +644,7 @@ func recalculate_normals() -> void:
 	
 #### Materials ####
 func set_skin_texture(name: String) -> void:
-	print('setting skin texture')
+	#print('setting skin texture')
 	var base_texture: String
 	if not HumanizerRegistry.skin_textures.has(name):
 		human_config.body_part_materials[&'skin'] = &''
@@ -653,7 +655,6 @@ func set_skin_texture(name: String) -> void:
 
 func set_body_part_material(set_slot: String, texture: String) -> void:
 	#print('setting material ' + texture + ' on ' + set_slot)
-	print(texture)
 	var bp: HumanBodyPart = human_config.body_parts[set_slot]
 	human_config.body_part_materials[set_slot] = texture
 	var mi = get_node(bp.resource_name) as MeshInstance3D
@@ -669,19 +670,19 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 		var mat: BaseMaterial3D = mi.get_surface_override_material(0)
 		mat.albedo_texture = load(bp.textures[texture])
 	if bp.slot in [&'LeftEye', &'RightEye', &'Eyes']:
-		if get_tree() != null:
-			await get_tree().process_frame
+		#if get_tree() != null:
+		#	await get_tree().process_frame
 		mi.material_config.overlays[1].color = eye_color
 	if bp.slot in [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows', &'Hair']:
-		if get_tree() != null:
-			await get_tree().process_frame
+		#if get_tree() != null:
+		#	await get_tree().process_frame
 		mi.get_surface_override_material(0).albedo_color = hair_color
 	notify_property_list_changed()
 
 func set_clothes_material(cl_name: String, texture: String) -> void:
 	#print('setting texture ' + texture + ' on ' + cl_name)
 	var cl: HumanClothes = HumanizerRegistry.clothes[cl_name]
-	var mi: MeshInstance3D = get_node(cl.resource_name)
+	var mi: MeshInstance3D = get_node(cl_name)
 
 	if cl.default_overlay != null:
 		## HumanizerMaterials are always local to scene
@@ -708,8 +709,8 @@ func setup_overlay_material(asset: HumanAsset, mi: MeshInstance3D) -> void:
 	mi.set_script(load("res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd"))
 	mi.material_config = HumanizerMaterial.new()
 	mi.initialize()
-	if get_tree() != null:
-		await get_tree().process_frame
+	#if get_tree() != null:
+	#	await get_tree().process_frame
 	var mat_config = mi.material_config as HumanizerMaterial
 	var overlay_dict = {'albedo': asset.textures.values()[0]}
 	if mi.get_surface_override_material(0).normal_texture != null:
@@ -752,8 +753,7 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	var mat = body_mesh.get_surface_override_material(0)
 	_set_body_mesh(skinned_mesh)
 	body_mesh.set_surface_override_material(0, mat)
-	if get_tree() != null:
-		body_mesh.skeleton = skeleton.get_path()
+	body_mesh.skeleton = &'../' + skeleton.name
 	adjust_skeleton()
 	set_shapekeys(human_config.shapekeys)
 	for cl in human_config.clothes:
@@ -876,9 +876,8 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 	mesh.clear_surfaces()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_sf_arrays, bs_arrays, lods, flags)
 	mi.mesh = mesh
-	if get_tree() != null:
-		mi.skeleton = skeleton.get_path()
-		mi.skin = skeleton.create_skin_from_rest_transforms()
+	mi.skeleton = &'../' + skeleton.name
+	mi.skin = skeleton.create_skin_from_rest_transforms()
 
 func _reset_animator() -> void:
 	for child in get_children():
@@ -890,8 +889,8 @@ func _reset_animator() -> void:
 		animator.active = true
 		set_editable_instance(animator, true)
 		var root_bone = skeleton.get_bone_name(0)
-		if get_tree() != null and animator is AnimationTree and root_bone in ['Root']:
-			animator.root_motion_track = NodePath(str(skeleton.get_path()) + ":" + root_bone)
+		if animator is AnimationTree and root_bone in ['Root']:
+			animator.root_motion_track = &'../' + skeleton.name + ":" + root_bone
 
 #### Additional Components ####
 func set_component_state(enabled: bool, component: String) -> void:
