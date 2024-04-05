@@ -175,7 +175,7 @@ func load_human() -> void:
 	notify_property_list_changed()
 
 func _deserialize() -> void:
-	set_shapekeys(human_config.shapekeys, true)
+	human_config.shapekeys = {}
 	set_rig(human_config.rig, body_mesh.mesh)
 	for slot: String in human_config.body_parts:
 		var bp = human_config.body_parts[slot]
@@ -183,7 +183,6 @@ func _deserialize() -> void:
 		set_body_part(bp)
 		set_body_part_material(bp.slot, mat)
 	for clothes: HumanClothes in human_config.clothes:
-		print(clothes.resource_name)
 		_add_clothes_mesh(clothes)
 	for clothes: String in human_config.clothes_materials:
 		set_clothes_material(clothes, human_config.clothes_materials[clothes])
@@ -493,12 +492,8 @@ func restore_hidden_vertices() -> void:
 	body_mesh.set_surface_override_material(0, mat)
 	set_rig(human_config.rig, body_mesh.mesh)
 
-func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
+func set_shapekeys(shapekeys: Dictionary) -> void:
 	var prev_sk = human_config.shapekeys.duplicate()
-	if override_zero:
-		for sk in prev_sk: 
-			if sk in shapekey_data.shapekeys:
-				prev_sk[sk] = 0
 
 	# Set default macro/race values
 	var macro_vals := {}
@@ -559,7 +554,8 @@ func set_shapekeys(shapekeys: Dictionary, override_zero: bool = false):
 	
 	recalculate_normals()
 	adjust_skeleton()
-	human_config.shapekeys = shapekeys.duplicate()
+	for key in shapekeys:
+		human_config.shapekeys[key] = shapekeys[key]
 	if main_collider != null:
 		_adjust_main_collider()
 
