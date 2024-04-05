@@ -423,7 +423,7 @@ func update_hide_vertices() -> void:
 				cl_delete_verts_gd[gd_id] = true
 		
 		if any_deleted:
-			clothes_node.mesh = MeshOperations.delete_vertices(clothes_node.mesh,cl_delete_verts_gd)			
+			clothes_node.mesh = MeshOperations.delete_faces(clothes_node.mesh,cl_delete_verts_gd)			
 		
 		#update delete verts to apply to all subsequent clothes
 		for entry in mhclo.delete_vertices:
@@ -437,44 +437,8 @@ func update_hide_vertices() -> void:
 		var mh_id = arrays[Mesh.ARRAY_CUSTOM0][gd_id]
 		if delete_verts_mh[mh_id]:
 			delete_verts_gd[gd_id] = true
-	
-	for face_id in arrays[Mesh.ARRAY_INDEX].size()/3:
-		var slice = arrays[Mesh.ARRAY_INDEX].slice(face_id*3,(face_id+1)*3)
-		if not (delete_verts_gd[slice[0]] and delete_verts_gd[slice[1]] and delete_verts_gd[slice[2]]):
-			keep_faces.append(slice)
-	
-	delete_verts_gd.fill(true)
-	for slice in keep_faces:
-		for sl_id in 3:
-			delete_verts_gd[slice[sl_id]] = false
-	
-	var new_vertex_size = 0
-	for old_id in delete_verts_gd.size():
-		if not delete_verts_gd[old_id]:
-			remap_verts_gd[old_id] = new_vertex_size
-			new_vertex_size += 1
 			
-	var bone_count = arrays[Mesh.ARRAY_BONES].size()/arrays[Mesh.ARRAY_VERTEX].size()	
-	for gd_id in range(delete_verts_gd.size()-1,-1,-1):
-		if delete_verts_gd[gd_id]:
-			arrays[Mesh.ARRAY_VERTEX].remove_at(gd_id)
-			arrays[Mesh.ARRAY_CUSTOM0].remove_at(gd_id)
-			arrays[Mesh.ARRAY_TEX_UV].remove_at(gd_id)
-			for bone_inc in bone_count:
-				arrays[Mesh.ARRAY_BONES].remove_at(gd_id*bone_count)
-				arrays[Mesh.ARRAY_WEIGHTS].remove_at(gd_id*bone_count)
-	
-	arrays[Mesh.ARRAY_INDEX].resize(0)		
-	for slice in keep_faces:
-		for sl_id in 3:
-			var new_gd_id = remap_verts_gd[slice[sl_id]]
-			arrays[Mesh.ARRAY_INDEX].append(new_gd_id)
-	
-	arrays[Mesh.ARRAY_NORMAL] = null
-	arrays[Mesh.ARRAY_TANGENT] = null
-			
-	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], lods, fmt)
-	_set_body_mesh(new_mesh)
+	_set_body_mesh(MeshOperations.delete_faces(body_mesh.mesh,delete_verts_gd))
 	recalculate_normals()
 	body_mesh.set_surface_override_material(0, skin_mat)
 	body_mesh.skeleton = &'../' + skeleton.name
