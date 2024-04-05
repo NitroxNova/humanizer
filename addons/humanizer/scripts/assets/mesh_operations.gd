@@ -110,10 +110,39 @@ static func skin_mesh(rig: HumanizerRig, skeleton: Skeleton3D, basemesh: ArrayMe
 		skinned_mesh.add_blend_shape(basemesh.get_blend_shape_name(bs))
 	skinned_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh_arrays, [], lods, flags)
 	return skinned_mesh
+
 	
 #delete_verts is boolean true/false array of the same size as the mesh vertex count
-static func delete_vertices(mesh:ArrayMesh,delete_verts:Array,surface_id=0):  #delete all vertices and faces that use delete_verts
+#only delete face if all vertices are hidden
+static func delete_faces(mesh:ArrayMesh,delete_verts:Array,surface_id=0):
 	var surface_arrays = mesh.surface_get_arrays(surface_id)
+	var keep_faces := []
+	
+	for face_id in surface_arrays[Mesh.ARRAY_INDEX].size()/3:
+		var slice = surface_arrays[Mesh.ARRAY_INDEX].slice(face_id*3,(face_id+1)*3)
+		if not (delete_verts[slice[0]] and delete_verts[slice[1]] and delete_verts[slice[2]]):
+			keep_faces.append(slice)
+	
+	var new_delete_verts = []
+	new_delete_verts.resize(delete_verts.size())
+	new_delete_verts.fill(true)
+	for slice in keep_faces:
+		for sl_id in 3:
+			new_delete_verts[slice[sl_id]] = false
+			
+	surface_arrays[Mesh.ARRAY_INDEX].resize(0)		
+	for slice in keep_faces:
+		surface_arrays[Mesh.ARRAY_INDEX].append_array(slice)
+	
+	surface_arrays = delete_vertices_from_surface(surface_arrays,new_delete_verts,surface_id)
+	
+	var new_mesh = ArrayMesh.new()
+	var format = mesh.surface_get_format(surface_id)
+	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,surface_arrays,[],{},format)		
+	return new_mesh
+	
+#delete_verts is boolean true/false array of the same size as the mesh vertex count
+static func delete_vertices_from_surface(surface_arrays:Array,delete_verts:Array,surface_id=0):  #delete all vertices and faces that use delete_verts
 	var vertex_count = surface_arrays[Mesh.ARRAY_VERTEX].size()
 	var array_increments = []
 	for array_id in surface_arrays.size():
@@ -152,10 +181,7 @@ static func delete_vertices(mesh:ArrayMesh,delete_verts:Array,surface_id=0):  #d
 			new_index_array.append_array(new_slice)
 	
 	surface_arrays[Mesh.ARRAY_INDEX] = new_index_array	
-	var new_mesh = ArrayMesh.new()
-	var format = mesh.surface_get_format(surface_id)
-	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,surface_arrays,[],{},format)		
-	return new_mesh
+	return surface_arrays
 	
 const macro_ranges :Dictionary = {
 		age = [["baby",0],["child",.12],["young",.25],["old",1]],
