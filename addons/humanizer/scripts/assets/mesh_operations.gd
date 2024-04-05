@@ -110,8 +110,53 @@ static func skin_mesh(rig: HumanizerRig, skeleton: Skeleton3D, basemesh: ArrayMe
 		skinned_mesh.add_blend_shape(basemesh.get_blend_shape_name(bs))
 	skinned_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh_arrays, [], lods, flags)
 	return skinned_mesh
-
-
+	
+#delete_verts is boolean true/false array of the same size as the mesh vertex count
+static func delete_vertices(mesh:ArrayMesh,delete_verts:Array,surface_id=0):  #delete all vertices and faces that use delete_verts
+	var surface_arrays = mesh.surface_get_arrays(surface_id)
+	var vertex_count = surface_arrays[Mesh.ARRAY_VERTEX].size()
+	var array_increments = []
+	for array_id in surface_arrays.size():
+		var array = surface_arrays[array_id]
+		if not array_id == Mesh.ARRAY_INDEX and not array==null:
+			var increment = array.size() / vertex_count
+			array_increments.append([array_id,increment])
+	
+	for vertex_id in range(vertex_count-1,-1,-1): #go backwards to preserve ids when deleting
+		if delete_verts[vertex_id]:
+			for incr_id_pair in array_increments:
+				var array_id = incr_id_pair[0]
+				var increment = incr_id_pair[1]
+				for i in increment:
+					surface_arrays[array_id].remove_at(increment*vertex_id)
+	
+	var remap_verts_gd = PackedInt32Array() #old to new
+	remap_verts_gd.resize(vertex_count)
+	remap_verts_gd.fill(-1)
+	var new_vertex_size = 0
+	for old_id in vertex_count:
+		if not delete_verts[old_id]:
+			remap_verts_gd[old_id] = new_vertex_size
+			new_vertex_size += 1
+	
+	var new_index_array = PackedInt32Array()
+	for incr in surface_arrays[Mesh.ARRAY_INDEX].size()/3:
+		var slice = surface_arrays[Mesh.ARRAY_INDEX].slice(incr*3,(incr+1)*3)
+		var new_slice = PackedInt32Array()
+		var keep_face = true
+		for old_id in slice:
+			new_slice.append(remap_verts_gd[old_id])
+			if remap_verts_gd[old_id] == -1:
+				keep_face = false
+		if keep_face:
+			new_index_array.append_array(new_slice)
+	
+	surface_arrays[Mesh.ARRAY_INDEX] = new_index_array	
+	var new_mesh = ArrayMesh.new()
+	var format = mesh.surface_get_format(surface_id)
+	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,surface_arrays,[],{},format)		
+	return new_mesh
+	
 const macro_ranges :Dictionary = {
 		age = [["baby",0],["child",.12],["young",.25],["old",1]],
 		gender = [["female",0.0],["male",1.0]],
@@ -138,8 +183,7 @@ static func get_race_options():
 	return ["african","asian","caucasian"]
 
 #call this from the menu to get the new shapekeys
-#this does not include reseting the previous shapekeys tho
-#need to pass previous macro values as well	
+#this does not include reseting the previous macro shapekeys tho
 static func get_macro_shapekey_values(macros:Dictionary,race:Dictionary,changed_name:String=""):
 	var new_shapekeys = {} #shapekey name / value pairs
 	var macro_data = {}
@@ -192,11 +236,12 @@ static func get_combination_shapekeys(combo_name:String,data:Dictionary):
 		combo_shapekeys = next_shapes
 		next_shapes = {}
 		
-	## cant check for missing shapekeys without the shapekey_data dictionary, it is expected that not all shapekeys are present
+	## cant check for missing shapekeys without the shapekey_data dictionary, 
+	## it is expected that not all shapekeys are present
 	## will have to ignore missing shapekeys elsewhere
-	#for shape_name in curr_shapes.keys():
+	#for shape_name in combo_shapekeys.keys():
 		#if not shape_name in shapekey_data.shapekeys:
-			#curr_shapes.erase(shape_name)
+			#combo_shapekeys.erase(shape_name)
 	
 	return combo_shapekeys
 	
