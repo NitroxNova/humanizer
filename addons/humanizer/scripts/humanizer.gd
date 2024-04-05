@@ -387,7 +387,7 @@ func update_hide_vertices() -> void:
 		if not child is MeshInstance3D:
 			continue
 		var res: HumanAsset = _get_asset_by_name(child.name)
-		if res is HumanClothes: #!= null:
+		if res is HumanClothes or res is HumanBodyPart:
 			depth_sorted_clothes.append(child)
 	
 	depth_sorted_clothes.sort_custom(_sort_clothes_by_z_depth)
