@@ -290,10 +290,12 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
-	var visible = body_mesh.visible
+	var visible = true
 	var mat_config: HumanizerMaterial = null
-	if body_mesh != null and body_mesh is HumanizerMeshInstance:
-		mat_config = body_mesh.material_config.duplicate(true)
+	if body_mesh != null:
+		visible = body_mesh.visible
+		if body_mesh is HumanizerMeshInstance:
+			mat_config = body_mesh.material_config.duplicate(true)
 	_delete_child_by_name(_BASE_MESH_NAME)
 	body_mesh = MeshInstance3D.new()
 	body_mesh.name = _BASE_MESH_NAME
