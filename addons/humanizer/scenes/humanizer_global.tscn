@@ -26,7 +26,7 @@ default_character_physics_mask = 3
 default_physical_bone_layers = 4
 default_physical_bone_mask = 5
 default_character_render_layers = 1
-atlas_resolution = 0
+atlas_resolution = "1k:1024"
 
 [node name="HumanizerConfig" type="Node"]
 script = SubResource("GDScript_lwy01")

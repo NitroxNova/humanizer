@@ -57,4 +57,4 @@ extends Resource
 ## Default character render layers
 @export_flags_3d_render var default_character_render_layers
 ## Texture atlas resolution
-@export_enum("1k:1024", "2k:2048", "4k:4096") var atlas_resolution: int
+@export_enum("1k:1024", "2k:2048", "4k:4096") var atlas_resolution: String

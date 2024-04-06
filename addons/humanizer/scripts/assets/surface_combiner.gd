@@ -88,9 +88,6 @@ func run() -> MeshInstance3D:
 			if surface.is_ao_enabled():
 				new_ao_image.blit_rect(old_ao_image,Rect2(old_island_position,island_size),new_island_position)
 
-	new_albedo_image.generate_mipmaps()
-	new_albedo_image.compress(Image.COMPRESS_BPTC)
-	var albedo_texture := ImageTexture.create_from_image(new_albedo_image)
 	
 	var new_mesh = ArrayMesh.new()
 	var new_sf_arrays = []
@@ -149,19 +146,32 @@ func run() -> MeshInstance3D:
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_sf_arrays)
 
 	var new_material := mesh_instances[0].get_surface_override_material(0).duplicate()
+	var atlas_resolution := int(HumanizerGlobal.config.atlas_resolution.get_slice(":",1))
+	
+	if not new_albedo_image.get_width() == atlas_resolution:
+		new_albedo_image.resize(atlas_resolution,atlas_resolution)
+	new_albedo_image.generate_mipmaps()
+	new_albedo_image.compress(Image.COMPRESS_BPTC)
+	var albedo_texture := ImageTexture.create_from_image(new_albedo_image)
 	new_material.albedo_texture = albedo_texture
+	
 	if has_normal:
+		if not new_normal_image.get_width() == atlas_resolution:
+			new_normal_image.resize(atlas_resolution,atlas_resolution)
 		new_normal_image.generate_mipmaps(true)
 		new_normal_image.compress(Image.COMPRESS_S3TC,Image.COMPRESS_SOURCE_NORMAL)
 		new_material.normal_enabled = true
 		new_material.normal_texture = ImageTexture.create_from_image(new_normal_image)
+		
 	if has_ao:
+		if not new_ao_image.get_width() == atlas_resolution:
+			new_ao_image.resize(atlas_resolution,atlas_resolution)
 		new_ao_image.generate_mipmaps()
 		new_ao_image.compress(Image.COMPRESS_BPTC)
 		new_material.ao_enabled = true
 		new_material.ao_texture = ImageTexture.create_from_image(new_ao_image)
-	new_mesh.surface_set_material(0, new_material)
-	
+		
+	new_mesh.surface_set_material(0, new_material)	
 	var mi = MeshInstance3D.new()
 	mi.mesh = new_mesh
 	return mi
