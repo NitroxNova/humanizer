@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="MHCLO" load_steps=2 format=3 uid="uid://dnhnvw46fb7d8"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_ibpjv"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_kl2kt"]
 
 [resource]
 resource_name = "Short03"
-script = ExtResource("1_ibpjv")
+script = ExtResource("1_kl2kt")
 vertex_data = [{
 "format": "triangle",
 "offset": Vector3(0.00584, 0.05131, -0.00744),

@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://n40ggkk52mnn"
-path.s3tc="res://.godot/imported/shoes06_diffuse.png-a6664b0fc801861836780a4d8da3fa71.s3tc.ctex"
+uid="uid://bbcm8gaaxmu0e"
+path.s3tc="res://.godot/imported/blue_diffuse.png-33d69c06a9f1c21fc698e5fed7998284.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/humanizer/data/assets/clothes/shoes/shoes06/shoes06_diffuse.png"
-dest_files=["res://.godot/imported/shoes06_diffuse.png-a6664b0fc801861836780a4d8da3fa71.s3tc.ctex"]
+source_file="res://addons/humanizer/data/assets/clothes/shoes/shoes02/blue_diffuse.png"
+dest_files=["res://.godot/imported/blue_diffuse.png-33d69c06a9f1c21fc698e5fed7998284.s3tc.ctex"]
 
 [params]
 

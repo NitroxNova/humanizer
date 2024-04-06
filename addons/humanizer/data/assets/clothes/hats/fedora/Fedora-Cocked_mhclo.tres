@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="MHCLO" load_steps=2 format=3 uid="uid://cmffq7evbmg1h"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_tlogu"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_k76qq"]
 
 [resource]
 resource_name = "Fedora-Cocked"
-script = ExtResource("1_tlogu")
+script = ExtResource("1_k76qq")
 vertex_data = [{
 "format": "triangle",
 "offset": Vector3(0.00466, 0.02216, 0.05649),

@@ -1,8 +1,0 @@
-[gd_scene load_steps=3 format=3 uid="uid://bp1cngqcih50k"]
-
-[ext_resource type="ArrayMesh" uid="uid://nsull36wa7fp" path="res://addons/humanizer/data/assets/clothes/shoes/shoes04/Shoes04_mesh.tres" id="1_cfv2u"]
-[ext_resource type="Material" uid="uid://b3xs20q5nd1wq" path="res://addons/humanizer/data/assets/clothes/shoes/shoes04/shoes04_material.tres" id="2_tapbo"]
-
-[node name="Shoes04" type="MeshInstance3D"]
-mesh = ExtResource("1_cfv2u")
-surface_material_override/0 = ExtResource("2_tapbo")
