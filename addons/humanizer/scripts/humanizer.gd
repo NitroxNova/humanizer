@@ -290,6 +290,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
+	var visible = body_mesh.visible
 	var mat_config: HumanizerMaterial = null
 	if body_mesh != null and body_mesh is HumanizerMeshInstance:
 		mat_config = body_mesh.material_config.duplicate(true)
@@ -307,6 +308,7 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	if skeleton != null:
 		body_mesh.skeleton = &'../' + skeleton.name
 		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
+	body_mesh.visible = visible
 	_add_child_node(body_mesh)
 
 func set_body_part(bp: HumanBodyPart) -> void:
