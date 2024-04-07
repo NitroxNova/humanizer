@@ -16,11 +16,22 @@ var generating: bool = true
 var t0: float
 var pos: Vector3 = Vector3.ZERO
 
+func _ready() -> void:
+	## You have to feed in the following randomization parameters to the randomizer
+	randomizer.shapekeys = HumanizerUtils.get_shapekey_categories()
+	randomizer.randomization = {}
+	randomizer.categories = {}
+	randomizer.asymmetry = {}
+	for cat in randomizer.shapekeys:
+		randomizer.randomization[cat] = 0.5
+		randomizer.asymmetry[cat] = 0.1 
+		randomizer.categories[cat] = true
+
 func _process(delta) -> void:
 	var fps = Engine.get_frames_per_second()
 	$UI/fps.text = str(int(fps))
 	
-	if Input.is_key_pressed(KEY_ENTER):
+	if Input.is_action_just_pressed(&'ui_accept'):
 		generating = not generating
 		print('Generating new humans : ' + str(generating))
 		
@@ -32,21 +43,21 @@ func _process(delta) -> void:
 		new_human.camera = $Camera3D
 		
 		pos.x += 1
-		if pos.x > 9.5:
+		if pos.x > 15.5:
 			pos.z += 1
 			pos.x = 0
 		n_humans += 1
 		$UI/humans.text = str(n_humans)
 		print(\"New human took \" + str((Time.get_ticks_msec() - t0) / 1000) + ' seconds')
-	
+		new_human = null
+		
 	if fps < 55:
 		return
 	
-	new_human = null
 	if thread.is_started():
 		thread.wait_to_finish()
 	
-	if generating:
+	if generating and new_human == null:
 		t0 = Time.get_ticks_msec()
 		thread.start(_generate_human)
 	
@@ -93,7 +104,7 @@ script = SubResource("GDScript_avvx6")
 randomizer = NodePath("Randomizer")
 
 [node name="Floor" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.605505, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.1455, -0.605505, 10.3397)
 collision_mask = 3
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
@@ -138,10 +149,10 @@ horizontal_alignment = 2
 
 [node name="Label2" type="Label" parent="UI"]
 layout_mode = 0
-offset_left = 102.0
-offset_top = 54.0
-offset_right = 142.0
-offset_bottom = 77.0
+offset_left = 60.0
+offset_top = 84.0
+offset_right = 100.0
+offset_bottom = 107.0
 text = "FPS"
 
 [node name="humans" type="Label" parent="UI"]
@@ -156,8 +167,8 @@ horizontal_alignment = 2
 
 [node name="Label3" type="Label" parent="UI"]
 layout_mode = 0
-offset_left = 1049.0
-offset_top = 53.0
-offset_right = 1112.0
-offset_bottom = 76.0
+offset_left = 1000.0
+offset_top = 86.0
+offset_right = 1063.0
+offset_bottom = 109.0
 text = "humans"
