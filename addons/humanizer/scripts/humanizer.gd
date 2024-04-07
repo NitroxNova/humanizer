@@ -385,6 +385,35 @@ func update_hide_vertices() -> void:
 	remap_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
 	remap_verts_gd.fill(-1)
 	
+	
+	for child in get_children():
+		if not child is MeshInstance3D:
+			continue
+		var res: HumanAsset = _get_asset_by_name(child.name)
+		if res is HumanClothes or res is HumanBodyPart:
+			var mhclo : MHCLO = load(res.mhclo_path)
+			for entry in mhclo.delete_vertices:
+					if entry.size() == 1:
+						delete_verts_mh[entry[0]] = true
+					else:
+						for mh_id in range(entry[0], entry[1] + 1):
+							delete_verts_mh[mh_id] = true
+	
+	for gd_id in arrays[Mesh.ARRAY_VERTEX].size():
+		var mh_id = arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+		if delete_verts_mh[mh_id]:
+			delete_verts_gd[gd_id] = true
+			
+	_set_body_mesh(MeshOperations.delete_faces(body_mesh.mesh,delete_verts_gd))
+	recalculate_normals()
+	body_mesh.set_surface_override_material(0, skin_mat)
+	body_mesh.skeleton = &'../' + skeleton.name
+
+func update_clothes_hide_vertices():
+	
+	var delete_verts_mh := []
+	delete_verts_mh.resize(_helper_vertex.size())
+	
 	var depth_sorted_clothes := []
 	for child in get_children():
 		if not child is MeshInstance3D:
@@ -431,16 +460,7 @@ func update_hide_vertices() -> void:
 			else:
 				for mh_id in range(entry[0], entry[1] + 1):
 					delete_verts_mh[mh_id] = true
-	
-	for gd_id in arrays[Mesh.ARRAY_VERTEX].size():
-		var mh_id = arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-		if delete_verts_mh[mh_id]:
-			delete_verts_gd[gd_id] = true
-			
-	_set_body_mesh(MeshOperations.delete_faces(body_mesh.mesh,delete_verts_gd))
-	recalculate_normals()
-	body_mesh.set_surface_override_material(0, skin_mat)
-	body_mesh.skeleton = &'../' + skeleton.name
+
 
 func _sort_clothes_by_z_depth(clothes_a,clothes_b): # from highest to lowest
 	var res_a: HumanAsset = _get_asset_by_name(clothes_a.name)
