@@ -116,7 +116,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_iytk1")
 shape = SubResource("ConvexPolygonShape3D_ash81")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.924699, -0.115011, 0.362911, -0.38054, -0.30677, 0.8724, 0.010995, -0.944809, -0.327436, 0, 0.0190122, 0.658016)
+transform = Transform3D(1, 0, 0, 0, -0.0288812, 0.999583, 0, -0.999583, -0.0288812, 0, 0, 0)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_cj4et")

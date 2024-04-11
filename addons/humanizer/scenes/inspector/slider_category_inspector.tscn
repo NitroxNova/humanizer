@@ -76,4 +76,4 @@ layout_mode = 2
 [node name="GridContainer" type="GridContainer" parent="PanelContainer/MarginContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-columns = 3
+columns = 2

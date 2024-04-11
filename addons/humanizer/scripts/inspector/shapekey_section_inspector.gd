@@ -42,22 +42,6 @@ func _ready() -> void:
 		#line_edit.text = str(0)
 		#line_edit.text_changed.connect(_on_value_changed.bind(key))
 		#line_edit.text_changed.connect(set_shapekey.bind(key))
-		
-		var bake_button = CheckBox.new()
-		bake_button.text = 'Bake'
-		bake_button.button_pressed = not human.human_config.keep_shapekeys.has(key)
-		bake_button.set_meta('shapekey', key)
-		bake_button.pressed.connect(set_bake_shapekey.bind(bake_button))
-		%GridContainer.add_child(bake_button)
-		bake_button.owner = self
-
-func set_bake_shapekey(btn: CheckBox) -> void:
-	var shapekey: String = btn.get_meta('shapekey')
-	if not human.human_config.keep_shapekeys.has(shapekey):
-		human.human_config.keep_shapekeys.append(shapekey)
-	else:
-		human.human_config.keep_shapekeys.erase(shapekey)
-
 
 func _on_value_changed(changed: bool, slider: HSlider) -> void:
 	var key = slider.name

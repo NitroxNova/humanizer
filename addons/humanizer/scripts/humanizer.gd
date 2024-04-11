@@ -461,6 +461,7 @@ func update_clothes_hide_vertices():
 				for mh_id in range(entry[0], entry[1] + 1):
 					delete_verts_mh[mh_id] = true
 
+
 func _sort_clothes_by_z_depth(clothes_a,clothes_b): # from highest to lowest
 	var res_a: HumanAsset = _get_asset_by_name(clothes_a.name)
 	var res_b: HumanAsset = _get_asset_by_name(clothes_b.name)
@@ -560,7 +561,7 @@ func set_bake_meshes(subset: String) -> void:
 		else:
 			bake_surface_name = ''
 	notify_property_list_changed()
-
+	
 func standard_bake() -> void:
 	if baked:
 		printerr('Already baked.  Reload the scene, load a human_config, or reset human to start over.')

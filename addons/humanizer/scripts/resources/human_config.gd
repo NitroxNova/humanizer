@@ -7,7 +7,6 @@ extends Resource
 
 ## Shapekey Settings
 @export var shapekeys := {}
-@export var keep_shapekeys: Array[String] = []
 
 ## Additional Components
 @export var components := []
