@@ -232,9 +232,20 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		root_node.set_script(load(HumanizerGlobal.config.default_human_script))
 	
 	var sk = skeleton.duplicate(true) as Skeleton3D
+	sk.scene_file_path = ''
 	root_node.add_child(sk)
 	sk.owner = root_node
 	
+	print(skeleton.get_child_count())
+	for phys_bone: PhysicalBone3D in skeleton.get_children():
+		var bone = phys_bone.duplicate(true)
+		sk.add_child(bone)
+		bone.owner = root_node
+		for coll in phys_bone.get_children():
+			var collider = coll.duplicate(true)
+			bone.add_child(collider)
+			collider.owner = root_node
+			
 	if main_collider != null:
 		var coll = main_collider.duplicate(true)
 		root_node.add_child(coll)

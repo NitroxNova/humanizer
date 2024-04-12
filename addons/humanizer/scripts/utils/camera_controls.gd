@@ -26,13 +26,6 @@ func _process(delta):
 		position -= basis.y * move_speed * delta
 	if Input.is_key_pressed(KEY_E):
 		position += basis.y * move_speed * delta
-	if Input.is_key_pressed(KEY_SPACE):
-		if human != null:
-			if simulating:
-				human.skeleton.physical_bones_stop_simulation()
-			else:
-				human.skeleton.physical_bones_start_simulation()
-			simulating = not simulating
 		
 
 func _unhandled_input(event):

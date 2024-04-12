@@ -3,6 +3,7 @@ extends CharacterBody3D
 @export var camera: Node
 @export_range(0.1, 5) var move_speed: float = 1
 
+@onready var skeleton: Skeleton3D = $GeneralSkeleton
 const GRAVITY: float  = 9.8
 
 
@@ -21,6 +22,8 @@ func _ready():
 	anim.active = false
 	anim.advance_expression_base_node = get_path()
 	anim.active = true
+	
+	skeleton.animate_physical_bones = true
 
 func _physics_process(delta):
 	if camera == null:
@@ -47,4 +50,12 @@ func _physics_process(delta):
 	velocity.z = movement.z
 	velocity.y -= GRAVITY * delta
 
+	print(velocity)
 	move_and_slide()
+	
+	if Input.is_action_just_pressed(&'ui_accept'):
+		if skeleton != null:
+			if (skeleton.get_child(0) as PhysicalBone3D).is_simulating_physics():
+				skeleton.physical_bones_stop_simulation()
+			else:
+				skeleton.physical_bones_start_simulation()
