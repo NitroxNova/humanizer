@@ -146,7 +146,7 @@ func _add_child_node(node: Node) -> void:
 		(node as MeshInstance3D).layers = _render_layers
 
 func _delete_child_node(node: Node) -> void:
-	remove_child(node)
+	node.get_parent().remove_child(node)
 	node.queue_free()
 
 func _delete_child_by_name(name: String) -> void:
