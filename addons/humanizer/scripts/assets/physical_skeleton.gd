@@ -110,7 +110,20 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 	add_joint(physical_bone,bone)
 
 func add_joint(phys_bone:PhysicalBone3D,bone_name:String):
-	phys_bone.joint_type = PhysicalBone3D.JOINT_TYPE_6DOF
+	var joints = {
+		"LeftLowerLeg" = [PhysicalBone3D.JOINT_TYPE_HINGE,{"joint_rotation"=Vector3(0,-PI/2,0),"joint_constraints/angular_limit_enabled"=true,"joint_constraints/angular_limit_upper"=90,"joint_constraints/angular_limit_lower"=20}],
+		"RightLowerLeg" = [PhysicalBone3D.JOINT_TYPE_HINGE,{"joint_rotation"=Vector3(0,-PI/2,0),"joint_constraints/angular_limit_enabled"=true,"joint_constraints/angular_limit_upper"=90,"joint_constraints/angular_limit_lower"=20}],
+		"LeftLowerArm" = [PhysicalBone3D.JOINT_TYPE_HINGE,{"joint_rotation"=Vector3(deg_to_rad(-15),deg_to_rad(-50),0),"joint_constraints/angular_limit_enabled"=true,"joint_constraints/angular_limit_lower"=0,"joint_constraints/angular_limit_upper"=90}],
+		"RightLowerArm" = [PhysicalBone3D.JOINT_TYPE_HINGE,{"joint_rotation"=Vector3(deg_to_rad(15),deg_to_rad(50),0),"joint_constraints/angular_limit_enabled"=true,"joint_constraints/angular_limit_lower"=0,"joint_constraints/angular_limit_upper"=90}],
+	}
+	
+	if bone_name in joints:
+		var this_joint = joints[bone_name]
+		phys_bone.joint_type = this_joint[0]
+		for property in this_joint[1]:
+			phys_bone[property] = this_joint[1][property]
+	else:
+		phys_bone.joint_type = PhysicalBone3D.JOINT_TYPE_6DOF
 
 func get_box_vertex_bounds(bone: String) -> Dictionary:
 	var vertex_names = {
