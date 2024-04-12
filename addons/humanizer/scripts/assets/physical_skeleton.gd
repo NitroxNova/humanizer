@@ -49,11 +49,15 @@ func run() -> void:
 func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 	var physical_bone = PhysicalBone3D.new()
 	var collider = CollisionShape3D.new()
+	collider.name = "ColliderShape3D"
+	#collider.disabled = true
 	physical_bone.name = &'Physical Bone ' + bone
 	physical_bone.add_child(collider)
+	
 	skeleton.add_child(physical_bone)
-	physical_bone.owner = skeleton
-	collider.owner = skeleton
+	#physical_bone.parent = skeleton
+	#print(physical_bone.get_parent())
+	#collider.parent = physical_bone
 	physical_bone.scale = Vector3.ONE
 	physical_bone.collision_layer = layers
 	physical_bone.collision_mask = mask
@@ -107,7 +111,15 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 				collider.rotate_y(-30)
 
 		collider.global_transform = skeleton.global_transform * collider.global_transform
+	add_joint(physical_bone,bone)
 
+func add_joint(phys_bone:PhysicalBone3D,bone_name:String):
+	#print(bone_name)
+	if bone_name == "Head":
+		phys_bone.joint_type = PhysicalBone3D.JOINT_TYPE_HINGE
+	else:	
+		phys_bone.joint_type = PhysicalBone3D.JOINT_TYPE_6DOF
+	
 func get_box_vertex_bounds(bone: String) -> Dictionary:
 	var vertex_names = {
 		"HipsTop" = 4154,
