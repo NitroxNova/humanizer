@@ -1,8 +1,9 @@
 Humanizer Plugin - 3D Character Creator for Godot 4  
 converted from MakeHuman and MPFB2 plugin for blender  
+features demo - https://www.youtube.com/watch?v=30q_xET69K4  
 
-plugin installation - https://www.youtube.com/watch?v=PIS5H13-tVk  
-basic setup - https://www.youtube.com/watch?v=30q_xET69K4  
+setup and usage (FAQ):    
+plugin installation - https://www.youtube.com/watch?v=190UDaqOisQ  
 global config settings - https://www.youtube.com/watch?v=nAn8TILgigM  
 mixamo animation retargeting - https://www.youtube.com/watch?v=6eWP1-ws-JE  
 blender plugin setup (mpfb2, makeclothes2) - https://www.youtube.com/watch?v=UUwC_xWNlsk  
