@@ -1,0 +1,44 @@
+[gd_scene load_steps=8 format=3 uid="uid://csan8bknfmodc"]
+
+[ext_resource type="AnimationLibrary" uid="uid://cuxxbj7avet71" path="res://addons/humanizer/data/animations/animations.glb" id="2_a0fcn"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_veuch"]
+animation = &"animations/Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_6i8n6"]
+animation = &"animations/Run"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_bnwo7"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_enrgu"]
+xfade_time = 0.2
+advance_mode = 2
+advance_expression = "moving"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_x18jg"]
+xfade_time = 0.2
+advance_mode = 2
+advance_expression = "not moving"
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_1sk7a"]
+states/Start/position = Vector2(249, 115)
+states/animations_Idle/node = SubResource("AnimationNodeAnimation_veuch")
+states/animations_Idle/position = Vector2(430, 115)
+states/animations_Run/node = SubResource("AnimationNodeAnimation_6i8n6")
+states/animations_Run/position = Vector2(650, 120)
+transitions = ["Start", "animations_Idle", SubResource("AnimationNodeStateMachineTransition_bnwo7"), "animations_Idle", "animations_Run", SubResource("AnimationNodeStateMachineTransition_enrgu"), "animations_Run", "animations_Idle", SubResource("AnimationNodeStateMachineTransition_x18jg")]
+
+[node name="AnimationTree" type="AnimationTree"]
+active = false
+root_node = NodePath(".")
+libraries = {
+"animations": ExtResource("2_a0fcn")
+}
+tree_root = SubResource("AnimationNodeStateMachine_1sk7a")
+anim_player = NodePath("AnimationPlayer")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"animations": ExtResource("2_a0fcn")
+}

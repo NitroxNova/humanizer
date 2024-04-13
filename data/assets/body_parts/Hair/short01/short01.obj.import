@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://0cjim58j4v6d"
+path="res://.godot/imported/short01.obj-9d6ee9b2a51c9faa786f3b63f4874713.mesh"
+
+[deps]
+
+files=["res://.godot/imported/short01.obj-9d6ee9b2a51c9faa786f3b63f4874713.mesh"]
+
+source_file="res://addons/humanizer/data/assets/body_parts/Hair/short01/short01.obj"
+dest_files=["res://.godot/imported/short01.obj-9d6ee9b2a51c9faa786f3b63f4874713.mesh", "res://.godot/imported/short01.obj-9d6ee9b2a51c9faa786f3b63f4874713.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://dlsuy8dwa7bc2"
+path="res://.godot/imported/LeftEyebrow-Eyebrow003.obj-55568d82a235b70aa473e9d9b00c380b.mesh"
+
+[deps]
+
+files=["res://.godot/imported/LeftEyebrow-Eyebrow003.obj-55568d82a235b70aa473e9d9b00c380b.mesh"]
+
+source_file="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-003/LeftEyebrow-Eyebrow003.obj"
+dest_files=["res://.godot/imported/LeftEyebrow-Eyebrow003.obj-55568d82a235b70aa473e9d9b00c380b.mesh", "res://.godot/imported/LeftEyebrow-Eyebrow003.obj-55568d82a235b70aa473e9d9b00c380b.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

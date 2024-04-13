@@ -1,0 +1,12 @@
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://ckdypew3dhoqq"]
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_voch6"]
+color = Color(0.564706, 0.564706, 0.564706, 1)
+
+[resource]
+HSeparator/constants/separation = 8
+HSeparator/styles/separator = SubResource("StyleBoxLine_voch6")
+MarginContainer/constants/margin_bottom = 8
+MarginContainer/constants/margin_left = 8
+MarginContainer/constants/margin_right = 8
+MarginContainer/constants/margin_top = 8

@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://btqkb1j3i8dm2"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/inspector/body_parts_inspector.gd" id="1_72xv2"]
+
+[node name="BodyPartsContainer" type="MarginContainer"]
+script = ExtResource("1_72xv2")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="PanelContainer/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 7

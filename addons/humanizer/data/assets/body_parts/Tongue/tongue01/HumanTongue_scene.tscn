@@ -1,8 +1,0 @@
-[gd_scene load_steps=3 format=3 uid="uid://bn0132klrif6p"]
-
-[ext_resource type="ArrayMesh" uid="uid://d3o7usxbxf6r6" path="res://addons/humanizer/data/assets/body_parts/Tongue/tongue01/HumanTongue_mesh.tres" id="1_ysvgc"]
-[ext_resource type="Material" uid="uid://d4l4s3o3j65pa" path="res://addons/humanizer/data/assets/body_parts/Tongue/tongue01/tongue01_material.tres" id="2_lemni"]
-
-[node name="HumanTongue" type="MeshInstance3D"]
-mesh = ExtResource("1_ysvgc")
-surface_material_override/0 = ExtResource("2_lemni")

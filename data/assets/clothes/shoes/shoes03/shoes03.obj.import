@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://8xuiqu61bkwi"
+path="res://.godot/imported/shoes03.obj-92a5552591426b934bb15858e0d6053d.mesh"
+
+[deps]
+
+files=["res://.godot/imported/shoes03.obj-92a5552591426b934bb15858e0d6053d.mesh"]
+
+source_file="res://addons/humanizer/data/assets/clothes/shoes/shoes03/shoes03.obj"
+dest_files=["res://.godot/imported/shoes03.obj-92a5552591426b934bb15858e0d6053d.mesh", "res://.godot/imported/shoes03.obj-92a5552591426b934bb15858e0d6053d.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

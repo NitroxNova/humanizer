@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://mqqc0jsuo35o"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/asset_importer.gd" id="1_qpear"]
+
+[node name="AssetImporter" type="Node"]
+script = ExtResource("1_qpear")
+_asset_path = "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01"

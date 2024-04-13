@@ -1,0 +1,339 @@
+[gd_resource type="Resource" script_class="MHCLO" load_steps=2 format=3 uid="uid://i7nxktt0tq63"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_3735v"]
+
+[resource]
+resource_name = "RightEyebrow-002"
+script = ExtResource("1_3735v")
+vertex_data = [{
+"format": "triangle",
+"offset": Vector3(0.0001, 0.0001, -0.0002),
+"vertex": [175.0, 156.0, 157.0],
+"weight": [0.5044, 0.348, 0.1476]
+}, {
+"format": "triangle",
+"offset": Vector3(0.0001, 0.0001, -0.0001),
+"vertex": [165.0, 157.0, 108.0],
+"weight": [0.774, 0.0023, 0.2237]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0001, -0.0001, 0.0004),
+"vertex": [181.0, 208.0, 180.0],
+"weight": [0.3885, 0.3522, 0.2592]
+}, {
+"format": "triangle",
+"offset": Vector3(0, 0, -0.0001),
+"vertex": [209.0, 181.0, 166.0],
+"weight": [0.7218, 0.2202, 0.0581]
+}, {
+"format": "triangle",
+"offset": Vector3(0, 0.0001, -0.0001),
+"vertex": [174.0, 155.0, 156.0],
+"weight": [0.5766, 0.1647, 0.2587]
+}, {
+"format": "triangle",
+"offset": Vector3(0, 0, 0),
+"vertex": [205.0, 177.0, 180.0],
+"weight": [0.3462, -0.0869, 0.7406]
+}, {
+"format": "triangle",
+"offset": Vector3(0, 0, -0.0001),
+"vertex": [176.0, 170.0, 171.0],
+"weight": [-0.0439, 0.0547, 0.9892]
+}, {
+"format": "triangle",
+"offset": Vector3(0, 0, -0.0001),
+"vertex": [204.0, 176.0, 177.0],
+"weight": [0.481, -0.4991, 1.018]
+}, {
+"format": "triangle",
+"offset": Vector3(0, 0, 0.0001),
+"vertex": [176.0, 170.0, 171.0],
+"weight": [0.525, 0.3061, 0.1688]
+}, {
+"format": "triangle",
+"offset": Vector3(0.0001, 0.0001, -0.0004),
+"vertex": [204.0, 176.0, 177.0],
+"weight": [0.9118, 0.0359, 0.0523]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0001, 0, 0.0001),
+"vertex": [178.0, 206.0, 176.0],
+"weight": [0.4279, 0.1404, 0.4316]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0001, 0, 0.0002),
+"vertex": [224.0, 206.0, 204.0],
+"weight": [0.3218, 0.3105, 0.3676]
+}, {
+"format": "triangle",
+"offset": Vector3(0, 0, 0.0001),
+"vertex": [207.0, 179.0, 178.0],
+"weight": [0.4183, -0.2188, 0.8005]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0002, 0, 0.0002),
+"vertex": [225.0, 207.0, 206.0],
+"weight": [0.6338, -0.3322, 0.6984]
+}, {
+"format": "triangle",
+"offset": Vector3(0, 0, 0.0001),
+"vertex": [207.0, 179.0, 178.0],
+"weight": [0.3363, 0.4736, 0.1901]
+}, {
+"format": "triangle",
+"offset": Vector3(0.0003, -0.0001, -0.0003),
+"vertex": [225.0, 255.0, 212.0],
+"weight": [0.9472, -0.5815, 0.6343]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0002, 0, 0.0002),
+"vertex": [211.0, 189.0, 190.0],
+"weight": [0.6149, -0.7844, 1.1695]
+}, {
+"format": "triangle",
+"offset": Vector3(0.0001, 0, -0.0001),
+"vertex": [254.0, 211.0, 212.0],
+"weight": [0.3699, -0.4637, 1.0938]
+}, {
+"format": "triangle",
+"offset": Vector3(0, 0, 0),
+"vertex": [211.0, 254.0, 210.0],
+"weight": [0.4583, 0.3669, 0.1748]
+}, {
+"format": "triangle",
+"offset": Vector3(0.0002, 0, -0.0001),
+"vertex": [254.0, 211.0, 212.0],
+"weight": [0.783, 0.1252, 0.0918]
+}, {
+"format": "triangle",
+"offset": Vector3(0.0002, 0, -0.0001),
+"vertex": [260.0, 253.0, 254.0],
+"weight": [-0.0313, 0.8627, 0.1686]
+}, {
+"format": "triangle",
+"offset": Vector3(0.0001, 0, 0),
+"vertex": [253.0, 254.0, 210.0],
+"weight": [0.86, 0.4052, -0.2652]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0001, 0, 0.0001),
+"vertex": [113.0, 118.0, 109.0],
+"weight": [0.7508, 0.39, -0.1407]
+}, {
+"format": "triangle",
+"offset": Vector3(0, 0, 0),
+"vertex": [167.0, 209.0, 166.0],
+"weight": [0.6291, 0.3002, 0.0707]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0003, -0.0004, 0.0009),
+"vertex": [180.0, 174.0, 175.0],
+"weight": [0.047, -0.0274, 0.9803]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0003, -0.0003, 0.0005),
+"vertex": [165.0, 166.0, 113.0],
+"weight": [0.8257, 0.2632, -0.0889]
+}, {
+"format": "triangle",
+"offset": Vector3(0, -0.0001, 0.0001),
+"vertex": [155.0, 156.0, 175.0],
+"weight": [1.0016, -1.0352, 1.0337]
+}, {
+"format": "triangle",
+"offset": Vector3(0.0001, 0.0002, -0.0003),
+"vertex": [152.0, 155.0, 174.0],
+"weight": [1.1481, -1.237, 1.0889]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0002, -0.0001, 0.0006),
+"vertex": [176.0, 170.0, 171.0],
+"weight": [0.7801, -0.0354, 0.2553]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0004, 0, 0.0007),
+"vertex": [206.0, 178.0, 176.0],
+"weight": [0.3428, 0.1916, 0.4656]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0004, 0, 0.0005),
+"vertex": [207.0, 179.0, 178.0],
+"weight": [0.6342, -0.4491, 0.815]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0004, 0, 0.0006),
+"vertex": [207.0, 179.0, 178.0],
+"weight": [0.5706, 0.2657, 0.1636]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0005, 0, 0.0006),
+"vertex": [179.0, 207.0, 212.0],
+"weight": [0.2611, -0.1078, 0.8467]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0007, 0, 0.0005),
+"vertex": [254.0, 211.0, 212.0],
+"weight": [0.1713, 0.6989, 0.1298]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0001, 0, 0.0001),
+"vertex": [253.0, 210.0, 254.0],
+"weight": [0.5267, 0.1664, 0.3069]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0001, 0, 0.0001),
+"vertex": [166.0, 113.0, 118.0],
+"weight": [0.5286, 0.415, 0.0564]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0006, -0.0007, 0.0017),
+"vertex": [181.0, 208.0, 180.0],
+"weight": [0.4721, 0.3674, 0.1605]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0005, -0.0004, 0.0015),
+"vertex": [205.0, 177.0, 180.0],
+"weight": [0.249, -0.0839, 0.8349]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0004, -0.0005, 0.0013),
+"vertex": [177.0, 171.0, 174.0],
+"weight": [1.469, -0.4314, -0.0375]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0005, -0.0002, 0.0014),
+"vertex": [204.0, 176.0, 177.0],
+"weight": [0.6406, 0.1702, 0.1891]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0005, 0, 0.001),
+"vertex": [224.0, 206.0, 204.0],
+"weight": [0.0673, 0.5052, 0.4275]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0005, 0.0001, 0.0006),
+"vertex": [225.0, 207.0, 206.0],
+"weight": [0.3728, -0.1523, 0.7795]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0002, 0, 0.0002),
+"vertex": [225.0, 207.0, 206.0],
+"weight": [0.2005, 0.7293, 0.0702]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0002, 0, 0.0002),
+"vertex": [225.0, 255.0, 212.0],
+"weight": [0.0989, 0.0682, 0.8328]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0007, 0, 0.0005),
+"vertex": [254.0, 211.0, 212.0],
+"weight": [0.5143, 0.2517, 0.2341]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0001, 0, 0.0001),
+"vertex": [253.0, 210.0, 254.0],
+"weight": [0.6252, -0.016, 0.3908]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0005, -0.0005, 0.0012),
+"vertex": [209.0, 181.0, 166.0],
+"weight": [0.6407, 0.3011, 0.0582]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0005, -0.0004, 0.0009),
+"vertex": [167.0, 209.0, 166.0],
+"weight": [0.4535, 0.37, 0.1765]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0008, -0.0011, 0.0021),
+"vertex": [181.0, 175.0, 180.0],
+"weight": [0.6839, -0.1109, 0.427]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0007, -0.001, 0.0021),
+"vertex": [180.0, 174.0, 175.0],
+"weight": [0.8162, 0.2143, -0.0305]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0006, -0.0006, 0.0017),
+"vertex": [177.0, 171.0, 174.0],
+"weight": [0.9479, 0.0613, -0.0092]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0005, -0.0004, 0.0018),
+"vertex": [176.0, 170.0, 171.0],
+"weight": [1.4462, -0.7235, 0.2772]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0006, -0.0001, 0.0013),
+"vertex": [206.0, 176.0, 178.0],
+"weight": [0.7339, 0.5001, -0.234]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0006, 0.0001, 0.0007),
+"vertex": [225.0, 207.0, 206.0],
+"weight": [0.029, 0.2273, 0.7437]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0003, 0, 0.0004),
+"vertex": [207.0, 179.0, 178.0],
+"weight": [0.8912, -0.0272, 0.136]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0006, 0, 0.0007),
+"vertex": [179.0, 207.0, 212.0],
+"weight": [0.0978, 0.1131, 0.7891]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0009, 0.0001, 0.0006),
+"vertex": [254.0, 211.0, 212.0],
+"weight": [0.2462, 0.5067, 0.2471]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0003, 0, 0.0002),
+"vertex": [253.0, 210.0, 254.0],
+"weight": [0.7672, -0.0202, 0.2529]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0007, -0.0008, 0.0018),
+"vertex": [181.0, 166.0, 209.0],
+"weight": [0.4258, 0.3178, 0.2564]
+}, {
+"format": "triangle",
+"offset": Vector3(-0.0007, -0.0005, 0.0012),
+"vertex": [167.0, 166.0, 118.0],
+"weight": [0.5419, 0.5238, -0.0657]
+}, {
+"format": "triangle",
+"offset": Vector3(0.0002, 0.0001, -0.0003),
+"vertex": [118.0, 166.0, 124.0],
+"weight": [0.5377, 0.3516, 0.1107]
+}, {
+"format": "triangle",
+"offset": Vector3(0.0001, 0, -0.0001),
+"vertex": [260.0, 253.0, 254.0],
+"weight": [0.3974, 0.4333, 0.1693]
+}]
+delete_vertices = []
+scale_config = {
+"x": {
+"end": 14645.0,
+"length": 1.0,
+"start": 14618.0
+},
+"y": {
+"end": 14663.0,
+"length": 1.0,
+"start": 14636.0
+},
+"z": {
+"end": 14658.0,
+"length": 0.0032,
+"start": 14650.0
+}
+}
+mh2gd_index = [PackedInt32Array(7), PackedInt32Array(27), PackedInt32Array(0), PackedInt32Array(1), PackedInt32Array(4), PackedInt32Array(43), PackedInt32Array(8), PackedInt32Array(45), PackedInt32Array(10), PackedInt32Array(47), PackedInt32Array(12), PackedInt32Array(49), PackedInt32Array(14), PackedInt32Array(51), PackedInt32Array(16), PackedInt32Array(53), PackedInt32Array(18), PackedInt32Array(55), PackedInt32Array(20), PackedInt32Array(57), PackedInt32Array(22), PackedInt32Array(59), PackedInt32Array(39), PackedInt32Array(24), PackedInt32Array(6), PackedInt32Array(26), PackedInt32Array(5), PackedInt32Array(9), PackedInt32Array(11), PackedInt32Array(13), PackedInt32Array(15), PackedInt32Array(17), PackedInt32Array(19), PackedInt32Array(21), PackedInt32Array(23), PackedInt32Array(38), PackedInt32Array(3), PackedInt32Array(42), PackedInt32Array(44), PackedInt32Array(46), PackedInt32Array(48), PackedInt32Array(50), PackedInt32Array(52), PackedInt32Array(54), PackedInt32Array(56), PackedInt32Array(58), PackedInt32Array(2), PackedInt32Array(25), PackedInt32Array(29), PackedInt32Array(28), PackedInt32Array(30), PackedInt32Array(31), PackedInt32Array(32), PackedInt32Array(33), PackedInt32Array(34), PackedInt32Array(35), PackedInt32Array(36), PackedInt32Array(37), PackedInt32Array(40), PackedInt32Array(41), PackedInt32Array(60), PackedInt32Array(61)]
+tags = PackedStringArray("RightEyebrow")
+z_depth = 35

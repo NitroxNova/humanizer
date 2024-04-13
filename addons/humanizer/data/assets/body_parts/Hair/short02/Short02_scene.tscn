@@ -1,8 +1,0 @@
-[gd_scene load_steps=3 format=3 uid="uid://d32k7nlke3sse"]
-
-[ext_resource type="ArrayMesh" uid="uid://di66q3nywm15e" path="res://addons/humanizer/data/assets/body_parts/Hair/short02/Short02_mesh.tres" id="1_fyt8m"]
-[ext_resource type="Material" uid="uid://ispj55p53yom" path="res://addons/humanizer/data/assets/body_parts/Hair/short02/short02_material.tres" id="2_ryxvv"]
-
-[node name="Short02" type="MeshInstance3D"]
-mesh = ExtResource("1_fyt8m")
-surface_material_override/0 = ExtResource("2_ryxvv")
