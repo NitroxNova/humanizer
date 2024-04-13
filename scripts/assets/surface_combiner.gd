@@ -1,9 +1,11 @@
 class_name HumanizerSurfaceCombiner
 
 var mesh_instances: Array[MeshInstance3D]
+var atlas_resolution: int
 
-func _init(_mesh_instances: Array[MeshInstance3D]) -> void:
+func _init(_mesh_instances: Array[MeshInstance3D], _atlas_resolution: int) -> void:
 	mesh_instances = _mesh_instances	
+	atlas_resolution = _atlas_resolution
 	
 func run() -> MeshInstance3D:
 	var rect_array: Array = []
@@ -146,10 +148,9 @@ func run() -> MeshInstance3D:
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_sf_arrays)
 
 	var new_material := mesh_instances[0].get_surface_override_material(0).duplicate()
-	var atlas_resolution: int = HumanizerGlobalConfig.config.atlas_resolution
 	
 	if not new_albedo_image.get_width() == atlas_resolution:
-		new_albedo_image.resize(atlas_resolution,atlas_resolution)
+		new_albedo_image.resize(atlas_resolution, atlas_resolution)
 	new_albedo_image.generate_mipmaps()
 	new_albedo_image.compress(Image.COMPRESS_BPTC)
 	var albedo_texture := ImageTexture.create_from_image(new_albedo_image)

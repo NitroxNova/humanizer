@@ -99,6 +99,8 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 @export_group('Node Overrides')
 ## The root node type for baked humans
 @export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D") var _baked_root_node: String = HumanizerGlobalConfig.config.default_baked_root_node
+## Texture atlas resolution for the baked character
+@export_enum("1k:1024", "2k:2048", "4k:4096") var atlas_resolution: int = HumanizerGlobalConfig.config.atlas_resolution
 ## The scene to be added as an animator for the character
 @export var _animator_scene: PackedScene = HumanizerGlobalConfig.config.default_animation_tree:
 	set(value):
@@ -471,7 +473,6 @@ func update_clothes_hide_vertices():
 				for mh_id in range(entry[0], entry[1] + 1):
 					delete_verts_mh[mh_id] = true
 
-
 func _sort_clothes_by_z_depth(clothes_a,clothes_b): # from highest to lowest
 	var res_a: HumanAsset = _get_asset_by_name(clothes_a.name)
 	var res_b: HumanAsset = _get_asset_by_name(clothes_b.name)
@@ -577,11 +578,13 @@ func standard_bake() -> void:
 		printerr('Already baked.  Reload the scene, load a human_config, or reset human to start over.')
 		return
 	adjust_skeleton()
-	#update_hide_vertices()
+	update_hide_vertices()
 	set_bake_meshes('Opaque')
-	bake_surface()
+	if _bake_meshes.size() > 0:
+		bake_surface()
 	set_bake_meshes('Transparent')
-	bake_surface()
+	if _bake_meshes.size() > 0:
+		bake_surface()
 
 func bake_surface() -> void:
 	if bake_surface_name in [null, '']:
@@ -590,7 +593,9 @@ func bake_surface() -> void:
 		if child.name == 'Baked-' + bake_surface_name:
 			printerr('Surface ' + bake_surface_name + ' already exists.  Choose a different name.')
 			return
-	var mi: MeshInstance3D = HumanizerSurfaceCombiner.new(_bake_meshes).run()
+	if atlas_resolution == 0:
+		atlas_resolution = HumanizerGlobalConfig.config.atlas_resolution
+	var mi: MeshInstance3D = HumanizerSurfaceCombiner.new(_bake_meshes, atlas_resolution).run()
 	mi.name = 'Baked-' + bake_surface_name
 	add_child(mi)
 	mi.owner = self
