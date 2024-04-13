@@ -36,7 +36,7 @@ var shapekey_data: Dictionary:
 var _helper_vertex: PackedVector3Array = []
 var save_path: String:
 	get:
-		var path = HumanizerGlobal.config.human_export_path
+		var path = HumanizerGlobalConfig.config.human_export_path
 		if path == null:
 			path = 'res://data/humans'
 		return path.path_join(human_name)
@@ -91,43 +91,43 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 	set(value):
 		human_config = value
 		if human_config.rig == '':
-			human_config.rig = HumanizerGlobal.config.default_skeleton
+			human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 		# This gets set before _ready causing issues so make sure we're loaded
 		if scene_loaded:
 			load_human()
 
 @export_group('Node Overrides')
 ## The root node type for baked humans
-@export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D") var _baked_root_node: String = HumanizerGlobal.config.default_baked_root_node
+@export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D") var _baked_root_node: String = HumanizerGlobalConfig.config.default_baked_root_node
 ## The scene to be added as an animator for the character
-@export var _animator_scene: PackedScene = HumanizerGlobal.config.default_animation_tree:
+@export var _animator_scene: PackedScene = HumanizerGlobalConfig.config.default_animation_tree:
 	set(value):
 		_animator_scene = value
 		if scene_loaded and skeleton != null:
 			_reset_animator()
 ## THe rendering layers for the human's 3d mesh instances
-@export_flags_3d_render var _render_layers = HumanizerGlobal.config.default_character_render_layers:
+@export_flags_3d_render var _render_layers = HumanizerGlobalConfig.config.default_character_render_layers:
 	set(value):
 		_render_layers = value
 		for child in get_children():
 			if child is MeshInstance3D:
 				child.layers = _render_layers
 ## The physics layers the character collider resides in
-@export_flags_3d_physics var _character_layers = HumanizerGlobal.config.default_character_physics_layers:
+@export_flags_3d_physics var _character_layers = HumanizerGlobalConfig.config.default_character_physics_layers:
 	set(value):
 		_character_layers = value
 ## The physics layers the character collider collides with
-@export_flags_3d_physics var _character_mask = HumanizerGlobal.config.default_character_physics_mask:
+@export_flags_3d_physics var _character_mask = HumanizerGlobalConfig.config.default_character_physics_mask:
 	set(value):
 		_character_mask = value
 		if main_collider != null:
 			pass
 ## The physics layers the physical bones reside in
-@export_flags_3d_physics var _ragdoll_layers = HumanizerGlobal.config.default_physical_bone_layers:
+@export_flags_3d_physics var _ragdoll_layers = HumanizerGlobalConfig.config.default_physical_bone_layers:
 	set(value):
 		_ragdoll_layers = value
 ## The physics layers the physical bones collide with
-@export_flags_3d_physics var _ragdoll_mask = HumanizerGlobal.config.default_physical_bone_mask:
+@export_flags_3d_physics var _ragdoll_mask = HumanizerGlobalConfig.config.default_physical_bone_mask:
 	set(value):
 		_ragdoll_mask = value
 
@@ -228,8 +228,8 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	root_node.collision_layer = _character_layers
 	root_node.collision_mask = _character_mask
 	
-	if HumanizerGlobal.config.default_human_script not in ['', null]:
-		root_node.set_script(load(HumanizerGlobal.config.default_human_script))
+	if HumanizerGlobalConfig.config.default_human_script not in ['', null]:
+		root_node.set_script(load(HumanizerGlobalConfig.config.default_human_script))
 	
 	var sk = skeleton.duplicate(true) as Skeleton3D
 	sk.scene_file_path = ''

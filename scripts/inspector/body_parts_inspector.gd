@@ -19,7 +19,7 @@ func _ready() -> void:
 	build_grid()
 	await get_tree().process_frame
 	registry = HumanizerRegistry
-	for slot in HumanizerGlobal.config.body_part_slots:
+	for slot in HumanizerGlobalConfig.config.body_part_slots:
 		asset_option_buttons[slot] = get_node('%' + slot + 'OptionButton')
 		texture_option_buttons[slot] = get_node('%' + slot + 'TextureOptionButton')
 		
@@ -46,7 +46,7 @@ func _set_visibility() -> void:
 
 func build_grid() -> void:
 	var grid = get_node('%GridContainer')
-	for slot in HumanizerGlobal.config.body_part_slots:
+	for slot in HumanizerGlobalConfig.config.body_part_slots:
 		var label = Label.new()
 		label.text = slot
 		grid.add_child(label)
@@ -85,7 +85,7 @@ func fill_table(config: HumanConfig) -> void:
 				texture_option_buttons[slot].selected = option
 			
 func reset() -> void:
-	for slot in HumanizerGlobal.config.body_part_slots:
+	for slot in HumanizerGlobalConfig.config.body_part_slots:
 		(asset_option_buttons[slot] as OptionButton).selected = 0
 		(texture_option_buttons[slot] as OptionButton).selected = -1
 

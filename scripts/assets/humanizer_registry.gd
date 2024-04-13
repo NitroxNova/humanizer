@@ -48,7 +48,7 @@ static func filter_clothes(filter: Dictionary) -> Array[HumanClothes]:
 
 static func _get_rigs() -> void:
 	#  Create and/or cache rig resources
-	for folder in HumanizerGlobal.config.asset_import_paths:
+	for folder in HumanizerGlobalConfig.config.asset_import_paths:
 		var rig_path = folder.path_join('rigs')
 		for dir in OSPath.get_dirs(rig_path):
 			var name = dir.get_file()
@@ -74,7 +74,7 @@ static func _get_skin_textures() -> void:
 	## load texture paths
 	overlays['skin'] = {}
 	skin_textures = {}
-	for path in HumanizerGlobal.config.asset_import_paths:
+	for path in HumanizerGlobalConfig.config.asset_import_paths:
 		for dir in OSPath.get_dirs(path.path_join('skins')):
 			if dir.get_file() == '_overlays':
 				for file in OSPath.get_files(dir):
@@ -92,13 +92,13 @@ static func _get_skin_textures() -> void:
 
 static func _load_body_parts() -> void:
 	body_parts = {}
-	for path in HumanizerGlobal.config.asset_import_paths:
+	for path in HumanizerGlobalConfig.config.asset_import_paths:
 		for dir in OSPath.get_dirs(path.path_join('body_parts')):
 			_scan_dir(dir, AssetType.BodyPart)
 			
 static func _load_clothes() -> void:
 	clothes = {}
-	for path in HumanizerGlobal.config.asset_import_paths:
+	for path in HumanizerGlobalConfig.config.asset_import_paths:
 		for dir in OSPath.get_dirs(path.path_join('clothes')):
 			_scan_dir(dir, AssetType.Clothes)
 

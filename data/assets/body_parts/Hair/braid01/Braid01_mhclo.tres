@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="MHCLO" load_steps=2 format=3 uid="uid://ux6vkjs27xfb"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_b7xkg"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_6k1u0"]
 
 [resource]
 resource_name = "Braid01"
-script = ExtResource("1_b7xkg")
+script = ExtResource("1_6k1u0")
 vertex_data = [{
 "format": "triangle",
 "offset": Vector3(-0.017, 0.02583, 0.05788),

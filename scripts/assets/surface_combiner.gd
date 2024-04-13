@@ -146,7 +146,7 @@ func run() -> MeshInstance3D:
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_sf_arrays)
 
 	var new_material := mesh_instances[0].get_surface_override_material(0).duplicate()
-	var atlas_resolution := int(HumanizerGlobal.config.atlas_resolution.get_slice(":",1))
+	var atlas_resolution := int(HumanizerGlobalConfig.config.atlas_resolution.get_slice(":",1))
 	
 	if not new_albedo_image.get_width() == atlas_resolution:
 		new_albedo_image.resize(atlas_resolution,atlas_resolution)

@@ -14,7 +14,7 @@ func _parse_category(importer, category):
 	for child in clothing_slots.get_children():
 		child.queue_free()
 		
-	for slot in HumanizerGlobal.config.clothing_slots:
+	for slot in HumanizerGlobalConfig.config.clothing_slots:
 		var checkbox = CheckBox.new()
 		checkbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		checkbox.name = slot

@@ -27,7 +27,7 @@ func run(clean_only: bool = false) -> void:
 			print('Bulk asset import')
 		else:
 			print('Purging assets')
-		for path in HumanizerGlobal.config.asset_import_paths:
+		for path in HumanizerGlobalConfig.config.asset_import_paths:
 			for dir in OSPath.get_dirs(path.path_join('body_parts')):
 				_clean_recursive(dir)
 				if not clean_only:
@@ -183,7 +183,7 @@ func _import_asset(path: String, data: Dictionary):
 	# Set slot(s)
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
 		for tag in mhclo.tags:
-			if tag in HumanizerGlobal.config.body_part_slots:
+			if tag in HumanizerGlobalConfig.config.body_part_slots:
 				resource.slot = tag
 		if resource.slot in ['', null]:
 			printerr('Slot not recognized.  Check your mhclo tags.')
@@ -195,7 +195,7 @@ func _import_asset(path: String, data: Dictionary):
 		if HumanizerRegistry.clothes.has(resource.resource_name):
 			HumanizerRegistry.clothes.erase(resource.resource_name)
 		for tag in mhclo.tags:
-			if tag in HumanizerGlobal.config.clothing_slots:
+			if tag in HumanizerGlobalConfig.config.clothing_slots:
 				resource.slots.append(tag)
 		if resource.slots.size() == 0:
 			printerr('No slots found for clothes.  Check your mhclo tags.')

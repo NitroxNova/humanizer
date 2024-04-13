@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="MHCLO" load_steps=2 format=3 uid="uid://bjeq4jue8d3tj"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_mja2r"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_u2hda"]
 
 [resource]
 resource_name = "Ponytail01"
-script = ExtResource("1_mja2r")
+script = ExtResource("1_u2hda")
 vertex_data = [{
 "format": "triangle",
 "offset": Vector3(0.01606, 0.04671, -0.18255),

@@ -23,7 +23,7 @@ func run():
 
 	# Get individual shapekey data
 	shapekey_data.shapekeys = {}
-	for path in HumanizerGlobal.config.asset_import_paths:
+	for path in HumanizerGlobalConfig.config.asset_import_paths:
 		_get_shape_keys(path + 'targets/')
 	
 	shapekey_data.macro_shapekeys = []

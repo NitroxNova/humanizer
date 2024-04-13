@@ -8,7 +8,7 @@ extends Resource
 ## Path where human resources will be serialized
 @export_dir var human_export_path: String = 'res://data/humans/'
 ## Path to default root node script for baked humans
-@export_file var default_human_script: String = ''
+@export_file var default_human_script: String = "res://addons/humanizer/scripts/utils/human_controller.gd"
 
 @export_group('Slot Definitions')
 ## Body Part Slot Definitions
@@ -37,9 +37,9 @@ extends Resource
 
 @export_group("Animation")
 ## Default skeleton to use for new humanizer nodes
-@export var default_skeleton: String
+@export var default_skeleton: String = 'GameEngine-RETARGETED'
 ## Default AnimationTree to use for new humanizer nodes
-@export var default_animation_tree: PackedScene
+@export var default_animation_tree: PackedScene 
 
 @export_group('Physics')
 ## Default root node class for baked humans
@@ -57,4 +57,4 @@ extends Resource
 ## Default character render layers
 @export_flags_3d_render var default_character_render_layers
 ## Texture atlas resolution
-@export_enum("1k:1024", "2k:2048", "4k:4096") var atlas_resolution: String
+@export_enum("1k:1024", "2k:2048", "4k:4096") var atlas_resolution: int
