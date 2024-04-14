@@ -1,0 +1,39 @@
+[gd_scene load_steps=2 format=3 uid="uid://bxpco0bpe5th0"]
+
+[sub_resource type="GDScript" id="GDScript_8pk8d"]
+script/source = "@tool
+class_name HumanizerMocap
+extends Node
+
+## For connecting from MeowFace
+var socket := UDPServer.new()
+
+@export var server_alive: bool:
+	set(value):
+		server_alive = value
+		if server_alive:
+			socket.listen(port)
+		else:
+			socket.stop()
+@export var port: int = 5432
+
+var _clip_data := {}
+var recording := true
+
+func _process(_delta) -> void:
+	if not server_alive:
+		return
+	socket.poll()
+	if socket.is_connection_available():
+		print('Cconnecting to mocap peer')
+		var peer: PacketPeerUDP = socket.take_connection()
+		var packet = peer.get_packet()
+		if packet:
+			var data = JSON.parse_string(packet.get_string_from_utf8())
+			if recording:
+				_clip_data[data.Timestamp] = data
+"
+
+[node name="FacialMocap" type="Node"]
+script = SubResource("GDScript_8pk8d")
+server_alive = null
