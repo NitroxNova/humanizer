@@ -128,50 +128,20 @@ func add_joint(phys_bone:PhysicalBone3D,bone_name:String):
 
 func get_box_vertex_bounds(bone: String) -> Dictionary:
 	var vertex_names = {
-		"HipsTop" = 4154,
-		"HipsBottom" = 4370,
-		"HipsFront" = 4110,
-		"HipsBack" = 11006,
-		"HipsLeft" = 10899,
-		"HipsRight" = 4269,
-		"UpperChestTop" = 1524,
-		"UpperChestBottom" = 4154,
-		"UpperChestFront" = 4070,
-		"UpperChestBack" = 8259,
-		"UpperChestLeft" = 10602,
-		"UpperChestRight" = 3938,
-		"LeftFootFront" = 13146,
-		"LeftFootBack" = 12442,
-		"LeftFootRight" = 13300,
-		"LeftFootLeft" = 12808,
-		"LeftFootTop" = 12818,
-		"LeftFootBottom" = 12877,
-		"RightFootFront" = 6550,
-		"RightFootBack" = 5845,
-		"RightFootRight" = 6211,
-		"RightFootLeft" = 6704,
-		"RightFootTop" = 6221,
-		"RightFootBottom" = 6280,
-		"LeftHandTop" = 10489,
-		"LeftHandBottom" = 8929,
-		"LeftHandFront" = 9456,
-		"LeftHandBack" = 10535,
-		"LeftHandLeft" = 9833,
-		"LeftHandRight" = 10306,
-		"RightHandTop" = 3823,
-		"RightHandBottom" = 2261,
-		"RightHandFront" = 2788,
-		"RightHandBack" = 3870,
-		"RightHandLeft" = 3638,
-		"RightHandRight" = 3165,
+		"Hips" = {upper=4154, lower=4370, front=4110, back=11006, left=10899, right=4269},
+		"UpperChest" = {upper=1401, lower=4154, front=1890, back=1598, left=10602, right=3938},
+		"LeftFoot" = {upper=12818, lower=12877, front=13146, back=12442, left=12808, right=13300},
+		"RightFoot" = {upper=6221, lower=6280, front=6550, back=5845, left=6704, right=6211},
+		"LeftHand" = {upper=10489, lower=8929, front=9456,back=10535,left=9833,right=10306},
+		"RightHand" = {upper=3823 ,lower=2261 ,front=2788 ,back=3870 ,left=3638 ,right=3165 },
 		}
 		
-	var top : int = vertex_names[bone + 'Top']
-	var bottom : int = vertex_names[bone + 'Bottom']
-	var left : int = vertex_names[bone + 'Left']
-	var right : int = vertex_names[bone + 'Right']
-	var front : int = vertex_names[bone + 'Front']
-	var back : int = vertex_names[bone + 'Back']
+	var top : int = vertex_names[bone]['upper']
+	var bottom : int = vertex_names[bone]['lower']
+	var left : int = vertex_names[bone]['left']
+	var right : int = vertex_names[bone]['right']
+	var front : int = vertex_names[bone]['front']
+	var back : int = vertex_names[bone]['back']
 	
 		
 	var size := Vector3.ZERO
