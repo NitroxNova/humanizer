@@ -106,13 +106,6 @@ func _handle_menu_event(id) -> void:
 	elif id == menu_ids.test:
 		_test()
 
-## Testing asset importer in its own window
-func _open_asset_importer() -> void:
-	var scene = load("res://addons/humanizer/scenes/inspector/asset_importer_inspector.tscn")
-	var script = load("res://addons/humanizer/scripts/assets/asset_importer.gd")
-	scene.set_script(script)
-	HumanizerUtils.show_window(scene.instantiate())
-
 #region Thread Tasks
 func _process_raw_data() -> void:
 	print_debug('Running all preprocessing')
