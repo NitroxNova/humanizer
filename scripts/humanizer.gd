@@ -607,25 +607,34 @@ func bake_surface() -> void:
 	baked = true
 
 func _combine_meshes() -> ArrayMesh:
-	var new_mesh = ArrayMesh.new()
+	var new_mesh = ImporterMesh.new()
 	new_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
 	var i = 0
 	for child in get_children():
 		if not child is MeshInstance3D:
 			continue
+		var material: BaseMaterial3D
+		if child.get_surface_override_material(0) != null:
+			material = child.get_surface_override_material(0).duplicate(true)
+		else:
+			material = child.mesh.surface_get_material(0).duplicate(true)
 		var surface_arrays = child.mesh.surface_get_arrays(0)
 		var blend_shape_arrays = child.mesh.surface_get_blend_shape_arrays(0)
 		var lods := {}
 		var format = child.mesh.surface_get_format(0)
-		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surface_arrays, blend_shape_arrays, lods, format)
-		new_mesh.surface_set_name(i, child.name.replace('Baked-', ''))
-		print(child.name)
-		if child.get_surface_override_material(0) != null:
-			new_mesh.surface_set_material(i, child.get_surface_override_material(0).duplicate(true))
-		else:
-			new_mesh.surface_set_material(i, child.mesh.surface_get_material(0).duplicate(true))
+		new_mesh.add_surface(
+			Mesh.PRIMITIVE_TRIANGLES, 
+			surface_arrays, 
+			blend_shape_arrays, 
+			lods, 
+			material, 
+			child.name.replace('Baked-', ''), 
+			format
+		)
 		i += 1
-	return new_mesh
+	if human_config.components.has(&'lod'):
+		new_mesh.generate_lods(25, 60, [])
+	return new_mesh.get_mesh()
 
 func recalculate_normals() -> void:
 	var mat = body_mesh.get_surface_override_material(0)

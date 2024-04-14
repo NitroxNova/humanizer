@@ -9,7 +9,7 @@ extends Resource
 @export var shapekeys := {}
 
 ## Additional Components
-@export var components := []
+@export var components := [&'main_collider', &'lod']
 
 ## Equipped body parts
 @export var body_parts := {}

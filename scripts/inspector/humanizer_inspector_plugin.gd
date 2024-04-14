@@ -26,11 +26,13 @@ func _parse_category(human, category):
 	scene.get_node('%EyeColorPicker').color_changed.connect(func(color): human.eye_color = color)
 	
 	# Components Inspector
-	scene.get_node('%MainColliderCheckBox').button_pressed = 'main_collider' in human.human_config.components
-	scene.get_node('%RagdollCheckBox').button_pressed = 'ragdoll' in human.human_config.components
+	scene.get_node('%MainColliderCheckBox').button_pressed = &'main_collider' in human.human_config.components
+	scene.get_node('%RagdollCheckBox').button_pressed = &'ragdoll' in human.human_config.components
+	scene.get_node('%LODCheckBox').button_pressed = &'lod' in human.human_config.components
 	scene.get_node('%MainColliderCheckBox').toggled.connect(human.set_component_state.bind(&'main_collider'))
 	scene.get_node('%RagdollCheckBox').toggled.connect(human.set_component_state.bind(&'ragdoll'))
-	
+	scene.get_node('%LODCheckBox').toggled.connect(human.set_component_state.bind(&'lod'))
+
 	## Baking section
 	scene.get_node('%SelectAllButton').pressed.connect(human.set_bake_meshes.bind(&'All'))
 	scene.get_node('%SelectOpaqueButton').pressed.connect(human.set_bake_meshes.bind(&'Opaque'))
