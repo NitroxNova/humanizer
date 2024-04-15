@@ -746,7 +746,8 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	human_config.rig = rig_name
 	skeleton = rig.load_skeleton()  # Json file needs base skeleton names
 	var skinned_mesh: ArrayMesh = MeshOperations.skin_mesh(rig, skeleton, basemesh)
-
+	print(skinned_mesh)
+	
 	# Set rig in scene
 	if retargeted:
 		skeleton = rig.load_retargeted_skeleton()
@@ -777,9 +778,12 @@ func adjust_skeleton() -> void:
 	for bone_id in skeleton.get_bone_count():
 		var bone_data = skeleton_config[bone_id]
 		var bone_pos = Vector3.ZERO
-		for vid in bone_data.head.vertex_indices:
-			bone_pos += _helper_vertex[int(vid)]
-		bone_pos /= bone_data.head.vertex_indices.size()
+		if "vertex_indices" in bone_data.head:
+			for vid in bone_data.head.vertex_indices:
+				bone_pos += _helper_vertex[int(vid)]
+			bone_pos /= bone_data.head.vertex_indices.size()
+		else:
+			bone_pos = _helper_vertex[int(bone_data.head.vertex_index)]
 		if skeleton.get_bone_name(bone_id) != 'Root':
 			bone_pos -= _foot_offset
 		else:

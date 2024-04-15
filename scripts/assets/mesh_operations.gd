@@ -74,6 +74,12 @@ static func skin_mesh(rig: HumanizerRig, skeleton: Skeleton3D, basemesh: ArrayMe
 	# Read mh skeleton weights
 	for bone_name in weights:
 		var bone_id = skeleton.find_bone(bone_name)
+		if bone_id == -1:
+			if bone_name.begins_with('toe'):
+				if bone_name.ends_with('.L'):
+					bone_id = skeleton.find_bone("toe1-1.L")
+				else:
+					bone_id = skeleton.find_bone("toe1-1.R")
 		for bw_pair in weights[bone_name]:
 			var mh_id = bw_pair[0]
 			if mh_id >= len:  # Helper verts
@@ -88,6 +94,8 @@ static func skin_mesh(rig: HumanizerRig, skeleton: Skeleton3D, basemesh: ArrayMe
 	for mh_id in mh_bone_array.size():
 		var array = mh_weight_array[mh_id]
 		var multiplier : float = 0
+		if array == null:
+			print(mh_id)
 		for weight in array:
 			multiplier += weight
 		multiplier = 1 / multiplier
@@ -111,7 +119,6 @@ static func skin_mesh(rig: HumanizerRig, skeleton: Skeleton3D, basemesh: ArrayMe
 	skinned_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh_arrays, [], lods, flags)
 	return skinned_mesh
 
-	
 #delete_verts is boolean true/false array of the same size as the mesh vertex count
 #only delete face if all vertices are hidden
 static func delete_faces(mesh:ArrayMesh,delete_verts:Array,surface_id=0):
