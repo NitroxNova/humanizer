@@ -7,11 +7,12 @@ extends Node
 
 ## For connecting from MeowFace
 var socket := UDPServer.new()
+var peer: PacketPeerUDP
 
-@export var server_alive: bool:
+@export var running: bool:
 	set(value):
-		server_alive = value
-		if server_alive:
+		running = value
+		if running:
 			socket.listen(port)
 		else:
 			socket.stop()
@@ -21,19 +22,23 @@ var _clip_data := {}
 var recording := true
 
 func _process(_delta) -> void:
-	if not server_alive:
-		return
 	socket.poll()
 	if socket.is_connection_available():
 		print('Cconnecting to mocap peer')
-		var peer: PacketPeerUDP = socket.take_connection()
-		var packet = peer.get_packet()
-		if packet:
-			var data = JSON.parse_string(packet.get_string_from_utf8())
-			if recording:
-				_clip_data[data.Timestamp] = data
+		peer = socket.take_connection()
+	if peer == null:
+		return
+		
+	var packet = peer.get_packet()
+	if packet.size() > 0:
+		var data = JSON.parse_string(packet.get_string_from_utf8())
+		if recording:
+			print(data.keys())
+			for bs in data.BlendShapes:
+				print(bs.k)
+			_clip_data[data.Timestamp] = data
 "
 
 [node name="FacialMocap" type="Node"]
 script = SubResource("GDScript_8pk8d")
-server_alive = null
+running = true
