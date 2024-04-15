@@ -9,7 +9,7 @@ script = ExtResource("1_skywq")
 albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/overlay_iris_albedo.png"
 normal_texture_path = ""
 ao_texture_path = ""
-color = Color(0.622206, 0.956588, 0.800237, 1)
+color = Color(0.529412, 0.807843, 0.921569, 1)
 
 [resource]
 resource_name = "RightEyeball-LowPoly"

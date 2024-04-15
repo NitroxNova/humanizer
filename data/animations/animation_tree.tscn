@@ -1,6 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://csan8bknfmodc"]
+[gd_scene load_steps=9 format=3 uid="uid://csan8bknfmodc"]
 
 [ext_resource type="AnimationLibrary" uid="uid://cuxxbj7avet71" path="res://addons/humanizer/data/animations/animations.glb" id="2_a0fcn"]
+[ext_resource type="AnimationLibrary" uid="uid://4qyn5ft7y3xe" path="res://addons/humanizer/data/animations/face_poses.glb" id="2_j4rwg"]
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_veuch"]
 animation = &"animations/Idle"
@@ -33,12 +34,14 @@ transitions = ["Start", "animations_Idle", SubResource("AnimationNodeStateMachin
 active = false
 root_node = NodePath(".")
 libraries = {
-"animations": ExtResource("2_a0fcn")
+"animations": ExtResource("2_a0fcn"),
+"face_poses": ExtResource("2_j4rwg")
 }
 tree_root = SubResource("AnimationNodeStateMachine_1sk7a")
 anim_player = NodePath("AnimationPlayer")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-"animations": ExtResource("2_a0fcn")
+"animations": ExtResource("2_a0fcn"),
+"face_poses": ExtResource("2_j4rwg")
 }
