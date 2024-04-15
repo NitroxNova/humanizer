@@ -34,16 +34,17 @@ func run():
 			for in_name in in_data:
 				var out_name = in_name.replace(":","_")
 				var bone_id = skeleton.find_bone(out_name)
-				var parent_name = in_data[in_name].parent.replace(":","_")
-				var parent_id = skeleton.find_bone(parent_name)
-				rig_config[bone_id] = in_data[in_name]
-				rig_config[bone_id].parent = parent_id
-				if rig_config[bone_id].head.strategy == "CUBE":
-					var cube_range = vertex_groups[rig_config[bone_id].head.cube_name][0]
-					var cube_index = []
-					for i in range(cube_range[0], cube_range[1] + 1):
-						cube_index.append(i)
-					rig_config[bone_id].head.vertex_indices = cube_index
+				if bone_id > -1:
+					var parent_name = in_data[in_name].parent.replace(":","_")
+					var parent_id = skeleton.find_bone(parent_name)
+					rig_config[bone_id] = in_data[in_name]
+					rig_config[bone_id].parent = parent_id
+					if rig_config[bone_id].head.strategy == "CUBE":
+						var cube_range = vertex_groups[rig_config[bone_id].head.cube_name][0]
+						var cube_index = []
+						for i in range(cube_range[0], cube_range[1] + 1):
+							cube_index.append(i)
+						rig_config[bone_id].head.vertex_indices = cube_index
 		
 			rig.config_json_path = dir.path_join('skeleton_config.json')
 			HumanizerUtils.save_json(rig.config_json_path, rig_config)
