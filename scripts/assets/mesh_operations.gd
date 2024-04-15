@@ -94,8 +94,6 @@ static func skin_mesh(rig: HumanizerRig, skeleton: Skeleton3D, basemesh: ArrayMe
 	for mh_id in mh_bone_array.size():
 		var array = mh_weight_array[mh_id]
 		var multiplier : float = 0
-		if array == null:
-			print(mh_id)
 		for weight in array:
 			multiplier += weight
 		multiplier = 1 / multiplier

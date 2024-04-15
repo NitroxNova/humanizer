@@ -746,7 +746,6 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	human_config.rig = rig_name
 	skeleton = rig.load_skeleton()  # Json file needs base skeleton names
 	var skinned_mesh: ArrayMesh = MeshOperations.skin_mesh(rig, skeleton, basemesh)
-	print(skinned_mesh)
 	
 	# Set rig in scene
 	if retargeted:
