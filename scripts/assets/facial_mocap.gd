@@ -61,7 +61,7 @@ func _process(_delta) -> void:
 		var value = data.BlendShapes[bs]
 		for track_id in anim.get_track_count():
 			var track_type: Animation.TrackType = anim.track_get_type(track_id)
-			var path = str(anim.track_get_path(track_id))
+			var path = str(anim.track_get_path(track_id).get_subname(0))
 			if not pose.has(path):
 				pose[path] = {}
 			if not pose[path].has(track_type):
@@ -77,10 +77,10 @@ func _process(_delta) -> void:
 	for path in pose:
 		for track_type in pose[path]:
 			pose[path][track_type].value /= pose[path][track_type].sum
-
+	
 	## Apply pose to skeleton
 	for path in pose:
-		var bone = skeleton.find_bone(path.split(':')[1])
+		var bone = skeleton.find_bone(path)
 		for track_type in pose[path]:
 			if track_type == Animation.TrackType.TYPE_POSITION_3D:
 				skeleton.set_bone_pose_position(bone, pose[path][track_type].value)
