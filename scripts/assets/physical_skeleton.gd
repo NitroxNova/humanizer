@@ -116,6 +116,19 @@ func add_joint(phys_bone:PhysicalBone3D,bone_name:String):
 		"RightLowerLeg" = [PhysicalBone3D.JOINT_TYPE_HINGE,{"joint_rotation"=Vector3(0,-PI/2,0),"joint_constraints/angular_limit_enabled"=true,"joint_constraints/angular_limit_upper"=90,"joint_constraints/angular_limit_lower"=20}],
 		"LeftLowerArm" = [PhysicalBone3D.JOINT_TYPE_HINGE,{"joint_rotation"=Vector3(deg_to_rad(-15),deg_to_rad(-50),0),"joint_constraints/angular_limit_enabled"=true,"joint_constraints/angular_limit_lower"=0,"joint_constraints/angular_limit_upper"=90}],
 		"RightLowerArm" = [PhysicalBone3D.JOINT_TYPE_HINGE,{"joint_rotation"=Vector3(deg_to_rad(15),deg_to_rad(50),0),"joint_constraints/angular_limit_enabled"=true,"joint_constraints/angular_limit_lower"=0,"joint_constraints/angular_limit_upper"=90}],
+		"Head" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
+		"LeftShoulder" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
+		"RightShoulder" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
+		"LeftUpperArm" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=60,"joint_constraints/twist_span"=30}],
+		"RightUpperArm" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=60,"joint_constraints/twist_span"=30}],
+		#"Hips" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
+		"UpperChest" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=100,"joint_constraints/twist_span"=50}],
+		"LeftUpperLeg" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
+		"RightUpperLeg" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
+		"LeftFoot" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
+		"RightFoot" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
+		"LeftHand" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
+		"RightHand" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
 	}
 	
 	if bone_name in joints:
