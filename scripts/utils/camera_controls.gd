@@ -4,8 +4,8 @@ extends Camera3D
 @export_range(0.1, 1.) var look_speed: float = 0.4
 @export_range(0.5, 5.) var move_speed: float = 1.
 
-@onready var pitch: float = rotation.y
-@onready var yaw: float = rotation.x
+@onready var pitch: float = rotation.x
+@onready var yaw: float = rotation.y
 var simulating := false
 
 func _ready():

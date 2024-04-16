@@ -1,7 +1,8 @@
 extends CharacterBody3D
 
 @export var camera: Node
-@export_range(0.1, 5) var move_speed: float = 1
+@export_range(0.1, 5) var move_speed: float = 2
+@export_range(0, 100) var vertical_impulse: float = 60
 
 @onready var skeleton: Skeleton3D = $GeneralSkeleton
 const GRAVITY: float  = 9.8
@@ -27,13 +28,6 @@ func _ready():
 	skeleton.animate_physical_bones = false
 
 func _physics_process(delta):
-	if Input.is_action_just_pressed(&'ui_accept'):
-		if skeleton != null:
-			if (skeleton.get_child(0) as PhysicalBone3D).is_simulating_physics():
-				skeleton.physical_bones_stop_simulation()
-			else:
-				skeleton.physical_bones_start_simulation()
-
 	if camera == null:
 		return
 	
@@ -58,4 +52,13 @@ func _physics_process(delta):
 	velocity.z = movement.z
 	velocity.y -= GRAVITY * delta
 
+	if Input.is_action_just_pressed(&'ui_accept'):
+		if skeleton != null:
+			if skeleton.get_child_count() > 0:
+				if (skeleton.get_child(0) as PhysicalBone3D).is_simulating_physics():
+					skeleton.physical_bones_stop_simulation()
+				else:
+					skeleton.physical_bones_start_simulation()
+					(skeleton.get_child(0) as PhysicalBone3D).linear_velocity = velocity
+					(skeleton.get_child(0) as PhysicalBone3D).apply_impulse(Vector3.UP * vertical_impulse)
 	move_and_slide()
