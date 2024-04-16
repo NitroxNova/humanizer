@@ -71,7 +71,7 @@ func _generate_human() -> void:
 	randomizer.randomize_body_parts()
 	randomizer.randomize_clothes()
 	randomizer.randomize_shapekeys()
-	human.set_component_state(true, &'main_collider')
+	human.set_component_state(true, &'ragdoll')
 	
 	print('baking')
 	human.standard_bake()
