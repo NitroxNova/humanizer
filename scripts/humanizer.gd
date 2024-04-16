@@ -313,7 +313,7 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	body_mesh.name = _BASE_MESH_NAME
 	body_mesh.mesh = meshdata
 	body_mesh.set_surface_override_material(0, StandardMaterial3D.new())
-	body_mesh.set_script(load('res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd'))
+	body_mesh.set_script(load('res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd'))
 	if mat_config != null:
 		body_mesh.material_config = mat_config
 	else:
@@ -710,7 +710,7 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 	human_config.clothes_materials[cl_name] = texture
 
 func setup_overlay_material(asset: HumanAsset, mi: MeshInstance3D) -> void:
-	mi.set_script(load("res://addons/humanizer/scripts/assets/humanizer_mesh_instance.gd"))
+	mi.set_script(load("res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd"))
 	mi.material_config = HumanizerMaterial.new()
 	mi.initialize()
 	#if get_tree() != null:

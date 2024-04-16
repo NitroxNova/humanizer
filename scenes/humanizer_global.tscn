@@ -1,9 +1,9 @@
 [gd_scene load_steps=7 format=3 uid="uid://dsrnmyw7n7drw"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_global_config.gd" id="2_vm4hu"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/core/humanizer_global_config.gd" id="2_vm4hu"]
 [ext_resource type="PackedScene" uid="uid://csan8bknfmodc" path="res://addons/humanizer/data/animations/animation_tree.tscn" id="3_mkrna"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_config.gd" id="3_yh4wq"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/assets/humanizer_registry.gd" id="57_651fh"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/core/humanizer_registry.gd" id="57_651fh"]
 
 [sub_resource type="GDScript" id="GDScript_yaxf4"]
 script/source = "@tool
