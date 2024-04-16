@@ -6,7 +6,7 @@ extends Camera3D
 
 @onready var pitch: float = rotation.y
 @onready var yaw: float = rotation.x
-
+var simulating := false
 
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
