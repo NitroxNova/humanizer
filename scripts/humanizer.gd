@@ -213,11 +213,13 @@ func reset_human(reset_config: bool = true) -> void:
 	#print('Reset human')
 
 func save_human_scene(to_file: bool = true) -> PackedScene:
-	## Save to files for easy load later
+	if to_file:
+		DirAccess.make_dir_recursive_absolute(save_path)
+		for fl in OSPath.get_files(save_path):
+			DirAccess.remove_absolute(fl)
+	
 	#if not _save_path_valid:
 	#	return
-	DirAccess.make_dir_recursive_absolute(save_path)
-	
 	var new_mesh = _combine_meshes()
 	var scene = PackedScene.new()
 	var root_node: Node
@@ -271,20 +273,24 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	
 	if not to_file:
 		return scene
-		
+	
+	DirAccess.make_dir_recursive_absolute(save_path)
+	for fl in OSPath.get_files(save_path):
+		DirAccess.remove_absolute(fl)
+	
 	for surface in mi.mesh.get_surface_count():
-		var mat = mi.mesh.surface_get_material(surface)
+		var mat = mi.mesh.surface_get_material(surface).duplicate()
 		var surf_name: String = mi.mesh.surface_get_name(surface)
 		if mat.albedo_texture != null:
-			var path := save_path.path_join(surf_name + '_albedo.png')
+			var path := save_path.path_join(surf_name + '_albedo.res')
 			ResourceSaver.save(mat.albedo_texture, path)
 			mat.albedo_texture.take_over_path(path)
 		if mat.normal_texture != null:
-			var path := save_path.path_join(surf_name + '_normal.png')
+			var path := save_path.path_join(surf_name + '_normal.res')
 			ResourceSaver.save(mat.albedo_texture, path)
 			mat.normal_texture.take_over_path(path)
 		if mat.ao_texture != null:
-			var path := save_path.path_join(surf_name + '_ao.png')
+			var path := save_path.path_join(surf_name + '_ao.res')
 			ResourceSaver.save(mat.albedo_texture, path)
 			mat.ao_texture.take_over_path(path)
 		var path := save_path.path_join(surf_name + '_material.tres')
