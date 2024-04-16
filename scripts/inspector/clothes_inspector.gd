@@ -109,7 +109,6 @@ func _get_slots(index: int, slot: String) -> Array[String]:
 	for sl in asset_option_buttons:
 		var options = asset_option_buttons[sl] as OptionButton
 		for item in options.item_count:
-			print(options.get_item_text(item))
 			if options.get_item_text(item) == name:
 				slots.append(sl)
 	return slots
@@ -155,8 +154,9 @@ func _item_selected(index: int, slot: String):
 		var clothes: HumanClothes = HumanizerRegistry.clothes[name]
 		for sl in slots:
 			last_equipped[sl] = clothes
-		print(last_equipped)
 		clothes_changed.emit(clothes)
+		var textures = material_option_buttons[slot]
+		material_set.emit(name, textures.get_item_text(textures.selected))
 
 func _material_selected(idx: int, slot: String) -> void:
 	var texture_name: String = material_option_buttons[slot].get_item_text(idx)

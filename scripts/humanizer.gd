@@ -422,7 +422,6 @@ func update_hide_vertices() -> void:
 	body_mesh.skeleton = &'../' + skeleton.name
 
 func update_clothes_hide_vertices():
-	
 	var delete_verts_mh := []
 	delete_verts_mh.resize(_helper_vertex.size())
 	
