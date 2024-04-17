@@ -31,6 +31,11 @@ animation/remove_immutable_tracks=true
 import_script/path=""
 _subresources={
 "nodes": {
+"PATH:AnimationPlayer": {
+"import_tracks/position": 0,
+"import_tracks/rotation": 0,
+"import_tracks/scale": 0
+},
 "PATH:Human_rig/Skeleton3D": {
 "retarget/bone_map": Resource("res://addons/humanizer/data/assets/rigs/default/bone_map.tres")
 }
