@@ -1,17 +1,45 @@
 @tool
-class_name HumanizerMocap
 extends Node
 
 enum AppType {
 	MeowFace,
 	iFacialMocapTr
 }
-@export var face_poses: AnimationLibrary
-@export var skeleton: Skeleton3D
+
+
+@export var _recording := false:
+	set(value):
+		if not value:
+			_recording = false
+			if clip == null:
+				return
+			_animation_library.add_animation(_clip_name, clip)
+			push_warning('Recording finished')
+		if _animation_library == null:
+			printerr('No animation library supplied')
+			return
+		if _clip_name in [&'', null]:
+			printerr('No clip name supplied')
+			return
+		stream = true
+		_recording = true
+		t0 = Time.get_ticks_msec() / 1000
+		clip = Animation.new()
+		push_warning('Recording in progress')
+## The name of the recorded animation clip
+@export var _clip_name: String
+## The animation library where authored clips should be saved
+@export var _animation_library: AnimationLibrary
+## The app you are using to stream mocap data, MeowFace adn iFacialMocapTr supported
 @export var app: AppType
+
+var t0: float
+var clip: Animation
+var animation_tree: AnimationTree 
+var skeleton: Skeleton3D
 var socket := UDPServer.new()
 var peer: PacketPeerUDP
-
+## Stream data from connected app
 @export var stream: bool = false:
 	set(value):
 		stream = value
@@ -19,18 +47,15 @@ var peer: PacketPeerUDP
 			socket.listen(port)
 		else:
 			socket.stop()
+## The port to connect to
 @export var port: int = 5432
 
 var _clip_data := {}
 var recording := true
 var pose := {}
 
-func _process(_delta) -> void:
-	if skeleton == null:
-		skeleton = get_node_or_null('../GeneralSkeleton')
-	if skeleton == null:
-		return
-	if face_poses == null:
+func _process(_delta) -> void:	
+	if skeleton == null or animation_tree == null:
 		return
 		
 	socket.poll()
@@ -50,44 +75,37 @@ func _process(_delta) -> void:
 	
 	pose = {}
 	for bs in data.BlendShapes:
-		#if bs.k == 'tongueOut':
-		#	print(bs.v)
-		if not face_poses.has_animation(bs):
-			continue
-		var anim: Animation = face_poses.get_animation(bs)
-		if anim == null:
-			#print('missing pose for ' + bs.k)
-			continue
+		#if not face_poses.has_animation(bs):
+		#	printerr('missing clip for ' + bs)
 		var value = data.BlendShapes[bs]
-		for track_id in anim.get_track_count():
-			var track_type: Animation.TrackType = anim.track_get_type(track_id)
-			var path = str(anim.track_get_path(track_id).get_subname(0))
-			if not pose.has(path):
-				pose[path] = {}
-			if not pose[path].has(track_type):
-				pose[path][track_type] = {'sum': 0}
-			pose[path][track_type]['sum'] += value
-			## Apply a weighted sum over all shapekeys
-			if pose[path][track_type].has('value'):
-				pose[path][track_type]['value'] += anim.track_get_key_value(track_id, 0) * value
-			else:
-				pose[path][track_type]['value'] = anim.track_get_key_value(track_id, 0) * value
-
-	## Normalize by sum total of all shapekey values
-	for path in pose:
-		for track_type in pose[path]:
-			pose[path][track_type].value /= pose[path][track_type].sum
+		animation_tree.set("parameters/" + bs + "/add_amount",value)
 	
-	## Apply pose to skeleton
-	for path in pose:
-		var bone = skeleton.find_bone(path)
-		for track_type in pose[path]:
-			if track_type == Animation.TrackType.TYPE_POSITION_3D:
-				skeleton.set_bone_pose_position(bone, pose[path][track_type].value)
-			elif track_type == Animation.TrackType.TYPE_ROTATION_3D:
-				skeleton.set_bone_pose_rotation(bone, pose[path][track_type].value)
-			elif track_type == Animation.TrackType.TYPE_SCALE_3D:
-				skeleton.set_bone_pose_scale(bone, pose[path][track_type].value)
+	if not _recording:
+		return
+		
+	var t: float = Time.get_ticks_msec() / 1000 - t0
+	var track: int 
+	
+	for bone in skeleton.get_bone_count():
+		var path = NodePath(&'%GeneralSkeleton:' + skeleton.get_bone_name(bone))
+		
+		track = clip.find_track(path, Animation.TrackType.TYPE_POSITION_3D)
+		if track == -1:
+			track = clip.add_track(Animation.TrackType.TYPE_POSITION_3D)
+			clip.track_set_path(track, path)
+		clip.track_insert_key(track, t, skeleton.get_bone_pose_position(bone))
+		
+		track = clip.find_track(path, Animation.TrackType.TYPE_ROTATION_3D)
+		if track == -1:
+			track = clip.add_track(Animation.TrackType.TYPE_ROTATION_3D)
+			clip.track_set_path(track, path)
+		clip.track_insert_key(track, t, skeleton.get_bone_pose_rotation(bone))
+		
+		track = clip.find_track(path, Animation.TrackType.TYPE_SCALE_3D)
+		if track == -1:
+			track = clip.add_track(Animation.TrackType.TYPE_SCALE_3D)
+			clip.track_set_path(track, path)
+		clip.track_insert_key(track, t, skeleton.get_bone_pose_scale(bone))
 
 func get_data(packet) -> Dictionary:
 	if app == AppType.MeowFace:
