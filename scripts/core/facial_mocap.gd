@@ -37,7 +37,7 @@ enum AppType {
 			_streaming = true
 			_recording = true
 			t0 = Time.get_ticks_msec() / 1000
-			next_key = t0 + 1 / _framerate
+			next_key = 1 / _framerate
 			clip = Animation.new()
 			push_warning('Recording in progress')
 ## The target framerate of the authored animation clip
