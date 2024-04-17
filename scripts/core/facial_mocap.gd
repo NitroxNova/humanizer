@@ -9,24 +9,37 @@ enum AppType {
 @export_category("Animation Authoring Settings")
 @export var _recording := false:
 	set(value):
-		if not value:
+		if not value:  ## done recording
 			_recording = false
 			if clip == null:
 				return
+			for track in clip.get_track_count():
+				if clip.track_get_key_count(track) == 0:
+					clip.remove_track(track)
 			_animation_library.add_animation(_clip_name, clip)
 			push_warning('Recording finished. Animation clip added to library.')
-		if _animation_library == null:
+		elif _animation_library == null:
 			printerr('No animation library supplied')
 			return
-		if _clip_name in [&'', null]:
+		elif _clip_name in [&'', null]:
 			printerr('No clip name supplied')
 			return
-		stream = true
-		_recording = true
-		t0 = Time.get_ticks_msec() / 1000
-		next_key = t0 + 1 / _framerate
-		clip = Animation.new()
-		push_warning('Recording in progress')
+		else:  ## okay, start recording
+			human = get_node_or_null('../')
+			skeleton = get_node_or_null('../GeneralSkeleton')
+			animation_tree = get_node_or_null('../AnimationTree')
+			if human == null or skeleton == null or animation_tree == null:
+				printerr('Missing at least one of the following in the scene : human, skeleton, animator')
+				return
+			if human.human_config.rig != &'default-RETARGETED':
+				printerr('Only the default-RETARGETED rig is compatible with face mocap')
+				return
+			_streaming = true
+			_recording = true
+			t0 = Time.get_ticks_msec() / 1000
+			next_key = t0 + 1 / _framerate
+			clip = Animation.new()
+			push_warning('Recording in progress')
 ## The target framerate of the authored animation clip
 @export var _framerate: float = 30
 ## The name of the recorded animation clip
@@ -38,27 +51,25 @@ enum AppType {
 var t0: float
 var next_key: float
 var clip: Animation
+var human: Humanizer
 var animation_tree: AnimationTree 
 var skeleton: Skeleton3D
 var socket := UDPServer.new()
 var peer: PacketPeerUDP
-@export_category('Mocap Streaming Settings')
-## The app you are using to stream mocap data, MeowFace adn iFacialMocapTr supported
+@export_category('Mocap _streaminging Settings')
+## The app you are using to _streaming mocap data, MeowFace adn iFacialMocapTr supported
 @export var app: AppType
-## Stream data from connected app
-@export var stream: bool = false:
+## _streaming data from connected app
+@export var _streaming: bool = false:
 	set(value):
-		stream = value
-		if stream:
+		_streaming = value
+		if _streaming:
 			socket.listen(port)
 		else:
 			socket.stop()
 ## The port to connect to
 @export var port: int = 49983
 
-var _clip_data := {}
-var recording := true
-var pose := {}
 
 func _process(_delta) -> void:	
 	if skeleton == null or animation_tree == null:
@@ -79,7 +90,6 @@ func _process(_delta) -> void:
 	if data.size() == 0:
 		return
 	
-	pose = {}
 	for bs in data.BlendShapes:
 		#if not face_poses.has_animation(bs):
 		#	printerr('missing clip for ' + bs)
