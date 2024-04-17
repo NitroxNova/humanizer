@@ -65,7 +65,11 @@ var peer: PacketPeerUDP
 	set(value):
 		_streaming = value
 		if _streaming:
-			socket.listen(port)
+			if not socket.is_listening():
+				socket.listen(port)
+			if socket.get_local_port() != port:
+				socket.stop()
+				socket.listen(port)
 		else:
 			socket.stop()
 ## The port to connect to
