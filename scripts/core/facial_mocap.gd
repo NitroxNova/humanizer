@@ -61,7 +61,7 @@ var peer: PacketPeerUDP
 ## The app you are using to stream mocap data, MeowFace adn iFacialMocapTr supported
 @export var app: AppType
 ## Is streaming data from connected app
-@export var _streaming: bool = false:
+@export var _streaming: bool = true:
 	set(value):
 		_streaming = value
 		if _streaming:
