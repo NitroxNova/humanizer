@@ -58,7 +58,7 @@ var socket := UDPServer.new()
 var peer: PacketPeerUDP
 
 @export_category('Mocap Streaming Settings')
-## The app you are using to stream mocap data, MeowFace adn iFacialMocapTr supported
+## The app you are using to stream mocap data, MeowFace and iFacialMocapTr supported
 @export var app: AppType
 ## Is streaming data from connected app
 @export var _streaming: bool = true:
