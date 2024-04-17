@@ -6,7 +6,7 @@ enum AppType {
 	iFacialMocapTr
 }
 
-
+@export_category("Animation Authoring Settings")
 @export var _recording := false:
 	set(value):
 		if not value:
@@ -14,7 +14,7 @@ enum AppType {
 			if clip == null:
 				return
 			_animation_library.add_animation(_clip_name, clip)
-			push_warning('Recording finished')
+			push_warning('Recording finished. Animation clip added to library.')
 		if _animation_library == null:
 			printerr('No animation library supplied')
 			return
@@ -24,21 +24,27 @@ enum AppType {
 		stream = true
 		_recording = true
 		t0 = Time.get_ticks_msec() / 1000
+		next_key = t0 + 1 / _framerate
 		clip = Animation.new()
 		push_warning('Recording in progress')
+## The target framerate of the authored animation clip
+@export var _framerate: float = 30
 ## The name of the recorded animation clip
 @export var _clip_name: String
 ## The animation library where authored clips should be saved
 @export var _animation_library: AnimationLibrary
-## The app you are using to stream mocap data, MeowFace adn iFacialMocapTr supported
-@export var app: AppType
+
 
 var t0: float
+var next_key: float
 var clip: Animation
 var animation_tree: AnimationTree 
 var skeleton: Skeleton3D
 var socket := UDPServer.new()
 var peer: PacketPeerUDP
+@export_category('Mocap Streaming Settings')
+## The app you are using to stream mocap data, MeowFace adn iFacialMocapTr supported
+@export var app: AppType
 ## Stream data from connected app
 @export var stream: bool = false:
 	set(value):
@@ -84,8 +90,11 @@ func _process(_delta) -> void:
 		return
 		
 	var t: float = Time.get_ticks_msec() / 1000 - t0
-	var track: int 
+	if t < next_key:
+		return
+	next_key = t + 1 / _framerate
 	
+	var track: int 
 	for bone in skeleton.get_bone_count():
 		var path = NodePath(&'%GeneralSkeleton:' + skeleton.get_bone_name(bone))
 		
