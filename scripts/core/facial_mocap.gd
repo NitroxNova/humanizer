@@ -48,7 +48,7 @@ var peer: PacketPeerUDP
 		else:
 			socket.stop()
 ## The port to connect to
-@export var port: int = 5432
+@export var port: int = 49983
 
 var _clip_data := {}
 var recording := true
