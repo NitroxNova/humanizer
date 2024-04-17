@@ -37,7 +37,8 @@ _subresources={
 "import_tracks/scale": 0
 },
 "PATH:Human_rig/Skeleton3D": {
-"retarget/bone_map": Resource("res://addons/humanizer/data/assets/rigs/default/bone_map.tres")
+"retarget/bone_map": Resource("res://addons/humanizer/data/assets/rigs/default/bone_map.tres"),
+"retarget/remove_tracks/unimportant_positions": false
 }
 }
 }
