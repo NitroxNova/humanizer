@@ -3,7 +3,7 @@
 importer="animation_library"
 importer_version=1
 type="AnimationLibrary"
-uid="uid://4qyn5ft7y3xe"
+uid="uid://nxrrueaaaudy"
 path="res://.godot/imported/face_poses.glb-b72341318b230a0cda2f9cd001490c05.res"
 
 [deps]
@@ -35,9 +35,6 @@ _subresources={
 "import_tracks/position": 0,
 "import_tracks/rotation": 0,
 "import_tracks/scale": 0
-},
-"PATH:Human_rig/Skeleton3D": {
-"retarget/bone_map": Resource("res://addons/humanizer/data/assets/rigs/default/bone_map.tres")
 }
 }
 }
