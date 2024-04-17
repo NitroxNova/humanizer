@@ -56,10 +56,11 @@ var animation_tree: AnimationTree
 var skeleton: Skeleton3D
 var socket := UDPServer.new()
 var peer: PacketPeerUDP
-@export_category('Mocap _streaminging Settings')
-## The app you are using to _streaming mocap data, MeowFace adn iFacialMocapTr supported
+
+@export_category('Mocap Streaming Settings')
+## The app you are using to stream mocap data, MeowFace adn iFacialMocapTr supported
 @export var app: AppType
-## _streaming data from connected app
+## Is streaming data from connected app
 @export var _streaming: bool = false:
 	set(value):
 		_streaming = value
