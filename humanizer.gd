@@ -104,7 +104,14 @@ func _handle_menu_event(id) -> void:
 	elif id == menu_ids.purge_generated_assets:
 		thread.start(_purge_assets)
 	elif id == menu_ids.test:
-		_test()
+		thread.start(_test)
+
+## Testing asset importer in its own window
+func _open_asset_importer() -> void:
+	var scene = load("res://addons/humanizer/scenes/inspector/asset_importer_inspector.tscn")
+	var script = load("res://addons/humanizer/scripts/assets/asset_importer.gd")
+	scene.set_script(script)
+	HumanizerUtils.show_window(scene.instantiate())
 
 #region Thread Tasks
 func _process_raw_data() -> void:
@@ -135,5 +142,5 @@ func _purge_assets() -> void:
 	HumanizerAssetImporter.new().run(true)
 	
 func _test() -> void:
-	print(HumanizerRegistry.rigs)
+	print("test")
 #endregion
