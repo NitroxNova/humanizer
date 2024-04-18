@@ -124,28 +124,33 @@ func _process(_delta) -> void:
 				continue
 		var path = NodePath(&'%GeneralSkeleton:' + skeleton.get_bone_name(bone))
 		
-		if skeleton.get_bone_pose_position(bone) != skeleton.get_bone_rest(bone).origin:
-			track = clip.find_track(path, Animation.TrackType.TYPE_POSITION_3D)
-			if track == -1:
-				track = clip.add_track(Animation.TrackType.TYPE_POSITION_3D)
-				clip.track_set_path(track, path)
-			clip.track_insert_key(track, t, skeleton.get_bone_pose_position(bone))
-		
-		var basis: Basis = skeleton.get_bone_rest(bone).basis
+		var transform = skeleton.get_bone_rest(bone)
+		var basis: Basis = transform.basis
+		var scale := Vector3(basis.x.length(), basis.y.length(), basis.z.length())
+		var pos = transform.origin
+
 		if skeleton.get_bone_pose_rotation(bone) != basis.get_rotation_quaternion():
 			track = clip.find_track(path, Animation.TrackType.TYPE_ROTATION_3D)
 			if track == -1:
 				track = clip.add_track(Animation.TrackType.TYPE_ROTATION_3D)
 				clip.track_set_path(track, path)
 			clip.track_insert_key(track, t, skeleton.get_bone_pose_rotation(bone))
-		
-		var rest_scale = Vector3(basis.x.length(), basis.y.length(), basis.z.length())
-		if skeleton.get_bone_pose_scale(bone) != rest_scale:
+			
+		if skeleton.get_bone_pose_scale(bone) != scale:
 			track = clip.find_track(path, Animation.TrackType.TYPE_SCALE_3D)
 			if track == -1:
 				track = clip.add_track(Animation.TrackType.TYPE_SCALE_3D)
 				clip.track_set_path(track, path)
 			clip.track_insert_key(track, t, skeleton.get_bone_pose_scale(bone))
+
+		## Why does this break everything?
+		if skeleton.get_bone_pose_position(bone) != pos:
+			track = clip.find_track(path, Animation.TrackType.TYPE_POSITION_3D)
+			if track == -1:
+				track = clip.add_track(Animation.TrackType.TYPE_POSITION_3D)
+				clip.track_set_path(track, path)
+			clip.track_insert_key(track, t, skeleton.get_bone_pose_position(bone))
+
 
 func get_data(packet) -> Dictionary:
 	if app == AppType.MeowFace:
