@@ -35,7 +35,6 @@ enum AppType {
 			t0 = Time.get_ticks_msec() / 1e3
 			next_key = 0
 			clip = Animation.new()
-			print(clip.get_track_count())
 			push_warning('Recording in progress')
 ## The target framerate of the authored animation clip
 @export var _framerate: float = 30
@@ -149,7 +148,7 @@ func _process(_delta) -> void:
 			if track == -1:
 				track = clip.add_track(Animation.TrackType.TYPE_POSITION_3D)
 				clip.track_set_path(track, path)
-			clip.track_insert_key(track, t, skeleton.get_bone_pose_position(bone))
+			clip.track_insert_key(track, t, skeleton.get_bone_pose_position(bone) / skeleton.motion_scale)
 
 
 func get_data(packet) -> Dictionary:
