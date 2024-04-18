@@ -48,11 +48,15 @@ enum AppType {
 var t0: float
 var next_key: float
 var clip: Animation
-var human: Humanizer
-var animation_tree: AnimationTree 
-var skeleton: Skeleton3D
 var socket := UDPServer.new()
 var peer: PacketPeerUDP
+@onready var human: Humanizer = $'../'
+var skeleton: Skeleton3D:
+	get:
+		return human.skeleton
+var animation_tree: AnimationTree:
+	get:
+		return human.animator
 
 @export_category('Mocap Streaming Settings')
 ## The app you are using to stream mocap data, MeowFace and iFacialMocapTr supported
@@ -67,8 +71,6 @@ var peer: PacketPeerUDP
 			if socket.get_local_port() != port:
 				socket.stop()
 				socket.listen(port)
-			skeleton = get_node_or_null('../GeneralSkeleton')
-			animation_tree = get_node_or_null('../AnimationTree')
 		else:
 			socket.stop()
 ## The port to connect to
