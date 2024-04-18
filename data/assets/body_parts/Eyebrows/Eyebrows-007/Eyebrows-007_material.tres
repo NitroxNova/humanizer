@@ -1,13 +1,13 @@
 [gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://bxh8ipht2t751"]
 
-[ext_resource type="Texture2D" uid="uid://b6f724g2lp4bh" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-007/eyebrow007.png" id="1_b50hm"]
-[ext_resource type="Texture2D" uid="uid://bqldb7lwxp8oo" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-007/eyebrow007_normal.png" id="2_4t25e"]
+[ext_resource type="Texture2D" uid="uid://b6f724g2lp4bh" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-007/eyebrow007.png" id="1_41h1u"]
+[ext_resource type="Texture2D" uid="uid://bqldb7lwxp8oo" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-007/eyebrow007_normal.png" id="2_a47g4"]
 
 [resource]
 transparency = 4
 cull_mode = 2
 diffuse_mode = 2
 specular_mode = 2
-albedo_texture = ExtResource("1_b50hm")
+albedo_texture = ExtResource("1_41h1u")
 normal_enabled = true
-normal_texture = ExtResource("2_4t25e")
+normal_texture = ExtResource("2_a47g4")

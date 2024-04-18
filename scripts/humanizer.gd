@@ -217,7 +217,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		DirAccess.make_dir_recursive_absolute(save_path)
 		for fl in OSPath.get_files(save_path):
 			DirAccess.remove_absolute(fl)
-	
+
 	#if not _save_path_valid:
 	#	return
 	var new_mesh = _combine_meshes()
@@ -236,6 +236,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		root_node.set_script(load(HumanizerGlobalConfig.config.default_human_script))
 	
 	var sk = skeleton.duplicate(true) as Skeleton3D
+	sk.reset_bone_poses()
 	sk.scene_file_path = ''
 	root_node.add_child(sk)
 	sk.owner = root_node
@@ -248,29 +249,31 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 			var collider = coll.duplicate(true)
 			bone.add_child(collider)
 			collider.owner = root_node
-			
+
 	if main_collider != null:
 		var coll = main_collider.duplicate(true)
 		root_node.add_child(coll)
 		coll.owner = root_node
 	
-	var animator = get_node_or_null(^'AnimationTree')
-	if animator == null:
-		animator = get_node_or_null(^'AnimationPlayer')
-	if animator != null:
-		animator = animator.duplicate(true)
-		root_node.add_child(animator)
-		animator.owner = root_node
+	if _animator_scene != null:
+		var _animator = _animator_scene.instantiate()
+		root_node.add_child(_animator)
+		_animator.owner = root_node
+		_animator.active = true  # Doesn't work unfortunately
+		var root_bone = sk.get_bone_name(0)
+		if _animator is AnimationTree and root_bone in ['Root']:
+			_animator.root_motion_track = &'../' + sk.name + ":" + root_bone
 	
 	root_node.name = human_name
 	var mi = MeshInstance3D.new()
+	mi.name = "MeshInstance3D"
 	mi.mesh = new_mesh
 	root_node.add_child(mi)
 	mi.owner = root_node
 	mi.skeleton = NodePath('../' + sk.name)
 	mi.skin = sk.create_skin_from_rest_transforms()
 	scene.pack(root_node)
-	
+
 	if not to_file:
 		return scene
 	
@@ -757,7 +760,6 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 		skeleton = rig.load_retargeted_skeleton()
 	_add_child_node(skeleton)
 	skeleton.unique_name_in_owner = true
-	_reset_animator()
 	# Set new mesh
 	var mat = body_mesh.get_surface_override_material(0)
 	_set_body_mesh(skinned_mesh)
@@ -769,6 +771,7 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 		_add_bone_weights(cl)
 	for bp in human_config.body_parts.values():
 		_add_bone_weights(bp)
+	_reset_animator()
 
 func adjust_skeleton() -> void:
 	if skeleton == null:
@@ -895,14 +898,15 @@ func _reset_animator() -> void:
 	for child in get_children():
 		if child is AnimationTree or child is AnimationPlayer:
 			_delete_child_node(child)
-	if _animator_scene != null:
-		animator = _animator_scene.instantiate()
-		_add_child_node(animator)
-		animator.active = true
-		set_editable_instance(animator, true)
-		var root_bone = skeleton.get_bone_name(0)
-		if animator is AnimationTree and root_bone in ['Root']:
-			animator.root_motion_track = &'../' + skeleton.name + ":" + root_bone
+	if human_config.rig == 'default-RETARGETED':
+		animator = load("res://addons/humanizer/data/animations/face_animation_tree.tscn").instantiate()
+	elif human_config.rig.ends_with('RETARGETED'):
+		animator = load("res://addons/humanizer/data/animations/animation_tree.tscn").instantiate()
+	else:  # No example animator for specific rigs that aren't retargeted
+		return
+	_add_child_node(animator)
+	animator.active = true
+	set_editable_instance(animator, true)
 
 #### Additional Components ####
 func set_component_state(enabled: bool, component: String) -> void:

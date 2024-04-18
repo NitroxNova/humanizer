@@ -1,0 +1,532 @@
+[gd_scene load_steps=103 format=3 uid="uid://bfc3rdd8bqs5t"]
+
+[ext_resource type="AnimationLibrary" uid="uid://cuxxbj7avet71" path="res://addons/humanizer/data/animations/animations.glb" id="1_cbbvd"]
+[ext_resource type="AnimationLibrary" uid="uid://c3k62u37mtyiu" path="res://addons/humanizer/data/animations/face_poses.glb" id="2_skm8r"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_y8ecg"]
+animation = &"face_poses/browOuterUpRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_t8eos"]
+animation = &"face_poses/cheekPuff"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xoju0"]
+animation = &"face_poses/eyeLookDownLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_vir4j"]
+animation = &"face_poses/eyeLookDownRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_2rheo"]
+animation = &"face_poses/eyeLookInLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_twv0r"]
+animation = &"face_poses/eyeLookInRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_8udbb"]
+animation = &"face_poses/eyeLookOutLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_x41hf"]
+animation = &"face_poses/eyeLookOutRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_qoiri"]
+animation = &"face_poses/eyeLookUpLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_lj5cn"]
+animation = &"face_poses/eyeLookUpRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_mwjl7"]
+animation = &"face_poses/eyeBlinkLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_k850p"]
+animation = &"face_poses/eyeSquintLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_8ssxe"]
+animation = &"face_poses/eyeSquintRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_uikjq"]
+animation = &"face_poses/eyeWideLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xy168"]
+animation = &"face_poses/eyeWideRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_ypqdr"]
+animation = &"face_poses/headDown"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_jib7c"]
+animation = &"face_poses/headLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_3rwi6"]
+animation = &"face_poses/headRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_4t2v2"]
+animation = &"face_poses/headRollLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_vinud"]
+animation = &"face_poses/headRollRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_x4aaa"]
+animation = &"face_poses/headUp"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_baitt"]
+animation = &"face_poses/eyeBlinkRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_s8exf"]
+animation = &"face_poses/jawLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_0bij0"]
+animation = &"face_poses/jawOpen"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_hljpi"]
+animation = &"face_poses/jawRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_j87sh"]
+animation = &"face_poses/mouthFrownRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_eg4lt"]
+animation = &"face_poses/mouthFunnel"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_nbhao"]
+animation = &"face_poses/mouthLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xxaxi"]
+animation = &"face_poses/mouthLowerDownLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_qd2fc"]
+animation = &"face_poses/mouthLowerDownRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_87nvr"]
+animation = &"face_poses/mouthPucker"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_fly4s"]
+animation = &"face_poses/browDownLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_mto3x"]
+animation = &"face_poses/mouthRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_0kfxq"]
+animation = &"face_poses/mouthRollLower"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_bxxet"]
+animation = &"face_poses/mouthRollUpper"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_x5hjb"]
+animation = &"face_poses/mouthShrugUpper"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_53yh3"]
+animation = &"face_poses/mouthSmileLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_bphkr"]
+animation = &"face_poses/mouthSmileRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_hbgtq"]
+animation = &"face_poses/mouthUpperUpRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xt2hf"]
+animation = &"face_poses/noseSneerLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_11xsu"]
+animation = &"face_poses/noseSneerRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_3blen"]
+animation = &"face_poses/browDownRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_5e2ay"]
+animation = &"face_poses/tongueOut"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_jb2nv"]
+animation = &"face_poses/browInnerUp"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_recl3"]
+animation = &"face_poses/browInnerUpLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_pa6iw"]
+animation = &"face_poses/browInnerUpRight"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_3offk"]
+animation = &"face_poses/browOuterUpLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_afg5f"]
+animation = &"animations/Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xb2qy"]
+animation = &"face_poses/mouthFrownLeft"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_okt2e"]
+animation = &"face_poses/mouthUpperUpLeft"
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_uytjo"]
+filters = ["%GeneralSkeleton:oculi02.L", "%GeneralSkeleton:temporalis01.L"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_8k7yr"]
+filters = ["%GeneralSkeleton:oculi02.R", "%GeneralSkeleton:temporalis01.R"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_bwres"]
+filters = ["%GeneralSkeleton:oculi02.L", "%GeneralSkeleton:oculi02.R", "%GeneralSkeleton:temporalis01.L", "%GeneralSkeleton:temporalis01.R"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_n0216"]
+filters = ["%GeneralSkeleton:oculi02.L", "%GeneralSkeleton:temporalis01.L"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_5fc0a"]
+filters = ["%GeneralSkeleton:oculi02.R", "%GeneralSkeleton:temporalis01.R"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_vmioj"]
+filters = ["%GeneralSkeleton:oculi02.L", "%GeneralSkeleton:temporalis01.L"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_ib6fa"]
+filters = ["%GeneralSkeleton:oculi02.R", "%GeneralSkeleton:temporalis01.R"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_xjoq1"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_lhxat"]
+filter_enabled = true
+filters = ["%GeneralSkeleton:orbicularis03.L"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_3dibs"]
+filter_enabled = true
+filters = ["%GeneralSkeleton:orbicularis03.R"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_bdxhi"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_3qc85"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_ml6c6"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_rywkp"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_qamsw"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_feuli"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_5r4mj"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_gmo4u"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_noi4g"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_ndkx1"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_eijbd"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_wpq0u"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_rglpq"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_t60fq"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_s73lg"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_oojp8"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_d001e"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_uusxx"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_ooqev"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_phxw2"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_cntes"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_2iy3b"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_xh6jb"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_0wx0d"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_k2tbo"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_0suf7"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_tffi3"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_y5644"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_nh71w"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_ep8tm"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_14fcn"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_bjel2"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_535jf"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_qm85u"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_gexcd"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_e0ki0"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_5xvhv"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_6254v"]
+
+[sub_resource type="AnimationNodeAdd2" id="AnimationNodeAdd2_lhwt5"]
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_3xj3i"]
+graph_offset = Vector2(-809.478, -340.416)
+nodes/Animation/node = SubResource("AnimationNodeAnimation_afg5f")
+nodes/Animation/position = Vector2(-240, -100)
+"nodes/Animation 10/node" = SubResource("AnimationNodeAnimation_y8ecg")
+"nodes/Animation 10/position" = Vector2(1460, 80)
+"nodes/Animation 11/node" = SubResource("AnimationNodeAnimation_t8eos")
+"nodes/Animation 11/position" = Vector2(1800, 20)
+"nodes/Animation 12/node" = SubResource("AnimationNodeAnimation_xoju0")
+"nodes/Animation 12/position" = Vector2(2440, 0)
+"nodes/Animation 13/node" = SubResource("AnimationNodeAnimation_vir4j")
+"nodes/Animation 13/position" = Vector2(2580, 160)
+"nodes/Animation 14/node" = SubResource("AnimationNodeAnimation_2rheo")
+"nodes/Animation 14/position" = Vector2(2940, -40)
+"nodes/Animation 15/node" = SubResource("AnimationNodeAnimation_twv0r")
+"nodes/Animation 15/position" = Vector2(3120, 140)
+"nodes/Animation 16/node" = SubResource("AnimationNodeAnimation_8udbb")
+"nodes/Animation 16/position" = Vector2(3460, -40)
+"nodes/Animation 17/node" = SubResource("AnimationNodeAnimation_x41hf")
+"nodes/Animation 17/position" = Vector2(3680, 0)
+"nodes/Animation 18/node" = SubResource("AnimationNodeAnimation_qoiri")
+"nodes/Animation 18/position" = Vector2(3940, -80)
+"nodes/Animation 19/node" = SubResource("AnimationNodeAnimation_lj5cn")
+"nodes/Animation 19/position" = Vector2(4020, 100)
+"nodes/Animation 2/node" = SubResource("AnimationNodeAnimation_mwjl7")
+"nodes/Animation 2/position" = Vector2(2040, 100)
+"nodes/Animation 20/node" = SubResource("AnimationNodeAnimation_k850p")
+"nodes/Animation 20/position" = Vector2(4300, -60)
+"nodes/Animation 21/node" = SubResource("AnimationNodeAnimation_8ssxe")
+"nodes/Animation 21/position" = Vector2(4560, -60)
+"nodes/Animation 22/node" = SubResource("AnimationNodeAnimation_uikjq")
+"nodes/Animation 22/position" = Vector2(4720, 220)
+"nodes/Animation 23/node" = SubResource("AnimationNodeAnimation_xy168")
+"nodes/Animation 23/position" = Vector2(4920, 60)
+"nodes/Animation 24/node" = SubResource("AnimationNodeAnimation_ypqdr")
+"nodes/Animation 24/position" = Vector2(5120, -80)
+"nodes/Animation 25/node" = SubResource("AnimationNodeAnimation_jib7c")
+"nodes/Animation 25/position" = Vector2(5280, 60)
+"nodes/Animation 26/node" = SubResource("AnimationNodeAnimation_3rwi6")
+"nodes/Animation 26/position" = Vector2(5480, -60)
+"nodes/Animation 27/node" = SubResource("AnimationNodeAnimation_4t2v2")
+"nodes/Animation 27/position" = Vector2(5680, 60)
+"nodes/Animation 28/node" = SubResource("AnimationNodeAnimation_vinud")
+"nodes/Animation 28/position" = Vector2(5880, -80)
+"nodes/Animation 29/node" = SubResource("AnimationNodeAnimation_x4aaa")
+"nodes/Animation 29/position" = Vector2(6100, 80)
+"nodes/Animation 3/node" = SubResource("AnimationNodeAnimation_baitt")
+"nodes/Animation 3/position" = Vector2(2260, 220)
+"nodes/Animation 30/node" = SubResource("AnimationNodeAnimation_s8exf")
+"nodes/Animation 30/position" = Vector2(6280, -60)
+"nodes/Animation 31/node" = SubResource("AnimationNodeAnimation_0bij0")
+"nodes/Animation 31/position" = Vector2(6420, 100)
+"nodes/Animation 32/node" = SubResource("AnimationNodeAnimation_hljpi")
+"nodes/Animation 32/position" = Vector2(6720, 20)
+"nodes/Animation 34/node" = SubResource("AnimationNodeAnimation_j87sh")
+"nodes/Animation 34/position" = Vector2(7120, -80)
+"nodes/Animation 35/node" = SubResource("AnimationNodeAnimation_eg4lt")
+"nodes/Animation 35/position" = Vector2(7320, 100)
+"nodes/Animation 36/node" = SubResource("AnimationNodeAnimation_nbhao")
+"nodes/Animation 36/position" = Vector2(7620, -80)
+"nodes/Animation 37/node" = SubResource("AnimationNodeAnimation_xxaxi")
+"nodes/Animation 37/position" = Vector2(7740, 100)
+"nodes/Animation 38/node" = SubResource("AnimationNodeAnimation_qd2fc")
+"nodes/Animation 38/position" = Vector2(8000, -80)
+"nodes/Animation 39/node" = SubResource("AnimationNodeAnimation_87nvr")
+"nodes/Animation 39/position" = Vector2(8380, -120)
+"nodes/Animation 4/node" = SubResource("AnimationNodeAnimation_fly4s")
+"nodes/Animation 4/position" = Vector2(-120, 180)
+"nodes/Animation 40/node" = SubResource("AnimationNodeAnimation_mto3x")
+"nodes/Animation 40/position" = Vector2(8580, 20)
+"nodes/Animation 41/node" = SubResource("AnimationNodeAnimation_0kfxq")
+"nodes/Animation 41/position" = Vector2(8780, -160)
+"nodes/Animation 42/node" = SubResource("AnimationNodeAnimation_bxxet")
+"nodes/Animation 42/position" = Vector2(8960, 20)
+"nodes/Animation 43/node" = SubResource("AnimationNodeAnimation_x5hjb")
+"nodes/Animation 43/position" = Vector2(9240, -200)
+"nodes/Animation 44/node" = SubResource("AnimationNodeAnimation_53yh3")
+"nodes/Animation 44/position" = Vector2(9480, -40)
+"nodes/Animation 45/node" = SubResource("AnimationNodeAnimation_bphkr")
+"nodes/Animation 45/position" = Vector2(9740, -260)
+"nodes/Animation 47/node" = SubResource("AnimationNodeAnimation_hbgtq")
+"nodes/Animation 47/position" = Vector2(10200, -280)
+"nodes/Animation 48/node" = SubResource("AnimationNodeAnimation_xt2hf")
+"nodes/Animation 48/position" = Vector2(10440, -140)
+"nodes/Animation 49/node" = SubResource("AnimationNodeAnimation_11xsu")
+"nodes/Animation 49/position" = Vector2(10740, -260)
+"nodes/Animation 5/node" = SubResource("AnimationNodeAnimation_3blen")
+"nodes/Animation 5/position" = Vector2(60, 320)
+"nodes/Animation 50/node" = SubResource("AnimationNodeAnimation_5e2ay")
+"nodes/Animation 50/position" = Vector2(11060, -260)
+"nodes/Animation 6/node" = SubResource("AnimationNodeAnimation_jb2nv")
+"nodes/Animation 6/position" = Vector2(360, 120)
+"nodes/Animation 7/node" = SubResource("AnimationNodeAnimation_recl3")
+"nodes/Animation 7/position" = Vector2(540, 280)
+"nodes/Animation 8/node" = SubResource("AnimationNodeAnimation_pa6iw")
+"nodes/Animation 8/position" = Vector2(820, 100)
+"nodes/Animation 9/node" = SubResource("AnimationNodeAnimation_3offk")
+"nodes/Animation 9/position" = Vector2(1140, 40)
+"nodes/Animationnose 33/node" = SubResource("AnimationNodeAnimation_xb2qy")
+"nodes/Animationnose 33/position" = Vector2(6840, -120)
+"nodes/Animnoseation 46/node" = SubResource("AnimationNodeAnimation_okt2e")
+"nodes/Animnoseation 46/position" = Vector2(9960, -100)
+nodes/browDownLeft/node = SubResource("AnimationNodeAdd2_uytjo")
+nodes/browDownLeft/position = Vector2(120, -120)
+nodes/browDownRight/node = SubResource("AnimationNodeAdd2_8k7yr")
+nodes/browDownRight/position = Vector2(360, -160)
+nodes/browInnerUp/node = SubResource("AnimationNodeAdd2_bwres")
+nodes/browInnerUp/position = Vector2(600, -180)
+nodes/browInnerUpLeft/node = SubResource("AnimationNodeAdd2_n0216")
+nodes/browInnerUpLeft/position = Vector2(840, -220)
+nodes/browInnerUpRight/node = SubResource("AnimationNodeAdd2_5fc0a")
+nodes/browInnerUpRight/position = Vector2(1080, -240)
+nodes/browOuterUpLeft/node = SubResource("AnimationNodeAdd2_vmioj")
+nodes/browOuterUpLeft/position = Vector2(1400, -240)
+nodes/browOuterUpRight/node = SubResource("AnimationNodeAdd2_ib6fa")
+nodes/browOuterUpRight/position = Vector2(1720, -240)
+nodes/cheekPuff/node = SubResource("AnimationNodeAdd2_xjoq1")
+nodes/cheekPuff/position = Vector2(2020, -240)
+nodes/eyeBlinkLeft/node = SubResource("AnimationNodeAdd2_lhxat")
+nodes/eyeBlinkLeft/position = Vector2(2260, -240)
+nodes/eyeBlinkRight/node = SubResource("AnimationNodeAdd2_3dibs")
+nodes/eyeBlinkRight/position = Vector2(2480, -260)
+nodes/eyeLookDownLeft/node = SubResource("AnimationNodeAdd2_bdxhi")
+nodes/eyeLookDownLeft/position = Vector2(2680, -280)
+nodes/eyeLookDownRight/node = SubResource("AnimationNodeAdd2_3qc85")
+nodes/eyeLookDownRight/position = Vector2(2920, -280)
+nodes/eyeLookInLeft/node = SubResource("AnimationNodeAdd2_ml6c6")
+nodes/eyeLookInLeft/position = Vector2(3200, -280)
+nodes/eyeLookInRight/node = SubResource("AnimationNodeAdd2_rywkp")
+nodes/eyeLookInRight/position = Vector2(3400, -300)
+nodes/eyeLookOutLeft/node = SubResource("AnimationNodeAdd2_qamsw")
+nodes/eyeLookOutLeft/position = Vector2(3640, -300)
+nodes/eyeLookOutRight/node = SubResource("AnimationNodeAdd2_feuli")
+nodes/eyeLookOutRight/position = Vector2(3880, -300)
+nodes/eyeLookUpLeft/node = SubResource("AnimationNodeAdd2_5r4mj")
+nodes/eyeLookUpLeft/position = Vector2(4140, -320)
+nodes/eyeLookUpRight/node = SubResource("AnimationNodeAdd2_gmo4u")
+nodes/eyeLookUpRight/position = Vector2(4340, -320)
+nodes/eyeSquintLeft/node = SubResource("AnimationNodeAdd2_noi4g")
+nodes/eyeSquintLeft/position = Vector2(4540, -300)
+nodes/eyeSquintRight/node = SubResource("AnimationNodeAdd2_ndkx1")
+nodes/eyeSquintRight/position = Vector2(4720, -340)
+nodes/eyeWideLeft/node = SubResource("AnimationNodeAdd2_eijbd")
+nodes/eyeWideLeft/position = Vector2(4940, -340)
+nodes/eyeWideRight/node = SubResource("AnimationNodeAdd2_wpq0u")
+nodes/eyeWideRight/position = Vector2(5160, -320)
+nodes/headDown/node = SubResource("AnimationNodeAdd2_rglpq")
+nodes/headDown/position = Vector2(5340, -320)
+nodes/headLeft/node = SubResource("AnimationNodeAdd2_t60fq")
+nodes/headLeft/position = Vector2(5520, -300)
+nodes/headRight/node = SubResource("AnimationNodeAdd2_s73lg")
+nodes/headRight/position = Vector2(5700, -320)
+nodes/headRollLeft/node = SubResource("AnimationNodeAdd2_oojp8")
+nodes/headRollLeft/position = Vector2(5900, -300)
+nodes/headRollRight/node = SubResource("AnimationNodeAdd2_d001e")
+nodes/headRollRight/position = Vector2(6120, -280)
+nodes/headUp/node = SubResource("AnimationNodeAdd2_uusxx")
+nodes/headUp/position = Vector2(6300, -300)
+nodes/jawLeft/node = SubResource("AnimationNodeAdd2_ooqev")
+nodes/jawLeft/position = Vector2(6500, -300)
+nodes/jawOpen/node = SubResource("AnimationNodeAdd2_phxw2")
+nodes/jawOpen/position = Vector2(6700, -320)
+nodes/jawRight/node = SubResource("AnimationNodeAdd2_cntes")
+nodes/jawRight/position = Vector2(6920, -340)
+nodes/mouthFrownLeft/node = SubResource("AnimationNodeAdd2_2iy3b")
+nodes/mouthFrownLeft/position = Vector2(7160, -320)
+nodes/mouthFrownRight/node = SubResource("AnimationNodeAdd2_xh6jb")
+nodes/mouthFrownRight/position = Vector2(7380, -340)
+nodes/mouthFunnel/node = SubResource("AnimationNodeAdd2_0wx0d")
+nodes/mouthFunnel/position = Vector2(7620, -340)
+nodes/mouthLeft/node = SubResource("AnimationNodeAdd2_k2tbo")
+nodes/mouthLeft/position = Vector2(7860, -360)
+nodes/mouthLowerDownLeft/node = SubResource("AnimationNodeAdd2_0suf7")
+nodes/mouthLowerDownLeft/position = Vector2(8080, -360)
+nodes/mouthLowerDownRight/node = SubResource("AnimationNodeAdd2_tffi3")
+nodes/mouthLowerDownRight/position = Vector2(8340, -380)
+nodes/mouthPucker/node = SubResource("AnimationNodeAdd2_y5644")
+nodes/mouthPucker/position = Vector2(8640, -380)
+nodes/mouthRight/node = SubResource("AnimationNodeAdd2_nh71w")
+nodes/mouthRight/position = Vector2(8840, -420)
+nodes/mouthRollLower/node = SubResource("AnimationNodeAdd2_ep8tm")
+nodes/mouthRollLower/position = Vector2(9060, -440)
+nodes/mouthRollUpper/node = SubResource("AnimationNodeAdd2_14fcn")
+nodes/mouthRollUpper/position = Vector2(9280, -460)
+nodes/mouthShrugUpper/node = SubResource("AnimationNodeAdd2_bjel2")
+nodes/mouthShrugUpper/position = Vector2(9540, -480)
+nodes/mouthSmileLeft/node = SubResource("AnimationNodeAdd2_535jf")
+nodes/mouthSmileLeft/position = Vector2(9780, -500)
+nodes/mouthSmileRight/node = SubResource("AnimationNodeAdd2_qm85u")
+nodes/mouthSmileRight/position = Vector2(10000, -500)
+nodes/mouthUpperUpLeft/node = SubResource("AnimationNodeAdd2_gexcd")
+nodes/mouthUpperUpLeft/position = Vector2(10260, -520)
+nodes/mouthUpperUpRight/node = SubResource("AnimationNodeAdd2_e0ki0")
+nodes/mouthUpperUpRight/position = Vector2(10500, -540)
+nodes/noseSneerLeft/node = SubResource("AnimationNodeAdd2_5xvhv")
+nodes/noseSneerLeft/position = Vector2(10780, -560)
+nodes/noseSneerRight/node = SubResource("AnimationNodeAdd2_6254v")
+nodes/noseSneerRight/position = Vector2(11000, -540)
+nodes/output/position = Vector2(11680, -560)
+nodes/tongueOut/node = SubResource("AnimationNodeAdd2_lhwt5")
+nodes/tongueOut/position = Vector2(11320, -560)
+node_connections = [&"browDownLeft", 0, &"Animation", &"browDownLeft", 1, &"Animation 4", &"browDownRight", 0, &"browDownLeft", &"browDownRight", 1, &"Animation 5", &"browInnerUp", 0, &"browDownRight", &"browInnerUp", 1, &"Animation 6", &"browInnerUpLeft", 0, &"browInnerUp", &"browInnerUpLeft", 1, &"Animation 7", &"browInnerUpRight", 0, &"browInnerUpLeft", &"browInnerUpRight", 1, &"Animation 8", &"browOuterUpLeft", 0, &"browInnerUpRight", &"browOuterUpLeft", 1, &"Animation 9", &"browOuterUpRight", 0, &"browOuterUpLeft", &"browOuterUpRight", 1, &"Animation 10", &"cheekPuff", 0, &"browOuterUpRight", &"cheekPuff", 1, &"Animation 11", &"eyeBlinkLeft", 0, &"cheekPuff", &"eyeBlinkLeft", 1, &"Animation 2", &"eyeBlinkRight", 0, &"eyeBlinkLeft", &"eyeBlinkRight", 1, &"Animation 3", &"eyeLookDownLeft", 0, &"eyeBlinkRight", &"eyeLookDownLeft", 1, &"Animation 12", &"eyeLookDownRight", 0, &"eyeLookDownLeft", &"eyeLookDownRight", 1, &"Animation 13", &"eyeLookInLeft", 0, &"eyeLookDownRight", &"eyeLookInLeft", 1, &"Animation 14", &"eyeLookInRight", 0, &"eyeLookInLeft", &"eyeLookInRight", 1, &"Animation 15", &"eyeLookOutLeft", 0, &"eyeLookInRight", &"eyeLookOutLeft", 1, &"Animation 16", &"eyeLookOutRight", 0, &"eyeLookOutLeft", &"eyeLookOutRight", 1, &"Animation 17", &"eyeLookUpLeft", 0, &"eyeLookOutRight", &"eyeLookUpLeft", 1, &"Animation 18", &"eyeLookUpRight", 0, &"eyeLookUpLeft", &"eyeLookUpRight", 1, &"Animation 19", &"eyeSquintLeft", 0, &"eyeLookUpRight", &"eyeSquintLeft", 1, &"Animation 20", &"eyeSquintRight", 0, &"eyeSquintLeft", &"eyeSquintRight", 1, &"Animation 21", &"eyeWideLeft", 0, &"eyeSquintRight", &"eyeWideLeft", 1, &"Animation 22", &"eyeWideRight", 0, &"eyeWideLeft", &"eyeWideRight", 1, &"Animation 23", &"headDown", 0, &"eyeWideRight", &"headDown", 1, &"Animation 24", &"headLeft", 0, &"headDown", &"headLeft", 1, &"Animation 25", &"headRight", 0, &"headLeft", &"headRight", 1, &"Animation 26", &"headRollLeft", 0, &"headRight", &"headRollLeft", 1, &"Animation 27", &"headRollRight", 0, &"headRollLeft", &"headRollRight", 1, &"Animation 28", &"headUp", 0, &"headRollRight", &"headUp", 1, &"Animation 29", &"jawLeft", 0, &"headUp", &"jawLeft", 1, &"Animation 30", &"jawOpen", 0, &"jawLeft", &"jawOpen", 1, &"Animation 31", &"jawRight", 0, &"jawOpen", &"jawRight", 1, &"Animation 32", &"mouthFrownLeft", 0, &"jawRight", &"mouthFrownLeft", 1, &"Animationnose 33", &"mouthFrownRight", 0, &"mouthFrownLeft", &"mouthFrownRight", 1, &"Animation 34", &"mouthFunnel", 0, &"mouthFrownRight", &"mouthFunnel", 1, &"Animation 35", &"mouthLeft", 0, &"mouthFunnel", &"mouthLeft", 1, &"Animation 36", &"mouthLowerDownLeft", 0, &"mouthLeft", &"mouthLowerDownLeft", 1, &"Animation 37", &"mouthLowerDownRight", 0, &"mouthLowerDownLeft", &"mouthLowerDownRight", 1, &"Animation 38", &"mouthPucker", 0, &"mouthLowerDownRight", &"mouthPucker", 1, &"Animation 39", &"mouthRight", 0, &"mouthPucker", &"mouthRight", 1, &"Animation 40", &"mouthRollLower", 0, &"mouthRight", &"mouthRollLower", 1, &"Animation 41", &"mouthRollUpper", 0, &"mouthRollLower", &"mouthRollUpper", 1, &"Animation 42", &"mouthShrugUpper", 0, &"mouthRollUpper", &"mouthShrugUpper", 1, &"Animation 43", &"mouthSmileLeft", 0, &"mouthShrugUpper", &"mouthSmileLeft", 1, &"Animation 44", &"mouthSmileRight", 0, &"mouthSmileLeft", &"mouthSmileRight", 1, &"Animation 45", &"mouthUpperUpLeft", 0, &"mouthSmileRight", &"mouthUpperUpLeft", 1, &"Animnoseation 46", &"mouthUpperUpRight", 0, &"mouthUpperUpLeft", &"mouthUpperUpRight", 1, &"Animation 47", &"noseSneerLeft", 0, &"mouthUpperUpRight", &"noseSneerLeft", 1, &"Animation 48", &"noseSneerRight", 0, &"noseSneerLeft", &"noseSneerRight", 1, &"Animation 49", &"output", 0, &"tongueOut", &"tongueOut", 0, &"noseSneerRight", &"tongueOut", 1, &"Animation 50"]
+
+[node name="AnimationTree" type="AnimationTree"]
+active = false
+root_node = NodePath(".")
+libraries = {
+"animations": ExtResource("1_cbbvd"),
+"face_poses": ExtResource("2_skm8r")
+}
+tree_root = SubResource("AnimationNodeBlendTree_3xj3i")
+anim_player = NodePath("AnimationPlayer")
+parameters/browDownLeft/add_amount = 0.021595
+parameters/browDownRight/add_amount = 0.020115
+parameters/browInnerUp/add_amount = 0.013857
+parameters/browInnerUpLeft/add_amount = 0.013816
+parameters/browInnerUpRight/add_amount = 0.013898
+parameters/browOuterUpLeft/add_amount = 0.021556
+parameters/browOuterUpRight/add_amount = 5e-06
+parameters/cheekPuff/add_amount = 0.006789
+parameters/eyeBlinkLeft/add_amount = 0.618495
+parameters/eyeBlinkRight/add_amount = 1.0
+parameters/eyeLookDownLeft/add_amount = 0.119557
+parameters/eyeLookDownRight/add_amount = 0.119427
+parameters/eyeLookInLeft/add_amount = 0.183686
+parameters/eyeLookInRight/add_amount = 0.022225
+parameters/eyeLookOutLeft/add_amount = 0.014707
+parameters/eyeLookOutRight/add_amount = 0.158861
+parameters/eyeLookUpLeft/add_amount = 0.032478
+parameters/eyeLookUpRight/add_amount = 0.032686
+parameters/eyeSquintLeft/add_amount = 0.295171
+parameters/eyeSquintRight/add_amount = 0.801573
+parameters/eyeWideLeft/add_amount = 0.016124
+parameters/eyeWideRight/add_amount = 0.015904
+parameters/headDown/add_amount = 0.0
+parameters/headLeft/add_amount = 0.058414
+parameters/headRight/add_amount = 0.0
+parameters/headRollLeft/add_amount = 0.044975
+parameters/headRollRight/add_amount = 0.0
+parameters/headUp/add_amount = 0.17629
+parameters/jawLeft/add_amount = 0.018277
+parameters/jawOpen/add_amount = -3e-06
+parameters/jawRight/add_amount = 0.063462
+parameters/mouthFrownLeft/add_amount = 4e-06
+parameters/mouthFrownRight/add_amount = 6e-06
+parameters/mouthFunnel/add_amount = 0.010326
+parameters/mouthLeft/add_amount = 1e-06
+parameters/mouthLowerDownLeft/add_amount = 0.014623
+parameters/mouthLowerDownRight/add_amount = 0.014616
+parameters/mouthPucker/add_amount = 0.028678
+parameters/mouthRight/add_amount = 0.000276
+parameters/mouthRollLower/add_amount = 0.030875
+parameters/mouthRollUpper/add_amount = 0.03241
+parameters/mouthShrugUpper/add_amount = 0.004741
+parameters/mouthSmileLeft/add_amount = 0.059318
+parameters/mouthSmileRight/add_amount = 0.282595
+parameters/mouthUpperUpLeft/add_amount = 0.0
+parameters/mouthUpperUpRight/add_amount = 2e-06
+parameters/noseSneerLeft/add_amount = 0.002314
+parameters/noseSneerRight/add_amount = 0.002315
+parameters/tongueOut/add_amount = 0.014472
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+deterministic = true
+libraries = {
+"animations": ExtResource("1_cbbvd"),
+"face_poses": ExtResource("2_skm8r")
+}

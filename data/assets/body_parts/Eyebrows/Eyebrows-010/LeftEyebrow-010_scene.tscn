@@ -1,8 +1,8 @@
 [gd_scene load_steps=3 format=3 uid="uid://b7pv01iqghmsw"]
 
-[ext_resource type="ArrayMesh" uid="uid://b8mj32a1pyic6" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-010/LeftEyebrow-010_mesh.tres" id="1_x5mvj"]
-[ext_resource type="Material" uid="uid://vrb3buav10ca" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-010/Eyebrows-010_material.tres" id="2_s2dot"]
+[ext_resource type="ArrayMesh" uid="uid://b8mj32a1pyic6" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-010/LeftEyebrow-010_mesh.tres" id="1_t8d7a"]
+[ext_resource type="Material" uid="uid://vrb3buav10ca" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-010/Eyebrows-010_material.tres" id="2_mwu4q"]
 
 [node name="LeftEyebrow-010" type="MeshInstance3D"]
-mesh = ExtResource("1_x5mvj")
-surface_material_override/0 = ExtResource("2_s2dot")
+mesh = ExtResource("1_t8d7a")
+surface_material_override/0 = ExtResource("2_mwu4q")

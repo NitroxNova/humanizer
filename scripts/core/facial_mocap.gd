@@ -13,9 +13,7 @@ enum AppType {
 			_recording = false
 			if clip == null:
 				return
-			for track in clip.get_track_count():
-				if clip.track_get_key_count(track) == 0:
-					clip.remove_track(track)
+			clip.length = next_key
 			_animation_library.add_animation(_clip_name, clip)
 			push_warning('Recording finished. Animation clip added to library.')
 		elif _animation_library == null:
@@ -25,20 +23,19 @@ enum AppType {
 			printerr('No clip name supplied')
 			return
 		else:  ## okay, start recording
+			_streaming = true
 			human = get_node_or_null('../')
-			skeleton = get_node_or_null('../GeneralSkeleton')
-			animation_tree = get_node_or_null('../AnimationTree')
 			if human == null or skeleton == null or animation_tree == null:
 				printerr('Missing at least one of the following in the scene : human, skeleton, animator')
 				return
 			if human.human_config.rig != &'default-RETARGETED':
 				printerr('Only the default-RETARGETED rig is compatible with face mocap')
 				return
-			_streaming = true
 			_recording = true
-			t0 = Time.get_ticks_msec() / 1000
-			next_key = 1 / _framerate
+			t0 = Time.get_ticks_msec() / 1e3
+			next_key = 0
 			clip = Animation.new()
+			print(clip.get_track_count())
 			push_warning('Recording in progress')
 ## The target framerate of the authored animation clip
 @export var _framerate: float = 30
@@ -70,13 +67,17 @@ var peer: PacketPeerUDP
 			if socket.get_local_port() != port:
 				socket.stop()
 				socket.listen(port)
+			skeleton = get_node_or_null('../GeneralSkeleton')
+			animation_tree = get_node_or_null('../AnimationTree')
 		else:
 			socket.stop()
 ## The port to connect to
 @export var port: int = 49983
 
 
-func _process(_delta) -> void:	
+func _process(_delta) -> void:
+	if human != null and human.human_config.rig != 'default-RETARGETED':
+		return
 	if skeleton == null or animation_tree == null:
 		return
 		
@@ -104,32 +105,45 @@ func _process(_delta) -> void:
 	if not _recording:
 		return
 		
-	var t: float = Time.get_ticks_msec() / 1000 - t0
+	var t: float = Time.get_ticks_msec() / 1e3 - t0
 	if t < next_key:
 		return
 	next_key = t + 1 / _framerate
 	
 	var track: int 
+	## Don't record all bones.  Skip until we get to the neck
+	var skip := true  
+	
 	for bone in skeleton.get_bone_count():
+		if skip:
+			if &'neck' in skeleton.get_bone_name(bone).to_lower():
+				skip = false
+			else:
+				continue
 		var path = NodePath(&'%GeneralSkeleton:' + skeleton.get_bone_name(bone))
 		
-		track = clip.find_track(path, Animation.TrackType.TYPE_POSITION_3D)
-		if track == -1:
-			track = clip.add_track(Animation.TrackType.TYPE_POSITION_3D)
-			clip.track_set_path(track, path)
-		clip.track_insert_key(track, t, skeleton.get_bone_pose_position(bone))
+		if skeleton.get_bone_pose_position(bone) != skeleton.get_bone_rest(bone).origin:
+			track = clip.find_track(path, Animation.TrackType.TYPE_POSITION_3D)
+			if track == -1:
+				track = clip.add_track(Animation.TrackType.TYPE_POSITION_3D)
+				clip.track_set_path(track, path)
+			clip.track_insert_key(track, t, skeleton.get_bone_pose_position(bone))
 		
-		track = clip.find_track(path, Animation.TrackType.TYPE_ROTATION_3D)
-		if track == -1:
-			track = clip.add_track(Animation.TrackType.TYPE_ROTATION_3D)
-			clip.track_set_path(track, path)
-		clip.track_insert_key(track, t, skeleton.get_bone_pose_rotation(bone))
+		var basis: Basis = skeleton.get_bone_rest(bone).basis
+		if skeleton.get_bone_pose_rotation(bone) != basis.get_rotation_quaternion():
+			track = clip.find_track(path, Animation.TrackType.TYPE_ROTATION_3D)
+			if track == -1:
+				track = clip.add_track(Animation.TrackType.TYPE_ROTATION_3D)
+				clip.track_set_path(track, path)
+			clip.track_insert_key(track, t, skeleton.get_bone_pose_rotation(bone))
 		
-		track = clip.find_track(path, Animation.TrackType.TYPE_SCALE_3D)
-		if track == -1:
-			track = clip.add_track(Animation.TrackType.TYPE_SCALE_3D)
-			clip.track_set_path(track, path)
-		clip.track_insert_key(track, t, skeleton.get_bone_pose_scale(bone))
+		var rest_scale = Vector3(basis.x.length(), basis.y.length(), basis.z.length())
+		if skeleton.get_bone_pose_scale(bone) != rest_scale:
+			track = clip.find_track(path, Animation.TrackType.TYPE_SCALE_3D)
+			if track == -1:
+				track = clip.add_track(Animation.TrackType.TYPE_SCALE_3D)
+				clip.track_set_path(track, path)
+			clip.track_insert_key(track, t, skeleton.get_bone_pose_scale(bone))
 
 func get_data(packet) -> Dictionary:
 	if app == AppType.MeowFace:

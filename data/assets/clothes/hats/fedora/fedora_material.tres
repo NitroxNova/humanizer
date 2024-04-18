@@ -1,9 +1,9 @@
 [gd_resource type="StandardMaterial3D" load_steps=3 format=3 uid="uid://deut2xijdgyyd"]
 
-[ext_resource type="Texture2D" uid="uid://dgyrq3hsvcox6" path="res://addons/humanizer/data/assets/clothes/hats/fedora/fedora_diffuse.png" id="1_qhect"]
-[ext_resource type="Texture2D" uid="uid://bj23b36udp71" path="res://addons/humanizer/data/assets/clothes/hats/fedora/fedora_normal.png" id="2_0fxtk"]
+[ext_resource type="Texture2D" uid="uid://dgyrq3hsvcox6" path="res://addons/humanizer/data/assets/clothes/hats/fedora/fedora_diffuse.png" id="1_8ubcj"]
+[ext_resource type="Texture2D" uid="uid://bj23b36udp71" path="res://addons/humanizer/data/assets/clothes/hats/fedora/fedora_normal.png" id="2_y1mfq"]
 
 [resource]
-albedo_texture = ExtResource("1_qhect")
+albedo_texture = ExtResource("1_8ubcj")
 normal_enabled = true
-normal_texture = ExtResource("2_0fxtk")
+normal_texture = ExtResource("2_y1mfq")

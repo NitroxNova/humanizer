@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="MHCLO" load_steps=2 format=3 uid="uid://bqm2ja4dt034l"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_1eklf"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/mhclo.gd" id="1_33ho3"]
 
 [resource]
 resource_name = "SuitSlacks"
-script = ExtResource("1_1eklf")
+script = ExtResource("1_33ho3")
 vertex_data = [{
 "format": "triangle",
 "offset": Vector3(0.0082, 0.0018, -0.0031),

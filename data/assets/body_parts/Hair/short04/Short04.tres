@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=2 format=3 uid="uid://cffb6vkoxd6qc"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="1_e7sel"]
+
+[resource]
+resource_name = "Short04"
+script = ExtResource("1_e7sel")
+slot = "Hair"
+textures = {
+"short04_diffuse.png": "res://addons/humanizer/data/assets/body_parts/Hair/short04/short04_diffuse.png"
+}
+path = "res://addons/humanizer/data/assets/body_parts/Hair/short04"

@@ -1,0 +1,10 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://cume4kaq27xvh"]
+
+[ext_resource type="Texture2D" uid="uid://6ws75d1nv1ig" path="res://addons/humanizer/data/assets/body_parts/Hair/short04/short04_diffuse.png" id="1_h4org"]
+
+[resource]
+transparency = 4
+cull_mode = 2
+diffuse_mode = 2
+specular_mode = 2
+albedo_texture = ExtResource("1_h4org")
