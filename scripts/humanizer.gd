@@ -747,6 +747,10 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 		printerr('Cannot change rig on baked mesh.  Reset the character.')
 		return
 	
+	if rig_name != &'default-RETARGETED':
+		if human_config.components.has(&'saccades'):
+			set_component_state(false, &'saccades')
+	
 	if basemesh == null:
 		basemesh = load('res://addons/humanizer/data/resources/base_human.res')
 	var retargeted: bool = rig_name.ends_with('-RETARGETED')
@@ -907,6 +911,13 @@ func _reset_animator() -> void:
 	_add_child_node(animator)
 	animator.active = true
 	set_editable_instance(animator, true)
+	if human_config.rig == 'default-RETARGETED':
+		reset_face_pose()
+
+func reset_face_pose() -> void:
+	var face_poses: AnimationLibrary = load("res://addons/humanizer/data/animations/face_poses.glb")
+	for clip: String in face_poses.get_animation_list():
+		animator.set("parameters/" + clip + "/add_amount", 0.)
 
 #### Additional Components ####
 func set_component_state(enabled: bool, component: String) -> void:
@@ -917,6 +928,8 @@ func set_component_state(enabled: bool, component: String) -> void:
 			_add_main_collider()
 		elif component == &'ragdoll':
 			_add_physical_skeleton()
+		elif component == &'saccades':
+			_add_saccades()
 	else:
 		human_config.components.erase(component)
 		if component == &'main_collider':
@@ -926,6 +939,12 @@ func set_component_state(enabled: bool, component: String) -> void:
 			skeleton.physical_bones_stop_simulation()
 			for child in skeleton.get_children():
 				_delete_child_node(child)
+		elif component == &'saccades':
+			var saccades = get_node_or_null('Saccades')
+			if saccades:
+				saccades.queue_free()
+			animator.active = true
+			notify_property_list_changed()
 
 func _add_main_collider() -> void:
 	if get_node_or_null('MainCollider') != null:
@@ -962,3 +981,15 @@ func _adjust_main_collider():
 		if distance > max_width:
 			max_width = distance
 	main_collider.shape.radius = max_width * 1.5
+
+func _add_saccades() -> void:
+	if human_config.rig == &'default-RETARGETED':
+		var saccades = load(&"res://addons/humanizer/scenes/subscenes/saccades.tscn").instantiate()
+		saccades.skeleton = skeleton
+		_add_child_node(saccades)
+		move_child(saccades, 0)
+		## So you can see the effect without the animation tree overriding
+		animator.active = false 
+	else:
+		printerr(&'Saccades are not compatible with the selected rig')
+		set_component_state(false, &'saccades')

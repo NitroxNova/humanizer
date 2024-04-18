@@ -29,9 +29,11 @@ func _parse_category(human, category):
 	scene.get_node('%MainColliderCheckBox').button_pressed = &'main_collider' in human.human_config.components
 	scene.get_node('%RagdollCheckBox').button_pressed = &'ragdoll' in human.human_config.components
 	scene.get_node('%LODCheckBox').button_pressed = &'lod' in human.human_config.components
+	scene.get_node('%SaccadesCheckBox').button_pressed = &'saccades' in human.human_config.components
 	scene.get_node('%MainColliderCheckBox').toggled.connect(human.set_component_state.bind(&'main_collider'))
 	scene.get_node('%RagdollCheckBox').toggled.connect(human.set_component_state.bind(&'ragdoll'))
 	scene.get_node('%LODCheckBox').toggled.connect(human.set_component_state.bind(&'lod'))
+	scene.get_node('%SaccadesCheckBox').toggled.connect(human.set_component_state.bind(&'saccades'))
 
 	## Baking section
 	scene.get_node('%SelectAllButton').pressed.connect(human.set_bake_meshes.bind(&'All'))

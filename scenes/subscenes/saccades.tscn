@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bo51jx82aynpl"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/core/saccades.gd" id="1_es4hi"]
+
+[node name="Saccades" type="Node"]
+script = ExtResource("1_es4hi")
