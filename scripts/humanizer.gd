@@ -260,6 +260,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		root_node.add_child(_animator)
 		_animator.owner = root_node
 		_animator.active = true  # Doesn't work unfortunately
+		root_node.set_editable_instance(_animator, true)
 		var root_bone = sk.get_bone_name(0)
 		if _animator is AnimationTree and root_bone in ['Root']:
 			_animator.root_motion_track = &'../' + sk.name + ":" + root_bone
@@ -772,12 +773,12 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	body_mesh.set_surface_override_material(0, mat)
 	body_mesh.skeleton = &'../' + skeleton.name
 	adjust_skeleton()
+	_reset_animator()
 	set_shapekeys(human_config.shapekeys)
 	for cl in human_config.clothes:
 		_add_bone_weights(cl)
 	for bp in human_config.body_parts.values():
 		_add_bone_weights(bp)
-	_reset_animator()
 
 func adjust_skeleton() -> void:
 	if skeleton == null:
