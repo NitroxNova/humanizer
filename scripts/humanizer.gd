@@ -785,6 +785,7 @@ func adjust_skeleton() -> void:
 	var skeleton_config = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].config_json_path)
 	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
 	var _foot_offset = Vector3.UP * offset
+	skeleton.motion_scale = 1
 	
 	for bone_id in skeleton.get_bone_count():
 		var bone_data = skeleton_config[bone_id]
@@ -803,14 +804,14 @@ func adjust_skeleton() -> void:
 		if not parent_id == -1:
 			var parent_xform = skeleton.get_bone_global_pose(parent_id)
 			bone_pos = bone_pos * parent_xform
-		skeleton.set_bone_pose_position(bone_id, bone_pos * skeleton.motion_scale)
-		skeleton.set_bone_rest(bone_id,skeleton.get_bone_pose(bone_id))
+		skeleton.set_bone_pose_position(bone_id, bone_pos)
+		skeleton.set_bone_rest(bone_id,skeleton. get_bone_pose(bone_id))
+	
+	skeleton.motion_scale = _base_motion_scale * (_helper_vertex[hips_id].y - _foot_offset.y) / _base_hips_height
 	skeleton.reset_bone_poses()
 	for child in get_children():
 		if child is MeshInstance3D:
 			child.skin = skeleton.create_skin_from_rest_transforms()
-	
-	skeleton.motion_scale = _base_motion_scale * (_helper_vertex[hips_id].y - _foot_offset.y) / _base_hips_height
 	#print('Fit skeleton to mesh')
 
 func _add_bone_weights(asset: HumanAsset) -> void:
