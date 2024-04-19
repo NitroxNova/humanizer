@@ -63,33 +63,12 @@ static func skin_mesh(rig: HumanizerRig, skeleton: Skeleton3D, basemesh: ArrayMe
 	var mesh_arrays = basemesh.surface_get_arrays(0)
 	var lods := {}
 	var flags := basemesh.surface_get_format(0)
-	var weights = rig.load_bone_weights()
+	var weights = HumanizerUtils.read_json(rig.bone_weights_json_path)
 	var helper_mesh = load("res://addons/humanizer/data/resources/base_helpers.res")
 	var mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(helper_mesh)
-	var mh_bone_array = []
-	var mh_weight_array = []
-	var len = mesh_arrays[Mesh.ARRAY_VERTEX].size()
-	mh_bone_array.resize(len)
-	mh_weight_array.resize(len)
-	# Read mh skeleton weights
-	for bone_name in weights:
-		var bone_id = skeleton.find_bone(bone_name)
-		if bone_id == -1:
-			if bone_name.begins_with('toe'):
-				if bone_name.ends_with('.L'):
-					bone_id = skeleton.find_bone("toe1-1.L")
-				else:
-					bone_id = skeleton.find_bone("toe1-1.R")
-		for bw_pair in weights[bone_name]:
-			var mh_id = bw_pair[0]
-			if mh_id >= len:  # Helper verts
-				continue
-			var weight = bw_pair[1]
-			if mh_bone_array[mh_id] == null:
-				mh_bone_array[mh_id] = PackedInt32Array()
-				mh_weight_array[mh_id] = PackedFloat32Array()
-			mh_bone_array[mh_id].append(bone_id)
-			mh_weight_array[mh_id].append(weight)
+	var mh_bone_array = weights.bones
+	var mh_weight_array = weights.weights
+
 	# Normalize
 	for mh_id in mh_bone_array.size():
 		var array = mh_weight_array[mh_id]
