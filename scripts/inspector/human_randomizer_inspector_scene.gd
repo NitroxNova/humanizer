@@ -24,6 +24,12 @@ func setup(_human_rnd: HumanRandomizer):
 		enabled_cats[cat] = cat_box.get_node('CheckBox') as CheckBox
 		rand_sliders[cat] = cat_box.get_node('RandSlider') as HSlider
 		asym_sliders[cat] = cat_box.get_node('AsymSlider') as HSlider
+		rand_sliders[cat].drag_ended.connect(_on_rand_slider_value_changed.bind(rand_sliders[cat], cat))
+		asym_sliders[cat].drag_ended.connect(_on_asym_slider_value_changed.bind(asym_sliders[cat], cat))
+		if human_rnd.randomization.has(cat):
+			rand_sliders[cat].value = human_rnd.randomization[cat]
+		if human_rnd.asymmetry.has(cat):
+			asym_sliders[cat].value = human_rnd.asymmetry[cat]
 		enabled_cats[cat].text = cat
 		if cat == 'Macro' or cat == 'Race':
 			(enabled_cats[cat] as CheckBox).button_pressed = false
@@ -46,3 +52,10 @@ func _randomize_shapekeys() -> void:
 	human_rnd.randomization = randomization
 	human_rnd.asymmetry = asymmetry
 	human_rnd.randomize_shapekeys()
+
+func _on_rand_slider_value_changed(changed: bool, slider: HSlider, cat: String) -> void:
+	human_rnd.randomization[cat] = slider.value
+	
+func _on_asym_slider_value_changed(changed: bool, slider: HSlider, cat: String) -> void:
+	human_rnd.asymmetry[cat] = slider.value
+	

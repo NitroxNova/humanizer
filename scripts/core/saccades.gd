@@ -4,10 +4,11 @@ extends Node
 var enabled: bool = true:
 	set(value):
 		enabled = value
+		if enabled:
+			_set_saccades_timer()
+			_set_blink_timer()
 
-@onready var skeleton: Skeleton3D:
-	get:
-		return $'../GeneralSkeleton'
+@onready var skeleton: Skeleton3D = $'../GeneralSkeleton'
 @onready var _saccades_timer: SceneTreeTimer
 @onready var _blink_timer: SceneTreeTimer
 var _rng := RandomNumberGenerator.new()
@@ -33,6 +34,8 @@ func _set_blink_timer() -> void:
 		_blink_timer.timeout.connect(_blink)
 	
 func _saccade() -> void:
+	if skeleton == null:
+		return
 	var left_eyelid = skeleton.find_bone(&'orbicularis03.L')
 	var right_eyelid = skeleton.find_bone(&'orbicularis03.R')
 	var left_lower_lid = skeleton.find_bone(&'orbicularis04.L')
@@ -52,6 +55,8 @@ func _saccade() -> void:
 	_set_saccades_timer()
 	
 func _blink() -> void:
+	if skeleton == null:
+		return
 	var blink = Quaternion(0.3, 0, 0, 1).normalized()
 	var bone: int
 	var left_eyelid = skeleton.find_bone(&'orbicularis03.L')
@@ -66,7 +71,3 @@ func _blink() -> void:
 	skeleton.set_bone_pose_rotation(left_eyelid, prev_pose)
 	skeleton.set_bone_pose_rotation(right_eyelid, prev_pose)
 	_set_blink_timer()
-
-func _process(delta) -> void:
-	pass
-	#print(_saccades_timer.time_left)

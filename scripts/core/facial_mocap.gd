@@ -142,7 +142,6 @@ func _process(_delta) -> void:
 				clip.track_set_path(track, path)
 			clip.track_insert_key(track, t, skeleton.get_bone_pose_scale(bone))
 
-		## Why does this break everything?
 		if skeleton.get_bone_pose_position(bone) != pos:
 			track = clip.find_track(path, Animation.TrackType.TYPE_POSITION_3D)
 			if track == -1:
