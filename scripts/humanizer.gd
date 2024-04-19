@@ -187,6 +187,10 @@ func _deserialize() -> void:
 	for component in human_config.components:
 		set_component_state(true, component)
 
+	eye_color = human_config.eye_color
+	hair_color = human_config.hair_color
+	skin_color = human_config.skin_color
+
 func reset_human(reset_config: bool = true) -> void:
 	baked = false
 	_helper_vertex = shapekey_data.basis.duplicate(true)
@@ -200,10 +204,21 @@ func reset_human(reset_config: bool = true) -> void:
 	main_collider = null
 	if reset_config:
 		human_config = HumanConfig.new()
-	skin_color = _DEFAULT_SKIN_COLOR
-	hair_color = _DEFAULT_HAIR_COLOR
-	eye_color = _DEFAULT_EYE_COLOR
+		skin_color = _DEFAULT_SKIN_COLOR
+		hair_color = _DEFAULT_HAIR_COLOR
+		eye_color = _DEFAULT_EYE_COLOR
 	notify_property_list_changed()
+	return
+	await get_tree().create_timer(2).timeout
+	var mesharrays = RenderingServer.mesh_surface_get_arrays(body_mesh.mesh, 0)
+	var mesh := ArrayMesh.new()
+	var mi = MeshInstance3D.new()
+	print(mesharrays)
+	return
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesharrays)
+	mi.mesh = mesh
+	add_child(mi)
+	mi.owner = self
 	#print('Reset human')
 
 func save_human_scene(to_file: bool = true) -> PackedScene:
@@ -553,7 +568,6 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 	var mesh := body_mesh.mesh as ArrayMesh
 	var surf_arrays = mesh.surface_get_arrays(0)
 	var fmt = mesh.surface_get_format(0)
-	var lods = {}
 	var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
 	for i in _helper_vertex.size():
 		_helper_vertex[i] -= _foot_offset
@@ -562,7 +576,7 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 		var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
 		surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
 	mesh.clear_surfaces()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], lods, fmt)
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], {}, fmt)
 	
 	# Apply to body parts and clothes
 	for child in get_children():
@@ -580,8 +594,9 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 		human_config.shapekeys[key] = shapekeys[key]
 	if main_collider != null:
 		_adjust_main_collider()
-	animator.active = false
-	animator.active = true
+	## Face bones mess up the mesh when shapekeys applied.  This fixes it
+	animator.active = not animator.active
+	animator.active = not animator.active
 
 func set_bake_meshes(subset: String) -> void:
 	_bake_meshes = []
@@ -684,7 +699,13 @@ func set_skin_texture(name: String) -> void:
 	else:
 		human_config.body_part_materials[&'skin'] = name
 		base_texture = HumanizerRegistry.skin_textures[name].albedo
-	body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict({'name': name, 'albedo': base_texture, 'color': skin_color}))
+		var overlay = {&'name': name, &'albedo': base_texture, &'color': skin_color}
+		var extension = '.' + base_texture.get_extension()
+		if FileAccess.file_exists(base_texture.replace(extension, &'_normal' + extension)):
+			overlay[&'normal'] = base_texture.replace(extension, &'_normal' + extension)
+		if FileAccess.file_exists(base_texture.replace(extension, &'_ao' + extension)):
+			overlay[&'ao'] = base_texture.replace(extension, &'_ao' + extension)
+		body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
 
 func set_body_part_material(set_slot: String, texture: String) -> void:
 	#print('setting material ' + texture + ' on ' + set_slot)

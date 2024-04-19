@@ -20,9 +20,6 @@ func _ready() -> void:
 	_set_saccades_timer()
 	_set_blink_timer()
 
-func _exit_tree() -> void:
-	enabled = false
-	
 func _set_saccades_timer() -> void:
 	if enabled:
 		_saccades_timer = get_tree().create_timer(_saccades_timeout * _rng.randf_range(0.3, 3))
@@ -66,8 +63,6 @@ func _blink() -> void:
 	skeleton.set_bone_pose_rotation(left_eyelid, blink * prev_pose)
 	skeleton.set_bone_pose_rotation(right_eyelid, blink * prev_pose)
 	await get_tree().create_timer(0.1).timeout
-
-	## I guess poses are cached in the fn call because setting it to its current pose restores the original unblinked state
 	skeleton.set_bone_pose_rotation(left_eyelid, prev_pose)
 	skeleton.set_bone_pose_rotation(right_eyelid, prev_pose)
 	_set_blink_timer()
