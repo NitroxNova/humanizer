@@ -16,13 +16,7 @@ const menu_ids := {
 	'read_shapekeys': 2,
 	'rig_config': 4,
 	'process_raw_data': 10,
-	'import_eyes': 11,
-	'import_eyebrows': 12,
-	'import_eyelashes': 13,
-	'import_teeth': 14,
-	'import_tongue': 15,
-	'import_hair': 16,
-	'import_clothes': 21,
+	'reload_registry': 20,
 	'purge_generated_assets': 29,
 	'asset_importer': 30,
 	'test': 999,
@@ -65,25 +59,17 @@ func _add_tool_submenu() -> void:
 	preprocessing_popup.add_item('Read ShapeKey files', menu_ids.read_shapekeys)
 	preprocessing_popup.add_item('Set Up Skeleton Configs', menu_ids.rig_config)
 	
-	import_assets_popup.name = 'import_assets_popup'
-	import_assets_popup.add_item('Import Eyes Assets', menu_ids.import_eyes)
-	import_assets_popup.add_item('Import Eyebrows Assets', menu_ids.import_eyebrows)
-	import_assets_popup.add_item('Import Eyelashes Assets', menu_ids.import_eyelashes)
-	import_assets_popup.add_item('Import Teeth Assets', menu_ids.import_teeth)
-	import_assets_popup.add_item('Import Tongue Assets', menu_ids.import_tongue)
-	import_assets_popup.add_item('Import Hair Assets', menu_ids.import_hair)
-		
 	popup_menu.add_child(preprocessing_popup)
 	popup_menu.add_submenu_item('Preprocessing Tasks', 'preprocessing_popup')
 	popup_menu.add_item('Run All Preprocessing', menu_ids.process_raw_data)
 	popup_menu.add_item('Purge Generated Asset Resources', menu_ids.purge_generated_assets)
 	popup_menu.add_item('Import All Assets', menu_ids.asset_importer)
+	popup_menu.add_item('Reload Registry', menu_ids.reload_registry)
 	popup_menu.add_item('Run Test Function', menu_ids.test)
 	
 	add_tool_submenu_item('Humanizer', popup_menu)
 	popup_menu.id_pressed.connect(_handle_menu_event)
 	preprocessing_popup.id_pressed.connect(_handle_menu_event)
-	#import_assets_popup.id_pressed.connect(_handle_menu_event)
 
 func _handle_menu_event(id) -> void:
 	if thread.is_alive():
@@ -103,6 +89,8 @@ func _handle_menu_event(id) -> void:
 		thread.start(_import_assets)
 	elif id == menu_ids.purge_generated_assets:
 		thread.start(_purge_assets)
+	elif id == menu_ids.reload_registry:
+		HumanizerRegistry.load_all()
 	elif id == menu_ids.test:
 		thread.start(_test)
 
