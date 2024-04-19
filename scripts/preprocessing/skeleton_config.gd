@@ -45,7 +45,7 @@ func run():
 						for i in range(cube_range[0], cube_range[1] + 1):
 							cube_index.append(i)
 						rig_config[bone_id].head.vertex_indices = cube_index
-		
+			
 			rig.config_json_path = dir.path_join('skeleton_config.json')
 			HumanizerUtils.save_json(rig.config_json_path, rig_config)
 			
@@ -60,8 +60,16 @@ func run():
 					skeleton_weights[out_name] = skeleton_weights[in_name]
 					skeleton_weights.erase(in_name)
 			for bone_name in skeleton_weights:
-				#print(bone_name)
 				var bone_id = skeleton.find_bone(bone_name)
+				if bone_id == -1:
+					if bone_name.begins_with('toe'):
+						if bone_name.ends_with('.L'): # default rig, example: toe4-1.R
+							bone_id = skeleton.find_bone("toe1-1.L")
+						elif bone_name.ends_with('.R'):
+							bone_id = skeleton.find_bone("toe1-1.R")
+						else:
+							printerr("Unhandled bone " + bone_name)
+						
 				for vertex_weight_pair in skeleton_weights[bone_name]:
 					var mh_id = vertex_weight_pair[0]
 					var weight = vertex_weight_pair[1]
@@ -71,8 +79,15 @@ func run():
 					if data.bones[mh_id] == null:
 						data.bones[mh_id] = []
 						data.weights[mh_id] = []
-					data.bones[mh_id].append(bone_id)
-					data.weights[mh_id].append(weight)
+					
+					#dont want duplicate bone ids from toes
+					if bone_id in data.bones[mh_id]:
+						var existing_id =  data.bones[mh_id].find(bone_id)
+						data.weights[mh_id][existing_id] += weight
+					else:
+						data.bones[mh_id].append(bone_id)
+						data.weights[mh_id].append(weight)
+						
 			# do not normalize here, otherwise the clothes wont work correctly
 			rig.bone_weights_json_path = dir.path_join('bone_weights.json')
 			HumanizerUtils.save_json(rig.bone_weights_json_path, data)
