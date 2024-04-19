@@ -98,7 +98,9 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 
 @export_group('Node Overrides')
 ## The root node type for baked humans
-@export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D") var _baked_root_node: String = HumanizerGlobalConfig.config.default_baked_root_node
+@export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D", "Area3D") var _baked_root_node: String = HumanizerGlobalConfig.config.default_baked_root_node
+## The script to put on the root node of saved characters
+@export_file var _character_script: String
 ## Texture atlas resolution for the baked character
 @export_enum("1k:1024", "2k:2048", "4k:4096") var atlas_resolution: int = HumanizerGlobalConfig.config.atlas_resolution
 ## The scene to be added as an animator for the character
@@ -115,23 +117,15 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 			if child is MeshInstance3D:
 				child.layers = _render_layers
 ## The physics layers the character collider resides in
-@export_flags_3d_physics var _character_layers = HumanizerGlobalConfig.config.default_character_physics_layers:
-	set(value):
-		_character_layers = value
+@export_flags_3d_physics var _character_layers = HumanizerGlobalConfig.config.default_character_physics_layers
+## The physics layers a staticbody character collider resides in
+@export_flags_3d_physics var _staticbody_layers = HumanizerGlobalConfig.config.default_staticbody_physics_layers
 ## The physics layers the character collider collides with
-@export_flags_3d_physics var _character_mask = HumanizerGlobalConfig.config.default_character_physics_mask:
-	set(value):
-		_character_mask = value
-		if main_collider != null:
-			pass
+@export_flags_3d_physics var _character_mask = HumanizerGlobalConfig.config.default_character_physics_mask
 ## The physics layers the physical bones reside in
-@export_flags_3d_physics var _ragdoll_layers = HumanizerGlobalConfig.config.default_physical_bone_layers:
-	set(value):
-		_ragdoll_layers = value
+@export_flags_3d_physics var _ragdoll_layers = HumanizerGlobalConfig.config.default_physical_bone_layers
 ## The physics layers the physical bones collide with
-@export_flags_3d_physics var _ragdoll_mask = HumanizerGlobalConfig.config.default_physical_bone_mask:
-	set(value):
-		_ragdoll_mask = value
+@export_flags_3d_physics var _ragdoll_mask = HumanizerGlobalConfig.config.default_physical_bone_mask
 
 
 func _ready() -> void:
@@ -223,17 +217,27 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	var new_mesh = _combine_meshes()
 	var scene = PackedScene.new()
 	var root_node: Node
+	var script: String
 	if _baked_root_node == &'StaticBody3D':
 		root_node = StaticBody3D.new()
+		script = HumanizerGlobalConfig.config.default_staticbody_script
 	elif _baked_root_node == &'CharacterBody3D':
 		root_node = CharacterBody3D.new()
+		script = HumanizerGlobalConfig.config.default_characterbody_script
 	elif _baked_root_node == &'RigidBody3D':
 		root_node = RigidBody3D.new()
+		script = HumanizerGlobalConfig.config.default_rigidbody_script
+	elif _baked_root_node == &'Area3D':
+		root_node = Area3D.new()
+		script = HumanizerGlobalConfig.config.default_area_script
+		
+	if _character_script not in ['', null]:
+		root_node.set_script(load(_character_script))
+	elif script != '':
+		root_node.set_script(load(script))
+		
 	root_node.collision_layer = _character_layers
 	root_node.collision_mask = _character_mask
-	
-	if HumanizerGlobalConfig.config.default_human_script not in ['', null]:
-		root_node.set_script(load(HumanizerGlobalConfig.config.default_human_script))
 	
 	var sk = skeleton.duplicate(true) as Skeleton3D
 	sk.reset_bone_poses()
@@ -250,7 +254,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 			bone.add_child(collider)
 			collider.owner = root_node
 
-	if main_collider != null:
+	if main_collider != null and not root_node is StaticBody3D:
 		var coll = main_collider.duplicate(true)
 		root_node.add_child(coll)
 		coll.owner = root_node
@@ -264,7 +268,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		var root_bone = sk.get_bone_name(0)
 		if _animator is AnimationTree and root_bone in ['Root']:
 			_animator.root_motion_track = &'../' + sk.name + ":" + root_bone
-	
+
 	root_node.name = human_name
 	var mi = MeshInstance3D.new()
 	mi.name = "MeshInstance3D"
@@ -273,6 +277,20 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	mi.owner = root_node
 	mi.skeleton = NodePath('../' + sk.name)
 	mi.skin = sk.create_skin_from_rest_transforms()
+	if root_node is StaticBody3D:
+		mi.create_trimesh_collision()
+		## This only works on rest pose
+		## Need to manually create ConcavePolygon3DShape from posed mesh faces
+		var coll: CollisionShape3D = mi.get_child(0).get_child(0)
+		var new_coll := CollisionShape3D.new()
+		new_coll.shape = coll.shape.duplicate(true)
+		mi.get_child(0).queue_free()
+		root_node.add_child(new_coll)
+		new_coll.owner = root_node
+		new_coll.name = &'CollisionShape3D'
+		root_node.collision_layer = _staticbody_layers
+		await get_tree().create_timer(1).timeout
+		
 	scene.pack(root_node)
 
 	if not to_file:

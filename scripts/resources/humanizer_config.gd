@@ -8,7 +8,13 @@ extends Resource
 ## Path where human resources will be serialized
 @export_dir var human_export_path: String = 'res://data/humans/'
 ## Path to default root node script for baked humans
-@export_file var default_human_script: String = "res://addons/humanizer/scripts/utils/human_controller.gd"
+@export_file var default_characterbody_script: String = "res://addons/humanizer/scripts/utils/human_controller.gd"
+## Path to default root node script for baked humans
+@export_file var default_rigidbody_script: String
+## Path to default root node script for baked humans
+@export_file var default_staticbody_script: String
+## Path to default root node script for baked humans
+@export_file var default_area_script: String
 
 @export_group('Slot Definitions')
 ## Body Part Slot Definitions
@@ -43,11 +49,13 @@ extends Resource
 
 @export_group('Physics')
 ## Default root node class for baked humans
-@export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D") var default_baked_root_node: String = "CharacterBody3D"
+@export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D", "Area3D") var default_baked_root_node: String = "CharacterBody3D"
 ## Default character collider layer
 @export_flags_3d_physics var default_character_physics_layers
 ## Default character collider mask
 @export_flags_3d_physics var default_character_physics_mask
+## Default static layer for StaticBody3D humans
+@export_flags_3d_physics var default_staticbody_physics_layers
 ## Default ragdoll physics layer
 @export_flags_3d_physics var default_physical_bone_layers
 ## Default ragdoll physics mask
