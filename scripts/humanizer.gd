@@ -580,7 +580,7 @@ func set_bake_meshes(subset: String) -> void:
 		else:
 			bake_surface_name = ''
 	notify_property_list_changed()
-	
+
 func standard_bake() -> void:
 	if baked:
 		printerr('Already baked.  Reload the scene, load a human_config, or reset human to start over.')
@@ -803,7 +803,7 @@ func adjust_skeleton() -> void:
 		if not parent_id == -1:
 			var parent_xform = skeleton.get_bone_global_pose(parent_id)
 			bone_pos = bone_pos * parent_xform
-		skeleton.set_bone_pose_position(bone_id,bone_pos)
+		skeleton.set_bone_pose_position(bone_id, bone_pos * skeleton.motion_scale)
 		skeleton.set_bone_rest(bone_id,skeleton.get_bone_pose(bone_id))
 	skeleton.reset_bone_poses()
 	for child in get_children():
