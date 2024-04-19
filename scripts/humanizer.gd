@@ -561,6 +561,8 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 		human_config.shapekeys[key] = shapekeys[key]
 	if main_collider != null:
 		_adjust_main_collider()
+	animator.active = false
+	animator.active = true
 
 func set_bake_meshes(subset: String) -> void:
 	_bake_meshes = []
