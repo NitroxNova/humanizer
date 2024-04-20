@@ -147,8 +147,9 @@ func run() -> MeshInstance3D:
 		
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_sf_arrays)
 
-	var new_material := mesh_instances[0].get_surface_override_material(0).duplicate()
-	
+	var new_material: BaseMaterial3D = mesh_instances[0].get_surface_override_material(0).duplicate()
+	new_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
+	new_material.albedo_color = Color.WHITE
 	if not new_albedo_image.get_width() == atlas_resolution:
 		new_albedo_image.resize(atlas_resolution, atlas_resolution)
 	new_albedo_image.generate_mipmaps()

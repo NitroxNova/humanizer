@@ -8,6 +8,9 @@ class_name HumanAsset
 var scene_path: String:
 	get:
 		return path.path_join(resource_name + '_scene.tscn')
+var softbody_scene_path: String:
+	get:
+		return path.path_join(resource_name + '_SoftBody.tscn')
 var mesh_path: String:
 	get:
 		return path.path_join(resource_name + '_mesh.tres')
