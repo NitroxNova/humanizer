@@ -72,7 +72,8 @@ var animation_tree: AnimationTree:
 				socket.listen(port)
 		else:
 			socket.stop()
-			human.reset_face_pose()
+			if human != null:
+				human.reset_face_pose()
 ## The port to connect to
 @export var port: int = 49983
 

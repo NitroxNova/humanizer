@@ -36,6 +36,9 @@ func _parse_category(human, category):
 	scene.get_node('%SaccadesCheckBox').toggled.connect(human.set_component_state.bind(&'saccades'))
 
 	## Baking section
+	scene.get_node('%AddShapekeyButton').pressed.connect(human.add_shapekey)
+	scene.get_node('%ShapekeyName').text = human.new_shapekey_name
+	scene.get_node('%ShapekeyName').text_changed.connect(func(value: String): human.new_shapekey_name = value)
 	scene.get_node('%SelectAllButton').pressed.connect(human.set_bake_meshes.bind(&'All'))
 	scene.get_node('%SelectOpaqueButton').pressed.connect(human.set_bake_meshes.bind(&'Opaque'))
 	scene.get_node('%SelectTransparentButton').pressed.connect(human.set_bake_meshes.bind(&'Transparent'))

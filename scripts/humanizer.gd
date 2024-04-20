@@ -48,6 +48,7 @@ var _save_path_valid: bool:
 			return false
 		return true
 var bake_surface_name: String
+var new_shapekey_name: String = 'Base'
 
 var skin_color: Color = _DEFAULT_SKIN_COLOR:
 	set(value):
@@ -87,6 +88,7 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 @export var _bake_meshes: Array[MeshInstance3D]
 
 @export_category("Humanizer Node Settings")
+## This resource stores all the data necessary to build the human model
 @export var human_config: HumanConfig:
 	set(value):
 		human_config = value.duplicate(true)
@@ -95,6 +97,8 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 		# This gets set before _ready causing issues so make sure we're loaded
 		if scene_loaded:
 			load_human()
+## The new shapekeys which have been defined for this human.  These will survive the baking process.
+@export var new_shapekeys: Dictionary = {}
 
 @export_group('Node Overrides')
 ## The root node type for baked humans
@@ -525,75 +529,6 @@ func unhide_clothes_vertices() -> void:
 	for cl in human_config.clothes:
 		_delete_child_by_name(cl.resource_name)
 		_add_clothes_mesh(cl)
-		
-func set_shapekeys(shapekeys: Dictionary) -> void:
-	var prev_sk = human_config.shapekeys.duplicate()
-
-	# Set default macro/race values
-	var macro_vals := {}
-	for sk in MeshOperations.get_macro_options():
-		macro_vals[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.5))
-	var race_vals := {}
-	for sk in MeshOperations.get_race_options():
-		race_vals[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.333))
-	
-	for sk in macro_vals:
-		shapekeys[sk] = macro_vals[sk]
-	for sk in race_vals:
-		shapekeys[sk] = race_vals[sk]
-	
-	# Clear all macro shapekeys then re-apply results from macro sliders
-	for sk in shapekey_data.macro_shapekeys:
-		shapekeys[sk] = 0
-	var sk_values = MeshOperations.get_macro_shapekey_values(macro_vals, race_vals)
-	for sk in sk_values:
-		shapekeys[sk] = sk_values[sk]
-	
-	# Apply shapekey changes to base mesh
-	for sk in shapekeys:
-		var prev_val: float = prev_sk.get(sk, 0)
-		if prev_val == shapekeys[sk]:
-			continue
-		if sk not in shapekey_data.shapekeys:
-			continue
-		for mh_id in shapekey_data.shapekeys[sk]:
-			_helper_vertex[mh_id] += shapekey_data.shapekeys[sk][mh_id] * (shapekeys[sk] - prev_val)
-	
-	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
-	var _foot_offset = Vector3.UP * offset
-	
-	var mesh := body_mesh.mesh as ArrayMesh
-	var surf_arrays = mesh.surface_get_arrays(0)
-	var fmt = mesh.surface_get_format(0)
-	var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
-	for i in _helper_vertex.size():
-		_helper_vertex[i] -= _foot_offset
-	surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
-	for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
-		var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-		surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
-	mesh.clear_surfaces()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], {}, fmt)
-	
-	# Apply to body parts and clothes
-	for child in get_children():
-		if not child is MeshInstance3D:
-			continue
-		var res: HumanAsset = _get_asset_by_name(child.name)
-		if res != null:   # Body parts/clothes
-			var mhclo: MHCLO = load(res.mhclo_path)
-			var new_mesh = MeshOperations.build_fitted_mesh(child.mesh, _helper_vertex, mhclo)
-			child.mesh = new_mesh
-	
-	recalculate_normals()
-	adjust_skeleton()
-	for key in shapekeys:
-		human_config.shapekeys[key] = shapekeys[key]
-	if main_collider != null:
-		_adjust_main_collider()
-	## Face bones mess up the mesh when shapekeys applied.  This fixes it
-	animator.active = not animator.active
-	animator.active = not animator.active
 
 func set_bake_meshes(subset: String) -> void:
 	_bake_meshes = []
@@ -685,7 +620,86 @@ func recalculate_normals() -> void:
 		if not mesh is MeshInstance3D:
 			continue
 		mesh.mesh = MeshOperations.generate_normals_and_tangents(mesh.mesh)
+
+func set_shapekeys(shapekeys: Dictionary) -> void:
+	var prev_sk = human_config.shapekeys.duplicate()
+
+	# Set default macro/race values
+	var macro_vals := {}
+	for sk in MeshOperations.get_macro_options():
+		macro_vals[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.5))
+	var race_vals := {}
+	for sk in MeshOperations.get_race_options():
+		race_vals[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.333))
 	
+	for sk in macro_vals:
+		shapekeys[sk] = macro_vals[sk]
+	for sk in race_vals:
+		shapekeys[sk] = race_vals[sk]
+	
+	# Clear all macro shapekeys then re-apply results from macro sliders
+	for sk in shapekey_data.macro_shapekeys:
+		shapekeys[sk] = 0
+	var sk_values = MeshOperations.get_macro_shapekey_values(macro_vals, race_vals)
+	for sk in sk_values:
+		shapekeys[sk] = sk_values[sk]
+	
+	# Apply shapekey changes to base mesh
+	for sk in shapekeys:
+		var prev_val: float = prev_sk.get(sk, 0)
+		if prev_val == shapekeys[sk]:
+			continue
+		if sk not in shapekey_data.shapekeys:
+			continue
+		for mh_id in shapekey_data.shapekeys[sk]:
+			_helper_vertex[mh_id] += shapekey_data.shapekeys[sk][mh_id] * (shapekeys[sk] - prev_val)
+	
+	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
+	var _foot_offset = Vector3.UP * offset
+	
+	var mesh := body_mesh.mesh as ArrayMesh
+	var surf_arrays = mesh.surface_get_arrays(0)
+	var fmt = mesh.surface_get_format(0)
+	var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
+	for i in _helper_vertex.size():
+		_helper_vertex[i] -= _foot_offset
+	surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
+	for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
+		var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+		surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
+	mesh.clear_surfaces()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], {}, fmt)
+	
+	# Apply to body parts and clothes
+	for child in get_children():
+		if not child is MeshInstance3D:
+			continue
+		var res: HumanAsset = _get_asset_by_name(child.name)
+		if res != null:   # Body parts/clothes
+			var mhclo: MHCLO = load(res.mhclo_path)
+			var new_mesh = MeshOperations.build_fitted_mesh(child.mesh, _helper_vertex, mhclo)
+			child.mesh = new_mesh
+	
+	recalculate_normals()
+	adjust_skeleton()
+	for key in shapekeys:
+		human_config.shapekeys[key] = shapekeys[key]
+	if main_collider != null:
+		_adjust_main_collider()
+	## Face bones mess up the mesh when shapekeys applied.  This fixes it
+	animator.active = not animator.active
+	animator.active = not animator.active
+
+func add_shapekey() -> void:
+	if new_shapekey_name in ['', null]:
+		printerr('Invalid shapekey name')
+		return
+	if new_shapekeys.has(new_shapekey_name):
+		printerr('A new shape with this name already exists')
+		return
+	new_shapekeys[new_shapekey_name] = human_config.shapekeys
+	notify_property_list_changed()
+
 #### Materials ####
 func set_skin_texture(name: String) -> void:
 	#print('setting skin texture')

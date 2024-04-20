@@ -337,6 +337,31 @@ horizontal_alignment = 1
 [node name="HSeparator8" type="HSeparator" parent="VBoxContainer"]
 layout_mode = 2
 
+[node name="BakedMeshSelectors3" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label2" type="Label" parent="VBoxContainer/BakedMeshSelectors3"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Shapekey Name:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="ShapekeyName" type="LineEdit" parent="VBoxContainer/BakedMeshSelectors3"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.03
+placeholder_text = "ShapekeyName"
+
+[node name="AddShapekeyButton" type="Button" parent="VBoxContainer/BakedMeshSelectors3"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 4.0
+tooltip_text = "Combine all meshes in the bake_meshes property  into a single mesh with a single surface."
+text = "Add Current Shape As Shapekey"
+
 [node name="BakedMeshSelectors" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
