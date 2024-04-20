@@ -89,7 +89,7 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 @export_category("Humanizer Node Settings")
 @export var human_config: HumanConfig:
 	set(value):
-		human_config = value
+		human_config = value.duplicate(true)
 		if human_config.rig == '':
 			human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 		# This gets set before _ready causing issues so make sure we're loaded
