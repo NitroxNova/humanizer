@@ -300,7 +300,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		new_coll.owner = root_node
 		new_coll.name = 'CollisionShape3D'
 		root_node.collision_layer = _staticbody_layers
-		await get_tree().create_timer(1).timeout
+		#await get_tree().create_timer(1).timeout
 		
 	scene.pack(root_node)
 
