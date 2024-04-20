@@ -160,12 +160,30 @@ func get_data(packet) -> Dictionary:
 		return data
 	elif app == AppType.iFacialMocapTr:
 		var data = packet.get_string_from_utf8()
+		var head_str = data.split('head#')[1].split('|')[0].split(',')
+		var head: Array[float]
+		for i in head_str.size():
+			head.append(float(head_str[i]))
 		data = data.replace('_R', 'Right').replace('_L', 'Left').replace('-', '":"').replace('|', '","').replace('#', '":"')
 		data = data.split(',"hapi')[0]
 		data = '{"' + data + '}'
 		data = JSON.parse_string(data)
-		data.erase('trackingStatus')
+		data.erase(&'trackingStatus')
 		for k in data:
 			data[k] = float(data[k]) / 100
-		return {'BlendShapes': data}
+		if head[0] > 0:
+			data[&'headDown'] = head[0] / 35
+		else:
+			data[&'headUp'] = -head[0] / 35
+		if head[2] > 0:
+			data[&'headRollRight'] = head[2] / 35
+		else:
+			data[&'headRollLeft'] = -head[2] / 35
+		if head[1] > 0:
+			data[&'headLeft'] = head[1] / 35
+		else:
+			data[&'headRight'] = -head[1] / 35
+		data = {&'BlendShapes': data}
+		#data[&'headPosition'] = head.slice(3)
+		return data
 	return {}
