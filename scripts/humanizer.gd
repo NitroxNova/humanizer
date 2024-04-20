@@ -48,7 +48,7 @@ var _save_path_valid: bool:
 			return false
 		return true
 var bake_surface_name: String
-var new_shapekey_name: String = 'Base'
+var new_shapekey_name: String = ''
 
 var skin_color: Color = _DEFAULT_SKIN_COLOR:
 	set(value):
