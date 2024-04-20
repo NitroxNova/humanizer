@@ -19,7 +19,7 @@ enum AppType {
 		elif _animation_library == null:
 			printerr('No animation library supplied')
 			return
-		elif _clip_name in [&'', null]:
+		elif _clip_name in ['', null]:
 			printerr('No clip name supplied')
 			return
 		else:  ## okay, start recording
@@ -28,7 +28,7 @@ enum AppType {
 			if human == null or skeleton == null or animation_tree == null:
 				printerr('Missing at least one of the following in the scene : human, skeleton, animator')
 				return
-			if human.human_config.rig != &'default-RETARGETED':
+			if human.human_config.rig != 'default-RETARGETED':
 				printerr('Only the default-RETARGETED rig is compatible with face mocap')
 				return
 			_recording = true
@@ -72,11 +72,14 @@ var animation_tree: AnimationTree:
 				socket.listen(port)
 		else:
 			socket.stop()
+			human.reset_face_pose()
 ## The port to connect to
 @export var port: int = 49983
 
 
 func _process(_delta) -> void:
+	if not _streaming:
+		return
 	if human != null and human.human_config.rig != 'default-RETARGETED':
 		return
 	if skeleton == null or animation_tree == null:
@@ -183,6 +186,7 @@ func get_data(packet) -> Dictionary:
 			data[&'headLeft'] = head[1] / 35
 		else:
 			data[&'headRight'] = -head[1] / 35
+		data[&'jawOpen'] = max(data[&'jawOpen'] - 0.1, 0)
 		data = {&'BlendShapes': data}
 		#data[&'headPosition'] = head.slice(3)
 		return data
