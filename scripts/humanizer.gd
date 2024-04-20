@@ -171,6 +171,8 @@ func load_human() -> void:
 	notify_property_list_changed()
 
 func _deserialize() -> void:
+	# Since shapekeys are relative we start from empty
+	var sk = human_config.shapekeys.duplicate()
 	human_config.shapekeys = {}
 	set_rig(human_config.rig, body_mesh.mesh)
 	for slot: String in human_config.body_parts:
@@ -186,10 +188,11 @@ func _deserialize() -> void:
 		set_skin_texture(human_config.body_part_materials[&'skin'])
 	for component in human_config.components:
 		set_component_state(true, component)
-
 	eye_color = human_config.eye_color
 	hair_color = human_config.hair_color
 	skin_color = human_config.skin_color
+	set_shapekeys(sk)
+	update_hide_vertices()
 
 func reset_human(reset_config: bool = true) -> void:
 	baked = false
@@ -208,17 +211,6 @@ func reset_human(reset_config: bool = true) -> void:
 		hair_color = _DEFAULT_HAIR_COLOR
 		eye_color = _DEFAULT_EYE_COLOR
 	notify_property_list_changed()
-	return
-	await get_tree().create_timer(2).timeout
-	var mesharrays = RenderingServer.mesh_surface_get_arrays(body_mesh.mesh, 0)
-	var mesh := ArrayMesh.new()
-	var mi = MeshInstance3D.new()
-	print(mesharrays)
-	return
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesharrays)
-	mi.mesh = mesh
-	add_child(mi)
-	mi.owner = self
 	#print('Reset human')
 
 func save_human_scene(to_file: bool = true) -> PackedScene:
@@ -233,16 +225,16 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	var scene = PackedScene.new()
 	var root_node: Node
 	var script: String
-	if _baked_root_node == &'StaticBody3D':
+	if _baked_root_node == 'StaticBody3D':
 		root_node = StaticBody3D.new()
 		script = HumanizerGlobalConfig.config.default_staticbody_script
-	elif _baked_root_node == &'CharacterBody3D':
+	elif _baked_root_node == 'CharacterBody3D':
 		root_node = CharacterBody3D.new()
 		script = HumanizerGlobalConfig.config.default_characterbody_script
-	elif _baked_root_node == &'RigidBody3D':
+	elif _baked_root_node == 'RigidBody3D':
 		root_node = RigidBody3D.new()
 		script = HumanizerGlobalConfig.config.default_rigidbody_script
-	elif _baked_root_node == &'Area3D':
+	elif _baked_root_node == 'Area3D':
 		root_node = Area3D.new()
 		script = HumanizerGlobalConfig.config.default_area_script
 		
@@ -282,7 +274,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		root_node.set_editable_instance(_animator, true)
 		var root_bone = sk.get_bone_name(0)
 		if _animator is AnimationTree and root_bone in ['Root']:
-			_animator.root_motion_track = &'../' + sk.name + ":" + root_bone
+			_animator.root_motion_track = '../' + sk.name + ":" + root_bone
 
 	root_node.name = human_name
 	var mi = MeshInstance3D.new()
@@ -302,7 +294,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		mi.get_child(0).queue_free()
 		root_node.add_child(new_coll)
 		new_coll.owner = root_node
-		new_coll.name = &'CollisionShape3D'
+		new_coll.name = 'CollisionShape3D'
 		root_node.collision_layer = _staticbody_layers
 		await get_tree().create_timer(1).timeout
 		
@@ -363,7 +355,7 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 		body_mesh.material_config = HumanizerMaterial.new()
 	body_mesh.initialize()
 	if skeleton != null:
-		body_mesh.skeleton = &'../' + skeleton.name
+		body_mesh.skeleton = '../' + skeleton.name
 		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
 	body_mesh.visible = visible
 	_add_child_node(body_mesh)
@@ -417,7 +409,7 @@ func _add_clothes_mesh(cl: HumanClothes) -> void:
 func clear_clothes_in_slot(slot: String) -> void:
 	for cl in human_config.clothes:
 		if slot in cl.slots:
-			print('clearing ' + cl.resource_name + ' clothes')
+			#print('clearing ' + cl.resource_name + ' clothes')
 			remove_clothes(cl)
 
 func remove_clothes(cl: HumanClothes) -> void:
@@ -462,7 +454,7 @@ func update_hide_vertices() -> void:
 	_set_body_mesh(MeshOperations.delete_faces(body_mesh.mesh,delete_verts_gd))
 	recalculate_normals()
 	body_mesh.set_surface_override_material(0, skin_mat)
-	body_mesh.skeleton = &'../' + skeleton.name
+	body_mesh.skeleton = '../' + skeleton.name
 
 func update_clothes_hide_vertices():
 	var delete_verts_mh := []
@@ -643,7 +635,7 @@ func bake_surface() -> void:
 	mi.name = 'Baked-' + bake_surface_name
 	add_child(mi)
 	mi.owner = self
-	mi.skeleton = &'../' + skeleton.name
+	mi.skeleton = '../' + skeleton.name
 	for mesh in _bake_meshes:
 		remove_child(mesh)
 		mesh.queue_free()
@@ -664,13 +656,12 @@ func _combine_meshes() -> ArrayMesh:
 			material = child.mesh.surface_get_material(0).duplicate(true)
 		var surface_arrays = child.mesh.surface_get_arrays(0)
 		var blend_shape_arrays = child.mesh.surface_get_blend_shape_arrays(0)
-		var lods := {}
 		var format = child.mesh.surface_get_format(0)
 		new_mesh.add_surface(
 			Mesh.PRIMITIVE_TRIANGLES, 
 			surface_arrays, 
 			blend_shape_arrays, 
-			lods, 
+			{},
 			material, 
 			child.name.replace('Baked-', ''), 
 			format
@@ -695,16 +686,16 @@ func set_skin_texture(name: String) -> void:
 	#print('setting skin texture')
 	var base_texture: String
 	if not HumanizerRegistry.skin_textures.has(name):
-		human_config.body_part_materials[&'skin'] = &''
+		human_config.body_part_materials[&'skin'] = ''
 	else:
 		human_config.body_part_materials[&'skin'] = name
 		base_texture = HumanizerRegistry.skin_textures[name].albedo
 		var overlay = {&'name': name, &'albedo': base_texture, &'color': skin_color}
 		var extension = '.' + base_texture.get_extension()
-		if FileAccess.file_exists(base_texture.replace(extension, &'_normal' + extension)):
-			overlay[&'normal'] = base_texture.replace(extension, &'_normal' + extension)
-		if FileAccess.file_exists(base_texture.replace(extension, &'_ao' + extension)):
-			overlay[&'ao'] = base_texture.replace(extension, &'_ao' + extension)
+		if FileAccess.file_exists(base_texture.replace(extension, '_normal' + extension)):
+			overlay[&'normal'] = base_texture.replace(extension, '_normal' + extension)
+		if FileAccess.file_exists(base_texture.replace(extension, '_ao' + extension)):
+			overlay[&'ao'] = base_texture.replace(extension, '_ao' + extension)
 		body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
 
 func set_body_part_material(set_slot: String, texture: String) -> void:
@@ -723,13 +714,9 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 	else:
 		var mat: BaseMaterial3D = mi.get_surface_override_material(0)
 		mat.albedo_texture = load(bp.textures[texture])
-	if bp.slot in [&'LeftEye', &'RightEye', &'Eyes']:
-		#if get_tree() != null:
-		#	await get_tree().process_frame
+	if bp.slot in ['LeftEye', 'RightEye', 'Eyes']:
 		mi.material_config.overlays[1].color = eye_color
-	if bp.slot in [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows', &'Hair']:
-		#if get_tree() != null:
-		#	await get_tree().process_frame
+	if bp.slot in ['RightEyebrow', 'LeftEyebrow', 'Eyebrows', 'Hair']:
 		mi.get_surface_override_material(0).albedo_color = hair_color
 	notify_property_list_changed()
 
@@ -810,7 +797,7 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 	var mat = body_mesh.get_surface_override_material(0)
 	_set_body_mesh(skinned_mesh)
 	body_mesh.set_surface_override_material(0, mat)
-	body_mesh.skeleton = &'../' + skeleton.name
+	body_mesh.skeleton = '../' + skeleton.name
 	adjust_skeleton()
 	_reset_animator()
 	set_shapekeys(human_config.shapekeys)
@@ -995,7 +982,7 @@ func _add_main_collider() -> void:
 	else:
 		main_collider = CollisionShape3D.new()
 		main_collider.shape = CapsuleShape3D.new()
-		main_collider.name = &'MainCollider'
+		main_collider.name = 'MainCollider'
 		_add_child_node(main_collider)
 	_adjust_main_collider()
 
@@ -1026,13 +1013,13 @@ func _adjust_main_collider():
 	main_collider.shape.radius = max_width * 1.5
 
 func _add_saccades() -> void:
-	if human_config.rig == &'default-RETARGETED':
-		var saccades = load(&"res://addons/humanizer/scenes/subscenes/saccades.tscn").instantiate()
+	if human_config.rig == 'default-RETARGETED':
+		var saccades = load("res://addons/humanizer/scenes/subscenes/saccades.tscn").instantiate()
 		saccades.skeleton = skeleton
 		_add_child_node(saccades)
 		move_child(saccades, 0)
 		## So you can see the effect without the animation tree overriding
 		animator.active = false 
 	else:
-		printerr(&'Saccades are not compatible with the selected rig')
+		printerr('Saccades are not compatible with the selected rig')
 		set_component_state(false, &'saccades')
