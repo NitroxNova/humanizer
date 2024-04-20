@@ -97,7 +97,9 @@ func _scan_path(path: String) -> void:
 	
 	for asset in asset_data.values():
 		asset.textures = textures
-		_import_asset(path, asset)
+		_import_asset(path, asset, false)
+		if asset.mhclo.tags.has('Long') and asset.mhclo.tags.has('Long'):
+			_import_asset(path, asset, true)
 
 func _generate_material(path: String, textures: Dictionary) -> void:
 	# Create material
@@ -153,7 +155,7 @@ func _generate_material(path: String, textures: Dictionary) -> void:
 	var mat_path = path.path_join(path.get_file() + '_material.tres')
 	ResourceSaver.save(mat, mat_path)
 
-func _import_asset(path: String, data: Dictionary):
+func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	# Build resource object
 	var resource: HumanAsset
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
@@ -167,7 +169,7 @@ func _import_asset(path: String, data: Dictionary):
 
 	resource.path = path
 	resource.resource_name = mhclo.resource_name
-	print('Importing asset ' + resource.resource_name)	
+	print('Importing asset ' + resource.resource_name)
 	
 	resource.textures = data.textures.duplicate()
 	if data.has('overlay'):
@@ -213,7 +215,11 @@ func _import_asset(path: String, data: Dictionary):
 		HumanizerRegistry.add_clothes_asset(resource)
 
 	# Create packed scene
-	var mi = MeshInstance3D.new()
+	var mi: MeshInstance3D
+	if softbody:
+		mi = SoftBody3D.new()
+	else:
+		mi = MeshInstance3D.new()
 	var scene = PackedScene.new()
 	var mat = load(resource.material_path)
 	mi.mesh = mesh
@@ -225,12 +231,17 @@ func _import_asset(path: String, data: Dictionary):
 	if resource.textures.has('overlay'):
 		resource.default_overlay = HumanizerOverlay.from_dict(data.textures.overlay)	
 		resource.textures.erase('overlay')
-		
-	ResourceSaver.save(resource, resource.resource_path)
+
 	mesh.take_over_path(resource.mesh_path)
 	scene.pack(mi)
 	ResourceSaver.save(mesh, resource.mesh_path)
-	ResourceSaver.save(scene, resource.scene_path)
+	if softbody:
+		ResourceSaver.save(resource, resource.resource_path + '_SoftBody')
+		ResourceSaver.save(scene, resource.softbody_scene_path)
+	else:
+		ResourceSaver.save(resource, resource.resource_path)
+		ResourceSaver.save(scene, resource.scene_path)
+
 	ResourceSaver.save(resource, resource.resource_path)
 	mi.queue_free()
 

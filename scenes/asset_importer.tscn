@@ -4,4 +4,4 @@
 
 [node name="AssetImporter" type="Node"]
 script = ExtResource("1_qpear")
-_asset_path = "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01"
+_asset_path = "res://addons/humanizer/data/assets/body_parts/Hair/ponytail01"
