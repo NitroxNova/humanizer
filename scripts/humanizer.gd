@@ -192,7 +192,7 @@ func _deserialize() -> void:
 	hair_color = human_config.hair_color
 	skin_color = human_config.skin_color
 	set_shapekeys(sk)
-	update_hide_vertices()
+	hide_body_vertices()
 
 func reset_human(reset_config: bool = true) -> void:
 	baked = false
@@ -421,7 +421,7 @@ func remove_clothes(cl: HumanClothes) -> void:
 			_delete_child_node(child)
 	human_config.clothes.erase(cl)
 
-func update_hide_vertices() -> void:
+func hide_body_vertices() -> void:
 	var skin_mat = body_mesh.get_surface_override_material(0)
 	var arrays: Array = (body_mesh.mesh as ArrayMesh).surface_get_arrays(0)
 	var delete_verts_gd := []
@@ -456,7 +456,7 @@ func update_hide_vertices() -> void:
 	body_mesh.set_surface_override_material(0, skin_mat)
 	body_mesh.skeleton = '../' + skeleton.name
 
-func update_clothes_hide_vertices():
+func hide_clothes_vertices():
 	var delete_verts_mh := []
 	delete_verts_mh.resize(_helper_vertex.size())
 	
@@ -514,13 +514,18 @@ func _sort_clothes_by_z_depth(clothes_a,clothes_b): # from highest to lowest
 		return true
 	return false
 
-func restore_hidden_vertices() -> void:
+func unhide_body_vertices() -> void:
 	var mat = body_mesh.get_surface_override_material(0)
 	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
 	set_shapekeys(human_config.shapekeys)
 	body_mesh.set_surface_override_material(0, mat)
 	set_rig(human_config.rig, body_mesh.mesh)
 
+func unhide_clothes_vertices() -> void:
+	for cl in human_config.clothes:
+		_delete_child_by_name(cl.resource_name)
+		_add_clothes_mesh(cl)
+		
 func set_shapekeys(shapekeys: Dictionary) -> void:
 	var prev_sk = human_config.shapekeys.duplicate()
 
@@ -614,7 +619,7 @@ func standard_bake() -> void:
 		printerr('Already baked.  Reload the scene, load a human_config, or reset human to start over.')
 		return
 	adjust_skeleton()
-	update_hide_vertices()
+	hide_body_vertices()
 	set_bake_meshes('Opaque')
 	if _bake_meshes.size() > 0:
 		bake_surface()

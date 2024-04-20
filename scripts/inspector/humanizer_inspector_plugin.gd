@@ -48,8 +48,10 @@ func _parse_category(human, category):
 	scene.get_node('%HumanName').text = human.human_name
 
 	## Assets
-	scene.get_node('%HideVerticesButton').pressed.connect(human.update_hide_vertices)
-	scene.get_node('%UnHideVerticesButton').pressed.connect(human.restore_hidden_vertices)
+	scene.get_node('%HideBodyVerticesButton').pressed.connect(human.hide_body_vertices)
+	scene.get_node('%UnHideBodyVerticesButton').pressed.connect(human.unhide_body_vertices)
+	scene.get_node('%HideClothesVerticesButton').pressed.connect(human.hide_clothes_vertices)
+	scene.get_node('%UnHideClothesVerticesButton').pressed.connect(human.unhide_clothes_vertices)
 	
 	# BodyParts inspector
 	var bp_container = scene.get_node('%BodyPartsContainer') as BodyPartsInspector

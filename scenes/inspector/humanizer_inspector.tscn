@@ -211,6 +211,40 @@ popup/item_22/text = "young_caucasian_male_special_suit"
 popup/item_22/id = 22
 script = ExtResource("1_teqt2")
 
+[node name="HideVerticesButtons" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="HideBodyVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Remove vertices which should be occluded by clothes from the body mesh so they don't clip through the clothes"
+text = "Hide Body Vertices"
+
+[node name="UnHideBodyVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Restore all vertices to the body mesh"
+text = "Restore Body Vertices"
+
+[node name="HideVerticesButtons3" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="HideClothesVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons3"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Remove vertices on clothes based on the z-sort value of the clothes.  Higher values should be on top.  If a lower z-value is clipping through, remove it.  This process can be slow (~30 seconds)"
+text = "Hide Clothes Vertices"
+
+[node name="UnHideClothesVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons3"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Reload the clothes to restore all vertices"
+text = "Restore Clothes Vertices"
+
 [node name="BodyPartsButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -233,22 +267,8 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 
-[node name="HideVerticesButtons" type="HBoxContainer" parent="VBoxContainer"]
+[node name="HideVerticesButtons2" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
-
-[node name="HideVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-tooltip_text = "Remove vertices which should be occluded by clothes from the body mesh so they don't poke through the clothes"
-text = "Remove Occluded Vertices"
-
-[node name="UnHideVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-tooltip_text = "Restore all vertices to the body mesh"
-text = "Show All Vertices"
 
 [node name="ColorOptions" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
