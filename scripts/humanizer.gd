@@ -211,7 +211,6 @@ func reset_human(reset_config: bool = true) -> void:
 	if body_mesh != null and body_mesh is HumanizerMeshInstance:
 		body_mesh.set_script(null)
 	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
-	_delete_child_by_name('MainCollider')
 	set_component_state(false, &'main_collider')
 	set_component_state(false, &'saccades')
 	if reset_config:

@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://c3vobykqstcki"]
 
 [node name="GeneralSkeleton" type="Skeleton3D"]
-motion_scale = 0.890428
-bones/0/name = "Root"
+motion_scale = 0.874133
+bones/0/name = "Hips"
 bones/0/parent = -1
 bones/0/rest = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.874133, -0.07609)
 bones/0/enabled = true
@@ -107,7 +107,7 @@ bones/14/enabled = true
 bones/14/position = Vector3(0.000239997, 0.121755, -0.065365)
 bones/14/rotation = Quaternion(0, 1, 0, 0)
 bones/14/scale = Vector3(1, 1, 1)
-bones/15/name = "Hips"
+bones/15/name = "spine05"
 bones/15/parent = 0
 bones/15/rest = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.016295, 0.09054)
 bones/15/enabled = true
