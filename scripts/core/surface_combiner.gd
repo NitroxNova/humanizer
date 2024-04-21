@@ -57,6 +57,8 @@ func run() -> MeshInstance3D:
 		var old_albedo_image : Image = surface.get_albedo_texture().get_image()
 		old_albedo_image.decompress()
 		old_albedo_image.convert(new_albedo_image.get_format())
+		if surface.material.albedo_color != Color(1,1,1,1):
+			blend_color(old_albedo_image,surface.material.albedo_color)
 		var old_normal_image : Image
 		var old_ao_image : Image 
 		if surface.is_normal_enabled():
@@ -155,6 +157,7 @@ func run() -> MeshInstance3D:
 	new_albedo_image.compress(Image.COMPRESS_BPTC)
 	var albedo_texture := ImageTexture.create_from_image(new_albedo_image)
 	new_material.albedo_texture = albedo_texture
+	new_material.albedo_color = Color.WHITE
 	
 	if has_normal:
 		if not new_normal_image.get_width() == atlas_resolution:
@@ -176,3 +179,10 @@ func run() -> MeshInstance3D:
 	var mi = MeshInstance3D.new()
 	mi.mesh = new_mesh
 	return mi
+
+func blend_color(image: Image, color: Color) -> void:
+	if image.is_compressed():
+		image.decompress()
+	for x in image.get_width():
+		for y in image.get_height():
+			image.set_pixel(x, y, image.get_pixel(x, y) * color)
