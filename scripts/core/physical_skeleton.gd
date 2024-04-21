@@ -20,8 +20,9 @@ func _init(_skeleton: Skeleton3D, _helper_vertex, _layers, _mask):
 
 func run() -> void:
 	for child in skeleton.get_children():
-		skeleton.remove_child(child)
-		child.queue_free()
+		if child is PhysicalBone3D:
+			skeleton.remove_child(child)
+			child.queue_free()
 	
 	var next_limb_bone = {
 		&'Hips': &'UpperChest',
