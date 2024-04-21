@@ -691,20 +691,32 @@ func add_shapekey() -> void:
 #### Materials ####
 func set_skin_texture(name: String) -> void:
 	#print('setting skin texture')
-	var base_texture: String
+	var texture: String
 	if not HumanizerRegistry.skin_textures.has(name):
 		human_config.body_part_materials[&'skin'] = ''
 	else:
-		human_config.body_part_materials[&'skin'] = name
-		base_texture = HumanizerRegistry.skin_textures[name].albedo
-		var overlay = {&'name': name, &'albedo': base_texture, &'color': skin_color}
-		var extension = '.' + base_texture.get_extension()
-		if FileAccess.file_exists(base_texture.replace(extension, '_normal' + extension)):
-			overlay[&'normal'] = base_texture.replace(extension, '_normal' + extension)
-		if FileAccess.file_exists(base_texture.replace(extension, '_ao' + extension)):
-			overlay[&'ao'] = base_texture.replace(extension, '_ao' + extension)
-		body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
-
+		texture = HumanizerRegistry.skin_textures[name]
+		if body_mesh.material_config.overlays.size() == 0:
+			var overlay = {&'name': name, &'albedo': texture, &'color': skin_color}
+			body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
+		else:
+			body_mesh.material_config.overlays[0].albedo_texture_path = texture
+		
+func set_skin_normal_texture(name: String) -> void:
+	#print('setting skin normal texture')
+	var texture: String
+	if not HumanizerRegistry.skin_normals.has(name):
+		human_config.body_part_materials[&'skin_normal'] = ''
+	else:
+		human_config.body_part_materials[&'skin_normal'] = name
+		texture = HumanizerRegistry.skin_normals[name]
+		if body_mesh.material_config.overlays.size() == 0:
+			var overlay = {&'name': name, &'normal': texture, &'color': skin_color}
+			body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
+		else:
+			body_mesh.material_config.overlays[0].normal_texture_path = texture
+		(body_mesh.get_surface_override_material(0) as StandardMaterial3D).normal_scale = 0.2
+			
 func set_body_part_material(set_slot: String, texture: String) -> void:
 	#print('setting material ' + texture + ' on ' + set_slot)
 	var bp: HumanBodyPart = human_config.body_parts[set_slot]

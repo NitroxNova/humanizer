@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://bjevkufa7lstr"]
+[gd_scene load_steps=7 format=3 uid="uid://bjevkufa7lstr"]
 
 [ext_resource type="Theme" uid="uid://ckdypew3dhoqq" path="res://addons/humanizer/data/resources/humanizer_inspector_theme.tres" id="1_i577l"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/inspector/skins_options.gd" id="1_teqt2"]
@@ -35,6 +35,42 @@ func _set_rig_options() -> void:
 			
 func _on_rig_selected(idx: int) -> void:
 	human.set_rig(get_item_text(idx))
+"
+
+[sub_resource type="GDScript" id="GDScript_crbyj"]
+script/source = "@tool
+extends OptionButton
+
+var config: HumanConfig
+
+signal skin_selected(name:String, data: Dictionary)
+
+
+func _ready() -> void:
+	var textures = HumanizerRegistry.skin_normals
+	clear()
+	item_selected.connect(_skin_selected)
+	add_item(\"None\")
+	for skin in textures:
+		add_item(skin)
+	
+	if config != null:
+		if not config.body_part_materials.has(&'skin_normal'):
+			selected = 0
+			return
+		for item in item_count:
+			if get_item_text(item) == config.body_part_materials[&'skin_normal']:
+				selected = item
+				
+func reset() -> void:
+	selected = 0
+
+func _skin_selected(idx: int) -> void:
+	if idx == 0:
+		skin_selected.emit(\"None\")
+	else:
+		var name = get_item_text(idx)
+		skin_selected.emit(name)
 "
 
 [node name="MarginContainer" type="MarginContainer"]
@@ -210,6 +246,39 @@ popup/item_21/id = 21
 popup/item_22/text = "young_caucasian_male_special_suit"
 popup/item_22/id = 22
 script = ExtResource("1_teqt2")
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Skin Normal:"
+horizontal_alignment = 1
+
+[node name="SkinNormalOptionsButton" type="OptionButton" parent="VBoxContainer/HBoxContainer3"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 3.0
+tooltip_text = "Skin texture selector"
+item_count = 7
+selected = 0
+popup/item_0/text = "None"
+popup/item_0/id = 0
+popup/item_1/text = "Aksel_Skin_NRM"
+popup/item_1/id = 1
+popup/item_2/text = "body_suit_gold_normal"
+popup/item_2/id = 2
+popup/item_3/text = "greyskinned_person_map"
+popup/item_3/id = 3
+popup/item_4/text = "orkMeshNORMAL"
+popup/item_4/id = 4
+popup/item_5/text = "skin_male_african_middleage_NRM"
+popup/item_5/id = 5
+popup/item_6/text = "sohh_Zombie_Female_bump"
+popup/item_6/id = 6
+script = SubResource("GDScript_crbyj")
 
 [node name="HideVerticesButtons" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2

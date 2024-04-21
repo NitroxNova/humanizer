@@ -75,6 +75,9 @@ func _parse_category(human, category):
 	var skin_options = scene.get_node('%SkinOptionsButton')
 	skin_options.skin_selected.connect(human.set_skin_texture)
 	skin_options.config = human.human_config
+	var skin_normal_options = scene.get_node('%SkinNormalOptionsButton')
+	skin_normal_options.skin_selected.connect(human.set_skin_normal_texture)
+	skin_normal_options.config = human.human_config
 	
 	# Add shapekey categories and sliders
 	var sliders = HumanizerUtils.get_shapekey_categories(human.shapekey_data)

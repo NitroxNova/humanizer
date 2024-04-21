@@ -5,6 +5,7 @@ extends Node
 static var body_parts := {}
 static var clothes := {}
 static var skin_textures := {}
+static var skin_normals := {}
 static var overlays := {}
 static var rigs := {}
 
@@ -81,14 +82,14 @@ static func _get_skin_textures() -> void:
 					overlays['skin'][file.get_basename()] = file
 			else:
 				var filename: String
-				var mat := {}
 				for file in OSPath.get_files(dir):
 					if file.get_extension() == 'png':
 						if 'diffuse' in file.get_file().to_lower():
-							mat.albedo = file
-							filename = file.get_file().replace('_diffuse', '').replace('.png', '')
-				if mat.size() > 0:
-					skin_textures[filename] = mat
+							filename = file.get_file().get_basename().replace('_diffuse', '')
+							skin_textures[filename] = file
+		for fl in OSPath.get_files(path.path_join('skin_normals')):
+			if fl.get_extension() == 'png':
+				skin_normals[fl.get_file().get_basename()] = fl
 
 static func _load_body_parts() -> void:
 	body_parts = {}
