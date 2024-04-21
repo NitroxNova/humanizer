@@ -208,7 +208,8 @@ func reset_human(reset_config: bool = true) -> void:
 		body_mesh.set_script(null)
 	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
 	_delete_child_by_name('MainCollider')
-	main_collider = null
+	set_component_state(false, &'main_collider')
+	set_component_state(false, &'saccades')
 	if reset_config:
 		human_config = HumanConfig.new()
 		skin_color = _DEFAULT_SKIN_COLOR
@@ -265,11 +266,6 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 			bone.add_child(collider)
 			collider.owner = root_node
 
-	if main_collider != null and not root_node is StaticBody3D:
-		var coll = main_collider.duplicate(true)
-		root_node.add_child(coll)
-		coll.owner = root_node
-	
 	if _animator_scene != null:
 		var _animator = _animator_scene.instantiate()
 		root_node.add_child(_animator)
@@ -280,6 +276,15 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		if _animator is AnimationTree and root_bone in ['Root']:
 			_animator.root_motion_track = '../' + sk.name + ":" + root_bone
 
+	if main_collider != null and not root_node is StaticBody3D:
+		var coll = main_collider.duplicate(true)
+		root_node.add_child(coll)
+		coll.owner = root_node
+	if human_config.components.has(&'saccades'):
+		var saccades : Node = load("res://addons/humanizer/scenes/subscenes/saccades.tscn").instantiate()
+		root_node.add_child(saccades)
+		saccades.owner = root_node
+	
 	root_node.name = human_name
 	var mi = MeshInstance3D.new()
 	mi.name = "MeshInstance3D"
@@ -707,13 +712,14 @@ func set_skin_texture(name: String) -> void:
 	if not HumanizerRegistry.skin_textures.has(name):
 		human_config.body_part_materials[&'skin'] = ''
 	else:
+		human_config.body_part_materials[&'skin'] = name
 		texture = HumanizerRegistry.skin_textures[name]
 		if body_mesh.material_config.overlays.size() == 0:
 			var overlay = {&'name': name, &'albedo': texture, &'color': skin_color}
 			body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
 		else:
 			body_mesh.material_config.overlays[0].albedo_texture_path = texture
-		
+
 func set_skin_normal_texture(name: String) -> void:
 	#print('setting skin normal texture')
 	var texture: String
@@ -728,7 +734,7 @@ func set_skin_normal_texture(name: String) -> void:
 		else:
 			body_mesh.material_config.overlays[0].normal_texture_path = texture
 		(body_mesh.get_surface_override_material(0) as StandardMaterial3D).normal_scale = 0.2
-			
+
 func set_body_part_material(set_slot: String, texture: String) -> void:
 	#print('setting material ' + texture + ' on ' + set_slot)
 	var bp: HumanBodyPart = human_config.body_parts[set_slot]
@@ -994,17 +1000,20 @@ func set_component_state(enabled: bool, component: String) -> void:
 	else:
 		human_config.components.erase(component)
 		if component == &'main_collider':
-			_delete_child_node(main_collider)
+			if main_collider != null:
+				_delete_child_node(main_collider)
 			main_collider = null
 		elif component == &'ragdoll':
 			skeleton.physical_bones_stop_simulation()
 			for child in skeleton.get_children():
-				_delete_child_node(child)
+				if child is PhysicalBone3D:
+					_delete_child_node(child)
 		elif component == &'saccades':
 			var saccades = get_node_or_null('Saccades')
 			if saccades:
 				saccades.queue_free()
-			animator.active = true
+			if animator != null:
+				animator.active = true
 			notify_property_list_changed()
 
 func _add_main_collider() -> void:
@@ -1045,7 +1054,12 @@ func _adjust_main_collider():
 
 func _add_saccades() -> void:
 	if human_config.rig == 'default-RETARGETED':
-		var saccades = load("res://addons/humanizer/scenes/subscenes/saccades.tscn").instantiate()
+		var saccades : Node = get_node_or_null('Saccades')
+		if saccades != null:
+			saccades.human = self
+			saccades.enabled = true
+			return
+		saccades = load("res://addons/humanizer/scenes/subscenes/saccades.tscn").instantiate()
 		saccades.skeleton = skeleton
 		_add_child_node(saccades)
 		move_child(saccades, 0)
