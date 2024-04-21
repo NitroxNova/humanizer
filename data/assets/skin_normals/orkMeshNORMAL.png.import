@@ -3,32 +3,33 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c1x7y5g8hlt2"
-path="res://.godot/imported/orkMeshNORMAL.png-bbcac4c2ba1f8487451788bb9a67e5ee.ctex"
+path.s3tc="res://.godot/imported/orkMeshNORMAL.png-bbcac4c2ba1f8487451788bb9a67e5ee.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/skin_normals/orkMeshNORMAL.png"
-dest_files=["res://.godot/imported/orkMeshNORMAL.png-bbcac4c2ba1f8487451788bb9a67e5ee.ctex"]
+dest_files=["res://.godot/imported/orkMeshNORMAL.png-bbcac4c2ba1f8487451788bb9a67e5ee.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=1
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
-roughness/mode=0
-roughness/src_normal=""
+roughness/mode=1
+roughness/src_normal="res://addons/humanizer/data/assets/skin_normals/orkMeshNORMAL.png"
 process/fix_alpha_border=true
 process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
