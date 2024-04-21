@@ -530,15 +530,23 @@ func unhide_clothes_vertices() -> void:
 		_delete_child_by_name(cl.resource_name)
 		_add_clothes_mesh(cl)
 
-func select_all_meshes() -> void:
+func set_bake_meshes(subset: String) -> void:
 	_bake_meshes = []
-	bake_surface_name = 'Mesh'
 	for child in get_children():
 		if not child is MeshInstance3D:
 			continue
 		if child.name.begins_with('Baked-'):
 			continue
-		_bake_meshes.append(child)
+		var mat = (child as MeshInstance3D).get_surface_override_material(0) as BaseMaterial3D
+		var add: bool = false
+		add = add or subset == 'All'
+		add = add or subset == 'Opaque' and mat != null and mat.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED
+		add = add or subset == 'Transparent' and mat != null and mat.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
+		if add:
+			bake_surface_name = subset
+			_bake_meshes.append(child)
+		else:
+			bake_surface_name = ''
 	notify_property_list_changed()
 
 func standard_bake() -> void:
@@ -547,8 +555,12 @@ func standard_bake() -> void:
 		return
 	adjust_skeleton()
 	hide_body_vertices()
-	select_all_meshes()
-	bake_surface()
+	set_bake_meshes('Opaque')
+	if _bake_meshes.size() > 0:
+		bake_surface()
+	set_bake_meshes('Transparent')
+	if _bake_meshes.size() > 0:
+		bake_surface()
 
 func bake_surface() -> void:
 	if bake_surface_name in [null, '']:

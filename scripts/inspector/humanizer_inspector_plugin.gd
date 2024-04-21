@@ -39,7 +39,10 @@ func _parse_category(human, category):
 	scene.get_node('%AddShapekeyButton').pressed.connect(human.add_shapekey)
 	scene.get_node('%ShapekeyName').text = human.new_shapekey_name
 	scene.get_node('%ShapekeyName').text_changed.connect(func(value: String): human.new_shapekey_name = value)
-	scene.get_node('%SelectAllButton').pressed.connect(human.select_all_meshes)
+	scene.get_node('%SelectAllButton').pressed.connect(human.set_bake_meshes.bind(&'All'))
+	scene.get_node('%SelectOpaqueButton').pressed.connect(human.set_bake_meshes.bind(&'Opaque'))
+	scene.get_node('%SelectTransparentButton').pressed.connect(human.set_bake_meshes.bind(&'Transparent'))
+	scene.get_node('%StandardBakeButton').pressed.connect(human.standard_bake)
 	scene.get_node('%SurfaceName').text = human.bake_surface_name
 	scene.get_node('%SurfaceName').text_changed.connect(func(value: String): human.bake_surface_name = value)
 	scene.get_node('%BakeSurfaceButton').pressed.connect(human.bake_surface)

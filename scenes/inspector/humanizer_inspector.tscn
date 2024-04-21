@@ -412,7 +412,7 @@ layout_mode = 2
 [node name="Label2" type="Label" parent="VBoxContainer/BakedMeshSelectors3"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Shapekey:"
+text = "Shapekey Name:"
 horizontal_alignment = 2
 vertical_alignment = 1
 
@@ -420,7 +420,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.0
+size_flags_stretch_ratio = 2.03
 
 [node name="AddShapekeyButton" type="Button" parent="VBoxContainer/BakedMeshSelectors3"]
 unique_name_in_owner = true
@@ -430,30 +430,32 @@ size_flags_stretch_ratio = 4.0
 tooltip_text = "Combine all meshes in the bake_meshes property  into a single mesh with a single surface."
 text = "Add Current Shape As Shapekey"
 
-[node name="SaveMenu" type="HBoxContainer" parent="VBoxContainer"]
+[node name="BakedMeshSelectors" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="VBoxContainer/SaveMenu"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Human:"
-horizontal_alignment = 2
-vertical_alignment = 1
-
-[node name="HumanName" type="LineEdit" parent="VBoxContainer/SaveMenu"]
+[node name="SelectAllButton" type="Button" parent="VBoxContainer/BakedMeshSelectors"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.0
-placeholder_text = "MyHuman"
+size_flags_stretch_ratio = 5.0
+tooltip_text = "Set the baked_meshes list to contain all MeshInstances"
+text = "Select All"
 
-[node name="SaveButton" type="Button" parent="VBoxContainer/SaveMenu"]
+[node name="SelectOpaqueButton" type="Button" parent="VBoxContainer/BakedMeshSelectors"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 4.0
-tooltip_text = "Create a new mesh with a separate surface for each existing mesh and save to a new scene for this human"
-text = "Save To File"
+size_flags_stretch_ratio = 5.0
+tooltip_text = "Set the baked_meshes list to contain all MeshInstances whose transparency is disabled"
+text = "Select Opaque"
+
+[node name="SelectTransparentButton" type="Button" parent="VBoxContainer/BakedMeshSelectors"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 5.0
+tooltip_text = "Set the baked_meshes list to contain all MeshInstances whose transparency is enabled"
+text = "Select Transparent"
 
 [node name="BakedMeshSelectors2" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -461,7 +463,7 @@ layout_mode = 2
 [node name="Label2" type="Label" parent="VBoxContainer/BakedMeshSelectors2"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Surface:"
+text = "Surface Name:"
 horizontal_alignment = 2
 vertical_alignment = 1
 
@@ -469,7 +471,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 2.0
+size_flags_stretch_ratio = 2.03
 placeholder_text = "Surface0"
 
 [node name="BakeSurfaceButton" type="Button" parent="VBoxContainer/BakedMeshSelectors2"]
@@ -480,12 +482,33 @@ size_flags_stretch_ratio = 4.0
 tooltip_text = "Combine all meshes in the bake_meshes property  into a single mesh with a single surface."
 text = "Bake Selected Meshes"
 
-[node name="BakedMeshSelectors" type="HBoxContainer" parent="VBoxContainer"]
+[node name="StandardBakeButton" type="Button" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Bake all opaque meshes to one mesh, and all transparent meshes (hair, eyelashes, eyebrows) to a second mesh."
+text = "Standard Bake"
+
+[node name="SaveMenu" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
-[node name="SelectAllButton" type="Button" parent="VBoxContainer/BakedMeshSelectors"]
+[node name="Label" type="Label" parent="VBoxContainer/SaveMenu"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Name:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="HumanName" type="LineEdit" parent="VBoxContainer/SaveMenu"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-tooltip_text = "Set the baked_meshes list to contain all MeshInstances"
-text = "Select All Meshes"
+size_flags_stretch_ratio = 2.03
+placeholder_text = "MyHuman"
+
+[node name="SaveButton" type="Button" parent="VBoxContainer/SaveMenu"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 5.0
+tooltip_text = "Create a new mesh with a separate surface for each existing mesh and save to a new scene for this human"
+text = "Save To File"
