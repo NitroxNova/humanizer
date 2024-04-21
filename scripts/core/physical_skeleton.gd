@@ -70,7 +70,9 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 
 	if next == null:
 		if shape == ColliderShape.SPHERE:
-			collider.shape.radius = 0.12
+			var bounds = get_sphere_vertex_bounds(bone)
+			collider.shape.radius = bounds.radius
+			collider.global_position = bounds.center
 	else:
 		var next_id: int = skeleton.find_bone(next)
 		var next_position: Vector3 = skeleton.get_bone_global_pose(next_id).origin 
@@ -139,6 +141,18 @@ func add_joint(phys_bone:PhysicalBone3D,bone_name:String):
 			phys_bone[property] = this_joint[1][property]
 	else:
 		phys_bone.joint_type = PhysicalBone3D.JOINT_TYPE_PIN
+
+func get_sphere_vertex_bounds(bone: String) -> Dictionary:
+	var vertex_names = {
+		"Head" = {front=169,back=5389}
+	}
+	
+	var front : Vector3 = helper_vertex[vertex_names[bone]['front']]
+	var back = helper_vertex[vertex_names[bone]['back']]
+	var center = (front + back)/2
+	var radius = front.distance_to(back) / 2
+	
+	return {center=center,radius=radius}
 
 func get_box_vertex_bounds(bone: String) -> Dictionary:
 	var vertex_names = {
