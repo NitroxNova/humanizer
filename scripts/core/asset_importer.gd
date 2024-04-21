@@ -98,8 +98,8 @@ func _scan_path(path: String) -> void:
 	for asset in asset_data.values():
 		asset.textures = textures
 		_import_asset(path, asset, false)
-		if asset.mhclo.tags.has('Long') and asset.mhclo.tags.has('Long'):
-			_import_asset(path, asset, true)
+		#if asset.mhclo.tags.has('Hair') and asset.mhclo.tags.has('Long'):
+		#	_import_asset(path, asset, true)
 
 func _generate_material(path: String, textures: Dictionary) -> void:
 	# Create material
@@ -109,9 +109,9 @@ func _generate_material(path: String, textures: Dictionary) -> void:
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
 		if 'eyelash' in path.to_lower() or 'eyebrow' in path.to_lower() or 'hair' in path.to_lower():
 			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
-			mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-			mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
-			mat.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT_WRAP
+			#mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+			#mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+			#mat.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT_WRAP
 	
 	if textures.size() > 0:
 		var albedo := ''

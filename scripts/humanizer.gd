@@ -534,7 +534,7 @@ func select_all_meshes() -> void:
 	_bake_meshes = []
 	bake_surface_name = 'Mesh'
 	for child in get_children():
-		if not child is MeshInstance3D or child is SoftBody3D:
+		if not child is MeshInstance3D:
 			continue
 		if child.name.begins_with('Baked-'):
 			continue
