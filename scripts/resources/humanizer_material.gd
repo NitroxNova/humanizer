@@ -23,6 +23,7 @@ func update_material() -> void:
 	
 	if overlays[0].albedo_texture_path != '':
 		albedo = load(overlays[0].albedo_texture_path).get_image()
+		albedo.convert(Image.FORMAT_RGBA8)
 	if overlays[0].normal_texture_path != '':
 		normal = load(overlays[0].normal_texture_path).get_image()
 	if overlays[0].ao_texture_path != '':
