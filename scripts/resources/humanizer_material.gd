@@ -59,10 +59,9 @@ func update_material() -> void:
 	on_material_updated.emit()
 
 func blend_color(image: Image, color: Color) -> void:
-	var blend: Image = Image.create(image.get_size().x, image.get_size().y, false, image.get_format())
-	blend.fill(color)
-	var start = Vector2i()
-	image.blend_rect(blend, Rect2i(start, blend.get_size()), start)
+	for x in image.get_width():
+		for y in image.get_height():
+			image.set_pixel(x, y, image.get_pixel(x, y) * color)
 
 func set_base_textures(overlay: HumanizerOverlay) -> void:
 	if overlays.size() == 0:
