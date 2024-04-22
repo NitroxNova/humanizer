@@ -5,20 +5,30 @@ class_name BinaryRectPacker
 # https://www.david-colson.com/2020/03/10/exploring-rect-packing.html
 
 var rects = [] #array of Packable_Rect
-var bin_size : int # how many pixels tall and wide (will be a square)
+var bin_size : int = 1# how many pixels tall and wide (will be a square)
 var nodes = []
 
-func _init(_rects:Array, _bin_size : int):
-	bin_size = _bin_size
+func _init(_rects:Array):
 	rects = _rects
-	rects.sort_custom(sort_rect)
-	nodes.append(Rect2(0,0,bin_size,bin_size))
-	
+	var total_area = 0
 	for rect in rects:
-		place_rect(rect)
-		#print(rect.get_position())
+		total_area += rect.get_area()
+	while bin_size**2 < total_area:
+		bin_size *= 2
+	rects.sort_custom(_sort_rect)
+	_run()
 
-func insert_node(new_node:Rect2):
+func _run():
+	nodes = []
+	nodes.append(Rect2(0,0,bin_size,bin_size))
+	for rect in rects:
+		_place_rect(rect)
+	
+func _try_next_size():
+	bin_size *= 2
+	_run()
+
+func _insert_node(new_node:Rect2):
 	var new_dimension = min(new_node.size.x,new_node.size.y)
 	#keep nodes in order from smallest to largest, so we can fill the smallest ones first
 	for i in nodes.size():
@@ -29,7 +39,7 @@ func insert_node(new_node:Rect2):
 			return
 	nodes.append(new_node)
 
-func place_rect(rect:Packable_Rect):		
+func _place_rect(rect:Packable_Rect):		
 	for node in nodes:
 		if rect.get_width() <= node.size.x and rect.get_height() <= node.size.y:
 			rect.coords.position = node.position #put rect in top left corner
@@ -47,13 +57,14 @@ func place_rect(rect:Packable_Rect):
 				#print("Bottom side is bigger")
 				big_node = Rect2(node.position.x,node.position.y+rect.get_height(),node.size.x,remainder.y)
 				small_node = Rect2(node.position.x+rect.get_width(),node.position.y,remainder.x,rect.get_height())
-			insert_node(big_node)
-			insert_node(small_node)
+			_insert_node(big_node)
+			_insert_node(small_node)
 			nodes.erase(node)
 			return
-	print("no place for rectangle found")
+	#print("no place for rectangle found")
+	_try_next_size()
 
-func sort_rect(a:Packable_Rect,b:Packable_Rect):
+func _sort_rect(a:Packable_Rect,b:Packable_Rect):
 	 # sort by height or width, whichever is bigger
 	var a_max_dim = max(a.get_width(),a.get_height())
 	var b_max_dim = max(b.get_width(),b.get_height())
