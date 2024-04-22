@@ -167,6 +167,7 @@ func run() -> MeshInstance3D:
 		new_normal_image.generate_mipmaps(true)
 		new_normal_image.compress(Image.COMPRESS_S3TC,Image.COMPRESS_SOURCE_NORMAL)
 		new_material.normal_enabled = true
+		new_material.normal_scale = 1
 		new_material.normal_texture = ImageTexture.create_from_image(new_normal_image)
 		
 	if has_ao:
