@@ -30,12 +30,6 @@ func update_material() -> void:
 		
 	## TODO what if a base texture is null but overlay is not? 
 	## Need to create default base texture to overlay onto
-	if albedo != null and albedo.is_compressed():
-		albedo.decompress()
-	if normal != null and normal.is_compressed():
-		normal.decompress()
-	if ao != null and ao.is_compressed():
-		ao.decompress()
 	
 	## Blend albedo color
 	if albedo != null:
@@ -64,7 +58,7 @@ func update_material() -> void:
 	on_material_updated.emit()
 
 func blend_color(image: Image, color: Color) -> void:
-	var blend: Image = image.duplicate()
+	var blend: Image = Image.create(image.get_size().x, image.get_size().y, false, Image.FORMAT_RGBA8)
 	blend.fill(color)
 	var start = Vector2i()
 	image.blend_rect(blend, Rect2i(start, blend.get_size()), start)
