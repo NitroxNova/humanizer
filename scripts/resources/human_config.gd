@@ -20,7 +20,7 @@ extends Resource
 @export var clothes_materials := {}
 
 ## Colors
-@export var skin_color: Color = Color.WHITE
-@export var eye_color: Color = Color.SKY_BLUE
-@export var hair_color: Color = Color.BLACK
+@export var skin_color: Color = Humanizer._DEFAULT_SKIN_COLOR
+@export var eye_color: Color = Humanizer._DEFAULT_EYE_COLOR
+@export var hair_color: Color = Humanizer._DEFAULT_HAIR_COLOR
 

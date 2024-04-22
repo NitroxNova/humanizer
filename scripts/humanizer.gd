@@ -174,7 +174,7 @@ func load_human() -> void:
 	if human_config == null and not scene_loaded:
 		human_config = HumanConfig.new()
 	baked = false
-	reset_human(false)
+	reset_human()
 	_deserialize()
 	notify_property_list_changed()
 
@@ -202,7 +202,7 @@ func _deserialize() -> void:
 	set_shapekeys(sk)
 	hide_body_vertices()
 
-func reset_human(reset_config: bool = true) -> void:
+func reset_human() -> void:
 	baked = false
 	_helper_vertex = shapekey_data.basis.duplicate(true)
 	for child in get_children():
@@ -213,11 +213,9 @@ func reset_human(reset_config: bool = true) -> void:
 	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
 	set_component_state(false, &'main_collider')
 	set_component_state(false, &'saccades')
-	if reset_config:
-		human_config = HumanConfig.new()
-		skin_color = _DEFAULT_SKIN_COLOR
-		hair_color = _DEFAULT_HAIR_COLOR
-		eye_color = _DEFAULT_EYE_COLOR
+	skin_color = human_config.skin_color
+	hair_color = human_config.hair_color
+	eye_color = human_config.eye_color
 	notify_property_list_changed()
 	#print('Reset human')
 
