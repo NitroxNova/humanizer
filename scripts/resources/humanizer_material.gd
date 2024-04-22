@@ -58,7 +58,7 @@ func update_material() -> void:
 	on_material_updated.emit()
 
 func blend_color(image: Image, color: Color) -> void:
-	var blend: Image = Image.create(image.get_size().x, image.get_size().y, false, Image.FORMAT_RGBA8)
+	var blend: Image = Image.create(image.get_size().x, image.get_size().y, false, image.get_format())
 	blend.fill(color)
 	var start = Vector2i()
 	image.blend_rect(blend, Rect2i(start, blend.get_size()), start)
