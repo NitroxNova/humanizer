@@ -262,6 +262,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	
 	for phys_bone: PhysicalBone3D in skeleton.get_children():
 		var bone = phys_bone.duplicate(true)
+		bone.name = phys_bone.name
 		sk.add_child(bone)
 		bone.owner = root_node
 		for coll in phys_bone.get_children():
@@ -279,7 +280,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		if _animator is AnimationTree and root_bone in ['Root']:
 			_animator.root_motion_track = '../' + sk.name + ":" + root_bone
 
-	if main_collider != null and not root_node is StaticBody3D:
+	if human_config.components.has(&'main_collider') and not root_node is StaticBody3D:
 		var coll = main_collider.duplicate(true)
 		root_node.add_child(coll)
 		coll.owner = root_node
@@ -287,6 +288,8 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		var saccades : Node = load("res://addons/humanizer/scenes/subscenes/saccades.tscn").instantiate()
 		root_node.add_child(saccades)
 		saccades.owner = root_node
+	if human_config.components.has(&'root_bone'):
+		_add_root_bone(sk)
 	
 	root_node.name = human_name
 	var mi = MeshInstance3D.new()
@@ -1001,7 +1004,7 @@ func set_component_state(enabled: bool, component: String) -> void:
 		elif component == &'saccades':
 			_add_saccades()
 		elif component == &'root_bone':
-			_add_root_bone()
+			_add_root_bone(skeleton)
 	else:
 		human_config.components.erase(component)
 		if component == &'main_collider':
@@ -1077,12 +1080,12 @@ func _add_saccades() -> void:
 		printerr('Saccades are not compatible with the selected rig')
 		set_component_state(false, &'saccades')
 
-func _add_root_bone() -> void:
-	if skeleton.find_bone('Root') != -1:
+func _add_root_bone(sk: Skeleton3D) -> void:
+	if sk.find_bone('Root') != -1:
 		printerr("Rig already has root bone")
 		return
-	if skeleton.find_bone('Hips') != 0:
+	if sk.find_bone('Hips') != 0:
 		printerr("Cannot add root bone.  Current root bone must be hips")
 		return
-	skeleton.add_bone('Root')
-	skeleton.set_bone_parent(0, skeleton.get_bone_count() - 1)
+	sk.add_bone('Root')
+	sk.set_bone_parent(0, skeleton.get_bone_count() - 1)

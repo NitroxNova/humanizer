@@ -142,7 +142,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-tooltip_text = "Set up a physical skeleton"
+tooltip_text = "Adds a \"Root\" bone to any rig.  Sets root bone as root motion path in animatino tree."
 text = "Root Motion"
 
 [node name="SaccadesCheckBox" type="CheckBox" parent="VBoxContainer/ComponentsGridContainer"]
