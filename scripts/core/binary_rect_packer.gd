@@ -5,16 +5,12 @@ class_name BinaryRectPacker
 # https://www.david-colson.com/2020/03/10/exploring-rect-packing.html
 
 var rects = [] #array of Packable_Rect
-var bin_size : int = 1# how many pixels tall and wide (will be a square)
+var bin_size : int # how many pixels tall and wide (will be a square)
 var nodes = []
 
-func _init(_rects:Array):
+func _init(_rects:Array, _bin_size : int):
+	bin_size = _bin_size
 	rects = _rects
-	var total_area = 0
-	for rect in rects:
-		total_area += rect.get_area()
-	while bin_size**2 < total_area:
-		bin_size *= 2
 	rects.sort_custom(_sort_rect)
 	_run()
 
@@ -61,8 +57,8 @@ func _place_rect(rect:Packable_Rect):
 			_insert_node(small_node)
 			nodes.erase(node)
 			return
-	#print("no place for rectangle found")
-	_try_next_size()
+	printerr("no place for rectangle found")
+	#_try_next_size()
 
 func _sort_rect(a:Packable_Rect,b:Packable_Rect):
 	 # sort by height or width, whichever is bigger
