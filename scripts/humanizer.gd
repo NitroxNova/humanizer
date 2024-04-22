@@ -3,7 +3,7 @@ class_name Humanizer
 extends Node3D
 
 const _BASE_MESH_NAME: String = 'Human'
-const _DEFAULT_SKIN_COLOR = Color.WHITE
+const _DEFAULT_SKIN_COLOR = Color.TRANSPARENT
 const _DEFAULT_EYE_COLOR = Color.SKY_BLUE
 const _DEFAULT_HAIR_COLOR = Color.WEB_MAROON
 ## Vertex ids
