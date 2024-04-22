@@ -16,11 +16,11 @@ dest_files=["res://.godot/imported/eyebrow012.png-93f64d903e9b0b002e3816b08ffc57
 
 [params]
 
-compress/mode=2
+compress/mode=3
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=2
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

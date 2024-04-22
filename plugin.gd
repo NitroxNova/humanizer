@@ -15,6 +15,7 @@ const menu_ids := {
 	'generate_base_mesh': 1,
 	'read_shapekeys': 2,
 	'rig_config': 4,
+	'image_import_settings': 5,
 	'process_raw_data': 10,
 	'reload_registry': 20,
 	'purge_generated_assets': 29,
@@ -58,6 +59,7 @@ func _add_tool_submenu() -> void:
 	preprocessing_popup.add_item('Generate Base Meshes', menu_ids.generate_base_mesh)
 	preprocessing_popup.add_item('Read ShapeKey files', menu_ids.read_shapekeys)
 	preprocessing_popup.add_item('Set Up Skeleton Configs', menu_ids.rig_config)
+	preprocessing_popup.add_item('Import Images as Uncompressed', menu_ids.image_import_settings)
 	
 	popup_menu.add_child(preprocessing_popup)
 	popup_menu.add_submenu_item('Preprocessing Tasks', 'preprocessing_popup')
@@ -83,6 +85,8 @@ func _handle_menu_event(id) -> void:
 		thread.start(_read_shapekeys)
 	elif id == menu_ids.rig_config:
 		thread.start(_rig_config)
+	elif id == menu_ids.image_import_settings:
+		thread.start(_image_import_settings)
 	elif id == menu_ids.process_raw_data:
 		_process_raw_data()
 	elif id == menu_ids.asset_importer:
@@ -107,7 +111,8 @@ func _process_raw_data() -> void:
 	for task in [
 		_generate_base_meshes,
 		_read_shapekeys,
-		_rig_config
+		_rig_config,
+		_image_import_settings
 	]:
 		thread.start(task)
 		while thread.is_alive():
@@ -122,6 +127,9 @@ func _read_shapekeys() -> void:
 	
 func _rig_config() -> void:
 	HumanizerSkeletonConfig.new().run()
+
+func _image_import_settings() -> void:
+	HumanizerImageImportSettings.new().run()
 
 func _import_assets() -> void:
 	HumanizerAssetImporter.new().run(false)
