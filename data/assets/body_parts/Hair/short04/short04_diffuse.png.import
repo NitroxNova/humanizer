@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://6ws75d1nv1ig"
-path.s3tc="res://.godot/imported/short04_diffuse.png-dc8dc3c43e9a56807cdc15d728f5eaa2.s3tc.ctex"
+path="res://.godot/imported/short04_diffuse.png-dc8dc3c43e9a56807cdc15d728f5eaa2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/body_parts/Hair/short04/short04_diffuse.png"
-dest_files=["res://.godot/imported/short04_diffuse.png-dc8dc3c43e9a56807cdc15d728f5eaa2.s3tc.ctex"]
+dest_files=["res://.godot/imported/short04_diffuse.png-dc8dc3c43e9a56807cdc15d728f5eaa2.ctex"]
 
 [params]
 

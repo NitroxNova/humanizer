@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cxasojuetyyxx"
-path.s3tc="res://.godot/imported/brown_diffuse.png-0212719efc39c985cf375ffdba669d6a.s3tc.ctex"
+path="res://.godot/imported/brown_diffuse.png-0212719efc39c985cf375ffdba669d6a.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/clothes/shoes/shoes01/brown_diffuse.png"
-dest_files=["res://.godot/imported/brown_diffuse.png-0212719efc39c985cf375ffdba669d6a.s3tc.ctex"]
+dest_files=["res://.godot/imported/brown_diffuse.png-0212719efc39c985cf375ffdba669d6a.ctex"]
 
 [params]
 

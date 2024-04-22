@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cexwrujsdf7s8"
-path.s3tc="res://.godot/imported/young_caucasian_male_special_suit_diffuse.png-aa194b2836514d5ef650df07b8ecb6af.s3tc.ctex"
+path="res://.godot/imported/young_caucasian_male_special_suit_diffuse.png-aa194b2836514d5ef650df07b8ecb6af.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/skins/young_caucasian_male_special_suit/young_caucasian_male_special_suit_diffuse.png"
-dest_files=["res://.godot/imported/young_caucasian_male_special_suit_diffuse.png-aa194b2836514d5ef650df07b8ecb6af.s3tc.ctex"]
+dest_files=["res://.godot/imported/young_caucasian_male_special_suit_diffuse.png-aa194b2836514d5ef650df07b8ecb6af.ctex"]
 
 [params]
 

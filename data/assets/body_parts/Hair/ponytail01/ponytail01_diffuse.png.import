@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bptw2n8irlopd"
-path.s3tc="res://.godot/imported/ponytail01_diffuse.png-0fe8f81aa07dc8e5285a8a3d00dcbf25.s3tc.ctex"
+path="res://.godot/imported/ponytail01_diffuse.png-0fe8f81aa07dc8e5285a8a3d00dcbf25.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/body_parts/Hair/ponytail01/ponytail01_diffuse.png"
-dest_files=["res://.godot/imported/ponytail01_diffuse.png-0fe8f81aa07dc8e5285a8a3d00dcbf25.s3tc.ctex"]
+dest_files=["res://.godot/imported/ponytail01_diffuse.png-0fe8f81aa07dc8e5285a8a3d00dcbf25.ctex"]
 
 [params]
 

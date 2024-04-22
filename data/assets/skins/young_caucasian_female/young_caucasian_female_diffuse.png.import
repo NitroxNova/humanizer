@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c7470wrxk0n5w"
-path.s3tc="res://.godot/imported/young_caucasian_female_diffuse.png-4789dd88d3a8ae90e4440e79f4d0256a.s3tc.ctex"
+path="res://.godot/imported/young_caucasian_female_diffuse.png-4789dd88d3a8ae90e4440e79f4d0256a.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/skins/young_caucasian_female/young_caucasian_female_diffuse.png"
-dest_files=["res://.godot/imported/young_caucasian_female_diffuse.png-4789dd88d3a8ae90e4440e79f4d0256a.s3tc.ctex"]
+dest_files=["res://.godot/imported/young_caucasian_female_diffuse.png-4789dd88d3a8ae90e4440e79f4d0256a.ctex"]
 
 [params]
 

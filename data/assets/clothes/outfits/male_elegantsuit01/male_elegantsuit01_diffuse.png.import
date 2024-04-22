@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://yoc627ojmwnn"
-path.s3tc="res://.godot/imported/male_elegantsuit01_diffuse.png-281352a75da60c6864244a63a01db4ee.s3tc.ctex"
+path="res://.godot/imported/male_elegantsuit01_diffuse.png-281352a75da60c6864244a63a01db4ee.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/male_elegantsuit01_diffuse.png"
-dest_files=["res://.godot/imported/male_elegantsuit01_diffuse.png-281352a75da60c6864244a63a01db4ee.s3tc.ctex"]
+dest_files=["res://.godot/imported/male_elegantsuit01_diffuse.png-281352a75da60c6864244a63a01db4ee.ctex"]
 
 [params]
 

@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d1i30wwii7tji"
-path.s3tc="res://.godot/imported/eyelashes03.png-12001870dd1529bdc8c540222bf606e2.s3tc.ctex"
+path="res://.godot/imported/eyelashes03.png-12001870dd1529bdc8c540222bf606e2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/body_parts/Eyelashes/normal_eyelashes/eyelashes03.png"
-dest_files=["res://.godot/imported/eyelashes03.png-12001870dd1529bdc8c540222bf606e2.s3tc.ctex"]
+dest_files=["res://.godot/imported/eyelashes03.png-12001870dd1529bdc8c540222bf606e2.ctex"]
 
 [params]
 

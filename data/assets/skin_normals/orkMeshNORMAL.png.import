@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c1x7y5g8hlt2"
-path.s3tc="res://.godot/imported/orkMeshNORMAL.png-bbcac4c2ba1f8487451788bb9a67e5ee.s3tc.ctex"
+path="res://.godot/imported/orkMeshNORMAL.png-bbcac4c2ba1f8487451788bb9a67e5ee.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/skin_normals/orkMeshNORMAL.png"
-dest_files=["res://.godot/imported/orkMeshNORMAL.png-bbcac4c2ba1f8487451788bb9a67e5ee.s3tc.ctex"]
+dest_files=["res://.godot/imported/orkMeshNORMAL.png-bbcac4c2ba1f8487451788bb9a67e5ee.ctex"]
 
 [params]
 

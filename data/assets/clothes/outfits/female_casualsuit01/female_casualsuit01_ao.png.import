@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cf7ph2mlehowp"
-path.s3tc="res://.godot/imported/female_casualsuit01_ao.png-3b42ec6b384fc06d9126554a73bae7e8.s3tc.ctex"
+path="res://.godot/imported/female_casualsuit01_ao.png-3b42ec6b384fc06d9126554a73bae7e8.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_ao.png"
-dest_files=["res://.godot/imported/female_casualsuit01_ao.png-3b42ec6b384fc06d9126554a73bae7e8.s3tc.ctex"]
+dest_files=["res://.godot/imported/female_casualsuit01_ao.png-3b42ec6b384fc06d9126554a73bae7e8.ctex"]
 
 [params]
 

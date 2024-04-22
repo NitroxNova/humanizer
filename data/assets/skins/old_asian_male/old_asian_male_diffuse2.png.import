@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b567m6pqd3mjs"
-path.s3tc="res://.godot/imported/old_asian_male_diffuse2.png-e13e1d59103d076c9a74d831f5627f8e.s3tc.ctex"
+path="res://.godot/imported/old_asian_male_diffuse2.png-e13e1d59103d076c9a74d831f5627f8e.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/skins/old_asian_male/old_asian_male_diffuse2.png"
-dest_files=["res://.godot/imported/old_asian_male_diffuse2.png-e13e1d59103d076c9a74d831f5627f8e.s3tc.ctex"]
+dest_files=["res://.godot/imported/old_asian_male_diffuse2.png-e13e1d59103d076c9a74d831f5627f8e.ctex"]
 
 [params]
 

@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cs12b6eyv3kr4"
-path.s3tc="res://.godot/imported/overlay_iris_albedo.png-7982745b82d002fa96b857fd9a82ae2d.s3tc.ctex"
+path="res://.godot/imported/overlay_iris_albedo.png-7982745b82d002fa96b857fd9a82ae2d.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/overlay_iris_albedo.png"
-dest_files=["res://.godot/imported/overlay_iris_albedo.png-7982745b82d002fa96b857fd9a82ae2d.s3tc.ctex"]
+dest_files=["res://.godot/imported/overlay_iris_albedo.png-7982745b82d002fa96b857fd9a82ae2d.ctex"]
 
 [params]
 

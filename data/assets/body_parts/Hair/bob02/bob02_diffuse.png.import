@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ctc18nwqc1x3o"
-path.s3tc="res://.godot/imported/bob02_diffuse.png-cc2c716d4ff5b2f3dbcd6f8297a2b700.s3tc.ctex"
+path="res://.godot/imported/bob02_diffuse.png-cc2c716d4ff5b2f3dbcd6f8297a2b700.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/body_parts/Hair/bob02/bob02_diffuse.png"
-dest_files=["res://.godot/imported/bob02_diffuse.png-cc2c716d4ff5b2f3dbcd6f8297a2b700.s3tc.ctex"]
+dest_files=["res://.godot/imported/bob02_diffuse.png-cc2c716d4ff5b2f3dbcd6f8297a2b700.ctex"]
 
 [params]
 

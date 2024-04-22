@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b4nqs36i6hgym"
-path.s3tc="res://.godot/imported/eyebrow006_normal.png-3d22e89f5bdeaa77efba0fead7fe8ff5.s3tc.ctex"
+path="res://.godot/imported/eyebrow006_normal.png-3d22e89f5bdeaa77efba0fead7fe8ff5.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-006/eyebrow006_normal.png"
-dest_files=["res://.godot/imported/eyebrow006_normal.png-3d22e89f5bdeaa77efba0fead7fe8ff5.s3tc.ctex"]
+dest_files=["res://.godot/imported/eyebrow006_normal.png-3d22e89f5bdeaa77efba0fead7fe8ff5.ctex"]
 
 [params]
 

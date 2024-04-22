@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dd7sn8eknjnvr"
-path.s3tc="res://.godot/imported/male_elegantsuit01_Olive.png-02333e1b3f608f208e539e7245a1284f.s3tc.ctex"
+path="res://.godot/imported/male_elegantsuit01_Olive.png-02333e1b3f608f208e539e7245a1284f.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_olive/male_elegantsuit01_Olive.png"
-dest_files=["res://.godot/imported/male_elegantsuit01_Olive.png-02333e1b3f608f208e539e7245a1284f.s3tc.ctex"]
+dest_files=["res://.godot/imported/male_elegantsuit01_Olive.png-02333e1b3f608f208e539e7245a1284f.ctex"]
 
 [params]
 

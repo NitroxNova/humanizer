@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://j2wqrlqbax70"
-path.s3tc="res://.godot/imported/short02_normal.png-535baebce9db641063b86649d3028a63.s3tc.ctex"
+path="res://.godot/imported/short02_normal.png-535baebce9db641063b86649d3028a63.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/body_parts/Hair/short02/short02_normal.png"
-dest_files=["res://.godot/imported/short02_normal.png-535baebce9db641063b86649d3028a63.s3tc.ctex"]
+dest_files=["res://.godot/imported/short02_normal.png-535baebce9db641063b86649d3028a63.ctex"]
 
 [params]
 

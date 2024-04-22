@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cgtcccjpq7mta"
-path.s3tc="res://.godot/imported/Aksel_Skin_NRM.png-3fca6b1e0a468b40ba74dccb78838c68.s3tc.ctex"
+path="res://.godot/imported/Aksel_Skin_NRM.png-3fca6b1e0a468b40ba74dccb78838c68.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/skin_normals/Aksel_Skin_NRM.png"
-dest_files=["res://.godot/imported/Aksel_Skin_NRM.png-3fca6b1e0a468b40ba74dccb78838c68.s3tc.ctex"]
+dest_files=["res://.godot/imported/Aksel_Skin_NRM.png-3fca6b1e0a468b40ba74dccb78838c68.ctex"]
 
 [params]
 

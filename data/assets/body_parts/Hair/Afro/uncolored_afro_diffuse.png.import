@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://g36tjyxachad"
-path.s3tc="res://.godot/imported/uncolored_afro_diffuse.png-064a243183435893113cd64181d46114.s3tc.ctex"
+path="res://.godot/imported/uncolored_afro_diffuse.png-064a243183435893113cd64181d46114.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/body_parts/Hair/Afro/uncolored_afro_diffuse.png"
-dest_files=["res://.godot/imported/uncolored_afro_diffuse.png-064a243183435893113cd64181d46114.s3tc.ctex"]
+dest_files=["res://.godot/imported/uncolored_afro_diffuse.png-064a243183435893113cd64181d46114.ctex"]
 
 [params]
 

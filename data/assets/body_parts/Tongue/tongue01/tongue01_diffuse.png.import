@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bothre058abqw"
-path.s3tc="res://.godot/imported/tongue01_diffuse.png-ac4af44becf9110d7d3162b1ef62a1ff.s3tc.ctex"
+path="res://.godot/imported/tongue01_diffuse.png-ac4af44becf9110d7d3162b1ef62a1ff.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/body_parts/Tongue/tongue01/tongue01_diffuse.png"
-dest_files=["res://.godot/imported/tongue01_diffuse.png-ac4af44becf9110d7d3162b1ef62a1ff.s3tc.ctex"]
+dest_files=["res://.godot/imported/tongue01_diffuse.png-ac4af44becf9110d7d3162b1ef62a1ff.ctex"]
 
 [params]
 

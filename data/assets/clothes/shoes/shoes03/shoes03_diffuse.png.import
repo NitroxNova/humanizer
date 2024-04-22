@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dvi08icuvo3wh"
-path.s3tc="res://.godot/imported/shoes03_diffuse.png-b28b522d14dc2869a360f5497ac1c644.s3tc.ctex"
+path="res://.godot/imported/shoes03_diffuse.png-b28b522d14dc2869a360f5497ac1c644.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/clothes/shoes/shoes03/shoes03_diffuse.png"
-dest_files=["res://.godot/imported/shoes03_diffuse.png-b28b522d14dc2869a360f5497ac1c644.s3tc.ctex"]
+dest_files=["res://.godot/imported/shoes03_diffuse.png-b28b522d14dc2869a360f5497ac1c644.ctex"]
 
 [params]
 

@@ -3,16 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cg82igd57ootc"
-path.s3tc="res://.godot/imported/skin_male_african_middleage_NRM.png-4ff1f60c6afea63afd9a0a79fc2f4255.s3tc.ctex"
+path="res://.godot/imported/skin_male_african_middleage_NRM.png-4ff1f60c6afea63afd9a0a79fc2f4255.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/skin_normals/skin_male_african_middleage_NRM.png"
-dest_files=["res://.godot/imported/skin_male_african_middleage_NRM.png-4ff1f60c6afea63afd9a0a79fc2f4255.s3tc.ctex"]
+dest_files=["res://.godot/imported/skin_male_african_middleage_NRM.png-4ff1f60c6afea63afd9a0a79fc2f4255.ctex"]
 
 [params]
 
