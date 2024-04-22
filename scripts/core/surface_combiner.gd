@@ -37,7 +37,7 @@ func run() -> MeshInstance3D:
 	
 	var new_albedo_image = Image.create(bin_size, bin_size, false, Image.FORMAT_RGBA8)
 	var new_normal_image = Image.create(bin_size, bin_size, false, Image.FORMAT_RGBA8)
-	new_normal_image.fill(Color(.5,.5,1))
+	new_normal_image.fill(Color(.5,.5,1,1))
 	var new_ao_image = Image.create(bin_size, bin_size, false, Image.FORMAT_RGB8)
 	new_ao_image.fill(Color(1,1,1))
 	var has_normal = false
@@ -55,7 +55,8 @@ func run() -> MeshInstance3D:
 	for surface_id in surfaces.size():
 		var surface : UVUnwrapper = surfaces[surface_id]
 		var old_albedo_image : Image = surface.get_albedo_texture().get_image()
-		old_albedo_image.decompress()
+		if old_albedo_image.is_compressed():
+			old_albedo_image.decompress()
 		old_albedo_image.convert(new_albedo_image.get_format())
 		if surface.material.albedo_color != Color(1,1,1,1):
 			blend_color(old_albedo_image,surface.material.albedo_color)
@@ -64,13 +65,20 @@ func run() -> MeshInstance3D:
 		if surface.is_normal_enabled():
 			has_normal = true
 			old_normal_image = surface.get_normal_texture().get_image()
-			old_normal_image.decompress()
+			if old_normal_image.is_compressed():
+				old_normal_image.decompress()
 			old_normal_image.convert(new_normal_image.get_format())
 			old_normal_image.resize(surface.get_albedo_texture_size().x,surface.get_albedo_texture_size().y)
+			if surface.material.normal_scale != 1:
+				var mask = Image.create(old_normal_image.get_width(),old_normal_image.get_height(),false,new_normal_image.get_format())
+				var a = 1 - surface.material.normal_scale
+				mask.fill((Color(.5,.5,1,a)))
+				old_normal_image.blend_rect(mask,Rect2(0,0,mask.get_width(),mask.get_height()),Vector2.ZERO)
 		if surface.is_ao_enabled():
 			has_ao = true
 			old_ao_image = surface.get_ao_texture().get_image()
-			old_ao_image.decompress()
+			if old_ao_image.is_compressed():
+				old_ao_image.decompress()
 			old_ao_image.convert(new_ao_image.get_format())
 			old_ao_image.resize(surface.get_albedo_texture_size().x,surface.get_albedo_texture_size().y)
 				
@@ -82,13 +90,7 @@ func run() -> MeshInstance3D:
 			var new_island_position = packed_rect.get_position()
 			new_albedo_image.blit_rect(old_albedo_image,Rect2(old_island_position,island_size),new_island_position)
 			if surface.is_normal_enabled():
-				#new_normal_image.blit_rect(old_normal_image,Rect2(old_island_position,island_size),new_island_position)
-				for x in island_size.x:
-					for y in island_size.y:
-						var old_color = old_normal_image.get_pixel(old_island_position.x + x,old_island_position.y + y)
-						var new_color = Color(old_color.r,old_color.a,0,1)
-						new_normal_image.set_pixel(new_island_position.x + x, new_island_position.y + y, new_color)
-						
+				new_normal_image.blit_rect(old_normal_image,Rect2(old_island_position,island_size),new_island_position)
 			if surface.is_ao_enabled():
 				new_ao_image.blit_rect(old_ao_image,Rect2(old_island_position,island_size),new_island_position)
 
