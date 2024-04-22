@@ -9,7 +9,7 @@ func _init(_mesh_instances: Array[MeshInstance3D], _atlas_resolution: int) -> vo
 	
 func run() -> MeshInstance3D:
 	var rect_array: Array = []
-	var bin_size: int = 2 ** 12
+	var bin_size: int 
 	var surfaces: Array = []
 
 	for mesh: MeshInstance3D in mesh_instances:
@@ -24,7 +24,8 @@ func run() -> MeshInstance3D:
 			rect.position = Vector2.ZERO
 			var packable_rect = BinaryRectPacker.Packable_Rect.new(rect, surface_id, island_id)
 			rect_array.append(packable_rect)
-	var rect_packer = BinaryRectPacker.new(rect_array, bin_size)
+	var rect_packer = BinaryRectPacker.new(rect_array)
+	bin_size = rect_packer.bin_size
 	
 	for packed_rect in rect_packer.rects:
 		var surface = surfaces[packed_rect.surface_id]

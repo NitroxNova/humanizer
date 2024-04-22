@@ -12,7 +12,7 @@ func _init(mesh: ArrayMesh, surface_id: int, _material):
 	if _material==null:
 		material = StandardMaterial3D.new()
 	if material.albedo_texture == null:
-		var albedo_size = 2 ** 9 #512 seems reasonable, may need to change this later
+		var albedo_size = 2 ** 11 #2k albedo, so normals still look nice
 		var new_albedo_image = Image.create(albedo_size,albedo_size,false, Image.FORMAT_RGBA8)
 		new_albedo_image.fill(material.albedo_color)
 		material.albedo_texture = ImageTexture.create_from_image(new_albedo_image)
