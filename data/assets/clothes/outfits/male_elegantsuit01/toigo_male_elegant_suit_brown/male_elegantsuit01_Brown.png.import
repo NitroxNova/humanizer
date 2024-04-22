@@ -3,24 +3,23 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://diek54w1dh4ok"
-path.s3tc="res://.godot/imported/male_elegantsuit01_Brown.png-a414b259300dfad55969bf35e15f73c7.s3tc.ctex"
+path="res://.godot/imported/male_elegantsuit01_Brown.png-a414b259300dfad55969bf35e15f73c7.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_brown/male_elegantsuit01_Brown.png"
-dest_files=["res://.godot/imported/male_elegantsuit01_Brown.png-a414b259300dfad55969bf35e15f73c7.s3tc.ctex"]
+dest_files=["res://.godot/imported/male_elegantsuit01_Brown.png-a414b259300dfad55969bf35e15f73c7.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=3
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=2
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

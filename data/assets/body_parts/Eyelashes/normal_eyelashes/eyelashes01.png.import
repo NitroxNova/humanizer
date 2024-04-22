@@ -3,24 +3,23 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://djfp1p3x3nc7s"
-path.s3tc="res://.godot/imported/eyelashes01.png-b3dcee6e90a1a0f86fd2711d189546bd.s3tc.ctex"
+path="res://.godot/imported/eyelashes01.png-b3dcee6e90a1a0f86fd2711d189546bd.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/body_parts/Eyelashes/normal_eyelashes/eyelashes01.png"
-dest_files=["res://.godot/imported/eyelashes01.png-b3dcee6e90a1a0f86fd2711d189546bd.s3tc.ctex"]
+dest_files=["res://.godot/imported/eyelashes01.png-b3dcee6e90a1a0f86fd2711d189546bd.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=3
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=2
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

@@ -3,24 +3,23 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://md847oqy5vu0"
-path.s3tc="res://.godot/imported/old_caucasian_female_diffuse.png-9a1ea914066749f3443af68526964949.s3tc.ctex"
+path="res://.godot/imported/old_caucasian_female_diffuse.png-9a1ea914066749f3443af68526964949.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/skins/old_caucasian_female/old_caucasian_female_diffuse.png"
-dest_files=["res://.godot/imported/old_caucasian_female_diffuse.png-9a1ea914066749f3443af68526964949.s3tc.ctex"]
+dest_files=["res://.godot/imported/old_caucasian_female_diffuse.png-9a1ea914066749f3443af68526964949.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=3
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=2
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1

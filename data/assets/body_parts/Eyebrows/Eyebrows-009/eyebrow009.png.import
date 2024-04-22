@@ -3,24 +3,23 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://5mnyw5c0sulr"
-path.s3tc="res://.godot/imported/eyebrow009.png-252c3ee94a52e8b2d4e996b5d9f4fc51.s3tc.ctex"
+path="res://.godot/imported/eyebrow009.png-252c3ee94a52e8b2d4e996b5d9f4fc51.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-009/eyebrow009.png"
-dest_files=["res://.godot/imported/eyebrow009.png-252c3ee94a52e8b2d4e996b5d9f4fc51.s3tc.ctex"]
+dest_files=["res://.godot/imported/eyebrow009.png-252c3ee94a52e8b2d4e996b5d9f4fc51.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=3
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
-compress/normal_map=0
+compress/normal_map=2
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1
