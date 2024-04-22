@@ -182,7 +182,7 @@ func _deserialize() -> void:
 	# Since shapekeys are relative we start from empty
 	var sk = human_config.shapekeys.duplicate()
 	human_config.shapekeys = {}
-	set_rig(human_config.rig, body_mesh.mesh)
+	set_rig(human_config.rig)
 	for slot: String in human_config.body_parts:
 		var bp = human_config.body_parts[slot]
 		var mat = human_config.body_part_materials[slot]
@@ -531,7 +531,7 @@ func unhide_body_vertices() -> void:
 	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
 	set_shapekeys(human_config.shapekeys)
 	body_mesh.set_surface_override_material(0, mat)
-	set_rig(human_config.rig, body_mesh.mesh)
+	set_rig(human_config.rig)
 
 func unhide_clothes_vertices() -> void:
 	for cl in human_config.clothes:
@@ -805,7 +805,7 @@ func get_helper_vertex_position(mh_id:int):
 	return _helper_vertex[mh_id]
 
 #### Animation ####
-func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
+func set_rig(rig_name: String) -> void:
 	# Delete existing skeleton
 	for child in get_children():
 		if child is Skeleton3D:
@@ -816,17 +816,17 @@ func set_rig(rig_name: String, basemesh: ArrayMesh = null) -> void:
 		printerr('Cannot change rig on baked mesh.  Reset the character.')
 		return
 	
-	if rig_name != &'default-RETARGETED':
-		if human_config.components.has(&'saccades'):
+	if human_config.components.has(&'root_bone'):
+		set_component_state(false, &'root_bone')
+	if human_config.components.has(&'saccades'):
+		if rig_name != &'default-RETARGETED':
 			set_component_state(false, &'saccades')
-	
-	if basemesh == null:
-		basemesh = load('res://addons/humanizer/data/resources/base_human.res')
+
 	var retargeted: bool = rig_name.ends_with('-RETARGETED')
 	var rig: HumanizerRig = HumanizerRegistry.rigs[rig_name.split('-')[0]]
 	human_config.rig = rig_name
 	skeleton = rig.load_skeleton()  # Json file needs base skeleton names
-	var skinned_mesh: ArrayMesh = MeshOperations.skin_mesh(rig, skeleton, basemesh)
+	var skinned_mesh: ArrayMesh = MeshOperations.skin_mesh(rig, skeleton, body_mesh.mesh)
 	
 	# Set rig in scene
 	if retargeted:
@@ -1000,6 +1000,8 @@ func set_component_state(enabled: bool, component: String) -> void:
 			_add_physical_skeleton()
 		elif component == &'saccades':
 			_add_saccades()
+		elif component == &'root_bone':
+			_add_root_bone()
 	else:
 		human_config.components.erase(component)
 		if component == &'main_collider':
@@ -1018,6 +1020,9 @@ func set_component_state(enabled: bool, component: String) -> void:
 			if animator != null:
 				animator.active = true
 			notify_property_list_changed()
+		elif component == &'root_bone':
+			if skeleton != null:
+				set_rig(human_config.rig)
 
 func _add_main_collider() -> void:
 	if get_node_or_null('MainCollider') != null:
@@ -1071,3 +1076,13 @@ func _add_saccades() -> void:
 	else:
 		printerr('Saccades are not compatible with the selected rig')
 		set_component_state(false, &'saccades')
+
+func _add_root_bone() -> void:
+	if skeleton.find_bone('Root') != -1:
+		printerr("Rig already has root bone")
+		return
+	if skeleton.find_bone('Hips') != 0:
+		printerr("Cannot add root bone.  Current root bone must be hips")
+		return
+	skeleton.add_bone('Root')
+	skeleton.set_bone_parent(0, skeleton.get_bone_count() - 1)

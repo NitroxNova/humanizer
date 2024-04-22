@@ -121,6 +121,14 @@ size_flags_vertical = 3
 tooltip_text = "Adds a capsule collider to the character"
 text = "Character Collider"
 
+[node name="LODCheckBox" type="CheckBox" parent="VBoxContainer/ComponentsGridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+tooltip_text = "Set up a physical skeleton"
+text = "Level of Detail"
+
 [node name="RagdollCheckBox" type="CheckBox" parent="VBoxContainer/ComponentsGridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -129,13 +137,13 @@ size_flags_vertical = 3
 tooltip_text = "Set up a physical skeleton"
 text = "Ragdoll"
 
-[node name="LODCheckBox" type="CheckBox" parent="VBoxContainer/ComponentsGridContainer"]
+[node name="RootBoneCheckBox" type="CheckBox" parent="VBoxContainer/ComponentsGridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 tooltip_text = "Set up a physical skeleton"
-text = "Level of Detail"
+text = "Root Motion"
 
 [node name="SaccadesCheckBox" type="CheckBox" parent="VBoxContainer/ComponentsGridContainer"]
 unique_name_in_owner = true
@@ -262,22 +270,16 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
 tooltip_text = "Skin texture selector"
-item_count = 7
+item_count = 4
 selected = 0
 popup/item_0/text = "None"
 popup/item_0/id = 0
 popup/item_1/text = "Aksel_Skin_NRM"
 popup/item_1/id = 1
-popup/item_2/text = "body_suit_gold_normal"
+popup/item_2/text = "orkMeshNORMAL"
 popup/item_2/id = 2
-popup/item_3/text = "greyskinned_person_map"
+popup/item_3/text = "skin_male_african_middleage_NRM"
 popup/item_3/id = 3
-popup/item_4/text = "orkMeshNORMAL"
-popup/item_4/id = 4
-popup/item_5/text = "skin_male_african_middleage_NRM"
-popup/item_5/id = 5
-popup/item_6/text = "sohh_Zombie_Female_bump"
-popup/item_6/id = 6
 script = SubResource("GDScript_crbyj")
 
 [node name="HideVerticesButtons" type="HBoxContainer" parent="VBoxContainer"]
