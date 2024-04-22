@@ -54,24 +54,20 @@ func update_material() -> void:
 	ao_texture = null
 	if albedo != null:
 		albedo.generate_mipmaps()
-		#albedo.compress(Image.COMPRESS_BPTC)
 		albedo_texture = ImageTexture.create_from_image(albedo)
 	if normal != null:
 		normal.generate_mipmaps()
-		#normal.compress(Image.COMPRESS_BPTC)
 		normal_texture = ImageTexture.create_from_image(normal)
 	if ao != null:
 		ao.generate_mipmaps()
-		#ao.compress(Image.COMPRESS_BPTC)
 		ao_texture = ImageTexture.create_from_image(normal)
 	on_material_updated.emit()
 
 func blend_color(image: Image, color: Color) -> void:
-	if image.is_compressed():
-		image.decompress()
-	for x in image.get_width():
-		for y in image.get_height():
-			image.set_pixel(x, y, image.get_pixel(x, y) * color)
+	var blend: Image = image.duplicate()
+	blend.fill(color)
+	var start = Vector2i()
+	image.blend_rect(blend, Rect2i(start, blend.get_size()), start)
 
 func set_base_textures(overlay: HumanizerOverlay) -> void:
 	if overlays.size() == 0:

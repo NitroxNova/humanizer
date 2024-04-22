@@ -354,7 +354,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Skin"
 color = Color(1, 1, 1, 1)
-edit_alpha = false
 
 [node name="Label2" type="Label" parent="VBoxContainer/ColorOptions"]
 layout_mode = 2
@@ -378,7 +377,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Eyes"
 color = Color(0.207843, 0.662745, 0.839216, 1)
-edit_alpha = false
 
 [node name="HSeparator3" type="HSeparator" parent="VBoxContainer"]
 layout_mode = 2
