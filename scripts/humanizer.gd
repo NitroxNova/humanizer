@@ -737,7 +737,7 @@ func set_skin_normal_texture(name: String) -> void:
 			body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
 		else:
 			body_mesh.material_config.overlays[0].normal_texture_path = texture
-		(body_mesh.get_surface_override_material(0) as StandardMaterial3D).normal_scale = 0.2
+		(body_mesh.get_surface_override_material(0) as StandardMaterial3D).normal_scale = .2
 
 func set_body_part_material(set_slot: String, texture: String) -> void:
 	#print('setting material ' + texture + ' on ' + set_slot)

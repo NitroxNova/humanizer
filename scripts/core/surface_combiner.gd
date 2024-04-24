@@ -69,11 +69,11 @@ func run() -> MeshInstance3D:
 				old_normal_image.decompress()
 			old_normal_image.convert(new_normal_image.get_format())
 			old_normal_image.resize(surface.get_albedo_texture_size().x,surface.get_albedo_texture_size().y)
-			if surface.material.normal_scale != 1:
-				var mask = Image.create(old_normal_image.get_width(),old_normal_image.get_height(),false,new_normal_image.get_format())
-				var a = 1 - surface.material.normal_scale
-				mask.fill((Color(.5,.5,1,a)))
-				old_normal_image.blend_rect(mask,Rect2(0,0,mask.get_width(),mask.get_height()),Vector2.ZERO)
+			#if surface.material.normal_scale != 1:
+			#	var mask = Image.create(old_normal_image.get_width(),old_normal_image.get_height(),false,new_normal_image.get_format())
+			#	var a = 1 - surface.material.normal_scale
+			#	mask.fill((Color(.5,.5,1,a)))
+			#	old_normal_image.blend_rect(mask,Rect2(0,0,mask.get_width(),mask.get_height()),Vector2.ZERO)
 		if surface.is_ao_enabled():
 			has_ao = true
 			old_ao_image = surface.get_ao_texture().get_image()
@@ -90,7 +90,22 @@ func run() -> MeshInstance3D:
 			var new_island_position = packed_rect.get_position()
 			new_albedo_image.blit_rect(old_albedo_image,Rect2(old_island_position,island_size),new_island_position)
 			if surface.is_normal_enabled():
-				new_normal_image.blit_rect(old_normal_image,Rect2(old_island_position,island_size),new_island_position)
+				if surface.material.normal_scale == 1:
+					new_normal_image.blit_rect(old_normal_image,Rect2(old_island_position,island_size),new_island_position)
+				else:
+					for x in island_size.x:
+						for y in island_size.y:
+							var old_color = old_normal_image.get_pixel(x + old_island_position.x, y + old_island_position.y)
+							old_color.b = sqrt(1 - old_color.g ** 2 - old_color.r ** 2)
+							var new_vec = Vector3(old_color.r, old_color.g, old_color.b)
+							new_vec = 2 * new_vec - Vector3.ONE
+							new_vec.x *= surface.material.normal_scale
+							new_vec.y *= surface.material.normal_scale
+							new_vec = 0.5 * (new_vec + Vector3.ONE)
+							new_vec.z = sqrt(1 - new_vec.x ** 2 - new_vec.y ** 2)
+
+							var new_color := Color(new_vec.x, new_vec.y, new_vec.z)
+							new_normal_image.set_pixel(x + new_island_position.x, y + new_island_position.y, new_color)
 			if surface.is_ao_enabled():
 				new_ao_image.blit_rect(old_ao_image,Rect2(old_island_position,island_size),new_island_position)
 
@@ -114,7 +129,7 @@ func run() -> MeshInstance3D:
 			mesh_bone_count = sf_bone_count	
 	
 	var vertex_offset = 0
-	for surface in surfaces:		
+	for surface in surfaces:
 		new_sf_arrays[Mesh.ARRAY_VERTEX].append_array(surface.surface_arrays[Mesh.ARRAY_VERTEX])
 		new_sf_arrays[Mesh.ARRAY_TANGENT].append_array(surface.surface_arrays[Mesh.ARRAY_TANGENT])
 		new_sf_arrays[Mesh.ARRAY_NORMAL].append_array(surface.surface_arrays[Mesh.ARRAY_NORMAL])
