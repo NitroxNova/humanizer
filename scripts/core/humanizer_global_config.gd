@@ -11,7 +11,7 @@ static var config:
 		if Instance != null:
 			return Instance._config
 		
-func _enter_tree() -> void:
+func _init() -> void:
 	## Not enforcing singleton pattern, but shouldn't be a problem.
 	## Just using this to have a static variable which is also exported.
 	Instance = self

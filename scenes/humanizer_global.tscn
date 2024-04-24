@@ -11,7 +11,7 @@ extends Node
 
 "
 
-[sub_resource type="Resource" id="Resource_s8da7"]
+[sub_resource type="Resource" id="Resource_4je4f"]
 script = ExtResource("3_yh4wq")
 asset_import_paths = Array[String](["res://addons/humanizer/data/assets/"])
 human_export_path = "res://data/humans/"
@@ -37,7 +37,7 @@ script = SubResource("GDScript_yaxf4")
 
 [node name="HumanizerConfig" type="Node" parent="."]
 script = ExtResource("2_vm4hu")
-_config = SubResource("Resource_s8da7")
+_config = SubResource("Resource_4je4f")
 
 [node name="HumanizerRegistry" type="Node" parent="."]
 script = ExtResource("57_651fh")
