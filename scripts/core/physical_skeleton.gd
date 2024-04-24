@@ -125,7 +125,7 @@ func add_joint(phys_bone:PhysicalBone3D,bone_name:String):
 		"LeftUpperArm" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=60,"joint_constraints/twist_span"=30}],
 		"RightUpperArm" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=60,"joint_constraints/twist_span"=30}],
 		#"Hips" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
-		"UpperChest" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=80,"joint_constraints/twist_span"=30}],
+		"UpperChest" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=50,"joint_constraints/twist_span"=20}],
 		"LeftUpperLeg" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
 		"RightUpperLeg" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
 		"LeftFoot" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
