@@ -73,6 +73,7 @@ func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
 			var bounds = get_sphere_vertex_bounds(bone)
 			collider.shape.radius = bounds.radius
 			collider.global_position = bounds.center
+			collider.global_transform = skeleton.global_transform * collider.global_transform
 	else:
 		var next_id: int = skeleton.find_bone(next)
 		var next_position: Vector3 = skeleton.get_bone_global_pose(next_id).origin 
