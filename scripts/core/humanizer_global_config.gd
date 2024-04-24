@@ -12,7 +12,7 @@ static var config:
 			return Instance._config
 		
 func _init() -> void:
-	## Not enforcing singleton pattern, but shouldn't be a problem.
 	## Just using this to have a static variable which is also exported.
-	Instance = self
+	if Instance == null:
+		Instance = self
 
