@@ -696,8 +696,9 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 	if main_collider != null:
 		_adjust_main_collider()
 	## Face bones mess up the mesh when shapekeys applied.  This fixes it
-	animator.active = not animator.active
-	animator.active = not animator.active
+	if animator != null:
+		animator.active = not animator.active
+		animator.active = not animator.active
 
 func add_shapekey() -> void:
 	if new_shapekey_name in ['', null]:
@@ -816,9 +817,7 @@ func set_rig(rig_name: String) -> void:
 	if baked:
 		printerr('Cannot change rig on baked mesh.  Reset the character.')
 		return
-	
-	if human_config.components.has(&'root_bone'):
-		set_component_state(false, &'root_bone')
+
 	if human_config.components.has(&'saccades'):
 		if rig_name != &'default-RETARGETED':
 			set_component_state(false, &'saccades')
@@ -846,6 +845,10 @@ func set_rig(rig_name: String) -> void:
 		_add_bone_weights(cl)
 	for bp in human_config.body_parts.values():
 		_add_bone_weights(bp)
+
+	if human_config.components.has(&'root_bone'):
+		set_component_state(true, &'root_bone')
+		notify_property_list_changed()
 
 func adjust_skeleton() -> void:
 	if skeleton == null:
@@ -991,7 +994,7 @@ func reset_face_pose() -> void:
 		animator.set("parameters/" + clip + "/add_amount", 0.)
 
 #### Additional Components ####
-func set_component_state(enabled: bool, component: String) -> void:
+func set_component_state(enabled: bool, component: StringName) -> void:
 	if enabled:
 		if not human_config.components.has(component):
 			human_config.components.append(component)
@@ -1080,10 +1083,10 @@ func _add_saccades() -> void:
 
 func _add_root_bone(sk: Skeleton3D) -> void:
 	if sk.find_bone('Root') != -1:
-		printerr("Rig already has root bone")
+		push_warning("Rig already has root bone")
 		return
 	if sk.find_bone('Hips') != 0:
-		printerr("Cannot add root bone.  Current root bone must be hips")
+		push_error('Cannot add root bone.  Current root bone must be "Hips"')
 		return
 	sk.add_bone('Root')
 	sk.set_bone_parent(0, skeleton.get_bone_count() - 1)
