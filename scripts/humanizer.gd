@@ -167,7 +167,7 @@ func _delete_child_node(node: Node) -> void:
 	node.queue_free()
 
 func _delete_child_by_name(name: String) -> void:
-	var node = get_node_or_null('../' + name)
+	var node = get_node_or_null(name)
 	if node != null:
 		_delete_child_node(node)
 
@@ -213,6 +213,7 @@ func _deserialize() -> void:
 	hide_body_vertices()
 
 func reset_human() -> void:
+	new_shapekeys = {}
 	baked = false
 	_helper_vertex = shapekey_data.basis.duplicate(true)
 	for child in get_children():
