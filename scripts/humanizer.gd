@@ -717,7 +717,12 @@ func add_shapekey() -> void:
 	if new_shapekeys.has(new_shapekey_name):
 		printerr('A new shape with this name already exists')
 		return
-	new_shapekeys[new_shapekey_name] = human_config.shapekeys
+	new_shapekeys[new_shapekey_name] = {
+		'skeleton': [],
+		'mesh': human_config.shapekeys
+	}
+	for bone in skeleton.get_bone_count():
+		new_shapekeys[new_shapekey_name].skeleton.append(skeleton.get_bone_global_rest(bone))
 	notify_property_list_changed()
 
 #### Materials ####
