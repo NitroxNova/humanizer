@@ -11,6 +11,7 @@ const shoulder_id: int = 16951
 const waist_id: int = 17346
 const hips_id: int = 18127
 const feet_ids: Array[int] = [15500, 16804]
+const eyebrow_color_weight := 0.3
 
 var skeleton: Skeleton3D
 var body_mesh: MeshInstance3D
@@ -71,7 +72,11 @@ var hair_color: Color = _DEFAULT_HAIR_COLOR:
 			if not human_config.body_parts.has(slot):
 				continue
 			var mesh = get_node(human_config.body_parts[slot].resource_name)
-			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = hair_color
+			var color = hair_color
+			if slot != &'Hair':
+				color *= Color(hair_color * eyebrow_color_weight, 1.)
+			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = color 
+
 var eye_color: Color = _DEFAULT_EYE_COLOR:
 	set(value):
 		eye_color = value
@@ -196,9 +201,6 @@ func _deserialize() -> void:
 		set_skin_texture(human_config.body_part_materials[&'skin'])
 	for component in human_config.components:
 		set_component_state(true, component)
-	eye_color = human_config.eye_color
-	hair_color = human_config.hair_color
-	skin_color = human_config.skin_color
 	set_shapekeys(sk)
 	hide_body_vertices()
 
@@ -211,7 +213,7 @@ func reset_human() -> void:
 	if body_mesh != null and body_mesh is HumanizerMeshInstance:
 		body_mesh.set_script(null)
 	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
-	set_component_state(false, &'main_collider')
+	set_component_state(true, &'main_collider')
 	set_component_state(false, &'saccades')
 	skin_color = human_config.skin_color
 	hair_color = human_config.hair_color
@@ -260,13 +262,13 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	
 	for phys_bone: PhysicalBone3D in skeleton.get_children():
 		var bone = phys_bone.duplicate(true)
-		bone.name = phys_bone.name
 		sk.add_child(bone)
 		bone.owner = root_node
 		for coll in phys_bone.get_children():
 			var collider = coll.duplicate(true)
 			bone.add_child(collider)
 			collider.owner = root_node
+		bone.name = phys_bone.name
 
 	if _animator_scene != null:
 		var _animator = _animator_scene.instantiate()
@@ -758,7 +760,9 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 		mat.albedo_texture = load(bp.textures[texture])
 	if bp.slot in ['LeftEye', 'RightEye', 'Eyes']:
 		mi.material_config.overlays[1].color = eye_color
-	if bp.slot in ['RightEyebrow', 'LeftEyebrow', 'Eyebrows', 'Hair']:
+	if bp.slot in ['RightEyebrow', 'LeftEyebrow', 'Eyebrows']:
+		mi.get_surface_override_material(0).albedo_color = Color(hair_color * eyebrow_color_weight, 1) 
+	elif bp.slot == 'Hair':
 		mi.get_surface_override_material(0).albedo_color = hair_color
 	notify_property_list_changed()
 
@@ -845,7 +849,10 @@ func set_rig(rig_name: String) -> void:
 		_add_bone_weights(cl)
 	for bp in human_config.body_parts.values():
 		_add_bone_weights(bp)
-
+		
+	if human_config.components.has(&'ragdoll'):
+		set_component_state(false, &'ragdoll')
+		set_component_state(true, &'ragdoll')
 	if human_config.components.has(&'root_bone'):
 		set_component_state(true, &'root_bone')
 		notify_property_list_changed()
