@@ -167,9 +167,9 @@ func _delete_child_node(node: Node) -> void:
 	node.queue_free()
 
 func _delete_child_by_name(name: String) -> void:
-	for child in get_children():
-		if child.name == name:
-			_delete_child_node(child)
+	var node = get_node_or_null('../' + name)
+	if node != null:
+		_delete_child_node(node)
 
 func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 	var res: HumanAsset = null
@@ -216,7 +216,7 @@ func reset_human() -> void:
 	baked = false
 	_helper_vertex = shapekey_data.basis.duplicate(true)
 	for child in get_children():
-		if child is MeshInstance3D:
+		if child is MeshInstance3D and child.name != _BASE_MESH_NAME:
 			_delete_child_node(child)
 	if body_mesh != null and body_mesh is HumanizerMeshInstance:
 		body_mesh.set_script(null)
