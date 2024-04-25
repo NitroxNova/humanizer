@@ -22,5 +22,6 @@ extends Resource
 ## Colors
 @export var skin_color: Color = Humanizer._DEFAULT_SKIN_COLOR
 @export var eye_color: Color = Humanizer._DEFAULT_EYE_COLOR
+@export var eyebrow_color: Color = Humanizer._DEFAULT_EYEBROW_COLOR
 @export var hair_color: Color = Humanizer._DEFAULT_HAIR_COLOR
 

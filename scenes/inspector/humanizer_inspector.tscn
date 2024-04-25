@@ -341,12 +341,14 @@ layout_mode = 2
 [node name="HideVerticesButtons2" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
-[node name="ColorOptions" type="HBoxContainer" parent="VBoxContainer"]
+[node name="ColorOptions" type="GridContainer" parent="VBoxContainer"]
 layout_mode = 2
+columns = 4
 
 [node name="Label" type="Label" parent="VBoxContainer/ColorOptions"]
 layout_mode = 2
 text = "Skin"
+horizontal_alignment = 2
 
 [node name="SkinColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorOptions"]
 unique_name_in_owner = true
@@ -359,6 +361,7 @@ edit_alpha = false
 [node name="Label2" type="Label" parent="VBoxContainer/ColorOptions"]
 layout_mode = 2
 text = "Hair"
+horizontal_alignment = 2
 
 [node name="HairColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorOptions"]
 unique_name_in_owner = true
@@ -371,6 +374,7 @@ edit_alpha = false
 [node name="Label3" type="Label" parent="VBoxContainer/ColorOptions"]
 layout_mode = 2
 text = "Eyes"
+horizontal_alignment = 2
 
 [node name="EyeColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorOptions"]
 unique_name_in_owner = true
@@ -378,6 +382,18 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Eyes"
 color = Color(0.207843, 0.662745, 0.839216, 1)
+edit_alpha = false
+
+[node name="Label4" type="Label" parent="VBoxContainer/ColorOptions"]
+layout_mode = 2
+text = "Eyebrows"
+horizontal_alignment = 2
+
+[node name="EyebrowColorPicker" type="ColorPickerButton" parent="VBoxContainer/ColorOptions"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Hair"
 edit_alpha = false
 
 [node name="HSeparator3" type="HSeparator" parent="VBoxContainer"]

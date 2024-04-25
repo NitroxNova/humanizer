@@ -6,12 +6,13 @@ const _BASE_MESH_NAME: String = 'Human'
 const _DEFAULT_SKIN_COLOR = Color.WHITE
 const _DEFAULT_EYE_COLOR = Color.SKY_BLUE
 const _DEFAULT_HAIR_COLOR = Color.WEB_MAROON
+const _DEFAULT_EYEBROW_COLOR = Color.BLACK
 ## Vertex ids
 const shoulder_id: int = 16951 
 const waist_id: int = 17346
 const hips_id: int = 18127
 const feet_ids: Array[int] = [15500, 16804]
-const eyebrow_color_weight := 0.3
+const eyebrow_color_weight := 0.4
 
 var skeleton: Skeleton3D
 var body_mesh: MeshInstance3D
@@ -67,16 +68,23 @@ var hair_color: Color = _DEFAULT_HAIR_COLOR:
 		if human_config == null or not scene_loaded:
 			return
 		human_config.hair_color = hair_color
-		var slots: Array = [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows', &'Hair']
+		if human_config.body_parts.has(&'Hair'):
+			var mesh = get_node(human_config.body_parts[&'Hair'].resource_name)
+			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = hair_color 
+		eyebrow_color = Color(hair_color * eyebrow_color_weight, 1.)
+		notify_property_list_changed()
+var eyebrow_color: Color = _DEFAULT_EYEBROW_COLOR:
+	set(value):
+		eyebrow_color = value
+		if human_config == null or not scene_loaded:
+			return
+		human_config.eyebrow_color = eyebrow_color
+		var slots: Array = [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows']
 		for slot in slots:
 			if not human_config.body_parts.has(slot):
 				continue
 			var mesh = get_node(human_config.body_parts[slot].resource_name)
-			var color = hair_color
-			if slot != &'Hair':
-				color *= Color(hair_color * eyebrow_color_weight, 1.)
-			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = color 
-
+			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = eyebrow_color 
 var eye_color: Color = _DEFAULT_EYE_COLOR:
 	set(value):
 		eye_color = value
