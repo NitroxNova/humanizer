@@ -592,6 +592,32 @@ func bake_surface() -> void:
 		atlas_resolution = HumanizerGlobalConfig.config.atlas_resolution
 	var mi: MeshInstance3D = HumanizerSurfaceCombiner.new(_bake_meshes, atlas_resolution).run()
 	mi.name = 'Baked-' + bake_surface_name
+	
+	if not new_shapekeys.is_empty():
+		var initial_shapekeys = human_config.shapekeys.duplicate(true)
+		var bs_arrays = []
+		var baked_mesh = ArrayMesh.new()
+		baked_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
+		for shape_name in new_shapekeys:
+			baked_mesh.add_blend_shape(shape_name)
+			var new_bs_array = []
+			new_bs_array.resize(Mesh.ARRAY_MAX)
+			new_bs_array[Mesh.ARRAY_VERTEX] = PackedVector3Array()
+			new_bs_array[Mesh.ARRAY_TANGENT] = PackedFloat32Array()
+			new_bs_array[Mesh.ARRAY_NORMAL] = PackedVector3Array()
+			set_shapekeys(new_shapekeys[shape_name].mesh)
+			for mesh_instance in _bake_meshes:
+				var sf_arrays = mesh_instance.mesh.surface_get_arrays(0)
+				new_bs_array[Mesh.ARRAY_VERTEX].append_array(sf_arrays[Mesh.ARRAY_VERTEX])
+				new_bs_array[Mesh.ARRAY_TANGENT].append_array(sf_arrays[Mesh.ARRAY_TANGENT])
+				new_bs_array[Mesh.ARRAY_NORMAL].append_array(sf_arrays[Mesh.ARRAY_NORMAL])
+			bs_arrays.append(new_bs_array)
+		baked_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,mi.mesh.surface_get_arrays(0),bs_arrays)
+		baked_mesh.surface_set_material(0,mi.mesh.surface_get_material(0))
+		mi.mesh = baked_mesh
+		## then need to reset skeleton for base shape
+		set_shapekeys(initial_shapekeys)
+	
 	add_child(mi)
 	mi.owner = self
 	mi.skeleton = '../' + skeleton.name
@@ -719,7 +745,7 @@ func add_shapekey() -> void:
 		return
 	new_shapekeys[new_shapekey_name] = {
 		'skeleton': [],
-		'mesh': human_config.shapekeys
+		'mesh': human_config.shapekeys.duplicate(true)
 	}
 	for bone in skeleton.get_bone_count():
 		new_shapekeys[new_shapekey_name].skeleton.append(skeleton.get_bone_global_rest(bone))
