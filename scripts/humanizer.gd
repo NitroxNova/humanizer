@@ -957,6 +957,16 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 				weights.remove_at(weight_id)
 				bones.remove_at(weight_id)
 		
+		#seems counterintuitive to the bone_count of 8, but is how humanizer does it, too many weights just deforms the mesh
+		# could convert mesh bone count during baking instead, but i think its easier to do it here
+		while bones.size() > 4:
+			var min_id = 0
+			for this_id in bones.size():
+				if weights[this_id] < weights[min_id]:
+					min_id = this_id
+			bones.remove_at(min_id)
+			weights.remove_at(min_id)
+		
 		#normalize		
 		var total_weight = 0
 		for weight in weights:
