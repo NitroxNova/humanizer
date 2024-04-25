@@ -109,7 +109,7 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 			human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 		# This gets set before _ready causing issues so make sure we're loaded
 		if scene_loaded:
-			load_human()
+			_load_human()
 ## The new shapekeys which have been defined for this human.  These will survive the baking process.
 @export var new_shapekeys: Dictionary = {}
 
@@ -152,7 +152,7 @@ func _ready() -> void:
 		if child.name.begins_with('Baked-'):
 			baked = true
 	if not baked:
-		load_human()
+		_load_human()
 	scene_loaded = true
 
 ####  HumanConfig Resource Management ####
@@ -182,7 +182,7 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 				res = cl as HumanClothes
 	return res
 
-func load_human() -> void:
+func _load_human() -> void:
 	## if we are calling on a node ont in the tree ready won't be called
 	if human_config == null and not scene_loaded:
 		human_config = HumanConfig.new()
