@@ -835,10 +835,6 @@ func set_rig(rig_name: String) -> void:
 		printerr('Cannot change rig on baked mesh.  Reset the character.')
 		return
 
-	if human_config.components.has(&'saccades'):
-		if rig_name != &'default-RETARGETED':
-			set_component_state(false, &'saccades')
-
 	var retargeted: bool = rig_name.ends_with('-RETARGETED')
 	var rig: HumanizerRig = HumanizerRegistry.rigs[rig_name.split('-')[0]]
 	human_config.rig = rig_name
@@ -862,13 +858,18 @@ func set_rig(rig_name: String) -> void:
 		_add_bone_weights(cl)
 	for bp in human_config.body_parts.values():
 		_add_bone_weights(bp)
-		
+	
+	new_shapekeys = {}
 	if human_config.components.has(&'ragdoll'):
 		set_component_state(false, &'ragdoll')
 		set_component_state(true, &'ragdoll')
 	if human_config.components.has(&'root_bone'):
 		set_component_state(true, &'root_bone')
 		notify_property_list_changed()
+	if human_config.components.has(&'saccades'):
+		if rig_name != &'default-RETARGETED':
+			set_component_state(false, &'saccades')
+
 
 func adjust_skeleton() -> void:
 	if skeleton == null:
