@@ -366,9 +366,10 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 		visible = body_mesh.visible
 		if body_mesh is HumanizerMeshInstance:
 			mat_config = body_mesh.material_config.duplicate(true)
-	_delete_child_by_name(_BASE_MESH_NAME)
-	body_mesh = MeshInstance3D.new()
-	body_mesh.name = _BASE_MESH_NAME
+	if body_mesh == null:
+		body_mesh = MeshInstance3D.new()
+		body_mesh.name = _BASE_MESH_NAME
+		_add_child_node(body_mesh)
 	body_mesh.mesh = meshdata
 	body_mesh.set_surface_override_material(0, StandardMaterial3D.new())
 	body_mesh.set_script(load('res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd'))
@@ -381,7 +382,6 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 		body_mesh.skeleton = '../' + skeleton.name
 		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
 	body_mesh.visible = visible
-	_add_child_node(body_mesh)
 
 func set_body_part(bp: HumanBodyPart) -> void:
 	if human_config.body_parts.has(bp.slot):
@@ -869,7 +869,6 @@ func set_rig(rig_name: String) -> void:
 	if human_config.components.has(&'saccades'):
 		if rig_name != &'default-RETARGETED':
 			set_component_state(false, &'saccades')
-
 
 func adjust_skeleton() -> void:
 	if skeleton == null:
