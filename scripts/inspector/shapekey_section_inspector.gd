@@ -67,8 +67,6 @@ func _on_value_changed(changed: bool, slider: HSlider) -> void:
 		human.set_shapekeys(values)
 	else:
 		human.set_shapekeys({key: float(value)})
-	human.adjust_skeleton()
-	human.recalculate_normals()
 	
 func _on_reset_sliders(human: Humanizer) -> void:
 	var values := {}
@@ -78,8 +76,6 @@ func _on_reset_sliders(human: Humanizer) -> void:
 		slider.value = value
 		values[sk] = value
 	human.set_shapekeys(values)
-	human.adjust_skeleton()
-	human.recalculate_normals()
 	print('Reset ' + name + ' sliders')
 	
 func _on_randomize_sliders(human: Humanizer, randomization: HSlider, asymmetry: HSlider) -> void:
@@ -107,6 +103,4 @@ func _on_randomize_sliders(human: Humanizer, randomization: HSlider, asymmetry: 
 		get_node('%' + sk).value = value
 		values[sk] = value
 	human.set_shapekeys(values)
-	human.adjust_skeleton()
-	human.recalculate_normals()
 	print('Randomized ' + name.replace('Container', '') + ' sliders')
