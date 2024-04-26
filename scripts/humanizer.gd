@@ -552,6 +552,7 @@ func unhide_clothes_vertices() -> void:
 
 func set_bake_meshes(subset: String) -> void:
 	_bake_meshes = []
+	bake_surface_name = subset
 	for child in get_children():
 		if not child is MeshInstance3D:
 			continue
@@ -563,10 +564,7 @@ func set_bake_meshes(subset: String) -> void:
 		add = add or subset == 'Opaque' and mat != null and mat.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED
 		add = add or subset == 'Transparent' and mat != null and mat.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
 		if add:
-			bake_surface_name = subset
 			_bake_meshes.append(child)
-		else:
-			bake_surface_name = ''
 	notify_property_list_changed()
 
 func standard_bake() -> void:
@@ -584,6 +582,7 @@ func standard_bake() -> void:
 
 func bake_surface() -> void:
 	if bake_surface_name in [null, '']:
+		print('indeed')
 		bake_surface_name = 'Surface0'
 	for child in get_children():
 		if child.name == 'Baked-' + bake_surface_name:
@@ -658,9 +657,10 @@ func _combine_meshes() -> ArrayMesh:
 	return new_mesh.get_mesh()
 
 func recalculate_normals() -> void:
-	var mat = body_mesh.get_surface_override_material(0)
-	_set_body_mesh(MeshOperations.generate_normals_and_tangents(body_mesh.mesh))
-	body_mesh.set_surface_override_material(0, mat)
+	if body_mesh != null:
+		var mat = body_mesh.get_surface_override_material(0)
+		_set_body_mesh(MeshOperations.generate_normals_and_tangents(body_mesh.mesh))
+		body_mesh.set_surface_override_material(0, mat)
 	
 	for mesh in get_children():
 		if not mesh is MeshInstance3D:
