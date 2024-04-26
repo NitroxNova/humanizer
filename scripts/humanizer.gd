@@ -614,7 +614,7 @@ func bake_surface() -> void:
 		baked_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,mi.mesh.surface_get_arrays(0),bs_arrays)
 		baked_mesh.surface_set_material(0,mi.mesh.surface_get_material(0))
 		mi.mesh = baked_mesh
-		## then need to reset skeleton for base shape
+		## then need to reset mesh to base shape
 		set_shapekeys(initial_shapekeys)
 	
 	add_child(mi)
@@ -664,12 +664,13 @@ func _recalculate_normals() -> void:
 	for mesh in get_children():
 		if not mesh is MeshInstance3D:
 			continue
-		mesh.mesh = MeshOperations.generate_normals_and_tangents(mesh.mesh)
+		if not mesh.name.begins_with("Baked"):
+			mesh.mesh = MeshOperations.generate_normals_and_tangents(mesh.mesh)
 
 func set_shapekeys(shapekeys: Dictionary) -> void:
 	var prev_sk = human_config.shapekeys.duplicate()
 
-	# Set default macro/race values
+	# Set default macro/race values if not present
 	var macro_vals := {}
 	for sk in MeshOperations.get_macro_options():
 		macro_vals[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.5))
