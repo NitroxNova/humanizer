@@ -92,5 +92,3 @@ func randomize_shapekeys() -> void:
 			values[sk] = value
 			
 	human.set_shapekeys(values)
-	human.adjust_skeleton()
-	human.recalculate_normals()
