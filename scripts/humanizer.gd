@@ -476,7 +476,7 @@ func hide_body_vertices() -> void:
 			delete_verts_gd[gd_id] = true
 			
 	_set_body_mesh(MeshOperations.delete_faces(body_mesh.mesh,delete_verts_gd))
-	recalculate_normals()
+	_recalculate_normals()
 	body_mesh.set_surface_override_material(0, skin_mat)
 	body_mesh.skeleton = '../' + skeleton.name
 
@@ -571,7 +571,7 @@ func standard_bake() -> void:
 	if baked:
 		printerr('Already baked.  Reload the scene, load a human_config, or reset human to start over.')
 		return
-	adjust_skeleton()
+	_adjust_skeleton()
 	hide_body_vertices()
 	set_bake_meshes('Opaque')
 	if _bake_meshes.size() > 0:
@@ -582,7 +582,6 @@ func standard_bake() -> void:
 
 func bake_surface() -> void:
 	if bake_surface_name in [null, '']:
-		print('indeed')
 		bake_surface_name = 'Surface0'
 	for child in get_children():
 		if child.name == 'Baked-' + bake_surface_name:
@@ -630,7 +629,7 @@ func bake_surface() -> void:
 func _combine_meshes() -> ArrayMesh:
 	var new_mesh = ImporterMesh.new()
 	new_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
-	var i = 0
+	
 	for child in get_children():
 		if not child is MeshInstance3D:
 			continue
@@ -651,12 +650,12 @@ func _combine_meshes() -> ArrayMesh:
 			child.name.replace('Baked-', ''), 
 			format
 		)
-		i += 1
+		
 	if human_config.components.has(&'lod'):
 		new_mesh.generate_lods(25, 60, [])
 	return new_mesh.get_mesh()
 
-func recalculate_normals() -> void:
+func _recalculate_normals() -> void:
 	if body_mesh != null:
 		var mat = body_mesh.get_surface_override_material(0)
 		_set_body_mesh(MeshOperations.generate_normals_and_tangents(body_mesh.mesh))
@@ -703,18 +702,19 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
 	var _foot_offset = Vector3.UP * offset
 	
-	var mesh := body_mesh.mesh as ArrayMesh
-	var surf_arrays = mesh.surface_get_arrays(0)
-	var fmt = mesh.surface_get_format(0)
-	var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
-	for i in _helper_vertex.size():
-		_helper_vertex[i] -= _foot_offset
-	surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
-	for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
-		var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-		surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
-	mesh.clear_surfaces()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], {}, fmt)
+	if body_mesh != null:
+		var mesh := body_mesh.mesh as ArrayMesh
+		var surf_arrays = mesh.surface_get_arrays(0)
+		var fmt = mesh.surface_get_format(0)
+		var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
+		for i in _helper_vertex.size():
+			_helper_vertex[i] -= _foot_offset
+		surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
+		for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
+			var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+			surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
+		mesh.clear_surfaces()
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], {}, fmt)
 	
 	# Apply to body parts and clothes
 	for child in get_children():
@@ -726,8 +726,8 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 			var new_mesh = MeshOperations.build_fitted_mesh(child.mesh, _helper_vertex, mhclo)
 			child.mesh = new_mesh
 	
-	recalculate_normals()
-	adjust_skeleton()
+	_recalculate_normals()
+	_adjust_skeleton()
 	for key in shapekeys:
 		human_config.shapekeys[key] = shapekeys[key]
 	if main_collider != null:
@@ -878,7 +878,7 @@ func set_rig(rig_name: String) -> void:
 	_set_body_mesh(skinned_mesh)
 	body_mesh.set_surface_override_material(0, mat)
 	body_mesh.skeleton = '../' + skeleton.name
-	adjust_skeleton()
+	_adjust_skeleton()
 	_reset_animator()
 	set_shapekeys(human_config.shapekeys)
 	for cl in human_config.clothes:
@@ -897,7 +897,7 @@ func set_rig(rig_name: String) -> void:
 		if rig_name != &'default-RETARGETED':
 			set_component_state(false, &'saccades')
 
-func adjust_skeleton() -> void:
+func _adjust_skeleton() -> void:
 	if skeleton == null:
 		return
 	skeleton.reset_bone_poses()
