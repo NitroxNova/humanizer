@@ -14,7 +14,6 @@ func _parse_category(human, category):
 	
 	# Header Section
 	scene.get_node('%ResetButton').pressed.connect(func(): human.human_config = HumanConfig.new())
-	scene.get_node('%AdjustSkeletonButton').pressed.connect(human.adjust_skeleton)
 	scene.get_node('%RigOptionButton').human = human
 
 	## Color pickers
