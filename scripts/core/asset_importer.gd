@@ -172,8 +172,8 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	var mesh = data.mesh
 	var mh2gd_index = data.mh2gd_index
 	var mhclo = data.mhclo
-	if data.has('rigged'):
-		_build_bone_arrays(data)
+	#if data.has('rigged'):
+	#	_build_bone_arrays(data)
 
 	resource.path = path
 	resource.resource_name = mhclo.resource_name
