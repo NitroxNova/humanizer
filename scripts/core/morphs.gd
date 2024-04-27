@@ -182,7 +182,11 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 		if shapekeys.has(sk):
 			scale += bone_positions[sk][-1] * shapekeys[sk]
 			sum += shapekeys[sk]
-	skeleton.motion_scale = scale / sum
+	assert(sum <= 1)
+	if sum < 1:  # The rest of the weight is from the basis shape
+		scale += bone_positions['basis'][-1] * (1 - sum)
+	skeleton.motion_scale = scale 
+
 	# Reset skin resources
 	for mesh in meshes:
 		mesh.skin = skeleton.create_skin_from_rest_transforms()
