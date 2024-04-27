@@ -317,8 +317,6 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		root_node.collision_layer = _staticbody_layers
 		#await get_tree().create_timer(1).timeout
 
-	print(mi)
-	print(mi.mesh)
 	if human_config.components.has(&'main_collider') and not root_node is StaticBody3D:
 		var coll = main_collider.duplicate(true)
 		root_node.add_child(coll)
@@ -751,6 +749,14 @@ func _combine_meshes() -> ArrayMesh:
 			material = child.mesh.surface_get_material(0).duplicate(true)
 		var surface_arrays = child.mesh.surface_get_arrays(0)
 		var blend_shape_arrays = child.mesh.surface_get_blend_shape_arrays(0)
+		if new_mesh.get_blend_shape_count() != child.mesh.get_blend_shape_count():
+			if new_mesh.get_blend_shape_count() == 0:
+				#each surface needs to have the exact same number of shapekeys
+				for bs_id in child.mesh.get_blend_shape_count():
+					var bs_name = child.mesh.get_blend_shape_name(bs_id)
+					new_mesh.add_blend_shape(bs_name)
+			else:
+				printerr("inconsistent number of blend shapes")
 		var format = child.mesh.surface_get_format(0)
 		new_mesh.add_surface(
 			Mesh.PRIMITIVE_TRIANGLES, 
