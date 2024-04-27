@@ -51,7 +51,7 @@ var _save_path_valid: bool:
 		return true
 var bake_surface_name: String
 var new_shapekey_name: String = ''
-var new_shapekey_bone_data := {}
+var morph_data := {}
 
 var skin_color: Color = _DEFAULT_SKIN_COLOR:
 	set(value):
@@ -329,7 +329,9 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		_add_root_bone(sk)
 	if has_node('MorphDriver'):
 		var morph_driver = $MorphDriver.duplicate()
-		morph_driver.bone_data = $MorphDriver.bone_data
+		morph_driver.bone_positions = $MorphDriver.bone_positions
+		morph_driver.skeleton_motion_scale = $MorphDriver.skeleton_motion_scale
+		morph_driver.collider_shapes = $MorphDriver.collider_shapes
 		morph_driver.skeleton = sk
 		morph_driver.mesh_paths = [NodePath('../Avatar')] as Array[NodePath]
 		root_node.add_child(morph_driver)
@@ -611,7 +613,9 @@ func bake_surface() -> void:
 	mi.name = 'Baked-' + bake_surface_name
 
 	# Add new shapekeys entries from shapekey components
-	new_shapekey_bone_data = {}
+	morph_data['bone_positions'] = {}
+	morph_data['motion_scale'] = {}
+	morph_data['collider_shape'] = {}
 	if human_config.components.has(&'size_morphs') and human_config.components.has(&'age_morphs'):
 		# Use "average" as basis
 		human_config.shapekeys['muscle'] = 0.5
@@ -690,10 +694,11 @@ func bake_surface() -> void:
 			new_bs_array[Mesh.ARRAY_TANGENT] = PackedFloat32Array()
 			new_bs_array[Mesh.ARRAY_NORMAL] = PackedVector3Array()
 			set_shapekeys(new_shapekeys[shape_name])
-			new_shapekey_bone_data[shape_name] = []
+			morph_data['bone_positions'][shape_name] = []
 			for bone in skeleton.get_bone_count():
-				new_shapekey_bone_data[shape_name].append(skeleton.get_bone_pose_position(bone))
-			new_shapekey_bone_data[shape_name].append(skeleton.motion_scale)
+				morph_data['bone_positions'][shape_name].append(skeleton.get_bone_pose_position(bone))
+			morph_data['motion_scale'][shape_name] = skeleton.motion_scale
+			morph_data['collider_shape'][shape_name] = {&'center': main_collider.position.y, &'radius': main_collider.shape.radius, &'height': main_collider.shape.height}
 			for mesh_instance in _bake_meshes:
 				var sf_arrays = mesh_instance.mesh.surface_get_arrays(0)
 				new_bs_array[Mesh.ARRAY_VERTEX].append_array(sf_arrays[Mesh.ARRAY_VERTEX])
@@ -705,10 +710,12 @@ func bake_surface() -> void:
 		mi.mesh = baked_mesh
 		## then need to reset mesh to base shape
 		set_shapekeys(initial_shapekeys)
-		new_shapekey_bone_data['basis'] = []
+		morph_data['bone_positions']['basis'] = []
 		for bone in skeleton.get_bone_count():
-			new_shapekey_bone_data['basis'].append(skeleton.get_bone_pose_position(bone))
-		new_shapekey_bone_data['basis'].append(skeleton.motion_scale)
+			morph_data['bone_positions']['basis'].append(skeleton.get_bone_pose_position(bone))
+		morph_data['motion_scale']['basis'] = skeleton.motion_scale
+		morph_data['collider_shape']['basis'] = {&'center': main_collider.position.y, &'radius': main_collider.shape.radius, &'height': main_collider.shape.height}
+
 	# Finalize
 	set_shapekeys(human_config.shapekeys)
 	add_child(mi)
@@ -727,7 +734,9 @@ func bake_surface() -> void:
 			morph_driver = load("res://addons/humanizer/scenes/subscenes/morph_driver.tscn").instantiate()
 			morph_driver.meshes = [mi]
 			morph_driver.skeleton = skeleton
-			morph_driver.bone_data = new_shapekey_bone_data
+			morph_driver.bone_positions = morph_data.bone_positions
+			morph_driver.skeleton_motion_scale = morph_data.motion_scale
+			morph_driver.collider_shapes = morph_data.collider_shape
 			add_child(morph_driver)
 			morph_driver.owner = self
 			move_child(morph_driver, 0)

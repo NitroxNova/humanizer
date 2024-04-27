@@ -30,7 +30,11 @@ extends Node
 			update_shape()
 @export var mesh_paths : Array[NodePath]
 @export var skeleton : Skeleton3D
-@export var bone_data : Dictionary
+@export var bone_positions : Dictionary
+@export var skeleton_motion_scale : Dictionary
+@export var collider_shapes : Dictionary
+
+@onready var collider : CollisionShape3D = $'../MainCollider'
 var meshes: Array
 
 const AGE_KEYS = {&'baby': 0., &'child': 0.12, &'young': 0.25, &'old': 1.}
@@ -173,10 +177,10 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 		var sum := 0.
 		var pos := Vector3.ZERO
 		for sk in shapekeys:
-			if bone_data.has(sk):
-				pos += bone_data[sk][bone] * shapekeys[sk]
+			if bone_positions.has(sk):
+				pos += bone_positions[sk][bone] * shapekeys[sk]
 			else:
-				pos += bone_data['basis'][bone] * shapekeys[sk]
+				pos += bone_positions['basis'][bone] * shapekeys[sk]
 			sum += shapekeys[sk]
 		pos /= sum
 		skeleton.set_bone_pose_position(bone, pos)
@@ -184,14 +188,33 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 	# Adjust skeleton motion scale
 	var sum := 0.
 	var scale := 0.
-	for sk in bone_data:
-		if shapekeys.has(sk):
-			scale += bone_data[sk][-1] * shapekeys[sk]
-			sum += shapekeys[sk]
-	if sum < 1:  # The rest of the weight is from the basis shape
-		scale += bone_data['basis'][-1] * (1 - sum)
-	skeleton.motion_scale = scale 
-
+	if bone_positions.size() > 0:
+		for sk in shapekeys:
+			if skeleton_motion_scale.has(sk):
+				scale += skeleton_motion_scale[sk] * shapekeys[sk]
+				sum += shapekeys[sk]
+		if sum < 1:  # The rest of the weight is from the basis shape
+			scale += skeleton_motion_scale['basis'] * (1 - sum)
+		skeleton.motion_scale = scale 
+	# Adjust collider size
+	if collider_shapes.size() > 0:
+		sum = 0.
+		var height := 0.
+		var radius := 0.
+		var center := 0.
+		for sk in shapekeys:
+			if collider_shapes.has(sk):
+				height += collider_shapes[sk].height * shapekeys[sk]
+				radius += collider_shapes[sk].radius * shapekeys[sk]
+				center += collider_shapes[sk].center * shapekeys[sk]
+				sum += shapekeys[sk]
+		if sum < 1:
+			height += collider_shapes['basis'].height * (1 - sum)
+			radius += collider_shapes['basis'].radius * (1 - sum)
+			center += collider_shapes['basis'].center * (1 - sum)
+		collider.shape.radius = radius
+		collider.shape.height = height
+		collider.position.y = center
 	# Reset skin resources
 	for mesh in meshes:
 		mesh.skin = skeleton.create_skin_from_rest_transforms()
