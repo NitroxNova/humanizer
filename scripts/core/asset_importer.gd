@@ -21,7 +21,7 @@ func run(clean_only: bool = false) -> void:
 		for fl in OSPath.get_files(_asset_path):
 			if fl.get_extension() in ['res', 'tscn', 'tres']:
 				DirAccess.remove_absolute(fl)
-		_scan_path(_asset_path)
+		_scan_path_for_assets(_asset_path)
 	else:                  # Bulk import task
 		if not clean_only:
 			print('Bulk asset import')
@@ -48,9 +48,9 @@ func _clean_recursive(path: String) -> void:
 func _scan_recursive(path: String) -> void:
 	for dir in OSPath.get_dirs(path):
 		_scan_recursive(dir)
-	_scan_path(path)
+	_scan_path_for_assets(path)
 	
-func _scan_path(path: String) -> void:
+func _scan_path_for_assets(path: String) -> void:
 	if 'body_parts' in path:
 		asset_type = HumanizerRegistry.AssetType.BodyPart
 	elif 'clothes' in path:
@@ -66,7 +66,7 @@ func _scan_path(path: String) -> void:
 	
 	for file_name in OSPath.get_files(path):
 		if file_name.get_extension() == "mhclo":
-			var fl = file_name.get_file().rsplit('.', true, 1)[0]
+			var fl = file_name.get_file().get_basename()
 			var _mhclo := MHCLO.new()
 			_mhclo.parse_file(file_name)
 			var obj = _mhclo.obj_file_name
@@ -77,6 +77,12 @@ func _scan_path(path: String) -> void:
 			asset_data[fl]['mh2gd_index'] = obj_data.mh2gd_index
 	if asset_data.size() == 0:
 		return
+	
+	# Look for rigged meshes
+	for fl in asset_data:
+		var rigged_mesh = path.path_join(fl + '_rigged.glb')
+		if FileAccess.file_exists(rigged_mesh):
+			asset_data[fl]['rigged'] = rigged_mesh
 	
 	for dir in contents.dirs:
 		contents.files.append_array(OSPath.get_files(dir))
@@ -109,9 +115,9 @@ func _generate_material(path: String, textures: Dictionary) -> void:
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
 		if 'eyelash' in path.to_lower() or 'eyebrow' in path.to_lower() or 'hair' in path.to_lower():
 			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
-			#mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-			#mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
-			#mat.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT_WRAP
+			mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+			mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+			mat.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT_WRAP
 	
 	if textures.size() > 0:
 		var albedo := ''
@@ -166,6 +172,8 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	var mesh = data.mesh
 	var mh2gd_index = data.mh2gd_index
 	var mhclo = data.mhclo
+	if data.has('rigged'):
+		_build_bone_arrays(data)
 
 	resource.path = path
 	resource.resource_name = mhclo.resource_name
@@ -264,3 +272,40 @@ func build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh:
 	var shaded_mesh: ArrayMesh = MeshOperations.generate_normals_and_tangents(new_mesh)
 	mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(shaded_mesh)
 	return shaded_mesh
+
+func _build_bone_arrays(data: Dictionary) -> void:
+	var obj_arrays = (data.mesh as ArrayMesh).surface_get_arrays(0)
+	var glb = data.rigged
+	var gltf := GLTFDocument.new()
+	var state := GLTFState.new()
+	var error = gltf.append_from_file(glb, state)
+	if error != OK:
+		push_error('Failed to load glb : ' + glb)
+		return
+	var root = gltf.generate_scene(state)
+	var skeleton = root.get_child(0).get_child(0)
+	var glb_arrays = (skeleton.get_child(0) as ImporterMeshInstance3D).mesh.get_surface_arrays(0)
+	var glb_to_obj_idx := {}
+	var tol := 1e-4
+	
+	return
+	var omax := 0.
+	var gmax := 0.
+	# Build vertex index mapping
+	for i in obj_arrays[Mesh.ARRAY_VERTEX].size():
+		var vtx = obj_arrays[Mesh.ARRAY_VERTEX][i]
+		if vtx.y > omax:
+			omax = vtx.y
+		if not vtx in glb_to_obj_idx:
+			glb_to_obj_idx[i] = []
+		for j in glb_arrays[Mesh.ARRAY_VERTEX].size():
+			var gvtx = glb_arrays[Mesh.ARRAY_VERTEX][j]
+			if gvtx.y > gmax:
+				gmax = gvtx.y
+			if vtx.x - gvtx.x < tol and vtx.y - gvtx.y < tol and vtx.z - gvtx.z < tol:
+				glb_to_obj_idx[i].append(j)
+	
+	print(omax)
+	print(gmax)
+
+	

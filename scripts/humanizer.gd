@@ -51,6 +51,7 @@ var _save_path_valid: bool:
 		return true
 var bake_surface_name: String
 var new_shapekey_name: String = ''
+var new_shapekey_bone_positions := {}
 
 var skin_color: Color = _DEFAULT_SKIN_COLOR:
 	set(value):
@@ -214,6 +215,8 @@ func _deserialize() -> void:
 
 func reset_human() -> void:
 	new_shapekeys = {}
+	if has_node('MorphDriver'):
+		_delete_child_node($MorphDriver)
 	baked = false
 	_helper_vertex = shapekey_data.basis.duplicate(true)
 	for child in get_children():
@@ -289,6 +292,31 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		if _animator is AnimationTree and root_bone in ['Root']:
 			_animator.root_motion_track = '../' + sk.name + ":" + root_bone
 
+	root_node.name = human_name
+	var mi = MeshInstance3D.new()
+	mi.name = "MeshInstance3D"
+	mi.mesh = new_mesh
+	root_node.add_child(mi)
+	mi.owner = root_node
+	mi.skeleton = NodePath('../' + sk.name)
+	mi.skin = sk.create_skin_from_rest_transforms()
+	if root_node is StaticBody3D:
+		pass
+		mi.create_trimesh_collision()
+		## This only works on rest pose
+		## Need to bake mesh from current animation pose
+		var coll: CollisionShape3D = mi.get_child(0).get_child(0)
+		var new_coll := CollisionShape3D.new()
+		new_coll.shape = coll.shape.duplicate(true)
+		mi.get_child(0).queue_free()
+		root_node.add_child(new_coll)
+		new_coll.owner = root_node
+		new_coll.name = 'CollisionShape3D'
+		root_node.collision_layer = _staticbody_layers
+		#await get_tree().create_timer(1).timeout
+
+	print(mi)
+	print(mi.mesh)
 	if human_config.components.has(&'main_collider') and not root_node is StaticBody3D:
 		var coll = main_collider.duplicate(true)
 		root_node.add_child(coll)
@@ -299,29 +327,14 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		saccades.owner = root_node
 	if human_config.components.has(&'root_bone'):
 		_add_root_bone(sk)
-	
-	root_node.name = human_name
-	var mi = MeshInstance3D.new()
-	mi.name = "MeshInstance3D"
-	mi.mesh = new_mesh
-	root_node.add_child(mi)
-	mi.owner = root_node
-	mi.skeleton = NodePath('../' + sk.name)
-	mi.skin = sk.create_skin_from_rest_transforms()
-	if root_node is StaticBody3D:
-		mi.create_trimesh_collision()
-		## This only works on rest pose
-		## Need to manually create ConcavePolygon3DShape from posed mesh faces
-		var coll: CollisionShape3D = mi.get_child(0).get_child(0)
-		var new_coll := CollisionShape3D.new()
-		new_coll.shape = coll.shape.duplicate(true)
-		mi.get_child(0).queue_free()
-		root_node.add_child(new_coll)
-		new_coll.owner = root_node
-		new_coll.name = 'CollisionShape3D'
-		root_node.collision_layer = _staticbody_layers
-		#await get_tree().create_timer(1).timeout
-		
+	if has_node('MorphDriver'):
+		var morph_driver = $MorphDriver.duplicate()
+		morph_driver.bone_positions = $MorphDriver.bone_positions
+		morph_driver.skeleton = sk
+		morph_driver.meshes = [mi]
+		root_node.add_child(morph_driver)
+		morph_driver.owner = root_node
+			
 	scene.pack(root_node)
 
 	if not to_file:
@@ -582,16 +595,88 @@ func standard_bake() -> void:
 
 func bake_surface() -> void:
 	if bake_surface_name in [null, '']:
-		bake_surface_name = 'Surface0'
+		push_error('Please provide a surface name before baking')
 	for child in get_children():
 		if child.name == 'Baked-' + bake_surface_name:
-			printerr('Surface ' + bake_surface_name + ' already exists.  Choose a different name.')
+			push_error('Surface ' + bake_surface_name + ' already exists.  Choose a different name.')
 			return
+	if human_config.components.has(&'size_morphs') or human_config.components.has(&'age_morphs'):
+		if new_shapekeys.size() > 1:
+			push_error('Age and Size morphs can not be mixed with more than 1 custom shape')
+			return
+	
 	if atlas_resolution == 0:
 		atlas_resolution = HumanizerGlobalConfig.config.atlas_resolution
 	var mi: MeshInstance3D = HumanizerSurfaceCombiner.new(_bake_meshes, atlas_resolution).run()
 	mi.name = 'Baked-' + bake_surface_name
-	
+
+	# Add new shapekeys entries from shapekey components
+	new_shapekey_bone_positions = {}
+	if human_config.components.has(&'size_morphs') and human_config.components.has(&'age_morphs'):
+		# Use "average" as basis
+		human_config.shapekeys['muscle'] = 0.5
+		human_config.shapekeys['weight'] = 0.5
+		human_config.shapekeys['age'] = 0.25
+		for sk in new_shapekeys:
+			new_shapekeys[sk]['muscle'] = 0.5
+			new_shapekeys[sk]['weight'] = 0.5
+			new_shapekeys[sk]['age'] = 0.25
+		var new_sks = new_shapekeys.duplicate()
+		for age in HumanizerMorphs.AGE_KEYS:
+			for muscle in HumanizerMorphs.MUSCLE_KEYS:
+				for weight in HumanizerMorphs.WEIGHT_KEYS:
+					if muscle == 'avgmuscle' and weight == 'avgweight' and age == 'young':
+						continue # Basis
+					var key = '-'.join([muscle, weight, age])
+					var shape = human_config.shapekeys.duplicate(true)
+					shape['muscle'] = HumanizerMorphs.MUSCLE_KEYS[muscle]
+					shape['weight'] = HumanizerMorphs.WEIGHT_KEYS[weight]
+					shape['age'] = HumanizerMorphs.AGE_KEYS[age]
+					new_shapekeys['base-' + key] = shape
+					for sk_name in new_sks:
+						shape = new_sks[sk_name].duplicate(true)
+						shape['muscle'] = HumanizerMorphs.MUSCLE_KEYS[muscle]
+						shape['weight'] = HumanizerMorphs.WEIGHT_KEYS[weight]
+						shape['age'] = HumanizerMorphs.AGE_KEYS[age]
+						new_shapekeys[sk_name + '-' + key] = shape
+	elif human_config.components.has(&'size_morphs'):
+		human_config.shapekeys['muscle'] = 0.5
+		human_config.shapekeys['weight'] = 0.5
+		for sk in new_shapekeys:
+			new_shapekeys[sk]['muscle'] = 0.5
+			new_shapekeys[sk]['weight'] = 0.5
+		var new_sks = new_shapekeys.duplicate()
+		for muscle in HumanizerMorphs.MUSCLE_KEYS:
+			for weight in HumanizerMorphs.WEIGHT_KEYS:
+				if muscle == 'avgmuscle' and weight == 'avgweight':
+					continue # Basis
+				var key = '-'.join([muscle, weight])
+				var shape = human_config.shapekeys.duplicate(true)
+				shape['muscle'] = HumanizerMorphs.MUSCLE_KEYS[muscle]
+				shape['weight'] = HumanizerMorphs.WEIGHT_KEYS[weight]
+				new_shapekeys['base-' + key] = shape
+				for sk_name in new_sks:
+					shape = new_sks[sk_name].duplicate(true)
+					shape['muscle'] = HumanizerMorphs.MUSCLE_KEYS[muscle]
+					shape['weight'] = HumanizerMorphs.WEIGHT_KEYS[weight]
+					new_shapekeys[sk_name + '-' + key] = shape
+	elif human_config.components.has(&'age_morphs'):
+		human_config.shapekeys['age'] = 0.25
+		for sk in new_shapekeys:
+			new_shapekeys[sk]['age'] = 0.25
+		var new_sks = new_shapekeys.duplicate()
+		for age in HumanizerMorphs.AGE_KEYS:
+			if age == 'young':
+				continue 
+			var shape = human_config.shapekeys.duplicate(true)
+			shape['age'] = HumanizerMorphs.AGE_KEYS[age]
+			new_shapekeys['base-' + age] = shape
+			for sk_name in new_sks:
+				shape = new_sks[sk_name].duplicate(true)
+				shape['age'] = HumanizerMorphs.AGE_KEYS[age]
+				new_shapekeys[sk_name + '-' + age] = shape
+
+	# Add new shapekeys to mesh arrays
 	if not new_shapekeys.is_empty():
 		var initial_shapekeys = human_config.shapekeys.duplicate(true)
 		var bs_arrays = []
@@ -604,7 +689,11 @@ func bake_surface() -> void:
 			new_bs_array[Mesh.ARRAY_VERTEX] = PackedVector3Array()
 			new_bs_array[Mesh.ARRAY_TANGENT] = PackedFloat32Array()
 			new_bs_array[Mesh.ARRAY_NORMAL] = PackedVector3Array()
-			set_shapekeys(new_shapekeys[shape_name].mesh)
+			set_shapekeys(new_shapekeys[shape_name])
+			new_shapekey_bone_positions[shape_name] = []
+			for bone in skeleton.get_bone_count():
+				new_shapekey_bone_positions[shape_name].append(skeleton.get_bone_pose_position(bone))
+			new_shapekey_bone_positions[shape_name].append(skeleton.motion_scale)
 			for mesh_instance in _bake_meshes:
 				var sf_arrays = mesh_instance.mesh.surface_get_arrays(0)
 				new_bs_array[Mesh.ARRAY_VERTEX].append_array(sf_arrays[Mesh.ARRAY_VERTEX])
@@ -616,7 +705,12 @@ func bake_surface() -> void:
 		mi.mesh = baked_mesh
 		## then need to reset mesh to base shape
 		set_shapekeys(initial_shapekeys)
-	
+		new_shapekey_bone_positions['basis'] = []
+		for bone in skeleton.get_bone_count():
+			new_shapekey_bone_positions['basis'].append(skeleton.get_bone_pose_position(bone))
+		new_shapekey_bone_positions['basis'].append(skeleton.motion_scale)
+	# Finalize
+	set_shapekeys(human_config.shapekeys)
 	add_child(mi)
 	mi.owner = self
 	mi.skeleton = '../' + skeleton.name
@@ -625,6 +719,21 @@ func bake_surface() -> void:
 		mesh.queue_free()
 	_bake_meshes = []
 	baked = true
+
+	# Add morph driver if necessary
+	if new_shapekeys.size() > 0:
+		var morph_driver : Node
+		if not has_node('MorphDriver'):
+			morph_driver = load("res://addons/humanizer/scenes/subscenes/morph_driver.tscn").instantiate()
+			morph_driver.meshes = [mi]
+			morph_driver.skeleton = skeleton
+			morph_driver.bone_positions = new_shapekey_bone_positions
+			add_child(morph_driver)
+			morph_driver.owner = self
+			move_child(morph_driver, 0)
+		else:
+			morph_driver = $'MorphDriver'
+			morph_driver.meshes.append(mi)
 
 func _combine_meshes() -> ArrayMesh:
 	var new_mesh = ImporterMesh.new()
@@ -664,7 +773,7 @@ func _recalculate_normals() -> void:
 	for mesh in get_children():
 		if not mesh is MeshInstance3D:
 			continue
-		if not mesh.name.begins_with("Baked"):
+		if not mesh.name.begins_with("Baked-"):
 			mesh.mesh = MeshOperations.generate_normals_and_tangents(mesh.mesh)
 
 func set_shapekeys(shapekeys: Dictionary) -> void:
@@ -745,12 +854,7 @@ func add_shapekey() -> void:
 	if new_shapekeys.has(new_shapekey_name):
 		printerr('A new shape with this name already exists')
 		return
-	new_shapekeys[new_shapekey_name] = {
-		'skeleton': [],
-		'mesh': human_config.shapekeys.duplicate(true)
-	}
-	for bone in skeleton.get_bone_count():
-		new_shapekeys[new_shapekey_name].skeleton.append(skeleton.get_bone_global_rest(bone))
+	new_shapekeys[new_shapekey_name] = human_config.shapekeys.duplicate(true)
 	notify_property_list_changed()
 
 #### Materials ####
@@ -1087,7 +1191,7 @@ func set_component_state(enabled: bool, component: StringName) -> void:
 				set_rig(human_config.rig)
 
 func _add_main_collider() -> void:
-	if get_node_or_null('MainCollider') != null:
+	if has_node('MainCollider'):
 		main_collider = $MainCollider
 	else:
 		main_collider = CollisionShape3D.new()
