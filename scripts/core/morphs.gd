@@ -28,8 +28,10 @@ extends Node
 		weight = v
 		if size_enabled:
 			update_shape()
-@export var meshes: Array
-@export var skeleton: Skeleton3D
+@export var mesh_paths : Array[NodePath]
+@export var skeleton : Skeleton3D
+@export var bone_data : Dictionary
+var meshes: Array
 
 const AGE_KEYS = {&'baby': 0., &'child': 0.12, &'young': 0.25, &'old': 1.}
 const MUSCLE_KEYS = {&'minmuscle': 0., &'avgmuscle': 0.5, &'maxmuscle': 1.}
@@ -38,13 +40,17 @@ const WEIGHT_KEYS = {&'minweight': 0., &'avgweight': 0.5, &'maxweight': 1.}
 var age_enabled := false
 var size_enabled := false
 var custom_shape : StringName = &''
-var bone_positions : Dictionary
+
 
 
 func _enter_tree() -> void:
 	initialize()
 
 func initialize() -> void:
+	if not mesh_paths.is_empty():
+		meshes = []
+		for path in mesh_paths:
+			meshes.append(get_node(path))
 	age_enabled = false
 	size_enabled = false
 	custom_shape = ''
@@ -167,10 +173,10 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 		var sum := 0.
 		var pos := Vector3.ZERO
 		for sk in shapekeys:
-			if bone_positions.has(sk):
-				pos += bone_positions[sk][bone] * shapekeys[sk]
+			if bone_data.has(sk):
+				pos += bone_data[sk][bone] * shapekeys[sk]
 			else:
-				pos += bone_positions['basis'][bone] * shapekeys[sk]
+				pos += bone_data['basis'][bone] * shapekeys[sk]
 			sum += shapekeys[sk]
 		pos /= sum
 		skeleton.set_bone_pose_position(bone, pos)
@@ -178,13 +184,12 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 	# Adjust skeleton motion scale
 	var sum := 0.
 	var scale := 0.
-	for sk in bone_positions:
+	for sk in bone_data:
 		if shapekeys.has(sk):
-			scale += bone_positions[sk][-1] * shapekeys[sk]
+			scale += bone_data[sk][-1] * shapekeys[sk]
 			sum += shapekeys[sk]
-	assert(sum <= 1)
 	if sum < 1:  # The rest of the weight is from the basis shape
-		scale += bone_positions['basis'][-1] * (1 - sum)
+		scale += bone_data['basis'][-1] * (1 - sum)
 	skeleton.motion_scale = scale 
 
 	# Reset skin resources

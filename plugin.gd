@@ -138,5 +138,5 @@ func _purge_assets() -> void:
 	HumanizerAssetImporter.new().run(true)
 	
 func _test() -> void:
-	print("test")
+	print('test')
 #endregion
