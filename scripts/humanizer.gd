@@ -147,10 +147,10 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 
 
 func _ready() -> void:
-	if human_config == null:
-		human_config = HumanConfig.new()
 	if body_mesh == null and has_node("Human"):
 		body_mesh = $Human
+	if human_config == null:
+		human_config = HumanConfig.new()
 	for child in get_children():
 		if child.name.begins_with('Baked-'):
 			baked = true
