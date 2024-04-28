@@ -64,7 +64,7 @@ func _process(delta) -> void:
 func _generate_human() -> void:
 	print('starting new human')
 	var human = Humanizer.new()
-	human.human_config = HumanConfig.new()
+	human.load_human()
 	
 	print('randomizing')
 	randomizer.human = human
