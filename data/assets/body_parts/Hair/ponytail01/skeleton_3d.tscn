@@ -1,0 +1,39 @@
+[gd_scene load_steps=2 format=3 uid="uid://2gqm55qdlh52"]
+
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_oege7"]
+
+[node name="Skeleton3D" type="Skeleton3D"]
+bones/0/name = "Bone"
+bones/0/parent = -1
+bones/0/rest = Transform3D(1, -8.88178e-15, 2.38419e-07, -4.70306e-08, -0.980351, 0.197261, 2.33734e-07, -0.197261, -0.980351, 3.53856e-16, 1.59363, -0.0666207)
+bones/0/enabled = true
+bones/0/position = Vector3(3.53856e-16, 1.59363, -0.0666207)
+bones/0/rotation = Quaternion(-0.995076, 1.18158e-08, -1.18622e-07, 0.0991185)
+bones/0/scale = Vector3(1, 1, 1)
+bones/1/name = "Bone.001"
+bones/1/parent = 0
+bones/1/rest = Transform3D(1, 4.57767e-08, 4.43587e-09, -4.57767e-08, 0.981395, 0.192001, 4.43585e-09, -0.192001, 0.981395, 4.51596e-17, 0.0868903, 0)
+bones/1/enabled = true
+bones/1/position = Vector3(4.51596e-17, 0.0868903, 0)
+bones/1/rotation = Quaternion(-0.0964504, 5.0194e-15, -2.29956e-08, 0.995338)
+bones/1/scale = Vector3(1, 1, 1)
+bones/2/name = "Bone.002"
+bones/2/parent = 1
+bones/2/rest = Transform3D(1, 3.58852e-08, 2.71608e-09, -3.58852e-08, 0.988608, 0.150514, 2.71608e-09, -0.150514, 0.988608, -1.41361e-16, 0.0837509, 9.31323e-10)
+bones/2/enabled = true
+bones/2/position = Vector3(-1.41361e-16, 0.0837509, 9.31323e-10)
+bones/2/rotation = Quaternion(-0.075472, 1.6701e-16, -1.79939e-08, 0.997148)
+bones/2/scale = Vector3(1, 1, 1)
+bones/3/name = "neutral_bone"
+bones/3/parent = -1
+bones/3/rest = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
+bones/3/enabled = true
+bones/3/position = Vector3(0, 0, 0)
+bones/3/rotation = Quaternion(-0.707107, 0, 0, 0.707107)
+bones/3/scale = Vector3(1, 1, 1)
+
+[node name="_MeshInstance3D_278398" type="MeshInstance3D" parent="."]
+visible = false
+cast_shadow = 0
+mesh = SubResource("ImmediateMesh_oege7")
+skeleton = NodePath("")
