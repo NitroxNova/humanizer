@@ -109,7 +109,7 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 		if human_config.rig == '':
 			human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 		# This gets set before _ready causing issues so make sure we're loaded
-		if scene_loaded:
+		if not Engine.is_editor_hint() or scene_loaded:
 			_load_human()
 ## The new shapekeys which have been defined for this human.  These will survive the baking process.
 @export var new_shapekeys: Dictionary = {}
