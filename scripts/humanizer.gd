@@ -996,9 +996,7 @@ func set_rig(rig_name: String) -> void:
 	_add_child_node(skeleton)
 	skeleton.unique_name_in_owner = true
 	# Set new mesh
-	var mat = body_mesh.get_surface_override_material(0)
 	_set_body_mesh(skinned_mesh)
-	body_mesh.set_surface_override_material(0, mat)
 	body_mesh.skeleton = '../' + skeleton.name
 	_adjust_skeleton()
 	_reset_animator()
