@@ -14,7 +14,7 @@ func _parse_category(human, category):
 	
 	# Header Section
 	scene.get_node('%ResetButton').pressed.connect(func(): human.human_config = HumanConfig.new())
-	scene.get_node('%RigOptionButton').human = human
+	scene.get_node('%PresetsOptionButton').human = human
 
 	## Color pickers
 	scene.get_node('%SkinColorPicker').color = human.skin_color
@@ -58,6 +58,7 @@ func _parse_category(human, category):
 	scene.get_node('%HumanName').text = human.human_name
 
 	## Assets
+	scene.get_node('%RigOptionButton').human = human
 	scene.get_node('%HideBodyVerticesButton').pressed.connect(human.hide_body_vertices)
 	scene.get_node('%UnHideBodyVerticesButton').pressed.connect(human.unhide_body_vertices)
 	scene.get_node('%HideClothesVerticesButton').pressed.connect(human.hide_clothes_vertices)

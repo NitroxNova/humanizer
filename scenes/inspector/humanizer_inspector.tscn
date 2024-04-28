@@ -1,9 +1,30 @@
-[gd_scene load_steps=7 format=3 uid="uid://bjevkufa7lstr"]
+[gd_scene load_steps=8 format=3 uid="uid://bjevkufa7lstr"]
 
 [ext_resource type="Theme" uid="uid://ckdypew3dhoqq" path="res://addons/humanizer/data/resources/humanizer_inspector_theme.tres" id="1_i577l"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/inspector/skins_options.gd" id="1_teqt2"]
 [ext_resource type="PackedScene" uid="uid://btqkb1j3i8dm2" path="res://addons/humanizer/scenes/inspector/body_parts_inspector_container.tscn" id="2_cyqhb"]
 [ext_resource type="PackedScene" uid="uid://bjun3ufto0k57" path="res://addons/humanizer/scenes/inspector/clothes_inspector_container.tscn" id="3_tceog"]
+
+[sub_resource type="GDScript" id="GDScript_s6oci"]
+script/source = "@tool
+extends OptionButton
+
+var human : Humanizer:
+	set(value):
+		human = value
+		set_options()
+
+func set_options():
+	for path in HumanizerGlobalConfig.config.asset_import_paths:
+		for fl in OSPath.get_files(path.path_join('presets')):
+			add_item(fl.get_file().get_basename())
+			set_item_metadata(item_count - 1, fl)
+	item_selected.connect(_load_preset)
+	
+func _load_preset(idx) -> void:
+	print('loading preset : ' + get_item_metadata(idx))
+	human.human_config = load(get_item_metadata(idx))
+"
 
 [sub_resource type="GDScript" id="GDScript_5ptqy"]
 script/source = "@tool
@@ -91,11 +112,22 @@ layout_mode = 2
 tooltip_text = "Reset all configuration settings and start over with the base mesh only"
 text = "Reset Human"
 
-[node name="TPoseButton" type="Button" parent="VBoxContainer"]
-unique_name_in_owner = true
-visible = false
+[node name="HBoxContainer4" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
-text = "Set T Pose As Rest"
+
+[node name="Label5" type="Label" parent="VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+text = "Presets : "
+
+[node name="PresetsOptionButton" type="OptionButton" parent="VBoxContainer/HBoxContainer4"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+item_count = 1
+selected = 0
+popup/item_0/text = "None"
+popup/item_0/id = 0
+script = SubResource("GDScript_s6oci")
 
 [node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
 layout_mode = 2
