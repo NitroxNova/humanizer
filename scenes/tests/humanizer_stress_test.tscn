@@ -64,6 +64,10 @@ func _process(delta) -> void:
 func _generate_human() -> void:
 	print('starting new human')
 	var human = Humanizer.new()
+	
+	## If the human was in the scene tree we could just set the human_config resource 
+	## and it would call load human.  Since we are not in the scene tree we have to call
+	## it directly
 	human.load_human()
 	
 	print('randomizing')
