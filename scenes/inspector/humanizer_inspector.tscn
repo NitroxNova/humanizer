@@ -22,7 +22,7 @@ func set_options():
 	item_selected.connect(_load_preset)
 	
 func _load_preset(idx) -> void:
-	print('loading preset : ' + get_item_metadata(idx))
+	print('loading HumanConfig preset : ' + get_item_metadata(idx))
 	human.human_config = load(get_item_metadata(idx))
 "
 
@@ -125,7 +125,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 item_count = 1
 selected = 0
-popup/item_0/text = "None"
+popup/item_0/text = "Select to Load"
 popup/item_0/id = 0
 script = SubResource("GDScript_s6oci")
 
