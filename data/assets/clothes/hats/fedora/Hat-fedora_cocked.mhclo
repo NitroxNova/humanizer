@@ -17,6 +17,7 @@ uuid 4cd07df0-831a-401f-86de-77a7d5e28142
 basemesh hm08
 tag MakeHuman™
 tag Hat
+tag Head
 
 name Fedora-Cocked
 obj_file fedora_cocked.obj

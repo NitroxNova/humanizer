@@ -1,8 +1,8 @@
 [gd_scene load_steps=3 format=3 uid="uid://betpd1oub3ric"]
 
-[ext_resource type="ArrayMesh" uid="uid://cate1mwyvjgeo" path="res://addons/humanizer/data/assets/body_parts/Teeth/basic_teeth/Teeth02_mesh.tres" id="1_3ca65"]
-[ext_resource type="Material" uid="uid://0x3o2v1moiru" path="res://addons/humanizer/data/assets/body_parts/Teeth/basic_teeth/basic_teeth_material.tres" id="2_k4kua"]
+[ext_resource type="ArrayMesh" uid="uid://ck518bh3if42d" path="res://addons/humanizer/data/assets/body_parts/Teeth/basic_teeth/Teeth02_mesh.res" id="1_y6udn"]
+[ext_resource type="Material" uid="uid://deac425jarknb" path="res://addons/humanizer/data/assets/body_parts/Teeth/basic_teeth/basic_teeth_material.res" id="2_1mlsq"]
 
 [node name="Teeth02" type="MeshInstance3D"]
-mesh = ExtResource("1_3ca65")
-surface_material_override/0 = ExtResource("2_k4kua")
+mesh = ExtResource("1_y6udn")
+surface_material_override/0 = ExtResource("2_1mlsq")

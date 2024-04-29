@@ -1,8 +1,8 @@
 [gd_scene load_steps=3 format=3 uid="uid://cesvo08f25kdk"]
 
-[ext_resource type="ArrayMesh" uid="uid://dd32642aiand4" path="res://addons/humanizer/data/assets/body_parts/Hair/bob01/Bob01_mesh.tres" id="1_gqcpm"]
-[ext_resource type="Material" uid="uid://dbdc1d4ugesaw" path="res://addons/humanizer/data/assets/body_parts/Hair/bob01/bob01_material.tres" id="2_1r4p7"]
+[ext_resource type="ArrayMesh" uid="uid://bdch35svp2qxa" path="res://addons/humanizer/data/assets/body_parts/Hair/bob01/Bob01_mesh.res" id="1_02jur"]
+[ext_resource type="Material" uid="uid://bxe32g5nqt68p" path="res://addons/humanizer/data/assets/body_parts/Hair/bob01/bob01_material.res" id="2_080lc"]
 
 [node name="Bob01" type="MeshInstance3D"]
-mesh = ExtResource("1_gqcpm")
-surface_material_override/0 = ExtResource("2_1r4p7")
+mesh = ExtResource("1_02jur")
+surface_material_override/0 = ExtResource("2_080lc")
