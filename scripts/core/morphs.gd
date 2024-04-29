@@ -45,7 +45,18 @@ var age_enabled := false
 var size_enabled := false
 var custom_shape : StringName = &''
 
-
+func _validate_property(property: Dictionary) -> void:
+	if property.name == 'weight' and not size_enabled:
+		property.usage = PROPERTY_USAGE_NO_EDITOR
+	if property.name == 'muscle' and not size_enabled:
+		property.usage = PROPERTY_USAGE_NO_EDITOR
+	if property.name == 'age' and not age_enabled:
+		property.usage = PROPERTY_USAGE_NO_EDITOR
+	if property.name == 'custom_shape_value' and custom_shape == '':
+		property.usage = PROPERTY_USAGE_NO_EDITOR
+	if property.name in ['mesh_paths', 'skeleton', 'bone_positions', 'skeleton_motion_scale', 'collider_shapes']:
+		property.usage |= PROPERTY_USAGE_NO_EDITOR
+		property.usage &= ~PROPERTY_USAGE_EDITOR
 
 func _enter_tree() -> void:
 	initialize()

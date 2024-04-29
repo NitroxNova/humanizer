@@ -84,11 +84,6 @@ func fill_table(config: HumanConfig) -> void:
 			if texture_option_buttons[slot].get_item_text(option) == config.body_part_materials[slot]:
 				texture_option_buttons[slot].selected = option
 			
-func reset() -> void:
-	for slot in HumanizerGlobalConfig.config.body_part_slots:
-		(asset_option_buttons[slot] as OptionButton).selected = 0
-		(texture_option_buttons[slot] as OptionButton).selected = -1
-
 func _item_selected(index: int, slot: String):
 	var options = asset_option_buttons[slot]
 	var texture_options = texture_option_buttons[slot]

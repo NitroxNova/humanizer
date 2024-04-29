@@ -98,7 +98,7 @@ func _parse_category(human, category):
 			continue
 		sliders[cat].sort()
 		var button = Button.new()
-		button.text = cat.replace('RaceAge', 'Race & Age').replace('MuscleWeight', 'Muscle & Weight')
+		button.text = cat
 		button.name = cat + 'Button'
 		var cat_container = cat_scene.instantiate()
 		cat_container.name = cat + 'Container'
