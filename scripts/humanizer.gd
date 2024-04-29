@@ -99,7 +99,10 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 			var mesh = get_node(human_config.body_parts[slot].resource_name)
 			mesh.material_config.overlays[1].color = eye_color
 
+## The meshes selected to be baked to a new surface
 @export var _bake_meshes: Array[MeshInstance3D]
+## The new shapekeys which have been defined for this human.  These will survive the baking process.
+@export var _new_shapekeys: Dictionary = {}
 
 @export_category("Humanizer Node Settings")
 ## This resource stores all the data necessary to build the human model
@@ -111,8 +114,6 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 		# This gets set before _ready causing issues so make sure we're loaded
 		if scene_loaded:
 			load_human()
-## The new shapekeys which have been defined for this human.  These will survive the baking process.
-@export var new_shapekeys: Dictionary = {}
 
 @export_group('Node Overrides')
 ## The root node type for baked humans
@@ -216,7 +217,7 @@ func _deserialize() -> void:
 	hide_body_vertices()
 
 func reset_human() -> void:
-	new_shapekeys = {}
+	_new_shapekeys = {}
 	if has_node('MorphDriver'):
 		_delete_child_node($MorphDriver)
 	baked = false
@@ -603,14 +604,9 @@ func bake_surface() -> void:
 			push_error('Surface ' + bake_surface_name + ' already exists.  Choose a different name.')
 			return
 	if human_config.components.has(&'size_morphs') or human_config.components.has(&'age_morphs'):
-		if new_shapekeys.size() > 1:
+		if _new_shapekeys.size() > 1:
 			push_error('Age and Size morphs can not be mixed with more than 1 custom shape')
 			return
-	
-	if atlas_resolution == 0:
-		atlas_resolution = HumanizerGlobalConfig.config.atlas_resolution
-	var mi: MeshInstance3D = HumanizerSurfaceCombiner.new(_bake_meshes, atlas_resolution).run()
-	mi.name = 'Baked-' + bake_surface_name
 
 	# Add new shapekeys entries from shapekey components
 	morph_data['bone_positions'] = {}
@@ -621,11 +617,11 @@ func bake_surface() -> void:
 		human_config.shapekeys['muscle'] = 0.5
 		human_config.shapekeys['weight'] = 0.5
 		human_config.shapekeys['age'] = 0.25
-		for sk in new_shapekeys:
-			new_shapekeys[sk]['muscle'] = 0.5
-			new_shapekeys[sk]['weight'] = 0.5
-			new_shapekeys[sk]['age'] = 0.25
-		var new_sks = new_shapekeys.duplicate()
+		for sk in _new_shapekeys:
+			_new_shapekeys[sk]['muscle'] = 0.5
+			_new_shapekeys[sk]['weight'] = 0.5
+			_new_shapekeys[sk]['age'] = 0.25
+		var new_sks = _new_shapekeys.duplicate()
 		for age in HumanizerMorphs.AGE_KEYS:
 			for muscle in HumanizerMorphs.MUSCLE_KEYS:
 				for weight in HumanizerMorphs.WEIGHT_KEYS:
@@ -636,20 +632,20 @@ func bake_surface() -> void:
 					shape['muscle'] = HumanizerMorphs.MUSCLE_KEYS[muscle]
 					shape['weight'] = HumanizerMorphs.WEIGHT_KEYS[weight]
 					shape['age'] = HumanizerMorphs.AGE_KEYS[age]
-					new_shapekeys['base-' + key] = shape
+					_new_shapekeys['base-' + key] = shape
 					for sk_name in new_sks:
 						shape = new_sks[sk_name].duplicate(true)
 						shape['muscle'] = HumanizerMorphs.MUSCLE_KEYS[muscle]
 						shape['weight'] = HumanizerMorphs.WEIGHT_KEYS[weight]
 						shape['age'] = HumanizerMorphs.AGE_KEYS[age]
-						new_shapekeys[sk_name + '-' + key] = shape
+						_new_shapekeys[sk_name + '-' + key] = shape
 	elif human_config.components.has(&'size_morphs'):
 		human_config.shapekeys['muscle'] = 0.5
 		human_config.shapekeys['weight'] = 0.5
-		for sk in new_shapekeys:
-			new_shapekeys[sk]['muscle'] = 0.5
-			new_shapekeys[sk]['weight'] = 0.5
-		var new_sks = new_shapekeys.duplicate()
+		for sk in _new_shapekeys:
+			_new_shapekeys[sk]['muscle'] = 0.5
+			_new_shapekeys[sk]['weight'] = 0.5
+		var new_sks = _new_shapekeys.duplicate()
 		for muscle in HumanizerMorphs.MUSCLE_KEYS:
 			for weight in HumanizerMorphs.WEIGHT_KEYS:
 				if muscle == 'avgmuscle' and weight == 'avgweight':
@@ -658,42 +654,51 @@ func bake_surface() -> void:
 				var shape = human_config.shapekeys.duplicate(true)
 				shape['muscle'] = HumanizerMorphs.MUSCLE_KEYS[muscle]
 				shape['weight'] = HumanizerMorphs.WEIGHT_KEYS[weight]
-				new_shapekeys['base-' + key] = shape
+				_new_shapekeys['base-' + key] = shape
 				for sk_name in new_sks:
 					shape = new_sks[sk_name].duplicate(true)
 					shape['muscle'] = HumanizerMorphs.MUSCLE_KEYS[muscle]
 					shape['weight'] = HumanizerMorphs.WEIGHT_KEYS[weight]
-					new_shapekeys[sk_name + '-' + key] = shape
+					_new_shapekeys[sk_name + '-' + key] = shape
 	elif human_config.components.has(&'age_morphs'):
 		human_config.shapekeys['age'] = 0.25
-		for sk in new_shapekeys:
-			new_shapekeys[sk]['age'] = 0.25
-		var new_sks = new_shapekeys.duplicate()
+		for sk in _new_shapekeys:
+			_new_shapekeys[sk]['age'] = 0.25
+		var new_sks = _new_shapekeys.duplicate()
 		for age in HumanizerMorphs.AGE_KEYS:
 			if age == 'young':
 				continue 
 			var shape = human_config.shapekeys.duplicate(true)
 			shape['age'] = HumanizerMorphs.AGE_KEYS[age]
-			new_shapekeys['base-' + age] = shape
+			_new_shapekeys['base-' + age] = shape
 			for sk_name in new_sks:
 				shape = new_sks[sk_name].duplicate(true)
 				shape['age'] = HumanizerMorphs.AGE_KEYS[age]
-				new_shapekeys[sk_name + '-' + age] = shape
+				_new_shapekeys[sk_name + '-' + age] = shape
+
+	set_shapekeys(human_config.shapekeys) ## To get correct shapes on basis	
+	if atlas_resolution == 0:
+		atlas_resolution = HumanizerGlobalConfig.config.atlas_resolution
+	var mi: MeshInstance3D = HumanizerSurfaceCombiner.new(_bake_meshes, atlas_resolution).run()
+	mi.name = 'Baked-' + bake_surface_name
 
 	# Add new shapekeys to mesh arrays
-	if not new_shapekeys.is_empty():
+	if not _new_shapekeys.is_empty():
+		for sk in human_config.shapekeys:
+			if human_config.shapekeys[sk] != 0:
+				print(sk, ' ', human_config.shapekeys[sk])
 		var initial_shapekeys = human_config.shapekeys.duplicate(true)
 		var bs_arrays = []
 		var baked_mesh = ArrayMesh.new()
 		baked_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
-		for shape_name in new_shapekeys:
+		for shape_name in _new_shapekeys:
 			baked_mesh.add_blend_shape(shape_name)
 			var new_bs_array = []
 			new_bs_array.resize(Mesh.ARRAY_MAX)
 			new_bs_array[Mesh.ARRAY_VERTEX] = PackedVector3Array()
 			new_bs_array[Mesh.ARRAY_TANGENT] = PackedFloat32Array()
 			new_bs_array[Mesh.ARRAY_NORMAL] = PackedVector3Array()
-			set_shapekeys(new_shapekeys[shape_name])
+			set_shapekeys(_new_shapekeys[shape_name])
 			morph_data['bone_positions'][shape_name] = []
 			for bone in skeleton.get_bone_count():
 				morph_data['bone_positions'][shape_name].append(skeleton.get_bone_pose_position(bone))
@@ -728,7 +733,7 @@ func bake_surface() -> void:
 	baked = true
 
 	# Add morph driver if necessary
-	if new_shapekeys.size() > 0:
+	if _new_shapekeys.size() > 0:
 		var morph_driver : Node
 		if not has_node('MorphDriver'):
 			morph_driver = load("res://addons/humanizer/scenes/subscenes/morph_driver.tscn").instantiate()
@@ -868,10 +873,10 @@ func add_shapekey() -> void:
 	if new_shapekey_name in ['', null]:
 		printerr('Invalid shapekey name')
 		return
-	if new_shapekeys.has(new_shapekey_name):
+	if _new_shapekeys.has(new_shapekey_name):
 		printerr('A new shape with this name already exists')
 		return
-	new_shapekeys[new_shapekey_name] = human_config.shapekeys.duplicate(true)
+	_new_shapekeys[new_shapekey_name] = human_config.shapekeys.duplicate(true)
 	notify_property_list_changed()
 
 #### Materials ####
@@ -1006,7 +1011,7 @@ func set_rig(rig_name: String) -> void:
 	for bp in human_config.body_parts.values():
 		_add_bone_weights(bp)
 	
-	new_shapekeys = {}
+	_new_shapekeys = {}
 	if human_config.components.has(&'ragdoll'):
 		set_component_state(false, &'ragdoll')
 		set_component_state(true, &'ragdoll')
