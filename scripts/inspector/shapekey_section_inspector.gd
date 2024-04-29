@@ -14,7 +14,7 @@ func _ready() -> void:
 
 	for key in shapekeys:
 		var label = Label.new()
-		label.text = key
+		label.text = key.replace('custom_', '').replace('Custom_', '').replace('custom-', '').replace('Custom-', '')
 		%GridContainer.add_child(label)
 		
 		var slider := HSlider.new()

@@ -35,6 +35,7 @@ func run():
 	var file := FileAccess.open("res://addons/humanizer/data/resources/shapekeys.dat", FileAccess.WRITE)
 	file.store_var(shapekey_data)
 	file.close()
+	HumanizerUtils._shapekey_data = HumanizerUtils.get_shapekey_data()
 	print('Finished collecting shapekey data')
 
 func _process_shapekey(path: String):

@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="2_s4tpg"]
 
 [sub_resource type="Resource" id="Resource_bley6"]
-resource_name = "overlay_iris"
+resource_name = "overlay_iris_albedo"
 script = ExtResource("1_h2ada")
 albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/overlay_iris_albedo.png"
 normal_texture_path = ""

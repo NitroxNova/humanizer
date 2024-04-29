@@ -38,9 +38,7 @@ static var shapekey_data: Dictionary:
 			_shapekey_data = get_shapekey_data()
 		return _shapekey_data
 
-static func get_shapekey_categories(shapekeys=null) -> Dictionary:
-	if shapekeys == null:
-		shapekeys = get_shapekey_data()
+static func get_shapekey_categories() -> Dictionary:
 	var categories := {
 		'Macro': [],
 		'Race': [],
@@ -57,40 +55,44 @@ static func get_shapekey_categories(shapekeys=null) -> Dictionary:
 		'Arms': [],
 		'Legs': [],
 		'Misc': [],
+		'Custom': [],
 	}
-	for name in shapekeys.shapekeys:
-		if 'penis' in name.to_lower():# or name.ends_with('firmness'):
+	for raw_name in shapekey_data.shapekeys:
+		var name = raw_name.to_lower()
+		if 'penis' in name:# or name.ends_with('firmness'):
 			continue
-		if name in shapekeys.macro_shapekeys:
+		if name in shapekey_data.macro_shapekeys:
 			continue
-		elif 'head' in name.to_lower() or 'brown' in name.to_lower() or 'top' in name.to_lower():
-			categories['Head'].append(name)
-		elif 'eye' in name.to_lower():
-			categories['Eyes'].append(name)
-		elif 'mouth' in name.to_lower():
-			categories['Mouth'].append(name)
-		elif 'nose' in name.to_lower():
-			categories['Nose'].append(name)
-		elif 'ear' in name.to_lower():
-			categories['Ears'].append(name)
-		elif 'jaw' in name.to_lower() or 'cheek' in name.to_lower() or 'temple' in name.to_lower() or 'chin' in name.to_lower():
-			categories['Face'].append(name)
-		elif 'arm' in name.to_lower() or 'hand' in name.to_lower() or 'finger' in name.to_lower() or 'wrist' in name.to_lower():
-			categories['Arms'].append(name)
-		elif 'leg' in name.to_lower() or 'calf' in name.to_lower() or 'foot' in name.to_lower() or 'butt' in name.to_lower() or 'ankle' in name.to_lower() or 'thigh' in name.to_lower() or 'knee' in name.to_lower():
-			categories['Legs'].append(name)
-		elif 'cup' in name.to_lower() or 'bust' in name.to_lower() or 'breast' in name.to_lower() or 'nipple' in name.to_lower():
-			categories['Breasts'].append(name)
-		elif 'torso' in name.to_lower() or 'chest' in name.to_lower() or 'shoulder' in name.to_lower():
-			categories['Chest'].append(name)
-		elif 'hip' in name.to_lower() or 'trunk' in name.to_lower() or 'pelvis' in name.to_lower() or 'waist' in name.to_lower() or 'pelvis' in name.to_lower() or 'stomach' in name.to_lower() or 'bulge' in name.to_lower():
-			categories['Hips'].append(name)
-		elif 'hand' in name.to_lower() or 'finger' in name.to_lower():
-			categories['Hands'].append(name)
-		elif 'neck' in name.to_lower():
-			categories['Neck'].append(name)
+		elif name.begins_with('custom'):
+			categories['Custom'].append(raw_name)
+		elif 'head' in name or 'brown' in name or 'top' in name:
+			categories['Head'].append(raw_name)
+		elif 'eye' in name:
+			categories['Eyes'].append(raw_name)
+		elif 'mouth' in name:
+			categories['Mouth'].append(raw_name)
+		elif 'nose' in name:
+			categories['Nose'].append(raw_name)
+		elif 'ear' in name:
+			categories['Ears'].append(raw_name)
+		elif 'jaw' in name or 'cheek' in name or 'temple' in name or 'chin' in name:
+			categories['Face'].append(raw_name)
+		elif 'arm' in name or 'hand' in name or 'finger' in name or 'wrist' in name:
+			categories['Arms'].append(raw_name)
+		elif 'leg' in name or 'calf' in name or 'foot' in name or 'butt' in name or 'ankle' in name or 'thigh' in name or 'knee' in name:
+			categories['Legs'].append(raw_name)
+		elif 'cup' in name or 'bust' in name or 'breast' in name or 'nipple' in name:
+			categories['Breasts'].append(raw_name)
+		elif 'torso' in name or 'chest' in name or 'shoulder' in name:
+			categories['Chest'].append(raw_name)
+		elif 'hip' in name or 'trunk' in name or 'pelvis' in name or 'waist' in name or 'pelvis' in name or 'stomach' in name or 'bulge' in name:
+			categories['Hips'].append(raw_name)
+		elif 'hand' in name or 'finger' in name:
+			categories['Hands'].append(raw_name)
+		elif 'neck' in name:
+			categories['Neck'].append(raw_name)
 		else:
-			categories['Misc'].append(name)
+			categories['Misc'].append(raw_name)
 	
 	categories['Macro'] = MeshOperations.get_macro_options()
 	categories['Race'].append_array(MeshOperations.get_race_options())
