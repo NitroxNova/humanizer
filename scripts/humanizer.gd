@@ -55,6 +55,8 @@ var morph_data := {}
 
 var skin_color: Color = _DEFAULT_SKIN_COLOR:
 	set(value):
+		if skin_color == value:
+			return
 		skin_color = value
 		if body_mesh == null or (body_mesh as HumanizerMeshInstance) == null:
 			return
@@ -65,6 +67,8 @@ var skin_color: Color = _DEFAULT_SKIN_COLOR:
 			body_mesh.material_config.overlays[0].color = skin_color
 var hair_color: Color = _DEFAULT_HAIR_COLOR:
 	set(value):
+		if hair_color == value:
+			return
 		hair_color = value
 		if human_config == null or not scene_loaded:
 			return
@@ -76,6 +80,8 @@ var hair_color: Color = _DEFAULT_HAIR_COLOR:
 		notify_property_list_changed()
 var eyebrow_color: Color = _DEFAULT_EYEBROW_COLOR:
 	set(value):
+		if eyebrow_color == value:
+			return
 		eyebrow_color = value
 		if human_config == null or not scene_loaded:
 			return
@@ -88,6 +94,8 @@ var eyebrow_color: Color = _DEFAULT_EYEBROW_COLOR:
 			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = eyebrow_color 
 var eye_color: Color = _DEFAULT_EYE_COLOR:
 	set(value):
+		if eye_color == value:
+			return
 		eye_color = value
 		if human_config == null or not scene_loaded:
 			return
@@ -160,65 +168,6 @@ func _ready() -> void:
 	scene_loaded = true
 
 ####  HumanConfig Resource Management ####
-func _add_child_node(node: Node) -> void:
-	add_child(node)
-	node.owner = self
-	if node is MeshInstance3D:
-		(node as MeshInstance3D).layers = _render_layers
-
-func _delete_child_node(node: Node) -> void:
-	node.get_parent().remove_child(node)
-	node.queue_free()
-
-func _delete_child_by_name(name: String) -> void:
-	var node = get_node_or_null(name)
-	if node != null:
-		_delete_child_node(node)
-
-func _get_asset_by_name(mesh_name: String) -> HumanAsset:
-	var res: HumanAsset = null
-	for slot in human_config.body_parts:
-		if human_config.body_parts[slot].resource_name == mesh_name:
-			res = human_config.body_parts[slot] as HumanBodyPart
-	if res == null:
-		for cl in human_config.clothes:
-			if cl.resource_name == mesh_name:
-				res = cl as HumanClothes
-	return res
-
-func load_human() -> void:
-	## if we are calling on a node ont in the tree ready won't be called
-	if human_config == null and not scene_loaded:
-		human_config = HumanConfig.new()
-	baked = false
-	reset_human()
-	_deserialize()
-	notify_property_list_changed()
-
-func _deserialize() -> void:
-	# Since shapekeys are relative we start from empty
-	var sk = human_config.shapekeys.duplicate()
-	human_config.shapekeys = {}
-	set_rig(human_config.rig)
-	for slot: String in human_config.body_parts:
-		var bp = human_config.body_parts[slot]
-		var mat = human_config.body_part_materials[slot]
-		set_body_part(bp)
-		set_body_part_material(bp.slot, mat)
-	for clothes: HumanClothes in human_config.clothes:
-		_add_clothes_mesh(clothes)
-	for clothes: String in human_config.clothes_materials:
-		set_clothes_material(clothes, human_config.clothes_materials[clothes])
-	if human_config.body_part_materials.has(&'skin'):
-		set_skin_texture(human_config.body_part_materials[&'skin'])
-	for component in human_config.components:
-		set_component_state(true, component)
-	skin_color = human_config.skin_color
-	hair_color = human_config.hair_color
-	eye_color = human_config.eye_color
-	hide_body_vertices()
-	set_shapekeys(sk)
-
 func reset_human() -> void:
 	_new_shapekeys = {}
 	if has_node('MorphDriver'):
@@ -235,6 +184,15 @@ func reset_human() -> void:
 	set_component_state(false, &'saccades')
 	notify_property_list_changed()
 	#print('Reset human')
+
+func load_human() -> void:
+	## if we are calling on a node ont in the tree ready won't be called
+	if human_config == null and not scene_loaded:
+		human_config = HumanConfig.new()
+	baked = false
+	reset_human()
+	_deserialize()
+	notify_property_list_changed()
 
 func save_human_scene(to_file: bool = true) -> PackedScene:
 	if to_file:
@@ -374,6 +332,56 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	ResourceSaver.save(scene, save_path.path_join(human_name + '.tscn'))
 	print('Saved human to : ' + save_path)
 	return scene
+
+func _add_child_node(node: Node) -> void:
+	add_child(node)
+	node.owner = self
+	if node is MeshInstance3D or node is SoftBody3D:
+		(node as MeshInstance3D).layers = _render_layers
+
+func _delete_child_node(node: Node) -> void:
+	node.get_parent().remove_child(node)
+	node.queue_free()
+
+func _delete_child_by_name(name: String) -> void:
+	var node = get_node_or_null(name)
+	if node != null:
+		_delete_child_node(node)
+
+func _get_asset_by_name(mesh_name: String) -> HumanAsset:
+	var res: HumanAsset = null
+	for slot in human_config.body_parts:
+		if human_config.body_parts[slot].resource_name == mesh_name:
+			res = human_config.body_parts[slot] as HumanBodyPart
+	if res == null:
+		for cl in human_config.clothes:
+			if cl.resource_name == mesh_name:
+				res = cl as HumanClothes
+	return res
+
+func _deserialize() -> void:
+	# Since shapekeys are relative we start from empty
+	var sk = human_config.shapekeys.duplicate()
+	human_config.shapekeys = {}
+	set_rig(human_config.rig)
+	for slot: String in human_config.body_parts:
+		var bp = human_config.body_parts[slot]
+		var mat = human_config.body_part_materials[slot]
+		set_body_part(bp)
+		set_body_part_material(bp.slot, mat)
+	for clothes: HumanClothes in human_config.clothes:
+		_add_clothes_mesh(clothes)
+	for clothes: String in human_config.clothes_materials:
+		set_clothes_material(clothes, human_config.clothes_materials[clothes])
+	if human_config.body_part_materials.has(&'skin'):
+		set_skin_texture(human_config.body_part_materials[&'skin'])
+	for component in human_config.components:
+		set_component_state(true, component)
+	skin_color = human_config.skin_color
+	hair_color = human_config.hair_color
+	eye_color = human_config.eye_color
+	hide_body_vertices()
+	set_shapekeys(sk)
 
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
@@ -549,7 +557,7 @@ func hide_clothes_vertices():
 				for mh_id in range(entry[0], entry[1] + 1):
 					delete_verts_mh[mh_id] = true
 
-func _sort_clothes_by_z_depth(clothes_a,clothes_b): # from highest to lowest
+func _sort_clothes_by_z_depth(clothes_a, clothes_b): # from highest to lowest
 	var res_a: HumanAsset = _get_asset_by_name(clothes_a.name)
 	var res_b: HumanAsset = _get_asset_by_name(clothes_b.name)
 	if load(res_a.mhclo_path).z_depth > load(res_b.mhclo_path).z_depth:
