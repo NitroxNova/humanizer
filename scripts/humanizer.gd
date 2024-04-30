@@ -417,6 +417,8 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	set_body_part_material(bp.slot, Random.choice(bp.textures.keys()))
 	_add_bone_weights(bp)
 	set_shapekeys(human_config.shapekeys)
+	if 'eyebrow' in bp.slot.to_lower():
+		eyebrow_color = eyebrow_color
 	#notify_property_list_changed()
 
 func clear_body_part(clear_slot: String) -> void:
