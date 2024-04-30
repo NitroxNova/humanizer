@@ -4,7 +4,7 @@ extends Node
 var enabled: bool = true:
 	set(value):
 		enabled = value
-		if enabled:
+		if enabled and get_tree() != null:
 			_set_saccades_timer()
 			_set_blink_timer()
 
