@@ -237,6 +237,7 @@ func reset_human() -> void:
 	#print('Reset human')
 
 func save_human_scene(to_file: bool = true) -> PackedScene:
+	## FIXME human scene still going to default folder after config change
 	if to_file:
 		DirAccess.make_dir_recursive_absolute(save_path)
 		for fl in OSPath.get_files(save_path):
@@ -1001,7 +1002,9 @@ func set_rig(rig_name: String) -> void:
 	_add_child_node(skeleton)
 	skeleton.unique_name_in_owner = true
 	# Set new mesh
+	var mat = body_mesh.get_surface_override_material(0)
 	_set_body_mesh(skinned_mesh)
+	body_mesh.set_surface_override_material(0, mat)
 	body_mesh.skeleton = '../' + skeleton.name
 	_adjust_skeleton()
 	_reset_animator()

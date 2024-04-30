@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-@export var camera: Node
+@export var camera: Node3D
 @export_range(0.1, 5) var move_speed: float = 2
 @export_range(0, 100) var vertical_impulse: float = 60
 
