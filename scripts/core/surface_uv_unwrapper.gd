@@ -41,6 +41,8 @@ func get_ao_texture():
 	return material.ao_texture
 	
 func get_island_bounding_boxes():
+	var margin = Vector2(5,5)
+	margin /= get_albedo_texture_size()
 	island_boxes = []
 	for island:Dictionary in islands:
 		var first_uv = island.keys()[0]
@@ -58,6 +60,11 @@ func get_island_bounding_boxes():
 				min_y = uv_coords.y
 			if uv_coords.y > max_y:
 				max_y = uv_coords.y
+
+		min_x = max(0,min_x-margin.x)
+		max_x = min(1,max_x+margin.x)
+		min_y = max(0,min_y-margin.y)
+		max_y = min(1,max_y+margin.y)
 		island_boxes.append(Rect2(min_x,min_y,max_x-min_x,max_y-min_y))
 	#print(island_boxes)	
 	combine_overlapping_islands()

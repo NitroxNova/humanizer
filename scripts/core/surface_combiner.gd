@@ -69,11 +69,7 @@ func run() -> MeshInstance3D:
 				old_normal_image.decompress()
 			old_normal_image.convert(new_normal_image.get_format())
 			old_normal_image.resize(surface.get_albedo_texture_size().x,surface.get_albedo_texture_size().y)
-			#if surface.material.normal_scale != 1:
-			#	var mask = Image.create(old_normal_image.get_width(),old_normal_image.get_height(),false,new_normal_image.get_format())
-			#	var a = 1 - surface.material.normal_scale
-			#	mask.fill((Color(.5,.5,1,a)))
-			#	old_normal_image.blend_rect(mask,Rect2(0,0,mask.get_width(),mask.get_height()),Vector2.ZERO)
+
 		if surface.is_ao_enabled():
 			has_ao = true
 			old_ao_image = surface.get_ao_texture().get_image()
