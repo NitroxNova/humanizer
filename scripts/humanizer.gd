@@ -213,8 +213,11 @@ func _deserialize() -> void:
 		set_skin_texture(human_config.body_part_materials[&'skin'])
 	for component in human_config.components:
 		set_component_state(true, component)
-	set_shapekeys(sk)
+	skin_color = human_config.skin_color
+	hair_color = human_config.hair_color
+	eye_color = human_config.eye_color
 	hide_body_vertices()
+	set_shapekeys(sk)
 
 func reset_human() -> void:
 	_new_shapekeys = {}
@@ -230,9 +233,6 @@ func reset_human() -> void:
 	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
 	set_component_state(true, &'main_collider')
 	set_component_state(false, &'saccades')
-	skin_color = human_config.skin_color
-	hair_color = human_config.hair_color
-	eye_color = human_config.eye_color
 	notify_property_list_changed()
 	#print('Reset human')
 
