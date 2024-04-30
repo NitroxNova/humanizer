@@ -3,8 +3,11 @@ class_name HumanizerGlobalConfig
 extends Node
 
 static var Instance: HumanizerGlobalConfig
-@export var _config: HumanizerConfig
-
+@export var _config: HumanizerConfig:
+	set(value):
+		_config = value
+		if Instance != null and Instance != self:
+			Instance._config = value
 
 static var config:
 	get:

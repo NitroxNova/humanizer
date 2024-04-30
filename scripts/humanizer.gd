@@ -237,7 +237,6 @@ func reset_human() -> void:
 	#print('Reset human')
 
 func save_human_scene(to_file: bool = true) -> PackedScene:
-	## FIXME human scene still going to default folder after config change
 	if to_file:
 		DirAccess.make_dir_recursive_absolute(save_path)
 		for fl in OSPath.get_files(save_path):
