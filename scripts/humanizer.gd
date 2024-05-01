@@ -380,6 +380,7 @@ func _deserialize() -> void:
 	skin_color = human_config.skin_color
 	hair_color = human_config.hair_color
 	eye_color = human_config.eye_color
+	eyebrow_color = human_config.eyebrow_color
 	hide_body_vertices()
 	set_shapekeys(sk)
 
