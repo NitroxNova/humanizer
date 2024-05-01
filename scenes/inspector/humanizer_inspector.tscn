@@ -169,22 +169,6 @@ size_flags_vertical = 3
 tooltip_text = "Set up a physical skeleton"
 text = "Ragdoll"
 
-[node name="SaccadesCheckBox" type="CheckBox" parent="VBoxContainer/ComponentsGridContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-tooltip_text = "Set up a physical skeleton"
-text = "Saccades"
-
-[node name="TPoseCheckBox" type="CheckBox" parent="VBoxContainer/ComponentsGridContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-tooltip_text = "Adds a \"Root\" bone to any rig.  Sets root bone as root motion path in animatino tree."
-text = "T-Pose"
-
 [node name="RootBoneCheckBox" type="CheckBox" parent="VBoxContainer/ComponentsGridContainer"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -208,6 +192,14 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 tooltip_text = "Human will retain muscle and weight sliders after baking and a node will be added to control them"
 text = "Size Morphs"
+
+[node name="SaccadesCheckBox" type="CheckBox" parent="VBoxContainer/ComponentsGridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+tooltip_text = "Set up a physical skeleton"
+text = "Saccades"
 
 [node name="HSeparator5" type="HSeparator" parent="VBoxContainer"]
 layout_mode = 2

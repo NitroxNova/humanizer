@@ -95,7 +95,6 @@ func reset() -> void:
 		(material_option_buttons[slot] as OptionButton).selected = -1
 
 func clear_clothes(slot: String) -> void:
-	## FIXME error when removing hat after loading character
 	var cl = last_equipped[slot]
 	for sl in asset_option_buttons:
 		if last_equipped.has(sl) and last_equipped[sl] == cl:
