@@ -82,8 +82,9 @@ func fill_table(config: HumanConfig) -> void:
 					var mat: int = 0
 					for texture in clothes.textures:
 						materials.add_item(texture)
-						if materials.get_item_text(mat) == config.clothes_materials[clothes.resource_name]:
-							materials.selected = mat
+						if config.clothes_materials.has(clothes.resource_name):
+							if materials.get_item_text(mat) == config.clothes_materials[clothes.resource_name]:
+								materials.selected = mat
 						mat += 1
 			
 func reset() -> void:
