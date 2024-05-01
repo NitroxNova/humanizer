@@ -1,7 +1,7 @@
 @tool
 extends Node
 
-var enabled: bool = true:
+@export var enabled: bool = true:
 	set(value):
 		enabled = value
 		if enabled and get_tree() != null:
@@ -54,14 +54,15 @@ func _saccade() -> void:
 func _blink() -> void:
 	if skeleton == null:
 		return
-	var blink = Quaternion(0.3, 0, 0, 1).normalized()
+	var left_blink = Quaternion(0.17, -0.055, 0.05, 0.82).normalized()
+	var right_blink = Quaternion(0.17, 0.055, -0.05, 0.82).normalized()
 	var bone: int
 	var left_eyelid = skeleton.find_bone(&'orbicularis03.L')
 	var right_eyelid = skeleton.find_bone(&'orbicularis03.R')
 	var prev_pose = skeleton.get_bone_pose_rotation(left_eyelid)
 	
-	skeleton.set_bone_pose_rotation(left_eyelid, blink * prev_pose)
-	skeleton.set_bone_pose_rotation(right_eyelid, blink * prev_pose)
+	skeleton.set_bone_pose_rotation(left_eyelid, left_blink * prev_pose)
+	skeleton.set_bone_pose_rotation(right_eyelid, right_blink * prev_pose)
 	await get_tree().create_timer(0.1).timeout
 	skeleton.set_bone_pose_rotation(left_eyelid, prev_pose)
 	skeleton.set_bone_pose_rotation(right_eyelid, prev_pose)
