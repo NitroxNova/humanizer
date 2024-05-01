@@ -360,6 +360,8 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 	return res
 
 func _deserialize() -> void:
+	## FIXME eyebrow color wrong on resource load
+	## FIXME saccades not loading on resource load
 	# Since shapekeys are relative we start from empty
 	var sk = human_config.shapekeys.duplicate()
 	human_config.shapekeys = {}
@@ -380,6 +382,7 @@ func _deserialize() -> void:
 	skin_color = human_config.skin_color
 	hair_color = human_config.hair_color
 	eye_color = human_config.eye_color
+	eyebrow_color = human_config.eyebrow_color
 	hide_body_vertices()
 	set_shapekeys(sk)
 
@@ -782,6 +785,11 @@ func _combine_meshes() -> ArrayMesh:
 			else:
 				printerr("inconsistent number of blend shapes")
 		var format = child.mesh.surface_get_format(0)
+		if child.transform.basis.get_scale() != Vector3.ONE:
+			var scale = child.transform.basis.get_scale()
+			surface_arrays = surface_arrays.duplicate(true)
+			for vtx in surface_arrays[Mesh.ARRAY_VERTEX].size():
+				surface_arrays[Mesh.ARRAY_VERTEX][vtx] *= scale
 		new_mesh.add_surface(
 			Mesh.PRIMITIVE_TRIANGLES, 
 			surface_arrays, 
@@ -962,6 +970,7 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 		## Need to set material settings for other assets sharing the same material
 		for other: HumanClothes in human_config.clothes:
 			if cl != other:
+				## FIXME ERROR here after adding asset post-bake
 				var other_mat: BaseMaterial3D = get_node(other.resource_name).get_surface_override_material(0)
 				var this_mat: BaseMaterial3D = mi.get_surface_override_material(0)
 				if other_mat.resource_path == this_mat.resource_path:
@@ -1200,6 +1209,8 @@ func set_component_state(enabled: bool, component: StringName) -> void:
 			_add_saccades()
 		elif component == &'root_bone':
 			_add_root_bone(skeleton)
+		elif component == &'tpose':
+			_setup_tpose()
 	else:
 		human_config.components.erase(component)
 		if component == &'main_collider':
@@ -1219,6 +1230,9 @@ func set_component_state(enabled: bool, component: StringName) -> void:
 				animator.active = true
 			notify_property_list_changed()
 		elif component == &'root_bone':
+			if skeleton != null:
+				set_rig(human_config.rig)
+		elif component == &'tpose':
 			if skeleton != null:
 				set_rig(human_config.rig)
 
@@ -1284,3 +1298,15 @@ func _add_root_bone(sk: Skeleton3D) -> void:
 		return
 	sk.add_bone('Root')
 	sk.set_bone_parent(0, skeleton.get_bone_count() - 1)
+
+func _setup_tpose() -> void:
+	animator.active = false
+	var anim := animator.get_child(0) as AnimationPlayer
+	anim.add_animation_library(&'tpose', load("res://addons/humanizer/data/animations/tpose.glb"))
+	anim.active = true
+	anim.play('tpose/tpose')
+	await get_tree().create_timer(0.4).timeout
+	#anim.active = false
+	for bone in skeleton.get_bone_count():
+		skeleton.set_bone_rest(bone, skeleton.get_bone_pose(bone))
+	#animator.active = true
