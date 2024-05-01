@@ -8,6 +8,10 @@ extends Node
 			if get_tree() != null:
 				_set_saccades_timer()
 				_set_blink_timer()
+		else:
+			_saccades_timer.timeout.disconnect(_saccade)
+			_blink_timer.timeout.disconnect(_blink)
+			skeleton.reset_bone_poses()
 @export_range(0.01, 5) var _saccades_timeout: float = 1
 @export_range(0.01, 5) var _blink_timeout: float = 1
 
@@ -24,9 +28,7 @@ func _set_saccades_timer() -> void:
 	if enabled:
 		_saccades_timer = get_tree().create_timer(_saccades_timeout * _rng.randf_range(0.3, 3))
 		_saccades_timer.timeout.connect(_saccade)
-	else:
-		skeleton.reset_bone_poses()
-	
+
 func _set_blink_timer() -> void:
 	if enabled:
 		_blink_timer = get_tree().create_timer(_blink_timeout * _rng.randf_range(0.33, 3))
