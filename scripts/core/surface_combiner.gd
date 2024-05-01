@@ -176,7 +176,8 @@ func run() -> MeshInstance3D:
 		if not new_normal_image.get_width() == atlas_resolution:
 			new_normal_image.resize(atlas_resolution,atlas_resolution)
 		new_normal_image.generate_mipmaps(true)
-		new_normal_image.compress(Image.COMPRESS_S3TC,Image.COMPRESS_SOURCE_NORMAL)
+		#new_normal_image.compress(Image.COMPRESS_S3TC,Image.COMPRESS_SOURCE_NORMAL) # godots default normal texture format, but it looks terrible
+		new_normal_image.compress(Image.COMPRESS_BPTC)
 		new_material.normal_enabled = true
 		new_material.normal_scale = 1
 		new_material.normal_texture = ImageTexture.create_from_image(new_normal_image)
