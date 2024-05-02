@@ -133,7 +133,7 @@ func run() -> MeshInstance3D:
 		else:
 			for vertex_pos in surface.surface_arrays[Mesh.ARRAY_VERTEX]:
 				var mi = mesh_instances[surface_id]
-				vertex_pos = vertex_pos * mi.transform.inverse()
+				vertex_pos = mi.transform * vertex_pos
 				new_sf_arrays[Mesh.ARRAY_VERTEX].append(vertex_pos)  
 		
 		new_sf_arrays[Mesh.ARRAY_TANGENT].append_array(surface.surface_arrays[Mesh.ARRAY_TANGENT])
