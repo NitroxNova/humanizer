@@ -125,8 +125,17 @@ func run() -> MeshInstance3D:
 			mesh_bone_count = sf_bone_count	
 	
 	var vertex_offset = 0
-	for surface in surfaces:
-		new_sf_arrays[Mesh.ARRAY_VERTEX].append_array(surface.surface_arrays[Mesh.ARRAY_VERTEX])
+	for surface_id in surfaces.size():
+		var surface = surfaces[surface_id]
+		
+		if mesh_instances[surface_id].transform == Transform3D.IDENTITY:
+			new_sf_arrays[Mesh.ARRAY_VERTEX].append_array(surface.surface_arrays[Mesh.ARRAY_VERTEX])
+		else:
+			for vertex_pos in surface.surface_arrays[Mesh.ARRAY_VERTEX]:
+				var mi = mesh_instances[surface_id]
+				vertex_pos = mi.transform * vertex_pos
+				new_sf_arrays[Mesh.ARRAY_VERTEX].append(vertex_pos)  
+		
 		new_sf_arrays[Mesh.ARRAY_TANGENT].append_array(surface.surface_arrays[Mesh.ARRAY_TANGENT])
 		new_sf_arrays[Mesh.ARRAY_NORMAL].append_array(surface.surface_arrays[Mesh.ARRAY_NORMAL])
 		
