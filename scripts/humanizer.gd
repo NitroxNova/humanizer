@@ -966,7 +966,7 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 		mi.get_surface_override_material(0).albedo_texture = load(cl.textures[texture])
 		## Need to set material settings for other assets sharing the same material
 		for other: HumanClothes in human_config.clothes:
-			if cl != other:
+			if cl != other and not baked:
 				var other_mat: BaseMaterial3D = get_node(other.resource_name).get_surface_override_material(0)
 				var this_mat: BaseMaterial3D = mi.get_surface_override_material(0)
 				if other_mat.resource_path == this_mat.resource_path:

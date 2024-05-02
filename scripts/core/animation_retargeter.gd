@@ -21,6 +21,7 @@ func convert_library() -> void:
 		return
 	if library == null:
 		push_error('Please provide an input library')
+		return
 	push_warning('Retargeting animation library')
 	human.animator.active = false
 	var skeleton : Skeleton3D = human.skeleton
@@ -31,7 +32,7 @@ func convert_library() -> void:
 	for bone in skeleton.get_bone_count():
 		#apose_rest.append(skeleton.get_bone_global_rest(bone).basis.get_rotation_quaternion())
 		apose_rest.append(skeleton.get_bone_rest(bone).basis.get_rotation_quaternion())
-	anim.add_animation_library('tpose', load("res://addons/humanizer/data/animations/tpose.glb"))
+	anim.add_animation_library('tpose', load("res:/	/addons/humanizer/data/animations/tpose.glb"))
 	anim.play('tpose/tpose')
 
 	# Wait for pose to take.  It could give bad results if skinning shader gets delayed
