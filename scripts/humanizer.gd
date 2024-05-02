@@ -773,6 +773,10 @@ func _combine_meshes() -> ArrayMesh:
 		else:
 			material = child.mesh.surface_get_material(0).duplicate(true)
 		var surface_arrays = child.mesh.surface_get_arrays(0)
+		if child.transform != Transform3D.IDENTITY:
+			surface_arrays = surface_arrays.duplicate(true)
+			for vtx in surface_arrays[Mesh.ARRAY_VERTEX].size():
+				surface_arrays[Mesh.ARRAY_VERTEX][vtx] = child.transform * surface_arrays[Mesh.ARRAY_VERTEX][vtx]
 		var blend_shape_arrays = child.mesh.surface_get_blend_shape_arrays(0)
 		if new_mesh.get_blend_shape_count() != child.mesh.get_blend_shape_count():
 			if new_mesh.get_blend_shape_count() == 0:
