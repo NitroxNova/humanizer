@@ -29,7 +29,8 @@ func convert_library() -> void:
 
 	var apose_rest = []
 	for bone in skeleton.get_bone_count():
-		apose_rest.append(skeleton.get_bone_global_rest(bone).basis.get_rotation_quaternion())
+		#apose_rest.append(skeleton.get_bone_global_rest(bone).basis.get_rotation_quaternion())
+		apose_rest.append(skeleton.get_bone_rest(bone).basis.get_rotation_quaternion())
 	anim.add_animation_library('tpose', load("res://addons/humanizer/data/animations/tpose.glb"))
 	anim.play('tpose/tpose')
 
@@ -37,7 +38,8 @@ func convert_library() -> void:
 	await get_tree().create_timer(1.).timeout
 	var tpose_rest = []
 	for bone in skeleton.get_bone_count():
-		tpose_rest.append(skeleton.get_bone_global_pose(bone).basis.get_rotation_quaternion())
+		#tpose_rest.append(skeleton.get_bone_global_pose(bone).basis.get_rotation_quaternion())
+		tpose_rest.append(skeleton.get_bone_pose(bone).basis.get_rotation_quaternion())
 	
 	var new_library := AnimationLibrary.new()
 	for animation in library.get_animation_list():
@@ -57,8 +59,6 @@ func convert_library() -> void:
 					if bone == -1:
 						continue
 					var rotation : Quaternion = clip.track_get_key_value(track, key)
-					## clip holds global pose
-					## pose = local_pose * bone_rest
 					var tpose_to_apose : Quaternion = apose_rest[bone].inverse() * tpose_rest[bone]
 					new_clip.track_insert_key(track, t, rotation * tpose_to_apose)
 				else:  # Just copy other track types
