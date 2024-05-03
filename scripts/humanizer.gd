@@ -195,11 +195,7 @@ func load_human() -> void:
 	notify_property_list_changed()
 
 func save_human_scene(to_file: bool = true) -> PackedScene:
-	if to_file:
-		DirAccess.make_dir_recursive_absolute(save_path)
-		for fl in OSPath.get_files(save_path):
-			DirAccess.remove_absolute(fl)
-
+	## FIXME root motion track not assigned
 	#if not _save_path_valid:
 	#	return
 	var new_mesh = _combine_meshes()
@@ -250,8 +246,9 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		_animator.active = true  # Doesn't work unfortunately
 		root_node.set_editable_instance(_animator, true)
 		var root_bone = sk.get_bone_name(0)
-		if _animator is AnimationTree and root_bone in ['Root']:
-			_animator.root_motion_track = '../' + sk.name + ":" + root_bone
+		if _animator is AnimationTree:
+			if root_bone in ['Root'] or &'root_motion' in human_config.components:
+				_animator.root_motion_track = '../' + sk.name + ":" + root_bone
 
 	root_node.name = human_name
 	var mi = MeshInstance3D.new()
@@ -262,10 +259,8 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	mi.skeleton = NodePath('../' + sk.name)
 	mi.skin = sk.create_skin_from_rest_transforms()
 	if root_node is StaticBody3D:
-		pass
+		pass  # can't currently bake posed mesh
 		mi.create_trimesh_collision()
-		## This only works on rest pose
-		## Need to bake mesh from current animation pose
 		var coll: CollisionShape3D = mi.get_child(0).get_child(0)
 		var new_coll := CollisionShape3D.new()
 		new_coll.shape = coll.shape.duplicate(true)
@@ -329,7 +324,8 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	mi.mesh.take_over_path(path)
 	path = save_path.path_join(human_name + '.res')
 	ResourceSaver.save(human_config, save_path.path_join(human_name + '_config.res'))
-	ResourceSaver.save(scene, save_path.path_join(human_name + '.tscn'))
+	if not FileAccess.file_exists(save_path.path_join(human_name + '.tscn')):
+		ResourceSaver.save(scene, save_path.path_join(human_name + '.tscn'))
 	print('Saved human to : ' + save_path)
 	return scene
 
@@ -360,6 +356,7 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 	return res
 
 func _deserialize() -> void:
+	## FIXME saccades not loading
 	# Since shapekeys are relative we start from empty
 	var sk = human_config.shapekeys.duplicate()
 	human_config.shapekeys = {}
