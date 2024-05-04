@@ -9,9 +9,11 @@ extends Node
 				_set_saccades_timer()
 				_set_blink_timer()
 		else:
-			_saccades_timer.timeout.disconnect(_saccade)
-			_blink_timer.timeout.disconnect(_blink)
-			skeleton.reset_bone_poses()
+			if _saccades_timer != null:
+				_saccades_timer.timeout.disconnect(_saccade)
+				_blink_timer.timeout.disconnect(_blink)
+			if skeleton != null:
+				skeleton.reset_bone_poses()
 @export_range(0.01, 5) var _saccades_timeout: float = 1
 @export_range(0.01, 5) var _blink_timeout: float = 1
 
