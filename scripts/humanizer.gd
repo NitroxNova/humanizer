@@ -296,6 +296,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 
 	if not to_file:
 		return scene
+	DirAccess.make_dir_recursive_absolute(save_path)
 	
 	for surface in mi.mesh.get_surface_count():
 		var mat = mi.mesh.surface_get_material(surface).duplicate()
