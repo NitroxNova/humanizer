@@ -181,7 +181,8 @@ func reset_human() -> void:
 		body_mesh.set_script(null)
 	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
 	set_component_state(true, &'main_collider')
-	set_component_state(false, &'saccades')
+	if has_node('Saccades'):
+		_delete_child_by_name('Saccades')
 	notify_property_list_changed()
 	#print('Reset human')
 
@@ -296,10 +297,6 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	if not to_file:
 		return scene
 	
-	DirAccess.make_dir_recursive_absolute(save_path)
-	for fl in OSPath.get_files(save_path):
-		DirAccess.remove_absolute(fl)
-	
 	for surface in mi.mesh.get_surface_count():
 		var mat = mi.mesh.surface_get_material(surface).duplicate()
 		var surf_name: String = mi.mesh.surface_get_name(surface)
@@ -326,6 +323,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	ResourceSaver.save(human_config, save_path.path_join(human_name + '_config.res'))
 	if not FileAccess.file_exists(save_path.path_join(human_name + '.tscn')):
 		ResourceSaver.save(scene, save_path.path_join(human_name + '.tscn'))
+
 	print('Saved human to : ' + save_path)
 	return scene
 
@@ -356,7 +354,7 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 	return res
 
 func _deserialize() -> void:
-	## FIXME saccades not loading
+	##FIXME Eyebrow color loaded wrong
 	# Since shapekeys are relative we start from empty
 	var sk = human_config.shapekeys.duplicate()
 	human_config.shapekeys = {}
@@ -1047,6 +1045,9 @@ func _adjust_skeleton() -> void:
 	skeleton.motion_scale = 1
 	
 	for bone_id in skeleton.get_bone_count():
+		## manually added bones won't be in the config
+		if skeleton_config.size() < bone_id + 1:
+			continue
 		var bone_data = skeleton_config[bone_id]
 		var bone_pos = Vector3.ZERO
 		if "vertex_indices" in bone_data.head:
