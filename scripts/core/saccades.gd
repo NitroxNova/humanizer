@@ -21,6 +21,8 @@ extends Node
 var _rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
+	if not Engine.is_editor_hint():
+		enabled = true
 	_set_saccades_timer()
 	_set_blink_timer()
 
