@@ -423,6 +423,9 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	set_shapekeys(human_config.shapekeys)
 	if 'eyebrow' in bp.slot.to_lower():
 		eyebrow_color = eyebrow_color
+	if human_config.transforms.has(bp.resource_name):
+		get_node(bp.resource_name).transform = Transform3D(human_config.transforms[bp.resource_name])
+
 	#notify_property_list_changed()
 
 func clear_body_part(clear_slot: String) -> void:
@@ -452,6 +455,9 @@ func _add_clothes_mesh(cl: HumanClothes) -> void:
 	_add_child_node(mi)
 	_add_bone_weights(cl)
 	set_shapekeys(human_config.shapekeys)
+	if human_config.transforms.has(cl.resource_name):
+		get_node(cl.resource_name).transform = Transform3D(human_config.transforms[cl.resource_name])
+
 
 func clear_clothes_in_slot(slot: String) -> void:
 	for cl in human_config.clothes:
@@ -606,6 +612,9 @@ func standard_bake() -> void:
 func bake_surface() -> void:
 	if bake_surface_name in [null, '']:
 		push_error('Please provide a surface name before baking')
+	for child in _bake_meshes:
+		if not child.transform == Transform3D.IDENTITY:
+			human_config.transforms[child.name] = Transform3D(child.transform)
 	for child in get_children():
 		if child.name == 'Baked-' + bake_surface_name:
 			push_error('Surface ' + bake_surface_name + ' already exists.  Choose a different name.')
@@ -769,7 +778,8 @@ func _combine_meshes() -> ArrayMesh:
 		else:
 			material = child.mesh.surface_get_material(0).duplicate(true)
 		var surface_arrays = child.mesh.surface_get_arrays(0)
-		if child.transform != Transform3D.IDENTITY:
+		if child.transform != Transform3D.IDENTITY and not child.name.begins_with('Baked-'):
+			human_config.transforms[child.name] = Transform3D(child.transform)
 			surface_arrays = surface_arrays.duplicate(true)
 			for vtx in surface_arrays[Mesh.ARRAY_VERTEX].size():
 				surface_arrays[Mesh.ARRAY_VERTEX][vtx] = child.transform * surface_arrays[Mesh.ARRAY_VERTEX][vtx]

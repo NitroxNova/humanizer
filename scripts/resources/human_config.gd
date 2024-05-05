@@ -19,6 +19,9 @@ extends Resource
 @export var clothes := []
 @export var clothes_materials := {}
 
+## Custom Transforms
+@export var transforms := {}
+
 ## Colors
 @export var skin_color: Color = Humanizer._DEFAULT_SKIN_COLOR
 @export var eye_color: Color = Humanizer._DEFAULT_EYE_COLOR
