@@ -1,11 +1,11 @@
 class_name UVUnwrapper
 
 var surface_arrays = []
-var islands = []
 var island_boxes = []
 var material : StandardMaterial3D
 var island_transform = [] #set elsewhere, after the row packer is done
-var island_vertex = []
+var island_vertex = [] #vertex ids to island id
+var island_uvs = [] # island id to array of uv coords
 
 func _init(mesh: ArrayMesh, surface_id: int, _material):
 	material = _material
@@ -44,12 +44,11 @@ func get_island_bounding_boxes():
 	var margin = Vector2(5,5)
 	margin /= get_albedo_texture_size()
 	island_boxes = []
-	for island:Dictionary in islands:
-		var first_uv = island.keys()[0]
-		var min_x = first_uv.x
-		var max_x = first_uv.x
-		var min_y = first_uv.y
-		var max_y = first_uv.y
+	for island in island_uvs:
+		var min_x = island[0].x
+		var max_x = island[0].x
+		var min_y = island[0].y
+		var max_y = island[0].y
 		#print(min_x)
 		for uv_coords in island:
 			if uv_coords.x < min_x :
@@ -66,7 +65,7 @@ func get_island_bounding_boxes():
 		min_y = max(0,min_y-margin.y)
 		max_y = min(1,max_y+margin.y)
 		island_boxes.append(Rect2(min_x,min_y,max_x-min_x,max_y-min_y))
-	#print(island_boxes)	
+
 	combine_overlapping_islands()
 	
 func combine_overlapping_islands():
@@ -74,8 +73,8 @@ func combine_overlapping_islands():
 	while new_overlaps:
 		var base_island_id = 0
 		new_overlaps = false
-		while base_island_id < islands.size():
-			for merge_island_id in range(islands.size()-1,base_island_id,-1): #loop backwards to keep order when deleting
+		while base_island_id < island_uvs.size():
+			for merge_island_id in range(island_uvs.size()-1,base_island_id,-1): #loop backwards to keep order when deleting
 				var box_1 : Rect2 = island_boxes[base_island_id]
 				var box_2 : Rect2 = island_boxes[merge_island_id]
 				if box_1.intersects(box_2):
@@ -84,72 +83,78 @@ func combine_overlapping_islands():
 						#print(str(base_island_id) + " and " + str(merge_island_id) + " are overlapping")
 						new_overlaps = true
 						# update uvs list - there will be no duplicate uvs since we already found those in get_island
-						for uv_coords in islands[merge_island_id]:
-							islands[base_island_id][uv_coords] = islands[merge_island_id][uv_coords]
-						islands.remove_at(merge_island_id)
+						island_uvs[base_island_id].append_array(island_uvs[merge_island_id])
+						island_uvs.remove_at(merge_island_id)
 						#combine bounding boxes
 						island_boxes[base_island_id] = new_box
 						island_boxes.remove_at(merge_island_id)
 			base_island_id += 1
-	
-	island_transform.resize(islands.size())
+	island_transform.resize(island_uvs.size())
 
 func get_island_vertex():
+	var uv_islands = {} #have to rebuild anyway after merging overlapping boxes
+	for island_id in island_uvs.size():
+		for uv_coords in island_uvs[island_id]:
+			uv_islands[uv_coords] = island_id
 	island_vertex = []
 	island_vertex.resize(surface_arrays[Mesh.ARRAY_VERTEX].size())
-	for island_id in islands.size():
-		var island = islands[island_id]
-		for uv_coords in island:
-			var vertex_ids = island[uv_coords]
-			#print(vertex_ids)
-			for id in vertex_ids:
-				#if not island_vertex[id] == null:
-					#print("id already set! " + str(id))
-				island_vertex[id] = island_id
+	for vertex_id in surface_arrays[Mesh.ARRAY_VERTEX].size():
+		var uv_coords = surface_arrays[Mesh.ARRAY_TEX_UV][vertex_id]
+		var island_id = uv_islands[uv_coords]
+		island_vertex[vertex_id] = island_id
 
 func get_islands():
-	islands = []
-	for i in surface_arrays[Mesh.ARRAY_INDEX].size()/3:
-		var face_array = surface_arrays[Mesh.ARRAY_INDEX].slice(i*3,(i+1)*3)
-		var face_was_added = -1
-		var remove_islands = [] # remove after loop so it doesnt skip any
+	var start_time = Time.get_ticks_msec()
+	var uv_islands = {} #uv coords to island id
+	island_uvs = []
+	var island_counter = 0
+	var merge_islands = [] # index = from, value = to
+	for face_id in surface_arrays[Mesh.ARRAY_INDEX].size()/3:
+		var face_array = surface_arrays[Mesh.ARRAY_INDEX].slice(face_id*3,(face_id+1)*3)
+		var in_islands = []
+		for i in 3:
+			var uv_coords = surface_arrays[Mesh.ARRAY_TEX_UV][face_array[i]]
+			if uv_coords in uv_islands and not uv_islands[uv_coords] in in_islands:
+				in_islands.append(uv_islands[uv_coords])
+		in_islands.sort() # lowest first for island merging
+		var island_id : int
+		if in_islands.is_empty(): #make a new island
+			island_id = island_counter
+			island_counter += 1
+		elif in_islands.size() == 1:
+			island_id = in_islands[0]
+		else: #uv is shared by multiple islands
+			island_id = in_islands.pop_front() #set id to the lowest
+			for i_id in in_islands:
+				for uv_coords in island_uvs[i_id]:
+					uv_islands[uv_coords] = island_id
+				island_uvs[island_id].append_array(island_uvs[i_id])
+				island_uvs[i_id] = null
+				#print("merging " + str(i_id) + " with " + str(island_id))
 		
-		for island_id in islands.size():
-			var add_face_to_island = false
-			for vertex_id in face_array:
-				var uv_coords = surface_arrays[Mesh.ARRAY_TEX_UV][vertex_id]
-				if uv_coords in islands[island_id]:
-					add_face_to_island = true
-			if add_face_to_island:
-				if face_was_added == -1:
-					for vertex_id in face_array:
-						var uv_coords = surface_arrays[Mesh.ARRAY_TEX_UV][vertex_id]
-						if not uv_coords in islands[island_id]:
-							islands[island_id][uv_coords] = []
-						if not vertex_id in islands[island_id][uv_coords]:
-							islands[island_id][uv_coords].append(vertex_id)
-					face_was_added = island_id
-				else:
-					# merge islands
-					for uv_coords in islands[island_id]:
-						if not uv_coords in islands[face_was_added]:
-							islands[face_was_added][uv_coords] = []
-						for vertex_id in islands[island_id][uv_coords]:
-							if not vertex_id in islands[face_was_added][uv_coords]:
-								islands[face_was_added][uv_coords].append(vertex_id)
-					remove_islands.append(island_id)
+		if island_uvs.size() <= island_id:
+			island_uvs.resize(island_id+1)
+			island_uvs[island_id] = []
+		
+		for i in 3:
+			var uv_coords = surface_arrays[Mesh.ARRAY_TEX_UV][face_array[i]]
+			if not uv_coords in uv_islands:
+				island_uvs[island_id].append(uv_coords)
+				uv_islands[uv_coords] = island_id
+	
+	#consolidate islands
+	island_counter = 0
+	for i_id in island_uvs.size():
+		if island_uvs[i_id] != null:
+			for uv_coords in island_uvs[i_id]:
+				uv_islands[uv_coords] = island_counter
+			island_uvs[island_counter] = island_uvs[i_id]
+			island_counter += 1
+	island_uvs.resize(island_counter)
 
-		remove_islands.reverse() # to preserve order
-		for island_id in remove_islands:
-			islands.remove_at(island_id)
-
-		if face_was_added == -1:
-			var new_island = {}
-			for vertex_id in face_array:
-				var uv_coords = surface_arrays[Mesh.ARRAY_TEX_UV][vertex_id]
-				new_island[uv_coords] = [vertex_id]
-			islands.append(new_island)
-
-	island_transform.resize(islands.size())
+	
 	get_island_bounding_boxes()
 	get_island_vertex()
+
+	#print("unwrapping islands took: ")
+	#print(Time.get_ticks_msec()-start_time)
