@@ -14,6 +14,7 @@ enum AssetType {
 	Clothes
 }
 
+## TODO don't scan non-existent paths in custom import folders
 
 func _init() -> void:
 	load_all()
@@ -83,12 +84,15 @@ static func _get_skin_textures() -> void:
 			else:
 				var filename: String
 				for file in OSPath.get_files(dir):
-					if file.get_extension() == 'png':
-						if 'diffuse' in file.get_file().to_lower():
-							filename = file.get_file().get_basename().replace('_diffuse', '')
-							skin_textures[filename] = file
+					if file.get_extension() in ['png']:
+						filename = file.get_file().get_basename()
+						if 'diffuse' in filename.to_lower():
+							filename = filename.replace('_diffuse', '')
+						if filename.ends_with('_normal'):
+							continue
+						skin_textures[filename] = file
 		for fl in OSPath.get_files(path.path_join('skin_normals')):
-			if fl.get_extension() == 'png':
+			if fl.get_extension() in ['png', 'jpg']:
 				skin_normals[fl.get_file().get_basename()] = fl
 
 static func _load_body_parts() -> void:

@@ -902,18 +902,23 @@ func add_shapekey() -> void:
 
 #### Materials ####
 func set_skin_texture(name: String) -> void:
-	#print('setting skin texture')
+	## FIXME skin= None does not work after randomizing body parts
+	#print('setting skin texture : ' + name)
 	var texture: String
 	if not HumanizerRegistry.skin_textures.has(name):
 		human_config.body_part_materials[&'skin'] = ''
 	else:
 		human_config.body_part_materials[&'skin'] = name
 		texture = HumanizerRegistry.skin_textures[name]
+		var normal_texture = texture.get_base_dir() + '/' + name + '_normal.' + texture.get_extension()
+		if not FileAccess.file_exists(normal_texture):
+			normal_texture = ''
 		if body_mesh.material_config.overlays.size() == 0:
-			var overlay = {&'name': name, &'albedo': texture, &'color': skin_color}
+			var overlay = {&'name': name, &'albedo': texture, &'color': skin_color, &'normal': normal_texture}
 			body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
 		else:
 			body_mesh.material_config.overlays[0].albedo_texture_path = texture
+			body_mesh.material_config.overlays[0].normal_texture_path = normal_texture
 
 func set_skin_normal_texture(name: String) -> void:
 	#print('setting skin normal texture')
