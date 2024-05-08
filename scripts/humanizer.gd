@@ -196,9 +196,6 @@ func load_human() -> void:
 	notify_property_list_changed()
 
 func save_human_scene(to_file: bool = true) -> PackedScene:
-	## FIXME root motion track not assigned
-	#if not _save_path_valid:
-	#	return
 	var new_mesh = _combine_meshes()
 	var scene = PackedScene.new()
 	var root_node: Node
@@ -215,7 +212,8 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	elif _baked_root_node == 'Area3D':
 		root_node = Area3D.new()
 		script = HumanizerGlobalConfig.config.default_area_script
-		
+
+	root_node.name = human_name
 	if _character_script not in ['', null]:
 		root_node.set_script(load(_character_script))
 	elif script != '':
@@ -248,10 +246,10 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		root_node.set_editable_instance(_animator, true)
 		var root_bone = sk.get_bone_name(0)
 		if _animator is AnimationTree:
-			if root_bone in ['Root'] or &'root_motion' in human_config.components:
-				_animator.root_motion_track = '../' + sk.name + ":" + root_bone
+			_animator.advance_expression_base_node = '../' + root_node.name
+			if root_bone in ['Root'] or &'root_bone' in human_config.components:
+				_animator.root_motion_track = '../' + sk.name + ":Root"
 
-	root_node.name = human_name
 	var mi = MeshInstance3D.new()
 	mi.name = "Avatar"
 	mi.mesh = new_mesh
@@ -355,7 +353,6 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 	return res
 
 func _deserialize() -> void:
-	##FIXME Eyebrow color loaded wrong
 	# Since shapekeys are relative we start from empty
 	var sk = human_config.shapekeys.duplicate()
 	human_config.shapekeys = {}
@@ -902,24 +899,20 @@ func add_shapekey() -> void:
 
 #### Materials ####
 func set_skin_texture(name: String) -> void:
-	## FIXME skin= None does not work after randomizing body parts
 	#print('setting skin texture : ' + name)
 	var texture: String
 	if not HumanizerRegistry.skin_textures.has(name):
 		human_config.body_part_materials[&'skin'] = ''
+		body_mesh.material_config.set_base_textures(HumanizerOverlay.new())
 	else:
 		human_config.body_part_materials[&'skin'] = name
 		texture = HumanizerRegistry.skin_textures[name]
 		var normal_texture = texture.get_base_dir() + '/' + name + '_normal.' + texture.get_extension()
 		if not FileAccess.file_exists(normal_texture):
 			normal_texture = ''
-		if body_mesh.material_config.overlays.size() == 0:
-			var overlay = {&'name': name, &'albedo': texture, &'color': skin_color, &'normal': normal_texture}
-			body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
-		else:
-			body_mesh.material_config.overlays[0].albedo_texture_path = texture
-			body_mesh.material_config.overlays[0].normal_texture_path = normal_texture
-
+		var overlay = {&'albedo': texture, &'color': skin_color, &'normal': normal_texture}
+		body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
+			
 func set_skin_normal_texture(name: String) -> void:
 	#print('setting skin normal texture')
 	var texture: String

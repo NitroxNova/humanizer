@@ -14,8 +14,6 @@ enum AssetType {
 	Clothes
 }
 
-## TODO don't scan non-existent paths in custom import folders
-
 func _init() -> void:
 	load_all()
 

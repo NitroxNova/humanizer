@@ -7,11 +7,7 @@ signal on_material_updated
 @export var overlays: Array[HumanizerOverlay] = []:
 	set(value):
 		overlays = value
-		for ov in overlays:
-			if ov == null:
-				continue
-			if not ov.on_overlay_updated.is_connected(update_material):
-				ov.on_overlay_updated.connect(update_material)
+		update_material()
 var albedo_texture: Texture2D
 var normal_texture: Texture2D
 var ao_texture: Texture2D
@@ -68,8 +64,6 @@ func set_base_textures(overlay: HumanizerOverlay) -> void:
 		# Don't append, we want to call the setter 
 		overlays = [overlay]
 	overlays[0] = overlay
-	if not overlay.on_overlay_updated.is_connected(update_material):
-		overlay.on_overlay_updated.connect(update_material)
 	update_material()
 
 func add_overlay(overlay: HumanizerOverlay) -> void:
@@ -77,8 +71,6 @@ func add_overlay(overlay: HumanizerOverlay) -> void:
 		printerr('Overlay already present?')
 		return
 	overlays.append(overlay)
-	if not overlay.on_overlay_updated.is_connected(update_material):
-		overlay.on_overlay_updated.connect(update_material)
 	update_material()
 	
 func remove_overlay(name: String) -> void:
@@ -86,7 +78,6 @@ func remove_overlay(name: String) -> void:
 	if idx == -1:
 		printerr('Overlay not present?')
 		return
-	overlays[idx].on_overlay_updated.disconnect(update_material)
 	overlays.remove_at(idx)
 	update_material()
 	
