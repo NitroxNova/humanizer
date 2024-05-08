@@ -7,7 +7,8 @@ signal on_material_updated
 @export var overlays: Array[HumanizerOverlay] = []:
 	set(value):
 		overlays = value
-		update_material()
+		if overlays.size() > 0:
+			update_material()
 var albedo_texture: Texture2D
 var normal_texture: Texture2D
 var ao_texture: Texture2D
