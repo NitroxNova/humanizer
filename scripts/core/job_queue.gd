@@ -45,7 +45,7 @@ static func enqueue(job: Dictionary) -> void:
 	Instance._mutex.lock()
 	Instance._queue.append(job)
 	Instance._mutex.unlock()
-	for s in Instance._semaphores:
+	for s : Semaphore in Instance._semaphores:
 		s.post()
 
 func _process_queue(semaphore : Semaphore) -> void:
@@ -65,7 +65,7 @@ func _process_queue(semaphore : Semaphore) -> void:
 		if wait:
 			semaphore.wait()
 		else:
-			call(job_data.callable.bind(job_data))
+			(job_data.callable as Callable).call(job_data)
 		if exit:
 			break
 
