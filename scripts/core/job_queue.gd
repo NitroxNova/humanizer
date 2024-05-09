@@ -45,11 +45,8 @@ static func enqueue(job: Dictionary) -> void:
 	Instance._mutex.lock()
 	Instance._queue.append(job)
 	Instance._mutex.unlock()
-	for i in Instance._threads.size():
-		if not Instance._threads[i].is_alive():
-			Instance._threads[i].wait_to_finish()
-			Instance._semaphores[i].post()
-			break
+	for s in Instance._semaphores:
+		s.post()
 
 func _process_queue(semaphore : Semaphore) -> void:
 	while true:
