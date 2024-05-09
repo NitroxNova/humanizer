@@ -1,8 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://dsrnmyw7n7drw"]
+[gd_scene load_steps=8 format=3 uid="uid://dsrnmyw7n7drw"]
 
+[ext_resource type="PackedScene" uid="uid://csan8bknfmodc" path="res://addons/humanizer/data/animations/animation_tree.tscn" id="2_24gy7"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/core/humanizer_global_config.gd" id="2_vm4hu"]
-[ext_resource type="PackedScene" uid="uid://csan8bknfmodc" path="res://addons/humanizer/data/animations/animation_tree.tscn" id="3_mkrna"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_config.gd" id="3_yh4wq"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_config.gd" id="3_21hmb"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/core/humanizer_registry.gd" id="57_651fh"]
 
 [sub_resource type="GDScript" id="GDScript_yaxf4"]
@@ -11,8 +11,8 @@ extends Node
 
 "
 
-[sub_resource type="Resource" id="Resource_4je4f"]
-script = ExtResource("3_yh4wq")
+[sub_resource type="Resource" id="Resource_p6ell"]
+script = ExtResource("3_21hmb")
 asset_import_paths = Array[String](["res://addons/humanizer/data/assets/"])
 human_export_path = "res://data/humans/"
 default_characterbody_script = "res://addons/humanizer/scripts/utils/human_controller.gd"
@@ -21,8 +21,8 @@ default_staticbody_script = ""
 default_area_script = ""
 body_part_slots = Array[String](["RightEye", "LeftEye", "RightEyebrow", "LeftEyebrow", "RightEyelash", "LeftEyelash", "Hair", "Tongue", "Teeth"])
 clothing_slots = Array[String](["Head", "Eyes", "Mouth", "Hands", "Arms", "Torso", "Legs", "Feet"])
-default_skeleton = "game_engine-RETARGETED"
-default_animation_tree = ExtResource("3_mkrna")
+default_skeleton = "GameEngine-RETARGETED"
+default_animation_tree = ExtResource("2_24gy7")
 default_baked_root_node = "CharacterBody3D"
 default_character_physics_layers = 2
 default_character_physics_mask = 3
@@ -32,12 +32,69 @@ default_physical_bone_mask = 5
 default_character_render_layers = 1
 atlas_resolution = 2048
 
+[sub_resource type="GDScript" id="GDScript_b18w3"]
+script/source = "class_name HumanizerJobQueue
+extends Node
+
+## Jobs are scheduled by the timer
+## Enqueue a job with a dictionary with HumanizerJobQueue.enquque(job_data) 
+## Ensure the job_data dictionary has a \"callable\" key pointing to the function
+## The function should also accept a dictionary argument
+## The job_data will be passed as the argument to the callable
+
+static var Instance : HumanizerJobQueue
+
+@export_range(1, 4, 1) var _n_threads: int = 1:
+	set(value):
+		_n_threads = value
+		if Instance != null:
+			Instance._n_threads = value
+var _threads : Array[Thread] = []
+var _queue : Array[Dictionary] = []
+
+func _init() -> void:
+	if Instance == null:
+		Instance = self
+	else:
+		return
+	
+	for i in _n_threads:
+		_threads.append(Thread.new())
+
+func _ready() -> void:
+	$QueueTimer.timeout.connect(_process_queue)
+
+func _exit_tree() -> void:
+	for t in _threads:
+		t.wait_to_finish()
+
+static func enqueue(job: Dictionary) -> void:
+	Instance._queue.append(job)
+
+func _process_queue() -> void:
+	for thread : Thread in _threads:
+		if _queue.is_empty():
+			return
+		if thread.is_alive():
+			continue
+		thread.wait_to_finish()
+		var job_data := _queue[0]
+		_queue.remove_at(0)
+		thread.start(job_data.callable.bind(job_data))
+"
+
 [node name="HumanizerGlobal" type="Node"]
 script = SubResource("GDScript_yaxf4")
 
 [node name="HumanizerConfig" type="Node" parent="."]
 script = ExtResource("2_vm4hu")
-_config = SubResource("Resource_4je4f")
+_config = SubResource("Resource_p6ell")
 
 [node name="HumanizerRegistry" type="Node" parent="."]
 script = ExtResource("57_651fh")
+
+[node name="HumanizerJobQueue" type="Node" parent="."]
+script = SubResource("GDScript_b18w3")
+
+[node name="QueueTimer" type="Timer" parent="HumanizerJobQueue"]
+autostart = true

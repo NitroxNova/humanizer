@@ -45,24 +45,24 @@ extends Resource
 ## Default skeleton to use for new humanizer nodes
 @export var default_skeleton: String = 'GameEngine-RETARGETED'
 ## Default AnimationTree to use for new humanizer nodes
-@export var default_animation_tree: PackedScene 
+@export var default_animation_tree: PackedScene = preload("res://addons/humanizer/data/animations/animation_tree.tscn")
 
 @export_group('Physics')
 ## Default root node class for baked humans
 @export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D", "Area3D") var default_baked_root_node: String = "CharacterBody3D"
 ## Default character collider layer
-@export_flags_3d_physics var default_character_physics_layers
+@export_flags_3d_physics var default_character_physics_layers = 1 << 1
 ## Default character collider mask
-@export_flags_3d_physics var default_character_physics_mask
+@export_flags_3d_physics var default_character_physics_mask = 1 | 1 << 1
 ## Default static layer for StaticBody3D humans
-@export_flags_3d_physics var default_staticbody_physics_layers
+@export_flags_3d_physics var default_staticbody_physics_layers = 1
 ## Default ragdoll physics layer
-@export_flags_3d_physics var default_physical_bone_layers
+@export_flags_3d_physics var default_physical_bone_layers = 1 << 2
 ## Default ragdoll physics mask
-@export_flags_3d_physics var default_physical_bone_mask
+@export_flags_3d_physics var default_physical_bone_mask = 1 | 1 << 2
 
 @export_group('Rendering')
 ## Default character render layers
-@export_flags_3d_render var default_character_render_layers
+@export_flags_3d_render var default_character_render_layers = 1
 ## Texture atlas resolution
-@export_enum("1k:1024", "2k:2048", "4k:4096") var atlas_resolution: int
+@export_enum("1k:1024", "2k:2048", "4k:4096") var atlas_resolution: int = 2048
