@@ -43,7 +43,7 @@ extends Resource
 
 @export_group("Animation")
 ## Default skeleton to use for new humanizer nodes
-@export var default_skeleton: String = 'GameEngine-RETARGETED'
+@export var default_skeleton: String = 'game_engine-RETARGETED'
 ## Default AnimationTree to use for new humanizer nodes
 @export var default_animation_tree: PackedScene = preload("res://addons/humanizer/data/animations/animation_tree.tscn")
 
