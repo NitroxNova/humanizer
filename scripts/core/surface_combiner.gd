@@ -175,8 +175,6 @@ func run() -> MeshInstance3D:
 	
 	if not new_albedo_image.get_width() == atlas_resolution:
 		new_albedo_image.resize(atlas_resolution, atlas_resolution)
-	new_albedo_image.generate_mipmaps()
-	new_albedo_image.compress(Image.COMPRESS_BPTC)
 	var albedo_texture := ImageTexture.create_from_image(new_albedo_image)
 	new_material.albedo_texture = albedo_texture
 	new_material.albedo_color = Color.WHITE
@@ -184,9 +182,6 @@ func run() -> MeshInstance3D:
 	if has_normal:
 		if not new_normal_image.get_width() == atlas_resolution:
 			new_normal_image.resize(atlas_resolution,atlas_resolution)
-		new_normal_image.generate_mipmaps(true)
-		#new_normal_image.compress(Image.COMPRESS_S3TC,Image.COMPRESS_SOURCE_NORMAL) # godots default normal texture format, but it looks terrible
-		new_normal_image.compress(Image.COMPRESS_BPTC)
 		new_material.normal_enabled = true
 		new_material.normal_scale = 1
 		new_material.normal_texture = ImageTexture.create_from_image(new_normal_image)
@@ -194,8 +189,6 @@ func run() -> MeshInstance3D:
 	if has_ao:
 		if not new_ao_image.get_width() == atlas_resolution:
 			new_ao_image.resize(atlas_resolution,atlas_resolution)
-		new_ao_image.generate_mipmaps()
-		new_ao_image.compress(Image.COMPRESS_BPTC)
 		new_material.ao_enabled = true
 		new_material.ao_texture = ImageTexture.create_from_image(new_ao_image)
 		
@@ -210,3 +203,42 @@ func blend_color(image: Image, color: Color) -> void:
 	for x in image.get_width():
 		for y in image.get_height():
 			image.set_pixel(x, y, image.get_pixel(x, y) * color)
+			
+static func compress_material(args:Dictionary): #called from humanizerJobQueue
+	#print("compressing material")
+	var mesh:ArrayMesh = args.mesh
+	for surface_id in mesh.get_surface_count():
+		var material :StandardMaterial3D = mesh.surface_get_material(surface_id)
+		
+		if not material.albedo_texture == null:
+			var albedo_image = material.albedo_texture.get_image()
+			albedo_image.generate_mipmaps()
+			albedo_image.compress(Image.COMPRESS_BPTC)
+			var save_path = material.albedo_texture.get_path()
+			if(save_path == ""):
+				material.albedo_texture = ImageTexture.create_from_image(albedo_image)
+			else:
+				ResourceSaver.save(ImageTexture.create_from_image(albedo_image),save_path)
+		
+		if not material.normal_texture == null:
+			var normal_image = material.normal_texture.get_image()
+			normal_image.generate_mipmaps(true)
+			##normal_image.compress(Image.COMPRESS_S3TC,Image.COMPRESS_SOURCE_NORMAL) # godots default normal texture format, but it looks terrible
+			normal_image.compress(Image.COMPRESS_BPTC)
+			var save_path = material.normal_texture.get_path()
+			if(save_path == ""):
+				material.normal_texture = ImageTexture.create_from_image(normal_image)
+			else:
+				ResourceSaver.save(ImageTexture.create_from_image(normal_image),save_path)
+				
+		if not material.ao_texture == null:
+			var ao_image = material.ao_texture.get_image()
+			ao_image.generate_mipmaps(true)
+			ao_image.compress(Image.COMPRESS_BPTC)
+			var save_path = material.ao_texture.get_path()
+			if(save_path == ""):
+				material.ao_texture = ImageTexture.create_from_image(ao_image)
+			else:
+				ResourceSaver.save(ImageTexture.create_from_image(ao_image),save_path)
+		
+	#print("done compressing")

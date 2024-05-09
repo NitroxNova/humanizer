@@ -293,6 +293,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	scene.pack(root_node)
 
 	if not to_file:
+		HumanizerJobQueue.enqueue({callable=HumanizerSurfaceCombiner.compress_material,mesh=mi.mesh})
 		return scene
 	DirAccess.make_dir_recursive_absolute(save_path)
 	
@@ -324,6 +325,7 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		ResourceSaver.save(scene, save_path.path_join(human_name + '.tscn'))
 
 	print('Saved human to : ' + save_path)
+	HumanizerJobQueue.enqueue({callable=HumanizerSurfaceCombiner.compress_material,mesh=mi.mesh})
 	return scene
 
 func _add_child_node(node: Node) -> void:
