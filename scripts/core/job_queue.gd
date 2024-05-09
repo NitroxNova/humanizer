@@ -62,11 +62,11 @@ func _process_queue(semaphore : Semaphore) -> void:
 		else:
 			wait = true
 		_mutex.unlock()
+		if exit:
+			break
 		
 		if wait:
 			semaphore.wait()
 		else:
 			(job_data.callable as Callable).call(job_data)
-		if exit:
-			break
 
