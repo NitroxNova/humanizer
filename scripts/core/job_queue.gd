@@ -67,6 +67,8 @@ func _process_queue(semaphore : Semaphore) -> void:
 		
 		if wait:
 			semaphore.wait()
+		else:
+			call(job_data.callable.bind(job_data))
 		if exit:
 			break
-		call(job_data.callable.bind(job_data))
+
