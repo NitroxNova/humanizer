@@ -45,6 +45,3 @@ script = ExtResource("57_651fh")
 
 [node name="HumanizerJobQueue" type="Node" parent="."]
 script = ExtResource("3_56c55")
-
-[node name="QueueTimer" type="Timer" parent="HumanizerJobQueue"]
-autostart = true
