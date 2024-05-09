@@ -15,7 +15,11 @@ static var Instance : HumanizerJobQueue
 		if Instance != null:
 			Instance._n_threads = value
 var _threads : Array[Thread] = []
+var _semaphores : Array[Semaphore] = []
+var _mutex : Mutex = Mutex.new()
 var _queue : Array[Dictionary] = []
+var _close_threads : bool = false
+
 
 func _init() -> void:
 	if Instance == null:
@@ -25,24 +29,44 @@ func _init() -> void:
 	
 	for i in _n_threads:
 		_threads.append(Thread.new())
-
-func _ready() -> void:
-	$QueueTimer.timeout.connect(_process_queue)
+		_semaphores.append(Semaphore.new())
+		_threads[i].start(_process_queue.bind(_semaphores[i]))
 
 func _exit_tree() -> void:
+	_mutex.lock()
+	_close_threads = true
+	_mutex.unlock()
+	for s in _semaphores:
+		s.post()
 	for t in _threads:
 		t.wait_to_finish()
 
 static func enqueue(job: Dictionary) -> void:
+	Instance._mutex.lock()
 	Instance._queue.append(job)
+	Instance._mutex.unlock()
+	for i in Instance._threads.size():
+		if not Instance._threads[i].is_alive():
+			Instance._threads[i].wait_to_finish()
+			Instance._semaphores[i].post()
+			break
 
-func _process_queue() -> void:
-	for thread : Thread in _threads:
-		if _queue.is_empty():
-			return
-		if thread.is_alive():
-			continue
-		thread.wait_to_finish()
-		var job_data := _queue[0]
-		_queue.remove_at(0)
-		thread.start(job_data.callable.bind(job_data))
+func _process_queue(semaphore : Semaphore) -> void:
+	while true:
+		var job_data : Dictionary
+		var wait : bool
+		
+		_mutex.lock()
+		var exit = _close_threads
+		if not _queue.is_empty():
+			job_data = _queue[0]
+			_queue.remove_at(0)
+		else:
+			wait = true
+		_mutex.unlock()
+		
+		if wait:
+			semaphore.wait()
+		if exit:
+			break
+		call(job_data.callable.bind(job_data))
