@@ -207,18 +207,18 @@ func blend_color(image: Image, color: Color) -> void:
 static func compress_material(args:Dictionary): 
 	var mesh:ArrayMesh = args.mesh
 	for surface_id in mesh.get_surface_count():
-		var material :StandardMaterial3D = mesh.surface_get_material(surface_id)
-		
+		var material: BaseMaterial3D = mesh.surface_get_material(surface_id)
+		if material.resource_path == '':
+			continue
 		if not material.albedo_texture == null:
 			var albedo_image = material.albedo_texture.get_image()
 			albedo_image.generate_mipmaps()
 			albedo_image.compress(Image.COMPRESS_BPTC)
 			var save_path = material.albedo_texture.get_path()
-			if save_path == "":
-				material.albedo_texture = ImageTexture.create_from_image(albedo_image)
-			else:
+			if save_path != "":
 				ResourceSaver.save(ImageTexture.create_from_image(albedo_image), save_path)
-		
+				material.albedo_texture = load(save_path)
+				
 		if not material.normal_texture == null:
 			var normal_image = material.normal_texture.get_image()
 			normal_image.generate_mipmaps(true)
@@ -237,3 +237,5 @@ static func compress_material(args:Dictionary):
 			if save_path != "":
 				ResourceSaver.save(ImageTexture.create_from_image(ao_image), save_path)
 				material.ao_texture = load(save_path)
+		
+		ResourceSaver.save(material, material.resource_path)
