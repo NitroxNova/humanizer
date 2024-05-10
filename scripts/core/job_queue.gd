@@ -62,6 +62,7 @@ func _process_queue(semaphore : Semaphore) -> void:
 		else:
 			wait = true
 		_mutex.unlock()
+		
 		if exit:
 			break
 		

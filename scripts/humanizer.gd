@@ -293,7 +293,6 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	scene.pack(root_node)
 
 	if not to_file:
-		HumanizerJobQueue.enqueue({callable=HumanizerSurfaceCombiner.compress_material,mesh=mi.mesh})
 		return scene
 	DirAccess.make_dir_recursive_absolute(save_path)
 	
@@ -302,15 +301,12 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		var surf_name: String = mi.mesh.surface_get_name(surface)
 		if mat.albedo_texture != null:
 			var path := save_path.path_join(surf_name + '_albedo.res')
-			ResourceSaver.save(mat.albedo_texture, path)
 			mat.albedo_texture.take_over_path(path)
 		if mat.normal_texture != null:
 			var path := save_path.path_join(surf_name + '_normal.res')
-			ResourceSaver.save(mat.albedo_texture, path)
 			mat.normal_texture.take_over_path(path)
 		if mat.ao_texture != null:
 			var path := save_path.path_join(surf_name + '_ao.res')
-			ResourceSaver.save(mat.albedo_texture, path)
 			mat.ao_texture.take_over_path(path)
 		var path := save_path.path_join(surf_name + '_material.tres')
 		ResourceSaver.save(mat, path)
@@ -456,7 +452,6 @@ func _add_clothes_mesh(cl: HumanClothes) -> void:
 	set_shapekeys(human_config.shapekeys)
 	if human_config.transforms.has(cl.resource_name):
 		get_node(cl.resource_name).transform = Transform3D(human_config.transforms[cl.resource_name])
-
 
 func clear_clothes_in_slot(slot: String) -> void:
 	for cl in human_config.clothes:
@@ -927,8 +922,10 @@ func set_skin_normal_texture(name: String) -> void:
 			var overlay = {&'name': name, &'normal': texture, &'color': skin_color}
 			body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
 		else:
-			body_mesh.material_config.overlays[0].normal_texture_path = texture
-		(body_mesh.get_surface_override_material(0) as StandardMaterial3D).normal_scale = .2
+			var overlay = body_mesh.material_config.overlays[0]
+			overlay.normal_texture_path = texture
+			body_mesh.material_config.set_base_textures(overlay)
+		#(body_mesh.get_surface_override_material(0) as StandardMaterial3D).normal_scale = .2
 
 func set_body_part_material(set_slot: String, texture: String) -> void:
 	#print('setting material ' + texture + ' on ' + set_slot)

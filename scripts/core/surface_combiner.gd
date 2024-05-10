@@ -4,7 +4,7 @@ var mesh_instances: Array[MeshInstance3D]
 var atlas_resolution: int
 
 func _init(_mesh_instances: Array[MeshInstance3D], _atlas_resolution: int) -> void:
-	mesh_instances = _mesh_instances	
+	mesh_instances = _mesh_instances
 	atlas_resolution = _atlas_resolution
 	
 func run() -> MeshInstance3D:
@@ -192,7 +192,7 @@ func run() -> MeshInstance3D:
 		new_material.ao_enabled = true
 		new_material.ao_texture = ImageTexture.create_from_image(new_ao_image)
 		
-	new_mesh.surface_set_material(0, new_material)	
+	new_mesh.surface_set_material(0, new_material)
 	var mi = MeshInstance3D.new()
 	mi.mesh = new_mesh
 	return mi
@@ -204,8 +204,7 @@ func blend_color(image: Image, color: Color) -> void:
 		for y in image.get_height():
 			image.set_pixel(x, y, image.get_pixel(x, y) * color)
 			
-static func compress_material(args:Dictionary): #called from humanizerJobQueue
-	#print("compressing material")
+static func compress_material(args:Dictionary): 
 	var mesh:ArrayMesh = args.mesh
 	for surface_id in mesh.get_surface_count():
 		var material :StandardMaterial3D = mesh.surface_get_material(surface_id)
@@ -215,10 +214,10 @@ static func compress_material(args:Dictionary): #called from humanizerJobQueue
 			albedo_image.generate_mipmaps()
 			albedo_image.compress(Image.COMPRESS_BPTC)
 			var save_path = material.albedo_texture.get_path()
-			if(save_path == ""):
+			if save_path == "":
 				material.albedo_texture = ImageTexture.create_from_image(albedo_image)
 			else:
-				ResourceSaver.save(ImageTexture.create_from_image(albedo_image),save_path)
+				ResourceSaver.save(ImageTexture.create_from_image(albedo_image), save_path)
 		
 		if not material.normal_texture == null:
 			var normal_image = material.normal_texture.get_image()
@@ -226,19 +225,17 @@ static func compress_material(args:Dictionary): #called from humanizerJobQueue
 			##normal_image.compress(Image.COMPRESS_S3TC,Image.COMPRESS_SOURCE_NORMAL) # godots default normal texture format, but it looks terrible
 			normal_image.compress(Image.COMPRESS_BPTC)
 			var save_path = material.normal_texture.get_path()
-			if(save_path == ""):
+			if save_path == "":
 				material.normal_texture = ImageTexture.create_from_image(normal_image)
 			else:
-				ResourceSaver.save(ImageTexture.create_from_image(normal_image),save_path)
+				ResourceSaver.save(ImageTexture.create_from_image(normal_image), save_path)
 				
 		if not material.ao_texture == null:
 			var ao_image = material.ao_texture.get_image()
 			ao_image.generate_mipmaps(true)
 			ao_image.compress(Image.COMPRESS_BPTC)
 			var save_path = material.ao_texture.get_path()
-			if(save_path == ""):
+			if save_path == "":
 				material.ao_texture = ImageTexture.create_from_image(ao_image)
 			else:
-				ResourceSaver.save(ImageTexture.create_from_image(ao_image),save_path)
-		
-	#print("done compressing")
+				ResourceSaver.save(ImageTexture.create_from_image(ao_image), save_path)
