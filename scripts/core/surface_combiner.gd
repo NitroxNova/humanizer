@@ -225,17 +225,15 @@ static func compress_material(args:Dictionary):
 			##normal_image.compress(Image.COMPRESS_S3TC,Image.COMPRESS_SOURCE_NORMAL) # godots default normal texture format, but it looks terrible
 			normal_image.compress(Image.COMPRESS_BPTC)
 			var save_path = material.normal_texture.get_path()
-			if save_path == "":
-				material.normal_texture = ImageTexture.create_from_image(normal_image)
-			else:
+			if save_path != "":
 				ResourceSaver.save(ImageTexture.create_from_image(normal_image), save_path)
+				material.normal_texture = load(save_path)
 				
 		if not material.ao_texture == null:
 			var ao_image = material.ao_texture.get_image()
 			ao_image.generate_mipmaps(true)
 			ao_image.compress(Image.COMPRESS_BPTC)
 			var save_path = material.ao_texture.get_path()
-			if save_path == "":
-				material.ao_texture = ImageTexture.create_from_image(ao_image)
-			else:
+			if save_path != "":
 				ResourceSaver.save(ImageTexture.create_from_image(ao_image), save_path)
+				material.ao_texture = load(save_path)
