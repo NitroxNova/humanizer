@@ -17,3 +17,6 @@ var mhclo_path: String:
 var material_path: String:
 	get:
 		return path.path_join(path.get_file() + '_material.res')
+var skeleton_mhclo_path: String:
+	get:
+		return path.path_join(resource_name + '_skeleton_mhclo.res')
