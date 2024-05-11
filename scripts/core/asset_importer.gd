@@ -83,6 +83,12 @@ func _scan_path_for_assets(path: String) -> void:
 		var rigged_mesh = path.path_join(fl + '_rigged.glb')
 		if FileAccess.file_exists(rigged_mesh):
 			asset_data[fl]['rigged'] = rigged_mesh
+		var skeleton_mhclo_path = path.path_join(fl + '.skeleton_mhclo')
+		if FileAccess.file_exists(skeleton_mhclo_path):
+			var skeleton_mhclo := MHCLO.new()
+			skeleton_mhclo.parse_file(skeleton_mhclo_path)
+			asset_data[fl]['skeleton_mhclo'] = skeleton_mhclo
+			#ResourceSaver.save(skeleton_mhclo,path.path_join(fl + "_skeleton_mhclo.res"))
 	
 	for dir in contents.dirs:
 		contents.files.append_array(OSPath.get_files(dir))
@@ -215,6 +221,9 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(mesh)
 	resource.take_over_path(path.path_join(resource.resource_name + '.tres'))
 	ResourceSaver.save(mhclo, resource.mhclo_path)
+	
+	if "skeleton_mhclo" in data:
+		ResourceSaver.save(data.skeleton_mhclo,resource.skeleton_mhclo_path) 
 
 	# Put main resource in registry for easy access later
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:

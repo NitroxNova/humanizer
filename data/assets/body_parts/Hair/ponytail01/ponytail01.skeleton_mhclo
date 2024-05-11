@@ -1,0 +1,28 @@
+# This is a clothes file for MakeHuman Community, exported by MakeClothes 2
+#
+# author: unknown
+# license: CC0
+#
+# description: bone positions
+#
+basemesh hm08
+
+# Basic info:
+name ponytail01_bones
+obj_file ponytail01_bones.obj
+material ponytail01_bones.mhmat
+tag head
+
+uuid 254f22de-3ae0-4c7c-adb1-ec86dfb55d15
+x_scale 5399 11998 0.1399
+y_scale 791 881 0.2315
+z_scale 962 5320 0.1904
+max_pole 2
+z_depth 50
+
+# Vertex info:
+verts 0
+19095 19097 19096 0.8227 0.2053 -0.0280 -0.0000 0.0004 -0.0055
+19099 19101 19100 1.0651 -0.0539 -0.0112 0.0007 -0.0003 -0.0211
+19101 19103 19102 0.2728 0.7532 -0.0260 -0.0002 -0.0001 -0.0267
+19115 19117 19116 -19.0881 19.6852 0.4029 0.0002 -0.0002 0.0774
