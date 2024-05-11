@@ -117,8 +117,6 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 @export var human_config: HumanConfig:
 	set(value):
 		human_config = value.duplicate(true)
-		if human_config.rig == '':
-			human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 		# This gets set before _ready causing issues so make sure we're loaded
 		if scene_loaded:
 			load_human()
@@ -190,6 +188,8 @@ func load_human() -> void:
 	## if we are calling on a node ont in the tree ready won't be called
 	if human_config == null and not scene_loaded:
 		human_config = HumanConfig.new()
+	if human_config.rig == '':
+		human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 	baked = false
 	reset_human()
 	_deserialize()
@@ -354,26 +354,29 @@ func _deserialize() -> void:
 	# Since shapekeys are relative we start from empty
 	var sk = human_config.shapekeys.duplicate()
 	human_config.shapekeys = {}
-	set_rig(human_config.rig)
+	set_rig(human_config.rig, false)
 	for slot: String in human_config.body_parts:
 		var bp = human_config.body_parts[slot]
 		var mat = human_config.body_part_materials[slot]
-		set_body_part(bp)
+		set_body_part(bp, false)
 		set_body_part_material(bp.slot, mat)
 	for clothes: HumanClothes in human_config.clothes:
-		_add_clothes_mesh(clothes)
+		_add_clothes_mesh(clothes, false)
 	for clothes: String in human_config.clothes_materials:
 		set_clothes_material(clothes, human_config.clothes_materials[clothes])
 	if human_config.body_part_materials.has(&'skin'):
 		set_skin_texture(human_config.body_part_materials[&'skin'])
+	_adjust_skeleton()
+	set_shapekeys(sk)
 	for component in human_config.components:
+		if component in [&'root_bone', &'ragdoll']:
+			continue  # These are already set in set_rig
 		set_component_state(true, component)
 	skin_color = human_config.skin_color
 	hair_color = human_config.hair_color
 	eye_color = human_config.eye_color
 	eyebrow_color = human_config.eyebrow_color
 	hide_body_vertices()
-	set_shapekeys(sk)
 
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
@@ -400,7 +403,7 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
 	body_mesh.visible = visible
 
-func set_body_part(bp: HumanBodyPart) -> void:
+func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
 	if human_config.body_parts.has(bp.slot):
 		if get_node_or_null(bp.resource_name) != null:
 			return
@@ -415,7 +418,8 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	_add_child_node(mi)
 	set_body_part_material(bp.slot, Random.choice(bp.textures.keys()))
 	_add_bone_weights(bp)
-	set_shapekeys(human_config.shapekeys)
+	if update:
+		set_shapekeys(human_config.shapekeys)
 	if 'eyebrow' in bp.slot.to_lower():
 		eyebrow_color = eyebrow_color
 	if human_config.transforms.has(bp.resource_name):
@@ -439,7 +443,7 @@ func apply_clothes(cl: HumanClothes) -> void:
 	#print('applying ' + cl.resource_name + ' clothes')
 	_add_clothes_mesh(cl)
 
-func _add_clothes_mesh(cl: HumanClothes) -> void:
+func _add_clothes_mesh(cl: HumanClothes, update: bool = true) -> void:
 	if get_node_or_null(cl.resource_name) != null:
 		return
 	if not cl in human_config.clothes:
@@ -449,7 +453,8 @@ func _add_clothes_mesh(cl: HumanClothes) -> void:
 		setup_overlay_material(cl, mi)
 	_add_child_node(mi)
 	_add_bone_weights(cl)
-	set_shapekeys(human_config.shapekeys)
+	if update:
+		set_shapekeys(human_config.shapekeys)
 	if human_config.transforms.has(cl.resource_name):
 		get_node(cl.resource_name).transform = Transform3D(human_config.transforms[cl.resource_name])
 
@@ -944,7 +949,9 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 		var mat: BaseMaterial3D = mi.get_surface_override_material(0)
 		mat.albedo_texture = load(bp.textures[texture])
 	if bp.slot in ['LeftEye', 'RightEye', 'Eyes']:
-		mi.material_config.overlays[1].color = eye_color
+		var iris: HumanizerOverlay = mi.material_config.overlays[1]
+		iris.color = eye_color
+		mi.material_config.set_overlay(1, iris)
 	if bp.slot in ['RightEyebrow', 'LeftEyebrow', 'Eyebrows']:
 		mi.get_surface_override_material(0).albedo_color = Color(hair_color * eyebrow_color_weight, 1) 
 	elif bp.slot == 'Hair':
@@ -996,7 +1003,7 @@ func get_helper_vertex_position(mh_id:int):
 	return _helper_vertex[mh_id]
 
 #### Animation ####
-func set_rig(rig_name: String) -> void:
+func set_rig(rig_name: String, update: bool = true) -> void:
 	# Delete existing skeleton
 	for child in get_children():
 		if child is Skeleton3D:
@@ -1010,7 +1017,7 @@ func set_rig(rig_name: String) -> void:
 	var retargeted: bool = rig_name.ends_with('-RETARGETED')
 	var rig: HumanizerRig = HumanizerRegistry.rigs[rig_name.split('-')[0]]
 	human_config.rig = rig_name
-	skeleton = rig.load_skeleton()  # Json file needs base skeleton names
+	skeleton = rig.load_skeleton()  # Json file needs base skeleton names even if using retargeted
 	var skinned_mesh: ArrayMesh = MeshOperations.skin_mesh(rig, skeleton, body_mesh.mesh)
 	
 	# Set rig in scene
@@ -1023,15 +1030,15 @@ func set_rig(rig_name: String) -> void:
 	_set_body_mesh(skinned_mesh)
 	body_mesh.set_surface_override_material(0, mat)
 	body_mesh.skeleton = '../' + skeleton.name
-	_adjust_skeleton()
 	_reset_animator()
-	set_shapekeys(human_config.shapekeys)
-	for cl in human_config.clothes:
-		_add_bone_weights(cl)
-	for bp in human_config.body_parts.values():
-		_add_bone_weights(bp)
+	if update:
+		_adjust_skeleton()
+		set_shapekeys(human_config.shapekeys)
+		for cl in human_config.clothes:
+			_add_bone_weights(cl)
+		for bp in human_config.body_parts.values():
+			_add_bone_weights(bp)
 	
-	_new_shapekeys = {}
 	if human_config.components.has(&'ragdoll'):
 		set_component_state(false, &'ragdoll')
 		set_component_state(true, &'ragdoll')
