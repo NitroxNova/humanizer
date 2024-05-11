@@ -178,8 +178,8 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	var mesh = data.mesh
 	var mh2gd_index = data.mh2gd_index
 	var mhclo = data.mhclo
-	#if data.has('rigged'):
-	#	_build_bone_arrays(data)
+	if data.has('rigged'):
+		_build_bone_arrays(data)
 
 	resource.path = path
 	resource.resource_name = mhclo.resource_name
@@ -283,6 +283,7 @@ func build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh:
 	return shaded_mesh
 
 func _build_bone_arrays(data: Dictionary) -> void:
+	print("building bone arrays")
 	var obj_arrays = (data.mesh as ArrayMesh).surface_get_arrays(0)
 	var glb = data.rigged
 	var gltf := GLTFDocument.new()
@@ -292,29 +293,39 @@ func _build_bone_arrays(data: Dictionary) -> void:
 		push_error('Failed to load glb : ' + glb)
 		return
 	var root = gltf.generate_scene(state)
-	var skeleton = root.get_child(0).get_child(0)
+	var skeleton:Skeleton3D = root.get_child(0).get_child(0)
 	var glb_arrays = (skeleton.get_child(0) as ImporterMeshInstance3D).mesh.get_surface_arrays(0)
-	var glb_to_obj_idx := {}
-	var tol := 1e-4
+	#var glb_to_obj_idx := {}
+	#var tol := 1e-4
+	var mh_to_glb_idx = []
+	mh_to_glb_idx.resize(data.mh2gd_index.size())
 	
-	return
-	var omax := 0.
-	var gmax := 0.
-	# Build vertex index mapping
-	for i in obj_arrays[Mesh.ARRAY_VERTEX].size():
-		var vtx = obj_arrays[Mesh.ARRAY_VERTEX][i]
-		if vtx.y > omax:
-			omax = vtx.y
-		if not vtx in glb_to_obj_idx:
-			glb_to_obj_idx[i] = []
-		for j in glb_arrays[Mesh.ARRAY_VERTEX].size():
-			var gvtx = glb_arrays[Mesh.ARRAY_VERTEX][j]
-			if gvtx.y > gmax:
-				gmax = gvtx.y
-			if vtx.x - gvtx.x < tol and vtx.y - gvtx.y < tol and vtx.z - gvtx.z < tol:
-				glb_to_obj_idx[i].append(j)
+	var max_id = roundi(1 / glb_arrays[Mesh.ARRAY_TEX_UV2][0].y) 
+	for glb_id in glb_arrays[Mesh.ARRAY_TEX_UV2].size():
+		var uv2 = glb_arrays[Mesh.ARRAY_TEX_UV2][glb_id]
+		var mh_id = roundi(uv2.x * max_id)
+		if mh_to_glb_idx[mh_id] == null:
+			mh_to_glb_idx[mh_id] = []
+		mh_to_glb_idx[mh_id].append(glb_id)
 	
-	print(omax)
-	print(gmax)
+	var bone_config = []
+	bone_config.resize(skeleton.get_bone_count())
+	for bone_id in skeleton.get_bone_count():
+		bone_config[bone_id] = {}
+		bone_config[bone_id].name = skeleton.get_bone_name(bone_id)
+		bone_config[bone_id].transform = skeleton.get_bone_global_rest(bone_id)
+		bone_config[bone_id].parent = skeleton.get_bone_parent(bone_id)
+	
+	var weights_override = []
+	weights_override.resize(data.mh2gd_index.size())
+	var bones_override = []
+	bones_override.resize(data.mh2gd_index.size())
+	var bones_per_vtx = glb_arrays[Mesh.ARRAY_BONES].size()/glb_arrays[Mesh.ARRAY_VERTEX].size()
 
+	for mh_id in mh_to_glb_idx.size():
+		var glb_id = mh_to_glb_idx[mh_id][0]
+		var glb_bones = glb_arrays[Mesh.ARRAY_BONES].slice(glb_id*bones_per_vtx,(glb_id+1) * bones_per_vtx)
+		var glb_weights = glb_arrays[Mesh.ARRAY_BONES].slice(glb_id*bones_per_vtx,(glb_id+1) * bones_per_vtx)
+		weights_override[mh_id] = glb_bones
+		bones_override[mh_id] = glb_weights
 	
