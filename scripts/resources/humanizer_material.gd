@@ -73,6 +73,10 @@ func add_overlay(overlay: HumanizerOverlay) -> void:
 		return
 	overlays.append(overlay)
 	update_material()
+
+func set_overlay(idx: int, overlay: HumanizerOverlay) -> void:
+	overlays[idx] = overlay
+	update_material()
 	
 func remove_overlay(name: String) -> void:
 	var idx := get_index(name)

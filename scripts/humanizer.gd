@@ -105,7 +105,9 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 			if not human_config.body_parts.has(slot):
 				continue
 			var mesh = get_node(human_config.body_parts[slot].resource_name)
-			mesh.material_config.overlays[1].color = eye_color
+			var overlay = mesh.material_config.overlays[1]
+			overlay.color = eye_color
+			mesh.material_config.set_overlay(1, overlay)
 
 ## The meshes selected to be baked to a new surface
 @export var _bake_meshes: Array[MeshInstance3D]
