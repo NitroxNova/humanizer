@@ -1064,6 +1064,11 @@ func _adjust_skeleton() -> void:
 	var _foot_offset = Vector3.UP * offset
 	skeleton.motion_scale = 1
 	
+	for cl in human_config.clothes:
+		_get_asset_bone_positions(cl)
+	for bp in human_config.body_parts.values():
+		_get_asset_bone_positions(bp)
+	
 	for bone_id in skeleton.get_bone_count():
 		## manually added bones won't be in the config
 		if skeleton_config.size() < bone_id + 1:
@@ -1086,6 +1091,7 @@ func _adjust_skeleton() -> void:
 			bone_pos = bone_pos * parent_xform
 		skeleton.set_bone_pose_position(bone_id, bone_pos)
 		skeleton.set_bone_rest(bone_id,skeleton. get_bone_pose(bone_id))
+
 	
 	skeleton.motion_scale = _base_motion_scale * (_helper_vertex[hips_id].y - _foot_offset.y) / _base_hips_height
 	skeleton.reset_bone_poses()
@@ -1093,6 +1099,13 @@ func _adjust_skeleton() -> void:
 		if child is MeshInstance3D:
 			child.skin = skeleton.create_skin_from_rest_transforms()
 	#print('Fit skeleton to mesh')
+
+func _get_asset_bone_positions(asset:HumanAsset):
+	var mhclo = load(asset.mhclo_path)
+	for rig_bone_id in mhclo.rigged_config.size():
+		var bone_name = asset.resource_name + "." + mhclo.rigged_config[rig_bone_id].name
+		var vertex_line = mhclo.skeleton_mhclo.vertex_data[rig_bone_id]
+		#var bone_position = MeshOperations.get_mhclo_vertex_position(_helper_vertex,vertex_line,)
 
 func _add_bone_weights(asset: HumanAsset) -> void:
 	var mi: MeshInstance3D = get_node_or_null(asset.resource_name)

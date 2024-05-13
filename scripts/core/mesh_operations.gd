@@ -23,24 +23,10 @@ static func build_fitted_mesh(mesh: ArrayMesh, helper_vertex_array: PackedVector
 
 static func build_fitted_arrays(mesh: ArrayMesh, helper_vertex_array: PackedVector3Array, mhclo: MHCLO) -> Array: 
 	var new_sf_arrays = mesh.surface_get_arrays(0)
-	var clothes_scale = Vector3.ZERO
-	clothes_scale.x = _calculate_scale("x", helper_vertex_array, mhclo)
-	clothes_scale.y = _calculate_scale("y", helper_vertex_array, mhclo)
-	clothes_scale.z = _calculate_scale("z", helper_vertex_array, mhclo)
+	var clothes_scale = calculate_mhclo_scale(helper_vertex_array,mhclo)
 	for mh_id in mhclo.vertex_data.size():
 		var vertex_line = mhclo.vertex_data[mh_id]
-		var new_coords = Vector3.ZERO
-		if vertex_line.format == "single":
-			var vertex_id = vertex_line.vertex[0]
-			new_coords = helper_vertex_array[vertex_id]
-		else:
-			for i in 3:
-				var vertex_id = vertex_line.vertex[i]
-				var v_weight = vertex_line.weight[i]
-				var v_coords = helper_vertex_array[vertex_id]
-				v_coords *= v_weight
-				new_coords += v_coords
-			new_coords += (vertex_line.offset * clothes_scale)
+		var new_coords = get_mhclo_vertex_position(helper_vertex_array,vertex_line,clothes_scale)
 		var g_id_array = mhclo.mh2gd_index[mh_id]
 		for g_id in g_id_array:
 			new_sf_arrays[Mesh.ARRAY_VERTEX][g_id] = new_coords
@@ -49,14 +35,30 @@ static func build_fitted_arrays(mesh: ArrayMesh, helper_vertex_array: PackedVect
 	#	add_bone_weights(new_sf_arrays)
 	return new_sf_arrays
 
-static func _calculate_scale(axis: String, helper_vertex_array: Array, mhclo: MHCLO) -> float:
-	# axis = x y or z
-	var scale_data = mhclo.scale_config[axis]
-	var start_coords = helper_vertex_array[scale_data.start]
-	var end_coords = helper_vertex_array[scale_data.end]
-	var basemesh_dist = absf(end_coords[axis] - start_coords[axis])
-	var scale = basemesh_dist/scale_data.length
-	return scale
+static func calculate_mhclo_scale(helper_vertex_array: Array, mhclo: MHCLO) -> Vector3:
+	var mhclo_scale = Vector3.ZERO
+	for axis in ["x","y","z"]:
+		var scale_data = mhclo.scale_config[axis]
+		var start_coords = helper_vertex_array[scale_data.start]
+		var end_coords = helper_vertex_array[scale_data.end]
+		var basemesh_dist = absf(end_coords[axis] - start_coords[axis])
+		mhclo_scale[axis] = basemesh_dist/scale_data.length
+	return mhclo_scale
+
+static func get_mhclo_vertex_position( helper_vertex_array: PackedVector3Array, vertex_line:Dictionary, mhclo_scale:Vector3):
+	var new_coords = Vector3.ZERO
+	if vertex_line.format == "single":
+		var vertex_id = vertex_line.vertex[0]
+		new_coords = helper_vertex_array[vertex_id]
+	else:
+		for i in 3:
+			var vertex_id = vertex_line.vertex[i]
+			var v_weight = vertex_line.weight[i]
+			var v_coords = helper_vertex_array[vertex_id]
+			v_coords *= v_weight
+			new_coords += v_coords
+		new_coords += (vertex_line.offset * mhclo_scale)
+	return new_coords
 	
 static func skin_mesh(rig: HumanizerRig, skeleton: Skeleton3D, basemesh: ArrayMesh) -> ArrayMesh:
 	# Load bone and weight arrays for base mesh
