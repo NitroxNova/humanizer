@@ -419,7 +419,8 @@ func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
 		mi.get_surface_override_material(0).resource_path = ''
 	_add_child_node(mi)
 	set_body_part_material(bp.slot, Random.choice(bp.textures.keys()))
-	_add_bone_weights(bp)
+	#_add_bone_weights(bp)
+	set_rig(human_config.rig) #update rig with additional asset bones, and remove any from previous asset
 	if update:
 		set_shapekeys(human_config.shapekeys)
 	if 'eyebrow' in bp.slot.to_lower():
@@ -427,6 +428,7 @@ func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
 	if human_config.transforms.has(bp.resource_name):
 		get_node(bp.resource_name).transform = Transform3D(human_config.transforms[bp.resource_name])
 
+	
 	#notify_property_list_changed()
 
 func clear_body_part(clear_slot: String) -> void:
@@ -435,6 +437,7 @@ func clear_body_part(clear_slot: String) -> void:
 			var res = human_config.body_parts[clear_slot]
 			_delete_child_by_name(res.resource_name)
 			human_config.body_parts.erase(clear_slot)
+			set_rig(human_config.rig) #remove bones from previous asset
 			return
 
 func apply_clothes(cl: HumanClothes) -> void:
@@ -1102,7 +1105,25 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 	var mhclo: MHCLO = load(asset.mhclo_path) 
 	var mh2gd_index = mhclo.mh2gd_index
 	var mesh: ArrayMesh
-
+	
+	if mhclo.rigged_config != []:
+		for bone_id in mhclo.rigged_config.size():
+			var bone_config = mhclo.rigged_config[bone_id]
+			if bone_config.name != "neutral_bone":
+				var bone_name = asset.resource_name + "." + bone_config.name
+				#print("adding bone " + bone_name)
+				var parent_bone = -1
+				if (bone_config.parent==-1):
+					parent_bone = skeleton.find_bone(mhclo.skeleton_mhclo.tags[0])
+				else:
+					var parent_bone_config = mhclo.rigged_config[bone_config.parent]
+					parent_bone = skeleton.find_bone(asset.resource_name + "." + parent_bone_config.name)
+				if not parent_bone == -1:
+					skeleton.add_bone(bone_name)
+					var new_bone_id = skeleton.find_bone(bone_name)
+					skeleton.set_bone_parent(new_bone_id,parent_bone)
+					skeleton.set_bone_rest(new_bone_id,bone_config.transform)				
+					
 	mesh = mi.mesh as ArrayMesh
 	var new_sf_arrays = mesh.surface_get_arrays(0)
 	

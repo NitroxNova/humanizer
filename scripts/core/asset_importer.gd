@@ -308,7 +308,7 @@ func _build_bone_arrays(data: Dictionary) -> void:
 	for bone_id in skeleton.get_bone_count():
 		bone_config[bone_id] = {}
 		bone_config[bone_id].name = skeleton.get_bone_name(bone_id)
-		bone_config[bone_id].transform = skeleton.get_bone_global_rest(bone_id)
+		bone_config[bone_id].transform = skeleton.get_bone_rest(bone_id) #for local bone rotation
 		bone_config[bone_id].parent = skeleton.get_bone_parent(bone_id)
 	
 	var weights_override = []
