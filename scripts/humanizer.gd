@@ -1064,23 +1064,26 @@ func _adjust_skeleton() -> void:
 	var _foot_offset = Vector3.UP * offset
 	skeleton.motion_scale = 1
 	
+	var asset_bone_positions = []
+	asset_bone_positions.resize(skeleton.get_bone_count())	
 	for cl in human_config.clothes:
-		_get_asset_bone_positions(cl)
+		_get_asset_bone_positions(cl, asset_bone_positions)
 	for bp in human_config.body_parts.values():
-		_get_asset_bone_positions(bp)
+		_get_asset_bone_positions(bp, asset_bone_positions)
 	
 	for bone_id in skeleton.get_bone_count():
+		var bone_pos = Vector3.ZERO
 		## manually added bones won't be in the config
 		if skeleton_config.size() < bone_id + 1:
-			continue
-		var bone_data = skeleton_config[bone_id]
-		var bone_pos = Vector3.ZERO
-		if "vertex_indices" in bone_data.head:
-			for vid in bone_data.head.vertex_indices:
-				bone_pos += _helper_vertex[int(vid)]
-			bone_pos /= bone_data.head.vertex_indices.size()
+			bone_pos = asset_bone_positions[bone_id]
 		else:
-			bone_pos = _helper_vertex[int(bone_data.head.vertex_index)]
+			var bone_data = skeleton_config[bone_id]
+			if "vertex_indices" in bone_data.head:
+				for vid in bone_data.head.vertex_indices:
+					bone_pos += _helper_vertex[int(vid)]
+				bone_pos /= bone_data.head.vertex_indices.size()
+			else:
+				bone_pos = _helper_vertex[int(bone_data.head.vertex_index)]
 		if skeleton.get_bone_name(bone_id) != 'Root':
 			bone_pos -= _foot_offset
 		else:
@@ -1100,12 +1103,15 @@ func _adjust_skeleton() -> void:
 			child.skin = skeleton.create_skin_from_rest_transforms()
 	#print('Fit skeleton to mesh')
 
-func _get_asset_bone_positions(asset:HumanAsset):
+func _get_asset_bone_positions(asset:HumanAsset,bone_positions:Array):
 	var mhclo = load(asset.mhclo_path)
 	for rig_bone_id in mhclo.rigged_config.size():
 		var bone_name = asset.resource_name + "." + mhclo.rigged_config[rig_bone_id].name
-		var vertex_line = mhclo.skeleton_mhclo.vertex_data[rig_bone_id]
-		#var bone_position = MeshOperations.get_mhclo_vertex_position(_helper_vertex,vertex_line,)
+		var bone_id = skeleton.find_bone(bone_name)
+		if bone_id != -1:
+			var vertex_line = mhclo.skeleton_mhclo.vertex_data[rig_bone_id]
+			var mhclo_scale = MeshOperations.calculate_mhclo_scale(_helper_vertex,mhclo)
+			bone_positions[bone_id] = MeshOperations.get_mhclo_vertex_position(_helper_vertex,vertex_line,mhclo_scale)
 
 func _add_bone_weights(asset: HumanAsset) -> void:
 	var mi: MeshInstance3D = get_node_or_null(asset.resource_name)
