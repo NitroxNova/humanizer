@@ -16,9 +16,10 @@ func load_retargeted_skeleton() -> Skeleton3D:
 	return load(skeleton_retargeted_path).instantiate()
 
 func load_bone_weights() -> Dictionary:
-	var weights: Dictionary = HumanizerUtils.read_json(mh_weights_path).weights
-	for in_name:String in weights.keys():
-		if ':' not in in_name:
+	var json := FileAccess.get_file_as_string(mh_weights_path)
+	var weights: Dictionary = JSON.parse_string(json).weights
+	for in_name: String in weights.keys():
+		if ":" not in in_name:
 			continue
 		var out_name = in_name.replace(":", "_")
 		weights[out_name] = weights[in_name]
