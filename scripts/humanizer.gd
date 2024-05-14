@@ -1147,70 +1147,22 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 	new_sf_arrays[Mesh.ARRAY_BONES].resize(bone_count * new_sf_arrays[Mesh.ARRAY_VERTEX].size())
 	new_sf_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
 	new_sf_arrays[Mesh.ARRAY_WEIGHTS].resize(bone_count * new_sf_arrays[Mesh.ARRAY_VERTEX].size())
-
+	
+	var rigged_bone_ids = []
+	if not mhclo.rigged_config.is_empty():
+		for rig_bone_id in mhclo.rigged_config.size():
+			var bone_name = asset.resource_name + "." + mhclo.rigged_config[rig_bone_id].name
+			rigged_bone_ids.append(skeleton.find_bone(bone_name))
 	for mh_id in mhclo.vertex_data.size():
-		var bones = []
-		var weights = []
-		var v_data = mhclo.vertex_data[mh_id]
-		if v_data.format == 'single':
-			var id = v_data.vertex[0]
-			bones = bone_weights.bones[id]
-			weights = bone_weights.weights[id]
-		else:
-			for i in 3:
-				var v_id = v_data.vertex[i]
-				var v_weight = v_data.weight[i]
-				var vb_id = bone_weights.bones[v_id]
-				var vb_weights = bone_weights.weights[v_id]
-				for j in vb_weights.size():
-					var l_weight = vb_weights[j]
-					if not l_weight == 0:
-						var l_bone = vb_id[j]
-						l_weight *= v_weight
-						if l_bone in bones:
-							var l_id = bones.find(l_bone)
-							weights[l_id] += l_weight
-						else:
-							bones.append(l_bone)
-							weights.append(l_weight)
-							
-		for weight_id in range(weights.size()-1,-1,-1):
-			if v_data.format == "triangle":
-				weights[weight_id] /= (v_data.weight[0] + v_data.weight[1] + v_data.weight[2])
-			if weights[weight_id] > 1:
-				weights[weight_id] = 1
-			elif weights[weight_id] < 0.001: #small weights and NEGATIVE
-				weights.remove_at(weight_id)
-				bones.remove_at(weight_id)
 		
-		## seems counterintuitive to the bone_count of 8, but is how makehuman does it, too many weights just deforms the mesh
-		## could convert mesh bone count during baking instead, but i think its easier to do it here
-		while bones.size() > 4:
-			var min_id = 0
-			for this_id in bones.size():
-				if weights[this_id] < weights[min_id]:
-					min_id = this_id
-			bones.remove_at(min_id)
-			weights.remove_at(min_id)
-		
-		#normalize		
-		var total_weight = 0
-		for weight in weights:
-			total_weight += weight
-		var ratio = 1/total_weight
-		for weight_id in weights.size():
-			weights[weight_id] *= ratio
-						
-		while bones.size() < bone_count:
-			bones.append(0)
-			weights.append(0)
+		var vertex_bone_weights = mhclo.calculate_vertex_bone_weights(mh_id,bone_weights, rigged_bone_ids)
 		
 		if mh_id < mh2gd_index.size():
 			var g_id_array = mh2gd_index[mh_id]
 			for g_id in g_id_array:
 				for i in bone_count:
-					new_sf_arrays[Mesh.ARRAY_BONES][g_id * bone_count + i] = bones[i]
-					new_sf_arrays[Mesh.ARRAY_WEIGHTS][g_id * bone_count + i] = weights[i]
+					new_sf_arrays[Mesh.ARRAY_BONES][g_id * bone_count + i] = vertex_bone_weights.bones[i]
+					new_sf_arrays[Mesh.ARRAY_WEIGHTS][g_id * bone_count + i] = vertex_bone_weights.weights[i]
 		else:
 			print("missing " + str(mh_id) + " from " + mhclo.name)
 

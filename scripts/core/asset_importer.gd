@@ -319,10 +319,8 @@ func _build_bone_arrays(data: Dictionary) -> void:
 
 	for mh_id in mh_to_glb_idx.size():
 		var glb_id = mh_to_glb_idx[mh_id][0]
-		var glb_bones = glb_arrays[Mesh.ARRAY_BONES].slice(glb_id*bones_per_vtx,(glb_id+1) * bones_per_vtx)
-		var glb_weights = glb_arrays[Mesh.ARRAY_BONES].slice(glb_id*bones_per_vtx,(glb_id+1) * bones_per_vtx)
-		weights_override[mh_id] = glb_bones
-		bones_override[mh_id] = glb_weights
+		bones_override[mh_id] = glb_arrays[Mesh.ARRAY_BONES].slice(glb_id*bones_per_vtx,(glb_id+1) * bones_per_vtx)
+		weights_override[mh_id] = glb_arrays[Mesh.ARRAY_WEIGHTS].slice(glb_id*bones_per_vtx,(glb_id+1) * bones_per_vtx)
 	
 	data.mhclo.rigged_config = bone_config
 	data.mhclo.rigged_bones = bones_override
