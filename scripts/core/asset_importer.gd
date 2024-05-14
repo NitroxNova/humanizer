@@ -87,8 +87,7 @@ func _scan_path_for_assets(path: String) -> void:
 		if FileAccess.file_exists(skeleton_mhclo_path):
 			var skeleton_mhclo := MHCLO.new()
 			skeleton_mhclo.parse_file(skeleton_mhclo_path)
-			asset_data[fl]['skeleton_mhclo'] = skeleton_mhclo
-			#ResourceSaver.save(skeleton_mhclo,path.path_join(fl + "_skeleton_mhclo.res"))
+			asset_data[fl]['mhclo'].skeleton_mhclo = skeleton_mhclo
 	
 	for dir in contents.dirs:
 		contents.files.append_array(OSPath.get_files(dir))
@@ -180,7 +179,7 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	var mhclo = data.mhclo
 	if data.has('rigged'):
 		_build_bone_arrays(data)
-
+	
 	resource.path = path
 	resource.resource_name = mhclo.resource_name
 	print('Importing asset ' + resource.resource_name)
@@ -221,9 +220,6 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(mesh)
 	resource.take_over_path(path.path_join(resource.resource_name + '.tres'))
 	ResourceSaver.save(mhclo, resource.mhclo_path)
-	
-	if "skeleton_mhclo" in data:
-		ResourceSaver.save(data.skeleton_mhclo,resource.skeleton_mhclo_path) 
 
 	# Put main resource in registry for easy access later
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
@@ -283,7 +279,6 @@ func build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh:
 	return shaded_mesh
 
 func _build_bone_arrays(data: Dictionary) -> void:
-	print("building bone arrays")
 	var obj_arrays = (data.mesh as ArrayMesh).surface_get_arrays(0)
 	var glb = data.rigged
 	var gltf := GLTFDocument.new()
@@ -313,7 +308,7 @@ func _build_bone_arrays(data: Dictionary) -> void:
 	for bone_id in skeleton.get_bone_count():
 		bone_config[bone_id] = {}
 		bone_config[bone_id].name = skeleton.get_bone_name(bone_id)
-		bone_config[bone_id].transform = skeleton.get_bone_global_rest(bone_id)
+		bone_config[bone_id].transform = skeleton.get_bone_rest(bone_id) #for local bone rotation
 		bone_config[bone_id].parent = skeleton.get_bone_parent(bone_id)
 	
 	var weights_override = []
@@ -329,3 +324,7 @@ func _build_bone_arrays(data: Dictionary) -> void:
 		weights_override[mh_id] = glb_bones
 		bones_override[mh_id] = glb_weights
 	
+	data.mhclo.rigged_config = bone_config
+	data.mhclo.rigged_bones = bones_override
+	data.mhclo.rigged_weights = weights_override
+		

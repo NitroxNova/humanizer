@@ -11,7 +11,7 @@ basemesh hm08
 name ponytail01_bones
 obj_file ponytail01_bones.obj
 material ponytail01_bones.mhmat
-tag head
+tag Head
 
 uuid 254f22de-3ae0-4c7c-adb1-ec86dfb55d15
 x_scale 5399 11998 0.1399

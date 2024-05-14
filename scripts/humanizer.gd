@@ -416,7 +416,8 @@ func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
 		mi.get_surface_override_material(0).resource_path = ''
 	_add_child_node(mi)
 	set_body_part_material(bp.slot, Random.choice(bp.textures.keys()))
-	_add_bone_weights(bp)
+	#_add_bone_weights(bp)
+	set_rig(human_config.rig) #update rig with additional asset bones, and remove any from previous asset
 	if update:
 		set_shapekeys(human_config.shapekeys)
 	if 'eyebrow' in bp.slot.to_lower():
@@ -424,6 +425,7 @@ func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
 	if human_config.transforms.has(bp.resource_name):
 		get_node(bp.resource_name).transform = Transform3D(human_config.transforms[bp.resource_name])
 
+	
 	#notify_property_list_changed()
 
 func clear_body_part(clear_slot: String) -> void:
@@ -432,6 +434,7 @@ func clear_body_part(clear_slot: String) -> void:
 			var res = human_config.body_parts[clear_slot]
 			_delete_child_by_name(res.resource_name)
 			human_config.body_parts.erase(clear_slot)
+			set_rig(human_config.rig) #remove bones from previous asset
 			return
 
 func apply_clothes(cl: HumanClothes) -> void:
@@ -1058,18 +1061,26 @@ func _adjust_skeleton() -> void:
 	var _foot_offset = Vector3.UP * offset
 	skeleton.motion_scale = 1
 	
+	var asset_bone_positions = []
+	asset_bone_positions.resize(skeleton.get_bone_count())	
+	for cl in human_config.clothes:
+		_get_asset_bone_positions(cl, asset_bone_positions)
+	for bp in human_config.body_parts.values():
+		_get_asset_bone_positions(bp, asset_bone_positions)
+	
 	for bone_id in skeleton.get_bone_count():
+		var bone_pos = Vector3.ZERO
 		## manually added bones won't be in the config
 		if skeleton_config.size() < bone_id + 1:
-			continue
-		var bone_data = skeleton_config[bone_id]
-		var bone_pos = Vector3.ZERO
-		if "vertex_indices" in bone_data.head:
-			for vid in bone_data.head.vertex_indices:
-				bone_pos += _helper_vertex[int(vid)]
-			bone_pos /= bone_data.head.vertex_indices.size()
+			bone_pos = asset_bone_positions[bone_id]
 		else:
-			bone_pos = _helper_vertex[int(bone_data.head.vertex_index)]
+			var bone_data = skeleton_config[bone_id]
+			if "vertex_indices" in bone_data.head:
+				for vid in bone_data.head.vertex_indices:
+					bone_pos += _helper_vertex[int(vid)]
+				bone_pos /= bone_data.head.vertex_indices.size()
+			else:
+				bone_pos = _helper_vertex[int(bone_data.head.vertex_index)]
 		if skeleton.get_bone_name(bone_id) != 'Root':
 			bone_pos -= _foot_offset
 		else:
@@ -1080,6 +1091,7 @@ func _adjust_skeleton() -> void:
 			bone_pos = bone_pos * parent_xform
 		skeleton.set_bone_pose_position(bone_id, bone_pos)
 		skeleton.set_bone_rest(bone_id,skeleton. get_bone_pose(bone_id))
+
 	
 	skeleton.motion_scale = _base_motion_scale * (_helper_vertex[hips_id].y - _foot_offset.y) / _base_hips_height
 	skeleton.reset_bone_poses()
@@ -1087,6 +1099,16 @@ func _adjust_skeleton() -> void:
 		if child is MeshInstance3D:
 			child.skin = skeleton.create_skin_from_rest_transforms()
 	#print('Fit skeleton to mesh')
+
+func _get_asset_bone_positions(asset:HumanAsset,bone_positions:Array):
+	var mhclo = load(asset.mhclo_path)
+	for rig_bone_id in mhclo.rigged_config.size():
+		var bone_name = asset.resource_name + "." + mhclo.rigged_config[rig_bone_id].name
+		var bone_id = skeleton.find_bone(bone_name)
+		if bone_id != -1:
+			var vertex_line = mhclo.skeleton_mhclo.vertex_data[rig_bone_id]
+			var mhclo_scale = MeshOperations.calculate_mhclo_scale(_helper_vertex,mhclo)
+			bone_positions[bone_id] = MeshOperations.get_mhclo_vertex_position(_helper_vertex,vertex_line,mhclo_scale)
 
 func _add_bone_weights(asset: HumanAsset) -> void:
 	var mi: MeshInstance3D = get_node_or_null(asset.resource_name)
@@ -1099,7 +1121,25 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 	var mhclo: MHCLO = load(asset.mhclo_path) 
 	var mh2gd_index = mhclo.mh2gd_index
 	var mesh: ArrayMesh
-
+	
+	if mhclo.rigged_config != []:
+		for bone_id in mhclo.rigged_config.size():
+			var bone_config = mhclo.rigged_config[bone_id]
+			if bone_config.name != "neutral_bone":
+				var bone_name = asset.resource_name + "." + bone_config.name
+				#print("adding bone " + bone_name)
+				var parent_bone = -1
+				if (bone_config.parent==-1):
+					parent_bone = skeleton.find_bone(mhclo.skeleton_mhclo.tags[0])
+				else:
+					var parent_bone_config = mhclo.rigged_config[bone_config.parent]
+					parent_bone = skeleton.find_bone(asset.resource_name + "." + parent_bone_config.name)
+				if not parent_bone == -1:
+					skeleton.add_bone(bone_name)
+					var new_bone_id = skeleton.find_bone(bone_name)
+					skeleton.set_bone_parent(new_bone_id,parent_bone)
+					skeleton.set_bone_rest(new_bone_id,bone_config.transform)				
+					
 	mesh = mi.mesh as ArrayMesh
 	var new_sf_arrays = mesh.surface_get_arrays(0)
 	
