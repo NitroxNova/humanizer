@@ -210,32 +210,16 @@ static func compress_material(args:Dictionary):
 		var material: BaseMaterial3D = mesh.surface_get_material(surface_id)
 		if material.resource_path == '':
 			continue
-		if not material.albedo_texture == null:
-			var albedo_image = material.albedo_texture.get_image()
-			albedo_image.generate_mipmaps()
-			albedo_image.compress(Image.COMPRESS_BPTC)
-			var save_path = material.albedo_texture.get_path()
-			if save_path != "":
-				ResourceSaver.save(ImageTexture.create_from_image(albedo_image), save_path)
-				material.albedo_texture = load(save_path)
-				
-		if not material.normal_texture == null:
-			var normal_image = material.normal_texture.get_image()
-			normal_image.generate_mipmaps(true)
-			##normal_image.compress(Image.COMPRESS_S3TC,Image.COMPRESS_SOURCE_NORMAL) # godots default normal texture format, but it looks terrible
-			normal_image.compress(Image.COMPRESS_BPTC)
-			var save_path = material.normal_texture.get_path()
-			if save_path != "":
-				ResourceSaver.save(ImageTexture.create_from_image(normal_image), save_path)
-				material.normal_texture = load(save_path)
-				
-		if not material.ao_texture == null:
-			var ao_image = material.ao_texture.get_image()
-			ao_image.generate_mipmaps(true)
-			ao_image.compress(Image.COMPRESS_BPTC)
-			var save_path = material.ao_texture.get_path()
-			if save_path != "":
-				ResourceSaver.save(ImageTexture.create_from_image(ao_image), save_path)
-				material.ao_texture = load(save_path)
 		
+		for texture in ['albedo', 'normal', 'ao']:
+			if not material.get(texture + '_texture') == null:
+				var image = material.get(texture + '_texture').get_image()
+				if not image.has_mipmaps():
+					image.generate_mipmaps()
+				image.compress(Image.COMPRESS_BPTC)
+				var save_path = material.get(texture + '_texture').get_path()
+				if save_path != "":
+					ResourceSaver.save(ImageTexture.create_from_image(image), save_path)
+					material.set(texture + '_texture', load(save_path))
+				
 		ResourceSaver.save(material, material.resource_path)
