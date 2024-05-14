@@ -395,10 +395,7 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	body_mesh.mesh = meshdata
 	body_mesh.set_surface_override_material(0, StandardMaterial3D.new())
 	body_mesh.set_script(load('res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd'))
-	if mat_config != null:
-		body_mesh.material_config = mat_config
-	else:
-		body_mesh.material_config = HumanizerMaterial.new()
+	body_mesh.material_config = HumanizerMaterial.new() if mat_config == null else mat_config
 	body_mesh.initialize()
 	if skeleton != null:
 		body_mesh.skeleton = '../' + skeleton.name
