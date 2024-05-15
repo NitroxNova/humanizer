@@ -59,7 +59,7 @@ func update_material_gpu() -> void:
 		var size_uniform := GPU_Integer.new()
 		size_uniform.data = textures.size()
 		size_uniform.binding = 3
-		uniform_set.uniforms = [output_uniform]#[textures_uniform, output_uniform, colors_uniform, size_uniform]
+		uniform_set.uniforms = [textures_uniform, output_uniform, colors_uniform, size_uniform]
 		compute.initialize()
 		await compute.compute_end
 		var image: Image = compute.get_uniform_by_binding(1).get_uniform_data(compute.rd)
