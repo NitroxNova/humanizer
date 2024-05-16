@@ -1101,14 +1101,16 @@ func _adjust_skeleton() -> void:
 	#print('Fit skeleton to mesh')
 
 func _get_asset_bone_positions(asset:HumanAsset,bone_positions:Array):
-	var mhclo = load(asset.mhclo_path)
+	var sf_arrays = get_node(asset.resource_name).mesh.surface_get_arrays(0)
+	var mhclo : MHCLO = load(asset.mhclo_path)
 	for rig_bone_id in mhclo.rigged_config.size():
-		var bone_name = asset.resource_name + "." + mhclo.rigged_config[rig_bone_id].name
+		var bone_config =  mhclo.rigged_config[rig_bone_id]
+		var bone_name = asset.resource_name + "." + bone_config.name
 		var bone_id = skeleton.find_bone(bone_name)
 		if bone_id != -1:
-			var vertex_line = mhclo.skeleton_mhclo.vertex_data[rig_bone_id]
-			var mhclo_scale = MeshOperations.calculate_mhclo_scale(_helper_vertex,mhclo)
-			bone_positions[bone_id] = MeshOperations.get_mhclo_vertex_position(_helper_vertex,vertex_line,mhclo_scale)
+			var v1 = sf_arrays[Mesh.ARRAY_VERTEX][mhclo.mh2gd_index[bone_config.vertices.ids[0]][0]]
+			var v2 = sf_arrays[Mesh.ARRAY_VERTEX][mhclo.mh2gd_index[bone_config.vertices.ids[1]][0]]
+			bone_positions[bone_id] = 0.5 * (v1+v2) + bone_config.vertices.offset
 
 func _add_bone_weights(asset: HumanAsset) -> void:
 	var mi: MeshInstance3D = get_node_or_null(asset.resource_name)
