@@ -17,7 +17,6 @@ enum SECTION {header,vertices,delete_vertices}
 @export var rigged_config := []
 @export var rigged_bones := []
 @export var rigged_weights := []
-@export var skeleton_mhclo: MHCLO
 var obj_file_name: String
 
 
