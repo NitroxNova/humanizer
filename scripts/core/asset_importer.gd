@@ -193,7 +193,7 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	
 	# Mesh operations
 	var new_sf_arrays = mesh.surface_get_arrays(0)
-	mesh = build_import_mesh(path, mhclo)
+	mesh = _build_import_mesh(path, mhclo)
 	
 	# Set slot(s)
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
@@ -258,7 +258,7 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	ResourceSaver.save(resource, resource.resource_path)
 	mi.queue_free()
 
-func build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh: 
+func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh: 
 	# build basis from obj file
 	var obj_path = path.path_join(mhclo.obj_file_name)
 	var obj_mesh := ObjToMesh.new(obj_path).run()
@@ -290,6 +290,7 @@ func _build_bone_arrays(data: Dictionary) -> void:
 	var root = gltf.generate_scene(state)
 	var skeleton:Skeleton3D = root.get_child(0).get_child(0)
 	var glb_arrays = (skeleton.get_child(0) as ImporterMeshInstance3D).mesh.get_surface_arrays(0)
+	
 	#var glb_to_obj_idx := {}
 	#var tol := 1e-4
 	var mh_to_glb_idx = []
@@ -310,6 +311,61 @@ func _build_bone_arrays(data: Dictionary) -> void:
 		bone_config[bone_id].name = skeleton.get_bone_name(bone_id)
 		bone_config[bone_id].transform = skeleton.get_bone_rest(bone_id) #for local bone rotation
 		bone_config[bone_id].parent = skeleton.get_bone_parent(bone_id)
+		
+		# This is ugly but it should work
+		bone_config[bone_id].vertices = {'ids': []}
+
+		## Find nearest vertex to bone and then nearest vertex in opposite direction
+		var vtx1: Vector3
+		var vtx2: Vector3
+		var min_distancesq: float = 1e11
+		var min_id: int = -1
+		var bone_pos: Vector3 = skeleton.get_bone_global_rest(bone_id).origin
+		if bone_pos == Vector3.ZERO:
+			# IDK what neutral bone is for but we don't need it
+			continue
+		
+		# Find closest distance squared
+		for vtx in glb_arrays[Mesh.ARRAY_VERTEX].size():
+			var distsq: float = bone_pos.distance_squared_to(glb_arrays[Mesh.ARRAY_VERTEX][vtx])
+			if distsq < min_distancesq:
+				min_distancesq = distsq
+		# Now find vertex mh_id which is that far away
+		for vtx in glb_arrays[Mesh.ARRAY_VERTEX].size():
+			var distsq: float = bone_pos.distance_squared_to(glb_arrays[Mesh.ARRAY_VERTEX][vtx])
+			if distsq == min_distancesq:  # Equal should be okay.  float math is deterministic on the same platform i think
+				for mh_id in mh_to_glb_idx.size():
+					if vtx in mh_to_glb_idx[mh_id]:
+						min_id = mh_id
+						vtx1 = glb_arrays[Mesh.ARRAY_VERTEX][vtx]
+						break
+			if min_id != -1:
+				break
+		# Add this id to the config
+		bone_config[bone_id].vertices['ids'].append(min_id)
+		
+		min_distancesq = 1e11
+		min_id = -1
+		var opposite_side = bone_pos + (bone_pos - vtx1)
+		for vtx in glb_arrays[Mesh.ARRAY_VERTEX].size():
+			var distsq: float = opposite_side.distance_squared_to(glb_arrays[Mesh.ARRAY_VERTEX][vtx])
+			if distsq < min_distancesq:
+				min_distancesq = distsq
+		for vtx in glb_arrays[Mesh.ARRAY_VERTEX].size():
+			var distsq: float = opposite_side.distance_squared_to(glb_arrays[Mesh.ARRAY_VERTEX][vtx])
+			if distsq == min_distancesq:
+				for mh_id in mh_to_glb_idx.size():
+					if vtx in mh_to_glb_idx[mh_id]:
+						min_id = mh_id
+						vtx2 = glb_arrays[Mesh.ARRAY_VERTEX][vtx]
+						break
+			if min_id != -1:
+				break
+				
+		bone_config[bone_id].vertices['ids'].append(min_id)
+		bone_config[bone_id].vertices['offset'] = bone_pos - 0.5 * (vtx1 + vtx2)
+		# Now when we build the skeleton we just set the global bone position to
+		# 0.5 * (v1 + v2) - offset
 	
 	var weights_override = []
 	weights_override.resize(data.mh2gd_index.size())

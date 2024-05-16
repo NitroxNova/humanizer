@@ -1090,7 +1090,7 @@ func _adjust_skeleton() -> void:
 			var parent_xform = skeleton.get_bone_global_pose(parent_id)
 			bone_pos = bone_pos * parent_xform
 		skeleton.set_bone_pose_position(bone_id, bone_pos)
-		skeleton.set_bone_rest(bone_id,skeleton. get_bone_pose(bone_id))
+		skeleton.set_bone_rest(bone_id, skeleton.get_bone_pose(bone_id))
 
 	
 	skeleton.motion_scale = _base_motion_scale * (_helper_vertex[hips_id].y - _foot_offset.y) / _base_hips_height
@@ -1129,7 +1129,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 				var bone_name = asset.resource_name + "." + bone_config.name
 				#print("adding bone " + bone_name)
 				var parent_bone = -1
-				if (bone_config.parent==-1):
+				if bone_config.parent == -1:
 					parent_bone = skeleton.find_bone(mhclo.skeleton_mhclo.tags[0])
 				else:
 					var parent_bone_config = mhclo.rigged_config[bone_config.parent]
@@ -1138,7 +1138,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 					skeleton.add_bone(bone_name)
 					var new_bone_id = skeleton.find_bone(bone_name)
 					skeleton.set_bone_parent(new_bone_id,parent_bone)
-					skeleton.set_bone_rest(new_bone_id,bone_config.transform)				
+					skeleton.set_bone_rest(new_bone_id, bone_config.transform)
 					
 	mesh = mi.mesh as ArrayMesh
 	var new_sf_arrays = mesh.surface_get_arrays(0)
