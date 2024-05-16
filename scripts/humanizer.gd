@@ -1132,7 +1132,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 				#print("adding bone " + bone_name)
 				var parent_bone = -1
 				if bone_config.parent == -1:
-					parent_bone = skeleton.find_bone(mhclo.skeleton_mhclo.tags[0])
+					parent_bone = skeleton.find_bone("Head")
 				else:
 					var parent_bone_config = mhclo.rigged_config[bone_config.parent]
 					parent_bone = skeleton.find_bone(asset.resource_name + "." + parent_bone_config.name)
