@@ -365,7 +365,7 @@ func _build_bone_arrays(data: Dictionary) -> void:
 		bone_config[bone_id].vertices['ids'].append(min_id)
 		bone_config[bone_id].vertices['offset'] = bone_pos - 0.5 * (vtx1 + vtx2)
 		# Now when we build the skeleton we just set the global bone position to
-		# 0.5 * (v1 + v2) - offset
+		# 0.5 * (v1 + v2) + offset
 	
 	var weights_override = []
 	weights_override.resize(data.mh2gd_index.size())
