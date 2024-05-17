@@ -69,12 +69,8 @@ func _scan_path_for_assets(path: String) -> void:
 			var fl = file_name.get_file().get_basename()
 			var _mhclo := MHCLO.new()
 			_mhclo.parse_file(file_name)
-			var obj = _mhclo.obj_file_name
-			obj_data = ObjToMesh.new(file_name.get_base_dir().path_join(obj)).run()
 			asset_data[fl] = {}
 			asset_data[fl]['mhclo'] = _mhclo
-			asset_data[fl]['mesh'] = obj_data.mesh
-			asset_data[fl]['mh2gd_index'] = obj_data.mh2gd_index
 	if asset_data.size() == 0:
 		return
 	
@@ -169,14 +165,14 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	elif asset_type == HumanizerRegistry.AssetType.Clothes:
 		resource = HumanClothes.new()
 
-	var mesh = data.mesh
-	var mh2gd_index = data.mh2gd_index
-	var mhclo = data.mhclo
+	# Mesh operations
+	data.mesh = _build_import_mesh(path, data.mhclo)
+	
 	if data.has('rigged'):
 		_build_bone_arrays(data)
 	
 	resource.path = path
-	resource.resource_name = mhclo.resource_name
+	resource.resource_name = data.mhclo.resource_name
 	print('Importing asset ' + resource.resource_name)
 	
 	resource.textures = data.textures.duplicate()
@@ -186,13 +182,10 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 		printerr('Cannot process ' + resource.resource_name + ' because its scene is open in the editor')
 		return
 	
-	# Mesh operations
-	var new_sf_arrays = mesh.surface_get_arrays(0)
-	mesh = _build_import_mesh(path, mhclo)
 	
 	# Set slot(s)
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
-		for tag in mhclo.tags:
+		for tag in data.mhclo.tags:
 			if tag in HumanizerGlobalConfig.config.body_part_slots:
 				resource.slot = tag
 		if resource.slot in ['', null]:
@@ -204,7 +197,7 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	elif asset_type == HumanizerRegistry.AssetType.Clothes:
 		if HumanizerRegistry.clothes.has(resource.resource_name):
 			HumanizerRegistry.clothes.erase(resource.resource_name)
-		for tag in mhclo.tags:
+		for tag in data.mhclo.tags:
 			if tag in HumanizerGlobalConfig.config.clothing_slots:
 				resource.slots.append(tag)
 		if resource.slots.size() == 0:
@@ -212,9 +205,9 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 			return
 
 	# Save resources
-	mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(mesh)
+	data.mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(data.mesh)
 	resource.take_over_path(path.path_join(resource.resource_name + '.tres'))
-	ResourceSaver.save(mhclo, resource.mhclo_path)
+	ResourceSaver.save(data.mhclo, resource.mhclo_path)
 
 	# Put main resource in registry for easy access later
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
@@ -230,7 +223,7 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 		mi = MeshInstance3D.new()
 	var scene = PackedScene.new()
 	var mat = load(resource.material_path)
-	mi.mesh = mesh
+	mi.mesh = data.mesh
 	mi.name = resource.resource_name
 	mi.set_surface_override_material(0, mat)
 	add_child(mi)
@@ -240,9 +233,9 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 		resource.default_overlay = HumanizerOverlay.from_dict(data.textures.overlay)	
 		resource.textures.erase('overlay')
 
-	mesh.take_over_path(resource.mesh_path)
+	data.mesh.take_over_path(resource.mesh_path)
 	scene.pack(mi)
-	ResourceSaver.save(mesh, resource.mesh_path)
+	ResourceSaver.save(data.mesh, resource.mesh_path)
 	if softbody:
 		ResourceSaver.save(resource, resource.resource_path + '_SoftBody')
 		ResourceSaver.save(scene, resource.softbody_scene_path)
@@ -289,7 +282,7 @@ func _build_bone_arrays(data: Dictionary) -> void:
 	#var glb_to_obj_idx := {}
 	#var tol := 1e-4
 	var mh_to_glb_idx = []
-	mh_to_glb_idx.resize(data.mh2gd_index.size())
+	mh_to_glb_idx.resize(data.mhclo.mh2gd_index.size())
 	
 	var max_id = roundi(1 / glb_arrays[Mesh.ARRAY_TEX_UV2][0].y) 
 	for glb_id in glb_arrays[Mesh.ARRAY_TEX_UV2].size():
@@ -363,9 +356,9 @@ func _build_bone_arrays(data: Dictionary) -> void:
 		# 0.5 * (v1 + v2) + offset
 	
 	var weights_override = []
-	weights_override.resize(data.mh2gd_index.size())
+	weights_override.resize(data.mhclo.mh2gd_index.size())
 	var bones_override = []
-	bones_override.resize(data.mh2gd_index.size())
+	bones_override.resize(data.mhclo.mh2gd_index.size())
 	var bones_per_vtx = glb_arrays[Mesh.ARRAY_BONES].size()/glb_arrays[Mesh.ARRAY_VERTEX].size()
 
 	for mh_id in mh_to_glb_idx.size():
