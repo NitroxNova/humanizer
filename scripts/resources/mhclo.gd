@@ -33,8 +33,8 @@ func parse_file(filename:String):
 				obj_file_name = line.get_slice(" ",1)
 			elif line.begins_with("name"):
 				resource_name = line.get_slice(' ', 1).strip_edges()
-			elif line.begins_with("tag"):
-				tags.append(line.get_slice(' ', 1).strip_edges())
+			elif line.begins_with("tag "):
+				tags.append(line.substr(4).strip_edges()) 
 			elif line.begins_with("x_scale "):
 				parse_scale_data(line,"x")
 			elif line.begins_with("y_scale "):

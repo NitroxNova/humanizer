@@ -19,6 +19,8 @@ tag MakeHumanâ„˘
 tag Female
 tag Hair
 tag Long
+tag bone_name Head
+tag bone_name head
 
 name Ponytail01
 obj_file ponytail01.obj
