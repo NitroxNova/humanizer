@@ -1135,9 +1135,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 					for tag in mhclo.tags:
 						if tag.begins_with("bone_name"):
 							var parent_name = tag.get_slice(" ",1)
-							print(parent_name)
 							parent_bone = skeleton.find_bone(parent_name)
-							print(parent_bone)
 							if parent_bone != -1:
 								break
 				else:
