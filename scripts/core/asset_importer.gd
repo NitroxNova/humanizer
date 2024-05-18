@@ -168,8 +168,8 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	# Mesh operations
 	data.mesh = _build_import_mesh(path, data.mhclo)
 	
-	#if data.has('rigged'):
-		#_build_bone_arrays(data)
+	if data.has('rigged'):
+		_build_bone_arrays(data)
 	
 	resource.path = path
 	resource.resource_name = data.mhclo.resource_name
@@ -249,13 +249,9 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh: 
 	# build basis from obj file
 	var obj_path = path.path_join(mhclo.obj_file_name)
-	var mesh_data = {}
-	if obj_path.get_extension() == "obj":
-		mesh_data = ObjToMesh.new(obj_path).run()
-	elif obj_path.get_extension() == "glb":
-		mesh_data = _import_glb(obj_path,mhclo)
-	var mesh = mesh_data.mesh
-	mhclo.mh2gd_index = mesh_data.mh2gd_index
+	var obj_mesh := ObjToMesh.new(obj_path).run()
+	var mesh = obj_mesh.mesh
+	mhclo.mh2gd_index = obj_mesh.mh2gd_index
 	
 	#= obj_data.mh2gd_index
 	var vertex = mhclo.vertex_data
@@ -270,45 +266,32 @@ func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh:
 	mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(shaded_mesh)
 	return shaded_mesh
 
-func _import_glb(glb_path:String,mhclo:MHCLO):
+func _build_bone_arrays(data: Dictionary) -> void:
+	var obj_arrays = (data.mesh as ArrayMesh).surface_get_arrays(0)
+	var glb = data.rigged
 	var gltf := GLTFDocument.new()
 	var state := GLTFState.new()
-	var error = gltf.append_from_file(glb_path, state)
+	var error = gltf.append_from_file(glb, state)
 	if error != OK:
-		push_error('Failed to load glb : ' + glb_path)
+		push_error('Failed to load glb : ' + glb)
 		return
 	var root = gltf.generate_scene(state)
 	var skeleton:Skeleton3D = root.get_child(0).get_child(0)
-	var glb_mesh = (skeleton.get_child(0) as ImporterMeshInstance3D).mesh.get_mesh()
-	var glb_arrays = glb_mesh.surface_get_arrays(0)
-	glb_arrays[Mesh.ARRAY_CUSTOM0] = PackedFloat32Array()
-	glb_arrays[Mesh.ARRAY_CUSTOM0].resize(glb_arrays[Mesh.ARRAY_VERTEX].size())
+	var glb_arrays = (skeleton.get_child(0) as ImporterMeshInstance3D).mesh.get_surface_arrays(0)
+	
+	#var glb_to_obj_idx := {}
+	#var tol := 1e-4
+	var mh_to_glb_idx = []
+	mh_to_glb_idx.resize(data.mhclo.mh2gd_index.size())
 	
 	var max_id = roundi(1 / glb_arrays[Mesh.ARRAY_TEX_UV2][0].y) 
-	var mh_to_glb_idx = []
-	mh_to_glb_idx.resize(max_id+1)
-	
 	for glb_id in glb_arrays[Mesh.ARRAY_TEX_UV2].size():
 		var uv2 = glb_arrays[Mesh.ARRAY_TEX_UV2][glb_id]
 		var mh_id = roundi(uv2.x * max_id)
 		if mh_to_glb_idx[mh_id] == null:
 			mh_to_glb_idx[mh_id] = []
 		mh_to_glb_idx[mh_id].append(glb_id)
-		glb_arrays[Mesh.ARRAY_CUSTOM0][glb_id] = float(mh_id)
 	
-	mhclo.mh2gd_index = mh_to_glb_idx
-	_build_bone_arrays(glb_arrays, skeleton, mhclo)
-	
-	glb_arrays[Mesh.ARRAY_BONES] = null
-	glb_arrays[Mesh.ARRAY_WEIGHTS] = null
-	
-	var mesh = ArrayMesh.new()
-	var flags = Mesh.ARRAY_CUSTOM_R_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,glb_arrays,[],{},flags)	
-	
-	return {mesh=mesh,mh2gd_index = mh_to_glb_idx}
-	
-func _build_bone_arrays(glb_arrays:Array, skeleton:Skeleton3D, mhclo:MHCLO) -> void:
 	var bone_config = []
 	bone_config.resize(skeleton.get_bone_count())
 	for bone_id in skeleton.get_bone_count():
@@ -316,7 +299,7 @@ func _build_bone_arrays(glb_arrays:Array, skeleton:Skeleton3D, mhclo:MHCLO) -> v
 		bone_config[bone_id].name = skeleton.get_bone_name(bone_id)
 		bone_config[bone_id].transform = skeleton.get_bone_rest(bone_id) #for local bone rotation
 		bone_config[bone_id].parent = skeleton.get_bone_parent(bone_id)
-		#
+		
 		# This is ugly but it should work
 		bone_config[bone_id].vertices = {'ids': []}
 
@@ -339,8 +322,8 @@ func _build_bone_arrays(glb_arrays:Array, skeleton:Skeleton3D, mhclo:MHCLO) -> v
 		for vtx in glb_arrays[Mesh.ARRAY_VERTEX].size():
 			var distsq: float = bone_pos.distance_squared_to(glb_arrays[Mesh.ARRAY_VERTEX][vtx])
 			if distsq == min_distancesq:  # Equal should be okay.  float math is deterministic on the same platform i think
-				for mh_id in mhclo.mh2gd_index.size():
-					if vtx in mhclo.mh2gd_index[mh_id]:
+				for mh_id in mh_to_glb_idx.size():
+					if vtx in mh_to_glb_idx[mh_id]:
 						min_id = mh_id
 						vtx1 = glb_arrays[Mesh.ARRAY_VERTEX][vtx]
 						break
@@ -359,8 +342,8 @@ func _build_bone_arrays(glb_arrays:Array, skeleton:Skeleton3D, mhclo:MHCLO) -> v
 		for vtx in glb_arrays[Mesh.ARRAY_VERTEX].size():
 			var distsq: float = opposite_side.distance_squared_to(glb_arrays[Mesh.ARRAY_VERTEX][vtx])
 			if distsq == min_distancesq:
-				for mh_id in mhclo.mh2gd_index.size():
-					if vtx in mhclo.mh2gd_index[mh_id]:
+				for mh_id in mh_to_glb_idx.size():
+					if vtx in mh_to_glb_idx[mh_id]:
 						min_id = mh_id
 						vtx2 = glb_arrays[Mesh.ARRAY_VERTEX][vtx]
 						break
@@ -373,17 +356,17 @@ func _build_bone_arrays(glb_arrays:Array, skeleton:Skeleton3D, mhclo:MHCLO) -> v
 		# 0.5 * (v1 + v2) + offset
 	
 	var weights_override = []
-	weights_override.resize(mhclo.mh2gd_index.size())
+	weights_override.resize(data.mhclo.mh2gd_index.size())
 	var bones_override = []
-	bones_override.resize(mhclo.mh2gd_index.size())
+	bones_override.resize(data.mhclo.mh2gd_index.size())
 	var bones_per_vtx = glb_arrays[Mesh.ARRAY_BONES].size()/glb_arrays[Mesh.ARRAY_VERTEX].size()
 
-	for mh_id in mhclo.mh2gd_index.size():
-		var glb_id = mhclo.mh2gd_index[mh_id][0]
+	for mh_id in mh_to_glb_idx.size():
+		var glb_id = mh_to_glb_idx[mh_id][0]
 		bones_override[mh_id] = glb_arrays[Mesh.ARRAY_BONES].slice(glb_id*bones_per_vtx,(glb_id+1) * bones_per_vtx)
 		weights_override[mh_id] = glb_arrays[Mesh.ARRAY_WEIGHTS].slice(glb_id*bones_per_vtx,(glb_id+1) * bones_per_vtx)
 	
-	mhclo.rigged_config = bone_config
-	mhclo.rigged_bones = bones_override
-	mhclo.rigged_weights = weights_override
+	data.mhclo.rigged_config = bone_config
+	data.mhclo.rigged_bones = bones_override
+	data.mhclo.rigged_weights = weights_override
 		
