@@ -410,6 +410,7 @@ func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
 		_delete_child_by_name(current.resource_name)
 	human_config.body_parts[bp.slot] = bp
 	var mi = load(bp.scene_path).instantiate() as MeshInstance3D
+	mi.name = bp.resource_name
 	if bp.default_overlay != null:
 		setup_overlay_material(bp, mi)
 	else:
@@ -451,6 +452,7 @@ func _add_clothes_mesh(cl: HumanClothes, update: bool = true) -> void:
 	if not cl in human_config.clothes:
 		human_config.clothes.append(cl)
 	var mi = load(cl.scene_path).instantiate()
+	mi.name = cl.resource_name
 	if cl.default_overlay != null:
 		setup_overlay_material(cl, mi)
 	_add_child_node(mi)

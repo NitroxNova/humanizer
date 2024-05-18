@@ -244,6 +244,16 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 		ResourceSaver.save(scene, resource.scene_path)
 
 	ResourceSaver.save(resource, resource.resource_path)
+	if data.has('rigged'):
+		var rigged_resource = resource.duplicate()
+		rigged_resource.rigged = true
+		rigged_resource.resource_name = resource.resource_name + "_Rigged"
+		ResourceSaver.save(rigged_resource, resource.resource_path.get_basename() + "_Rigged.tres")
+		if asset_type == HumanizerRegistry.AssetType.BodyPart:
+			HumanizerRegistry.add_body_part_asset(rigged_resource)
+		elif asset_type == HumanizerRegistry.AssetType.Clothes:
+			HumanizerRegistry.add_clothes_asset(rigged_resource)
+	
 	mi.queue_free()
 
 func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh: 
