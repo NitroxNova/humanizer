@@ -96,7 +96,7 @@ func calculate_vertex_bone_weights(mh_id:int,bone_weights:Dictionary, rigged_bon
 	var bone_count=8
 	var bones = []
 	var weights = []
-	if rigged_bones.is_empty():
+	if rigged_bone_ids.is_empty():
 		var vtx_bone_weights = _calculate_base_vertex_bone_weights(mh_id,bone_weights)
 		bones = vtx_bone_weights.bones
 		weights = vtx_bone_weights.weights

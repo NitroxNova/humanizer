@@ -1126,7 +1126,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 	var mh2gd_index = mhclo.mh2gd_index
 	var mesh: ArrayMesh
 	
-	if mhclo.rigged_config != []:
+	if asset.rigged:
 		for bone_id in mhclo.rigged_config.size():
 			var bone_config = mhclo.rigged_config[bone_id]
 			if bone_config.name != "neutral_bone":
@@ -1158,7 +1158,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 	new_sf_arrays[Mesh.ARRAY_WEIGHTS].resize(bone_count * new_sf_arrays[Mesh.ARRAY_VERTEX].size())
 	
 	var rigged_bone_ids = []
-	if not mhclo.rigged_config.is_empty():
+	if asset.rigged:
 		for rig_bone_id in mhclo.rigged_config.size():
 			var bone_name = asset.resource_name + "." + mhclo.rigged_config[rig_bone_id].name
 			rigged_bone_ids.append(skeleton.find_bone(bone_name))
