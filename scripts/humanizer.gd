@@ -403,10 +403,13 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	body_mesh.visible = visible
 
 func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
+	var rig_changed = bp.rigged #rebuild skeleton if the new asset or the removed assets have a rig
 	if human_config.body_parts.has(bp.slot):
 		if get_node_or_null(bp.resource_name) != null:
 			return
 		var current = human_config.body_parts[bp.slot]
+		if current.rigged:
+			rig_changed = true
 		_delete_child_by_name(current.resource_name)
 	human_config.body_parts[bp.slot] = bp
 	var mi = load(bp.scene_path).instantiate() as MeshInstance3D
@@ -417,8 +420,12 @@ func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
 		mi.get_surface_override_material(0).resource_path = ''
 	_add_child_node(mi)
 	set_body_part_material(bp.slot, Random.choice(bp.textures.keys()))
-	#_add_bone_weights(bp)
-	set_rig(human_config.rig) #update rig with additional asset bones, and remove any from previous asset
+	
+	if rig_changed:
+		set_rig(human_config.rig) #update rig with additional asset bones, and remove any from previous asset
+	else:
+		_add_bone_weights(bp)
+		
 	if update:
 		set_shapekeys(human_config.shapekeys)
 	if 'eyebrow' in bp.slot.to_lower():
@@ -435,7 +442,8 @@ func clear_body_part(clear_slot: String) -> void:
 			var res = human_config.body_parts[clear_slot]
 			_delete_child_by_name(res.resource_name)
 			human_config.body_parts.erase(clear_slot)
-			set_rig(human_config.rig) #remove bones from previous asset
+			if res.rigged:
+				set_rig(human_config.rig) #remove bones from previous asset
 			return
 
 func apply_clothes(cl: HumanClothes) -> void:
