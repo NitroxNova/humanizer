@@ -71,14 +71,12 @@ func _scan_path_for_assets(path: String) -> void:
 			_mhclo.parse_file(file_name)
 			asset_data[fl] = {}
 			asset_data[fl]['mhclo'] = _mhclo
+			var rigged: String = path.path_join(asset_data[fl]['mhclo'].obj_file_name.get_basename() + '.glb')
+			if FileAccess.file_exists(rigged):
+				asset_data[fl]['rigged'] = rigged
+	
 	if asset_data.size() == 0:
 		return
-	
-	# Look for rigged meshes
-	for fl in asset_data:
-		var rigged_mesh = path.path_join(fl + '_rigged.glb')
-		if FileAccess.file_exists(rigged_mesh):
-			asset_data[fl]['rigged'] = rigged_mesh
 	
 	for dir in contents.dirs:
 		contents.files.append_array(OSPath.get_files(dir))
