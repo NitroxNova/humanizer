@@ -4,6 +4,8 @@ class_name HumanizerMaterial
 
 signal on_material_updated
 
+const textures = ['albedo', 'normal', 'ao']
+
 @export var overlays: Array[HumanizerOverlay] = []:
 	set(value):
 		overlays = value
@@ -14,60 +16,58 @@ var normal_texture: Texture2D
 var ao_texture: Texture2D
 
 func update_material() -> void:
-	if DirAccess.dir_exists_absolute("res://addons/compute_worker/") and overlays.size() > 1:
+	if DirAccess.dir_exists_absolute("res://addons/compute_companion/") and overlays.size() > 1:
 		update_material_gpu()
 	else:
 		update_material_cpu()
 
 func update_material_gpu() -> void:
-	var compute := ComputeWorker.new()
-	compute.shader_file = load("res://addons/humanizer/shaders/compute/overlay.glsl")
-	var uniform_set := UniformSet.new()
-	compute.uniform_sets = [uniform_set]
 	var colors := PackedVector3Array()
-	
 	var albedo: Image = null
 	var normal: Image = null
 	var ao: Image = null
 	
 	var size: Vector2i
 	var textures: Array[Image]
-	var t0 = Time.get_ticks_msec()
 	for i in overlays.size():
 		var overlay := overlays[i]
 		if overlay.albedo_texture_path != '':
 			var image := load(overlay.albedo_texture_path).get_image() as Image
-			if image.has_mipmaps():
-				image.clear_mipmaps()
 			size = image.get_size()
-			image.convert(Image.FORMAT_RGBAF)
 			textures.append(image)
 			colors.append(Vector3(overlay.color.r, overlay.color.g, overlay.color.b))
 	
 	if textures.size() > 0:
-		var texture_array := Texture2DArray.new()
-		texture_array.create_from_images(textures)
 		var textures_uniform := GPU_Texture2DArray.new()
-		textures_uniform.data = texture_array
-		textures_uniform.binding = 0
 		var output_uniform := GPU_Image.new()
-		output_uniform.data = textures[0]
-		output_uniform.binding = 1
 		var colors_uniform := GPU_PackedVector3Array.new()
-		colors_uniform.data = colors
-		colors_uniform.binding = 2
 		var size_uniform := GPU_Integer.new()
-		size_uniform.data = textures.size()
+		textures_uniform.binding = 0
+		output_uniform.binding = 1
+		colors_uniform.binding = 2
 		size_uniform.binding = 3
+		## Only storage buffers allow arrays of unspecified length in shader
+		colors_uniform.uniform_type = colors_uniform.UNIFORM_TYPES.STORAGE_BUFFER
+
+		colors_uniform.data = colors
+		output_uniform.data = textures[0]
+		textures_uniform.data = textures
+		size_uniform.data = len(textures)
+		
+		var compute := ComputeWorker.new()
+		var uniform_set := UniformSet.new()
+		compute.work_group_size = Vector3i(textures[0].get_size().x / 8, textures[0].get_size().y / 8, 1)
+		compute.shader_file = load("res://addons/humanizer/shaders/compute/overlay.glsl")
 		uniform_set.uniforms = [textures_uniform, output_uniform, colors_uniform, size_uniform]
+		compute.uniform_sets = [uniform_set]
 		compute.initialize()
-		await compute.compute_end
-		var image: Image = compute.get_uniform_by_binding(1).get_uniform_data(compute.rd)
+		compute.execute_compute_shader()
+		var image: Image = output_uniform.get_uniform_data(compute.rd)
 		albedo_texture = ImageTexture.create_from_image(image)
 	on_material_updated.emit()
 
 func update_material_cpu() -> void:
-	for texture in ['albedo', 'normal', 'ao']:
+	for texture in textures:
 		var image: Image = null
 		if overlays[0].get(texture + '_texture_path') != '':
 			image = load(overlays[0].albedo_texture_path).get_image()
@@ -82,13 +82,17 @@ func update_material_cpu() -> void:
 		## Blend overlay with its color then onto base texture
 		if overlays.size() > 1:
 			for ov in range(1, overlays.size()):
-				var overlay: Image = load(overlays[ov].get(texture + '_texture_path')).get_image()
+				var path = overlays[ov].get(texture + '_texture_path')
+				if path == '':
+					continue
+				var overlay: Image = load(path).get_image()
 				if texture == 'albedo':
 					blend_color(overlay, overlays[ov].color)
 				var start = Vector2i()
 				image.blend_rect(overlay, Rect2i(start, overlay.get_size()), start)
-
 		## Create output textures
+		if image != null:
+			image.generate_mipmaps()
 		set(texture + '_texture', ImageTexture.create_from_image(image) if image != null else null)
 	on_material_updated.emit()
 
