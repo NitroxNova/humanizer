@@ -19,6 +19,7 @@ tag MakeHumanâ„˘
 tag Long
 tag Hair
 tag Female
+tag bone_name Head
 
 name Long01
 obj_file long01.obj

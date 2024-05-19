@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://bi4jcmbkfsj2g"
-path="res://.godot/imported/ponytail01_rigged.glb-f601ebdb457c9845f7fcd4459cd69f33.scn"
+uid="uid://dywoa68dj3bb5"
+path="res://.godot/imported/long01.glb-922a7133e8226f49b7f2581ed0a5af06.scn"
 
 [deps]
 
-source_file="res://addons/humanizer/data/assets/body_parts/Hair/ponytail01/ponytail01_rigged.glb"
-dest_files=["res://.godot/imported/ponytail01_rigged.glb-f601ebdb457c9845f7fcd4459cd69f33.scn"]
+source_file="res://addons/humanizer/data/assets/body_parts/Hair/long01/long01.glb"
+dest_files=["res://.godot/imported/long01.glb-922a7133e8226f49b7f2581ed0a5af06.scn"]
 
 [params]
 
