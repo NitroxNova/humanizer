@@ -230,15 +230,17 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	root_node.add_child(sk)
 	sk.owner = root_node
 	
-	for phys_bone: PhysicalBone3D in skeleton.get_children():
-		var bone = phys_bone.duplicate(true)
-		sk.add_child(bone)
-		bone.owner = root_node
-		for coll in phys_bone.get_children():
-			var collider = coll.duplicate(true)
-			bone.add_child(collider)
-			collider.owner = root_node
-		bone.name = phys_bone.name
+	for child in skeleton.get_children():
+		var phys_bone = child as PhysicalBone3D
+		if phys_bone:
+			var bone = phys_bone.duplicate(true)
+			sk.add_child(bone)
+			bone.owner = root_node
+			for coll in phys_bone.get_children():
+				var collider = coll.duplicate(true)
+				bone.add_child(collider)
+				collider.owner = root_node
+			bone.name = phys_bone.name.replace("Physical Bone ", '')
 
 	if _animator_scene != null:
 		var _animator = _animator_scene.instantiate()
