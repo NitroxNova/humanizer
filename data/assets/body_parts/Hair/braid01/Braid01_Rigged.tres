@@ -1,14 +1,14 @@
-[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=2 format=3 uid="uid://m7cilv6kn2wu"]
+[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=2 format=3 uid="uid://djkhyp11ukrfu"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="1_hvxho"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="1_qccpl"]
 
 [resource]
-resource_name = "Braid01"
-script = ExtResource("1_hvxho")
+resource_name = "Braid01_Rigged"
+script = ExtResource("1_qccpl")
 slot = "Hair"
 textures = {
 "braid01_braid01_diffuse.png": "res://addons/humanizer/data/assets/body_parts/Hair/braid01/braid01_braid01_diffuse.png",
 "braid01_diffuse.png": "res://addons/humanizer/data/assets/body_parts/Hair/braid01/braid01_diffuse.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Hair/braid01"
-rigged = false
+rigged = true

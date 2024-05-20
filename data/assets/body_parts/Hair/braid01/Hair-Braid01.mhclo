@@ -19,6 +19,7 @@ tag MakeHuman™
 tag Long
 tag Female
 tag Hair
+tag bone_name Head
 
 name Braid01
 obj_file braid01.obj
