@@ -23,12 +23,9 @@ func update_material() -> void:
 
 func update_material_gpu() -> void:
 	var colors := PackedVector3Array()
-	var albedo: Image = null
-	var normal: Image = null
-	var ao: Image = null
-	
 	var size: Vector2i
 	var textures: Array[Image]
+	
 	for i in overlays.size():
 		var overlay := overlays[i]
 		if overlay.albedo_texture_path != '':
@@ -38,31 +35,15 @@ func update_material_gpu() -> void:
 			colors.append(Vector3(overlay.color.r, overlay.color.g, overlay.color.b))
 	
 	if textures.size() > 0:
-		var textures_uniform := GPU_Texture2DArray.new()
-		var output_uniform := GPU_Image.new()
-		var colors_uniform := GPU_PackedVector3Array.new()
-		var size_uniform := GPU_Integer.new()
-		textures_uniform.binding = 0
-		output_uniform.binding = 1
-		colors_uniform.binding = 2
-		size_uniform.binding = 3
-		## Only storage buffers allow arrays of unspecified length in shader
-		colors_uniform.uniform_type = colors_uniform.UNIFORM_TYPES.STORAGE_BUFFER
-
-		colors_uniform.data = colors
-		output_uniform.data = textures[0]
-		textures_uniform.data = textures
-		size_uniform.data = len(textures)
-		
-		var compute := ComputeWorker.new()
-		var uniform_set := UniformSet.new()
-		compute.work_group_size = Vector3i(textures[0].get_size().x / 8, textures[0].get_size().y / 8, 1)
-		compute.shader_file = load("res://addons/humanizer/shaders/compute/overlay.glsl")
-		uniform_set.uniforms = [textures_uniform, output_uniform, colors_uniform, size_uniform]
-		compute.uniform_sets = [uniform_set]
-		compute.initialize()
+		var compute := ComputeWorker.create("res://addons/humanizer/shaders/compute/overlay.glsl")
+		var textures_uniform := GPU_Texture2DArray.new(textures, 0, 'textures')
+		var output_uniform := GPU_Image.new(textures[0], 1, 'output_texture')
+		var colors_uniform := GPU_PackedVector3Array.new(colors, 2, true, 'colors')
+		var size_uniform = GPU_Int.new(len(textures), 3, false, 'size')
+		compute.uniform_sets[0].uniforms = [textures_uniform, output_uniform, colors_uniform, size_uniform]
+		compute.initialize(textures[0].get_size().x / 8, textures[0].get_size().y / 8, 1)
 		compute.execute_compute_shader()
-		var image: Image = output_uniform.get_uniform_data(compute.rd)
+		var image: Image = output_uniform.get_uniform_data()
 		albedo_texture = ImageTexture.create_from_image(image)
 	on_material_updated.emit()
 
