@@ -1115,7 +1115,7 @@ func _get_asset_bone_positions(asset:HumanAsset,bone_positions:Array):
 	var mhclo : MHCLO = load(asset.mhclo_path)
 	for rig_bone_id in mhclo.rigged_config.size():
 		var bone_config =  mhclo.rigged_config[rig_bone_id]
-		var bone_name = asset.resource_name + "." + bone_config.name
+		var bone_name = bone_config.name
 		var bone_id = skeleton.find_bone(bone_name)
 		if bone_id != -1:
 			var v1 = sf_arrays[Mesh.ARRAY_VERTEX][mhclo.mh2gd_index[bone_config.vertices.ids[0]][0]]
@@ -1138,7 +1138,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 		for bone_id in mhclo.rigged_config.size():
 			var bone_config = mhclo.rigged_config[bone_id]
 			if bone_config.name != "neutral_bone":
-				var bone_name = asset.resource_name + "." + bone_config.name
+				var bone_name = bone_config.name
 				#print("adding bone " + bone_name)
 				var parent_bone = -1
 				if bone_config.parent == -1:
@@ -1150,7 +1150,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 								break
 				else:
 					var parent_bone_config = mhclo.rigged_config[bone_config.parent]
-					parent_bone = skeleton.find_bone(asset.resource_name + "." + parent_bone_config.name)
+					parent_bone = skeleton.find_bone(parent_bone_config.name)
 				if not parent_bone == -1:
 					skeleton.add_bone(bone_name)
 					var new_bone_id = skeleton.find_bone(bone_name)
@@ -1168,7 +1168,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 	var rigged_bone_ids = []
 	if asset.rigged:
 		for rig_bone_id in mhclo.rigged_config.size():
-			var bone_name = asset.resource_name + "." + mhclo.rigged_config[rig_bone_id].name
+			var bone_name = mhclo.rigged_config[rig_bone_id].name
 			rigged_bone_ids.append(skeleton.find_bone(bone_name))
 	for mh_id in mhclo.vertex_data.size():
 		
