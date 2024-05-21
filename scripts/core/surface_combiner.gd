@@ -7,7 +7,7 @@ func _init(_mesh_instances: Array[MeshInstance3D], _atlas_resolution: int) -> vo
 	mesh_instances = _mesh_instances
 	atlas_resolution = _atlas_resolution
 	
-func run() -> MeshInstance3D:
+func run() -> ArrayMesh:
 	var rect_array: Array = []
 	var bin_size: int = 2 ** 12 
 	var surfaces: Array = []
@@ -193,9 +193,7 @@ func run() -> MeshInstance3D:
 		new_material.ao_texture = ImageTexture.create_from_image(new_ao_image)
 		
 	new_mesh.surface_set_material(0, new_material)
-	var mi = MeshInstance3D.new()
-	mi.mesh = new_mesh
-	return mi
+	return new_mesh
 
 func blend_color(image: Image, color: Color) -> void:
 	if image.is_compressed():

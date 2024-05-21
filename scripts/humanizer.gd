@@ -14,6 +14,7 @@ const hips_id: int = 18127
 const feet_ids: Array[int] = [15500, 16804]
 const eyebrow_color_weight := 0.4
 
+var realtime_update: bool = Engine.is_editor_hint()
 var skeleton: Skeleton3D
 var body_mesh: MeshInstance3D
 var baked := false
@@ -518,7 +519,10 @@ func hide_body_vertices() -> void:
 			delete_verts_gd[gd_id] = true
 			
 	_set_body_mesh(MeshOperations.delete_faces(body_mesh.mesh,delete_verts_gd))
-	_recalculate_normals()
+	
+	if realtime_update:
+		_recalculate_normals()
+	
 	body_mesh.set_surface_override_material(0, skin_mat)
 	body_mesh.skeleton = '../' + skeleton.name
 
@@ -708,7 +712,10 @@ func bake_surface() -> void:
 	set_shapekeys(human_config.shapekeys) ## To get correct shapes on basis	
 	if atlas_resolution == 0:
 		atlas_resolution = HumanizerGlobalConfig.config.atlas_resolution
-	var mi: MeshInstance3D = HumanizerSurfaceCombiner.new(_bake_meshes, atlas_resolution).run()
+	var baked_surface :ArrayMesh = HumanizerSurfaceCombiner.new(_bake_meshes, atlas_resolution).run()
+	baked_surface = MeshOperations.generate_normals_and_tangents(baked_surface)
+	var mi: MeshInstance3D = MeshInstance3D.new()
+	mi.mesh = baked_surface
 	mi.name = 'Baked-' + bake_surface_name
 
 	# Add new shapekeys to mesh arrays
@@ -892,12 +899,15 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 			var new_mesh = MeshOperations.build_fitted_mesh(child.mesh, _helper_vertex, mhclo)
 			child.mesh = new_mesh
 	
-	_recalculate_normals()
-	_adjust_skeleton()
 	for key in shapekeys:
 		human_config.shapekeys[key] = shapekeys[key]
-	if main_collider != null:
-		_adjust_main_collider()
+	
+	if realtime_update:	
+		_recalculate_normals()
+		_adjust_skeleton()
+		if main_collider != null:
+			_adjust_main_collider()
+			
 	## Face bones mess up the mesh when shapekeys applied.  This fixes it
 	if animator != null:
 		animator.active = not animator.active
