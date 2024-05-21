@@ -10,3 +10,4 @@ textures = {
 "eyelashes04.png": "res://addons/humanizer/data/assets/body_parts/Eyelashes/false_eyelashes/eyelashes04.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Eyelashes/false_eyelashes"
+rigged = false

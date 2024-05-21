@@ -10,3 +10,4 @@ textures = {
 "teeth.png": "res://addons/humanizer/data/assets/body_parts/Teeth/basic_teeth/teeth.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Teeth/basic_teeth"
+rigged = false

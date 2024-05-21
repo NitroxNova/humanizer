@@ -11,3 +11,4 @@ textures = {
 "uncolored_afro_diffuse.png": "res://addons/humanizer/data/assets/body_parts/Hair/Afro/uncolored_afro_diffuse.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Hair/Afro"
+rigged = false

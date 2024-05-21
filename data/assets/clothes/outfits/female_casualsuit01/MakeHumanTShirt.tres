@@ -10,3 +10,4 @@ textures = {
 "female_casualsuit01_diffuse.png": "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_diffuse.png"
 }
 path = "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01"
+rigged = false

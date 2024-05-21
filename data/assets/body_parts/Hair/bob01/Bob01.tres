@@ -11,3 +11,4 @@ textures = {
 "gray_diffuse.png": "res://addons/humanizer/data/assets/body_parts/Hair/bob01/gray_diffuse.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Hair/bob01"
+rigged = false

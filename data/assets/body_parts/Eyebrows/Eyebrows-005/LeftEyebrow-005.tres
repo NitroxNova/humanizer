@@ -10,3 +10,4 @@ textures = {
 "eyebrow005.png": "res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-005/eyebrow005.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-005"
+rigged = false

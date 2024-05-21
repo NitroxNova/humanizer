@@ -11,3 +11,4 @@ textures = {
 "brown_diffuse.png": "res://addons/humanizer/data/assets/clothes/shoes/shoes01/brown_diffuse.png"
 }
 path = "res://addons/humanizer/data/assets/clothes/shoes/shoes01"
+rigged = false

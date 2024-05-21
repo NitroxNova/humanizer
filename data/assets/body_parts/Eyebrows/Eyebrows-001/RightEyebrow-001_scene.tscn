@@ -4,5 +4,7 @@
 [ext_resource type="Material" uid="uid://cg845tkr6l5wf" path="res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-001/Eyebrows-001_material.res" id="2_xq186"]
 
 [node name="RightEyebrow-001" type="MeshInstance3D"]
+rotation_order = 0
+visible = false
 mesh = ExtResource("1_7b8fy")
 surface_material_override/0 = ExtResource("2_xq186")

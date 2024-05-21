@@ -10,3 +10,4 @@ textures = {
 "tongue01_diffuse.png": "res://addons/humanizer/data/assets/body_parts/Tongue/tongue01/tongue01_diffuse.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Tongue/tongue01"
+rigged = false

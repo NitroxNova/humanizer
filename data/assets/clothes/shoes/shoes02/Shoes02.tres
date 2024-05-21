@@ -12,3 +12,4 @@ textures = {
 "white_diffuse.png": "res://addons/humanizer/data/assets/clothes/shoes/shoes02/white_diffuse.png"
 }
 path = "res://addons/humanizer/data/assets/clothes/shoes/shoes02"
+rigged = false

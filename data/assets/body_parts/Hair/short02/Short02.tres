@@ -10,3 +10,4 @@ textures = {
 "short02_diffuse.png": "res://addons/humanizer/data/assets/body_parts/Hair/short02/short02_diffuse.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Hair/short02"
+rigged = false

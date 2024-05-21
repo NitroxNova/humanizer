@@ -1,8 +1,8 @@
 [gd_scene load_steps=3 format=3 uid="uid://7tvecli7iluw"]
 
-[ext_resource type="ArrayMesh" uid="uid://dnyxjfmaxxuev" path="res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_gray/SuitSlacks_mesh.res" id="1_024db"]
-[ext_resource type="Material" uid="uid://dvl1akom05kjv" path="res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_gray/toigo_male_elegant_suit_gray_material.res" id="2_kln0u"]
+[ext_resource type="ArrayMesh" uid="uid://dnyxjfmaxxuev" path="res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_gray/SuitSlacks_mesh.res" id="1_pfqb7"]
+[ext_resource type="Material" uid="uid://dvl1akom05kjv" path="res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_gray/toigo_male_elegant_suit_gray_material.res" id="2_o7r3a"]
 
 [node name="SuitSlacks" type="MeshInstance3D"]
-mesh = ExtResource("1_024db")
-surface_material_override/0 = ExtResource("2_kln0u")
+mesh = ExtResource("1_pfqb7")
+surface_material_override/0 = ExtResource("2_o7r3a")
