@@ -468,8 +468,11 @@ func _add_clothes_mesh(cl: HumanClothes, update: bool = true) -> void:
 		setup_overlay_material(cl, mi)
 	_add_child_node(mi)
 	_add_bone_weights(cl)
-	if update:
-		set_shapekeys(human_config.shapekeys)
+	if realtime_update:			
+		var mhclo: MHCLO = load(cl.mhclo_path)
+		var new_mesh = MeshOperations.build_fitted_mesh(mi.mesh, _helper_vertex, mhclo)
+		new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
+		mi.mesh = new_mesh
 	if human_config.transforms.has(cl.resource_name):
 		get_node(cl.resource_name).transform = Transform3D(human_config.transforms[cl.resource_name])
 
