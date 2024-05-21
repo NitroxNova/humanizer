@@ -834,7 +834,7 @@ func _recalculate_normals() -> void:
 		body_mesh.set_surface_override_material(0, mat)
 	
 	for mesh in get_children():
-		if not mesh is MeshInstance3D:
+		if not mesh is MeshInstance3D or mesh == body_mesh: #dont need to generate body_mesh again
 			continue
 		if not mesh.name.begins_with("Baked-"):
 			mesh.mesh = MeshOperations.generate_normals_and_tangents(mesh.mesh)
