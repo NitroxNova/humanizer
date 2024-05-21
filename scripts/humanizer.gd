@@ -429,8 +429,12 @@ func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
 	else:
 		_add_bone_weights(bp)
 		
-	if update:
-		set_shapekeys(human_config.shapekeys)
+	if realtime_update:			
+		var mhclo: MHCLO = load(bp.mhclo_path)
+		var new_mesh = MeshOperations.build_fitted_mesh(mi.mesh, _helper_vertex, mhclo)
+		new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
+		mi.mesh = new_mesh
+		
 	if 'eyebrow' in bp.slot.to_lower():
 		eyebrow_color = eyebrow_color
 	if human_config.transforms.has(bp.resource_name):
