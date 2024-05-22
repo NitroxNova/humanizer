@@ -974,9 +974,9 @@ func set_skin_normal_texture(name: String) -> void:
 func set_body_part_material(set_slot: String, texture: String) -> void:
 	#print('setting material ' + texture + ' on ' + set_slot)
 	var bp: HumanBodyPart = human_config.body_parts[set_slot]
-	var mi = bp.node as MeshInstance3D
-	if mi == null:
+	if bp.node == null:
 		return
+	var mi = bp.node as MeshInstance3D
 	human_config.body_part_materials[set_slot] = texture
 
 	if bp.default_overlay != null:
@@ -1003,9 +1003,9 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 func set_clothes_material(cl_name: String, texture: String) -> void:
 	#print('setting texture ' + texture + ' on ' + cl_name)
 	var cl: HumanClothes = HumanizerRegistry.clothes[cl_name]
-	var mi: MeshInstance3D = cl.node
-	if mi == null:
+	if cl.node == null:
 		return
+	var mi: MeshInstance3D = cl.node
 	
 	if cl.default_overlay != null:
 		## HumanizerMaterials are always local to scene
