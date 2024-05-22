@@ -387,10 +387,12 @@ func _deserialize() -> void:
 	eyebrow_color = human_config.eyebrow_color
 	for bp in human_config.body_parts.values():
 		if bp.node is HumanizerMeshInstance:
-			bp.node.material_config.update_material()
+			if bp.node.material_config.overlays.size() > 0:
+				bp.node.material_config.update_material()
 	for cl in human_config.clothes:
 		if cl.node is HumanizerMeshInstance:
-			cl.node.material_config.update_material()
+			if cl.node.material_config.overlays.size() > 0:
+				cl.node.material_config.update_material()
 	hide_body_vertices()
 	_adjust_skeleton()
 	_recalculate_normals()
