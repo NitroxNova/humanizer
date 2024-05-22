@@ -2,6 +2,8 @@
 class_name Humanizer
 extends Node3D
 
+## Base humanizer node for use in-game when loading a new human from config
+
 const _BASE_MESH_NAME: String = 'Human'
 const _DEFAULT_SKIN_COLOR = Color.WHITE
 const _DEFAULT_EYE_COLOR = Color.SKY_BLUE
