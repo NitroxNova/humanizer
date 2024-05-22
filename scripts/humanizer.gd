@@ -125,7 +125,7 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 	set(value):
 		human_config = value.duplicate(true)
 		# This gets set before _ready causing issues so make sure we're loaded
-		if scene_loaded:
+		if scene_loaded and realtime_update:
 			load_human()
 
 @export_group('Node Overrides')
