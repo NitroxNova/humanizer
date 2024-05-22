@@ -199,6 +199,7 @@ func load_human() -> void:
 	notify_property_list_changed()
 
 func save_human_scene(to_file: bool = true) -> PackedScene:
+	_adjust_skeleton()
 	var new_mesh = _combine_meshes()
 	var scene = PackedScene.new()
 	var root_node: Node
@@ -429,7 +430,7 @@ func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
 	else:
 		_add_bone_weights(bp)
 		
-	if realtime_update:			
+	if realtime_update:
 		var mhclo: MHCLO = load(bp.mhclo_path)
 		var new_mesh = MeshOperations.build_fitted_mesh(mi.mesh, _helper_vertex, mhclo)
 		new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
@@ -472,7 +473,7 @@ func _add_clothes_mesh(cl: HumanClothes, update: bool = true) -> void:
 		setup_overlay_material(cl, mi)
 	_add_child_node(mi)
 	_add_bone_weights(cl)
-	if realtime_update:			
+	if realtime_update:
 		var mhclo: MHCLO = load(cl.mhclo_path)
 		var new_mesh = MeshOperations.build_fitted_mesh(mi.mesh, _helper_vertex, mhclo)
 		new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
@@ -506,7 +507,6 @@ func hide_body_vertices() -> void:
 	remap_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
 	remap_verts_gd.fill(-1)
 	
-	
 	for child in get_children():
 		if not child is MeshInstance3D:
 			continue
@@ -526,10 +526,9 @@ func hide_body_vertices() -> void:
 			delete_verts_gd[gd_id] = true
 			
 	_set_body_mesh(MeshOperations.delete_faces(body_mesh.mesh,delete_verts_gd))
-	
+
 	if realtime_update:
 		_recalculate_normals()
-	
 	body_mesh.set_surface_override_material(0, skin_mat)
 	body_mesh.skeleton = '../' + skeleton.name
 
@@ -624,8 +623,6 @@ func standard_bake() -> void:
 	if baked:
 		printerr('Already baked.  Reload the scene, load a human_config, or reset human to start over.')
 		return
-	_adjust_skeleton()
-	hide_body_vertices()
 	set_bake_meshes('Opaque')
 	if _bake_meshes.size() > 0:
 		bake_surface()
@@ -716,7 +713,11 @@ func bake_surface() -> void:
 				shape['age'] = HumanizerMorphs.AGE_KEYS[age]
 				_new_shapekeys[sk_name + '-' + age] = shape
 
-	set_shapekeys(human_config.shapekeys) ## To get correct shapes on basis	
+	set_shapekeys(human_config.shapekeys) ## To get correct shapes on basis
+	if body_mesh in _bake_meshes:
+		_bake_meshes.erase(body_mesh)
+		hide_body_vertices()
+		_bake_meshes.append(body_mesh)
 	if atlas_resolution == 0:
 		atlas_resolution = HumanizerGlobalConfig.config.atlas_resolution
 	var baked_surface :ArrayMesh = HumanizerSurfaceCombiner.new(_bake_meshes, atlas_resolution).run()
@@ -727,9 +728,6 @@ func bake_surface() -> void:
 
 	# Add new shapekeys to mesh arrays
 	if not _new_shapekeys.is_empty():
-		for sk in human_config.shapekeys:
-			if human_config.shapekeys[sk] != 0:
-				print(sk, ' ', human_config.shapekeys[sk])
 		var initial_shapekeys = human_config.shapekeys.duplicate(true)
 		var bs_arrays = []
 		var baked_mesh = ArrayMesh.new()
