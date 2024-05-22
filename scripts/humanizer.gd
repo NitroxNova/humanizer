@@ -173,6 +173,13 @@ func _ready() -> void:
 	scene_loaded = true
 
 ####  HumanConfig Resource Management ####
+
+func realtime_reset_human() -> void:
+	human_config = HumanConfig.new()
+	_adjust_skeleton()
+	fit_body_mesh()
+	_recalculate_normals()
+
 func reset_human() -> void:
 	_new_shapekeys = {}
 	if has_node('MorphDriver'):
@@ -420,6 +427,20 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 		body_mesh.skeleton = '../' + skeleton.name
 		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
 	body_mesh.visible = visible
+
+func fit_body_mesh() -> void:
+	#fit body mesh
+	if body_mesh != null:
+		var mesh := body_mesh.mesh as ArrayMesh
+		var surf_arrays = mesh.surface_get_arrays(0)
+		var fmt = mesh.surface_get_format(0)
+		var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
+		surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
+		for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
+			var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+			surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
+		mesh.clear_surfaces()
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], {}, fmt)
 
 func set_body_part(bp: HumanBodyPart) -> void:
 	if baked:
@@ -903,6 +924,36 @@ func _recalculate_normals() -> void:
 		if not mesh.name.begins_with("Baked-"):
 			mesh.mesh = MeshOperations.generate_normals_and_tangents(mesh.mesh)
 
+func realtime_set_shapekeys(shapekeys: Dictionary) -> void:
+	if baked and not bake_in_progress:
+		printerr('Cannot change shapekeys on baked mesh.  Reset the character.')
+		notify_property_list_changed()
+		return
+		
+	set_shapekeys(shapekeys)
+	
+	fit_body_mesh()
+	
+	# Apply to body parts and clothes
+	for child in get_children():
+		if not child is MeshInstance3D:
+			continue
+		var res: HumanAsset = _get_asset_by_name(child.name)
+		if res != null:   # Body parts/clothes
+			var mhclo: MHCLO = load(res.mhclo_path)
+			var new_mesh = MeshOperations.build_fitted_mesh(child.mesh, _helper_vertex, mhclo)
+			child.mesh = new_mesh
+
+	_recalculate_normals()
+	_adjust_skeleton()
+	if main_collider != null:
+		_adjust_main_collider()
+			
+	## Face bones mess up the mesh when shapekeys applied.  This fixes it
+	if animator != null:
+		animator.active = not animator.active
+		animator.active = not animator.active
+
 func set_shapekeys(shapekeys: Dictionary) -> void:
 	if baked and not bake_in_progress:
 		printerr('Cannot change shapekeys on baked mesh.  Reset the character.')
@@ -943,43 +994,12 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
 	var _foot_offset = Vector3.UP * offset
 	
-	if body_mesh != null:
-		var mesh := body_mesh.mesh as ArrayMesh
-		var surf_arrays = mesh.surface_get_arrays(0)
-		var fmt = mesh.surface_get_format(0)
-		var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
-		for i in _helper_vertex.size():
-			_helper_vertex[i] -= _foot_offset
-		surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
-		for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
-			var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-			surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
-		mesh.clear_surfaces()
-		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], {}, fmt)
-	
-	# Apply to body parts and clothes
-	for child in get_children():
-		if not child is MeshInstance3D:
-			continue
-		var res: HumanAsset = _get_asset_by_name(child.name)
-		if res != null:   # Body parts/clothes
-			var mhclo: MHCLO = load(res.mhclo_path)
-			var new_mesh = MeshOperations.build_fitted_mesh(child.mesh, _helper_vertex, mhclo)
-			child.mesh = new_mesh
-	
+	for i in _helper_vertex.size():
+		_helper_vertex[i] -= _foot_offset
+		
 	for key in shapekeys:
 		human_config.shapekeys[key] = shapekeys[key]
 	
-	if realtime_update:	
-		_recalculate_normals()
-		_adjust_skeleton()
-		if main_collider != null:
-			_adjust_main_collider()
-			
-	## Face bones mess up the mesh when shapekeys applied.  This fixes it
-	if animator != null:
-		animator.active = not animator.active
-		animator.active = not animator.active
 
 func add_shapekey() -> void:
 	if new_shapekey_name in ['', null]:

@@ -13,7 +13,7 @@ func _parse_category(human, category):
 	add_custom_control(scene)
 	
 	# Header Section
-	scene.get_node('%ResetButton').pressed.connect(func(): human.human_config = HumanConfig.new())
+	scene.get_node('%ResetButton').pressed.connect(human.realtime_reset_human)
 	scene.get_node('%PresetsOptionButton').human = human
 
 	## Color pickers
