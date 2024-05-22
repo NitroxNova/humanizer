@@ -170,15 +170,14 @@ func _ready() -> void:
 			baked = true
 	if not baked:
 		load_human()
+		rebuild_human()
 	scene_loaded = true
 
 ####  HumanConfig Resource Management ####
 
 func realtime_reset_human() -> void:
 	human_config = HumanConfig.new()
-	_adjust_skeleton()
-	fit_body_mesh()
-	_recalculate_normals()
+	rebuild_human()
 
 func reset_human() -> void:
 	_new_shapekeys = {}
@@ -198,6 +197,13 @@ func reset_human() -> void:
 	notify_property_list_changed()
 	#print('Reset human')
 
+func rebuild_human() -> void: 
+	##rebuilds all asset meshes and bone weights. only call when absolutely needed.
+	##we can assume that rig bones are already in place
+	_adjust_skeleton()
+	fit_body_mesh()
+	_recalculate_normals()
+	
 func load_human() -> void:
 	## if we are calling on a node ont in the tree ready won't be called
 	if human_config == null and not scene_loaded:
