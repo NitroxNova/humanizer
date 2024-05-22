@@ -2,8 +2,8 @@
 class_name AutoUpdatingHumanizer
 extends Humanizer
 
-## For use in character editor scenes where the character is updated at
-## all intermediate steps
+## For use in character editor scenes where the character should be 
+## continuously updated with every change
 
 
 func set_human_config(config: HumanConfig) -> void:
