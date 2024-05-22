@@ -359,6 +359,8 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 	return res
 
 func _deserialize() -> void:
+	## no need for realtime updating during the load process
+	realtime_update = false
 	# Since shapekeys are relative we start from empty
 	var sk = human_config.shapekeys.duplicate()
 	human_config.shapekeys = {}
@@ -367,7 +369,7 @@ func _deserialize() -> void:
 		var bp = human_config.body_parts[slot]
 		var mat = human_config.body_part_materials[slot]
 		set_body_part(bp)
-		set_body_part_material(bp.slot, mat)
+		set_body_part_material(bp.slot, mat)	
 	for clothes: HumanClothes in human_config.clothes:
 		_add_clothes_mesh(clothes)
 	for clothes: String in human_config.clothes_materials:
@@ -391,6 +393,7 @@ func _deserialize() -> void:
 		if cl.node is HumanizerMeshInstance:
 			cl.node.material_config.update_material()
 	hide_body_vertices()
+	realtime_update = Engine.is_editor_hint()
 
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
