@@ -196,9 +196,6 @@ func load_human() -> void:
 	baked = false
 	reset_human()
 	_deserialize()
-	_adjust_skeleton()
-	fit_body_mesh()
-	_recalculate_normals()
 	notify_property_list_changed()
 
 func save_human_scene(to_file: bool = true) -> PackedScene:
@@ -362,18 +359,22 @@ func _deserialize() -> void:
 	var sk = human_config.shapekeys.duplicate()
 	human_config.shapekeys = {}
 	set_rig(human_config.rig)
+	_set_shapekey_data(sk)
+	_fit_body_mesh()
 	for slot: String in human_config.body_parts:
 		var bp = human_config.body_parts[slot]
 		var mat = human_config.body_part_materials[slot]
 		set_body_part(bp)
-		set_body_part_material(bp.slot, mat)	
-	for clothes: HumanClothes in human_config.clothes:
-		_add_clothes_mesh(clothes)
-	for clothes: String in human_config.clothes_materials:
-		set_clothes_material(clothes, human_config.clothes_materials[clothes])
+		set_body_part_material(bp.slot, mat)
+		_fit_body_part_mesh(bp)
+	for cl: HumanClothes in human_config.clothes:
+		_add_clothes_mesh(cl)
+		_fit_clothes_mesh(cl)
+	for cl: String in human_config.clothes_materials:
+		set_clothes_material(cl, human_config.clothes_materials[cl])
 	if human_config.body_part_materials.has(&'skin'):
 		set_skin_texture(human_config.body_part_materials[&'skin'])
-	set_shapekeys(sk)
+
 	for component in human_config.components:
 		if component in [&'root_bone', &'ragdoll']:
 			continue  # These are already set in set_rig
@@ -393,43 +394,9 @@ func _deserialize() -> void:
 	hide_body_vertices()
 	_adjust_skeleton()
 	_recalculate_normals()
+	_fit_body_mesh()
 
 #### Mesh Management ####
-func _set_body_mesh(meshdata: ArrayMesh) -> void:
-	var visible = true
-	var mat_config: HumanizerMaterial = null
-	if body_mesh != null:
-		visible = body_mesh.visible
-		if body_mesh is HumanizerMeshInstance:
-			mat_config = body_mesh.material_config.duplicate(true)
-	if body_mesh == null:
-		body_mesh = MeshInstance3D.new()
-		body_mesh.name = _BASE_MESH_NAME
-		_add_child_node(body_mesh)
-	body_mesh.mesh = meshdata
-	body_mesh.set_surface_override_material(0, StandardMaterial3D.new())
-	body_mesh.set_script(load('res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd'))
-	body_mesh.material_config = HumanizerMaterial.new() if mat_config == null else mat_config
-	body_mesh.initialize()
-	if skeleton != null:
-		body_mesh.skeleton = '../' + skeleton.name
-		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
-	body_mesh.visible = visible
-
-func fit_body_mesh() -> void:
-	# fit body mesh
-	if body_mesh != null:
-		var mesh := body_mesh.mesh as ArrayMesh
-		var surf_arrays = mesh.surface_get_arrays(0)
-		var fmt = mesh.surface_get_format(0)
-		var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
-		surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
-		for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
-			var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-			surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
-		mesh.clear_surfaces()
-		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], {}, fmt)
-
 func set_body_part(bp: HumanBodyPart) -> void:
 	if baked:
 		push_warning("Can't change body parts.  Already baked")
@@ -437,8 +404,6 @@ func set_body_part(bp: HumanBodyPart) -> void:
 		return
 	var rig_changed = bp.rigged #rebuild skeleton if the new asset or the removed assets have a rig
 	if human_config.body_parts.has(bp.slot):
-		if bp.node != null:  # Already equipped
-			return
 		var current = human_config.body_parts[bp.slot]
 		if current.rigged:
 			rig_changed = true
@@ -463,7 +428,6 @@ func set_body_part(bp: HumanBodyPart) -> void:
 		eyebrow_color = eyebrow_color
 	if human_config.transforms.has(bp.resource_name):
 		bp.node.transform = Transform3D(human_config.transforms[bp.resource_name])
-	
 	#notify_property_list_changed()
 
 func clear_body_part(clear_slot: String) -> void:
@@ -494,8 +458,6 @@ func apply_clothes(cl: HumanClothes) -> void:
 	_add_clothes_mesh(cl)
 
 func _add_clothes_mesh(cl: HumanClothes) -> void:
-	if cl.node != null:  # Already equipped
-		return
 	if not cl in human_config.clothes:
 		human_config.clothes.append(cl)
 	var mi = load(cl.scene_path).instantiate()
@@ -636,7 +598,7 @@ func unhide_body_vertices() -> void:
 		return
 	var mat = body_mesh.get_surface_override_material(0)
 	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
-	set_shapekeys(human_config.shapekeys)
+	_set_shapekey_data(human_config.shapekeys)
 	body_mesh.set_surface_override_material(0, mat)
 	set_rig(human_config.rig)
 
@@ -666,9 +628,6 @@ func set_bake_meshes(subset: String) -> void:
 	notify_property_list_changed()
 
 func standard_bake() -> void:
-	#if baked:
-	#	printerr('Already baked.  Reload the scene, load a human_config, or reset human to start over.')
-	#	return
 	set_bake_meshes('Opaque')
 	if _bake_meshes.size() > 0:
 		bake_surface()
@@ -766,7 +725,7 @@ func bake_surface() -> void:
 					shape['age'] = HumanizerMorphs.AGE_KEYS[age]
 					_new_shapekeys[sk_name + '-' + age] = shape
 
-	set_shapekeys(human_config.shapekeys) ## To get correct shapes on basis
+	_set_shapekey_data(human_config.shapekeys) ## To get correct shapes on basis
 	if body_mesh != null and body_mesh in _bake_meshes:
 		_bake_meshes.erase(body_mesh)
 		hide_body_vertices()
@@ -792,7 +751,7 @@ func bake_surface() -> void:
 			new_bs_array[Mesh.ARRAY_VERTEX] = PackedVector3Array()
 			new_bs_array[Mesh.ARRAY_TANGENT] = PackedFloat32Array()
 			new_bs_array[Mesh.ARRAY_NORMAL] = PackedVector3Array()
-			set_shapekeys(_new_shapekeys[shape_name])
+			_set_shapekey_data(_new_shapekeys[shape_name])
 			morph_data['bone_positions'][shape_name] = []
 			for bone in skeleton.get_bone_count():
 				morph_data['bone_positions'][shape_name].append(skeleton.get_bone_pose_position(bone))
@@ -808,7 +767,7 @@ func bake_surface() -> void:
 		baked_mesh.surface_set_material(0,mi.mesh.surface_get_material(0))
 		mi.mesh = baked_mesh
 		## then need to reset mesh to base shape
-		set_shapekeys(initial_shapekeys)
+		_set_shapekey_data(initial_shapekeys)
 		morph_data['bone_positions']['basis'] = []
 		for bone in skeleton.get_bone_count():
 			morph_data['bone_positions']['basis'].append(skeleton.get_bone_pose_position(bone))
@@ -816,7 +775,7 @@ func bake_surface() -> void:
 		morph_data['collider_shape']['basis'] = {&'center': main_collider.position.y, &'radius': main_collider.shape.radius, &'height': main_collider.shape.height}
 
 	# Finalize
-	set_shapekeys(human_config.shapekeys)
+	_set_shapekey_data(human_config.shapekeys)
 	add_child(mi)
 	mi.owner = self
 	mi.skeleton = '../' + skeleton.name
@@ -844,6 +803,53 @@ func bake_surface() -> void:
 	
 	baked = true
 	bake_in_progress = false
+
+func _set_body_mesh(meshdata: ArrayMesh) -> void:
+	var visible = true
+	var mat_config: HumanizerMaterial = null
+	if body_mesh != null:
+		visible = body_mesh.visible
+		if body_mesh is HumanizerMeshInstance:
+			mat_config = body_mesh.material_config.duplicate(true)
+	if body_mesh == null:
+		body_mesh = MeshInstance3D.new()
+		body_mesh.name = _BASE_MESH_NAME
+		_add_child_node(body_mesh)
+	body_mesh.mesh = meshdata
+	body_mesh.set_surface_override_material(0, StandardMaterial3D.new())
+	body_mesh.set_script(load('res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd'))
+	body_mesh.material_config = HumanizerMaterial.new() if mat_config == null else mat_config
+	body_mesh.initialize()
+	if skeleton != null:
+		body_mesh.skeleton = '../' + skeleton.name
+		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
+	body_mesh.visible = visible
+
+func _fit_body_mesh() -> void:
+	# fit body mesh
+	if body_mesh != null:
+		var mesh := body_mesh.mesh as ArrayMesh
+		var surf_arrays = mesh.surface_get_arrays(0)
+		var fmt = mesh.surface_get_format(0)
+		var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
+		surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
+		for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
+			var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+			surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
+		mesh.clear_surfaces()
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], {}, fmt)
+
+func _fit_body_part_mesh(bp: HumanBodyPart) -> void:
+	var mhclo: MHCLO = load(bp.mhclo_path)
+	var new_mesh = MeshOperations.build_fitted_mesh(bp.node.mesh, _helper_vertex, mhclo)
+	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
+	bp.node.mesh = new_mesh
+
+func _fit_clothes_mesh(cl: HumanClothes) -> void:
+	var mhclo: MHCLO = load(cl.mhclo_path)
+	var new_mesh = MeshOperations.build_fitted_mesh(cl.node.mesh, _helper_vertex, mhclo)
+	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
+	cl.node.mesh = new_mesh
 
 func _combine_meshes() -> ArrayMesh:
 	var new_mesh = ImporterMesh.new()
@@ -899,7 +905,7 @@ func _recalculate_normals() -> void:
 		if not mesh.name.begins_with("Baked-"):
 			mesh.mesh = MeshOperations.generate_normals_and_tangents(mesh.mesh)
 
-func set_shapekeys(shapekeys: Dictionary) -> void:
+func _set_shapekey_data(shapekeys: Dictionary) -> void:
 	if baked and not bake_in_progress:
 		printerr('Cannot change shapekeys on baked mesh.  Reset the character.')
 		notify_property_list_changed()

@@ -15,8 +15,10 @@ var t0: float
 @onready var current_human: Node = $RebuildTestHuman
 var new_human: Node = null
 var shirt: HumanClothes
+var moving : bool = false
 
 func _ready() -> void:
+	$RebuildTestHuman/AnimationTree
 	for cl in human_config.clothes:
 		if &'Torso' in cl.slots:
 			shirt = cl
@@ -649,7 +651,8 @@ offset_bottom = 152.0
 text = "Press space bar to alter and reload the human"
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.39263, 2.09898)
+transform = Transform3D(0.891798, -0.062521, 0.448094, 0, 0.990406, 0.138188, -0.452435, -0.123236, 0.883242, 0.726618, 1.40138, 1.41675)
+fov = 72.3456
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 0.363967, 0.931412, 0, -0.931412, 0.363967, 0, 0, 0)

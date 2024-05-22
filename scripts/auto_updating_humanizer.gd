@@ -32,19 +32,13 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	super(bp)
 	if bp.node == null:
 		return
-	var mhclo: MHCLO = load(bp.mhclo_path)
-	var new_mesh = MeshOperations.build_fitted_mesh(bp.node.mesh, _helper_vertex, mhclo)
-	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
-	bp.node.mesh = new_mesh
+	_fit_body_part_mesh(bp)
 	
 func _add_clothes_mesh(cl: HumanClothes) -> void:
 	super(cl)
 	if cl.node == null:  
 		return
-	var mhclo: MHCLO = load(cl.mhclo_path)
-	var new_mesh = MeshOperations.build_fitted_mesh(cl.node.mesh, _helper_vertex, mhclo)
-	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
-	cl.node.mesh = new_mesh
+	_fit_clothes_mesh(cl)
 
 func hide_body_vertices() -> void:
 	super()
@@ -64,8 +58,8 @@ func set_rig(rig_name: String) -> void:
 		_add_bone_weights(bp)
 
 func set_shapekeys(shapekeys: Dictionary) -> void:
-	super(shapekeys)
-	fit_body_mesh()
+	_set_shapekey_data(shapekeys)
+	_fit_body_mesh()
 	
 	# Apply to body parts and clothes
 	for child in get_children():
@@ -77,8 +71,9 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 			var new_mesh = MeshOperations.build_fitted_mesh(child.mesh, _helper_vertex, mhclo)
 			child.mesh = new_mesh
 
-	_recalculate_normals()
 	_adjust_skeleton()
+	_recalculate_normals()
+
 	if main_collider != null:
 		_adjust_main_collider()
 			
