@@ -2,10 +2,8 @@ Humanizer Plugin - 3D Character Creator for Godot 4
 converted from MakeHuman and MPFB2 plugin for blender  
 features demo - https://www.youtube.com/watch?v=30q_xET69K4  
 
-requirements:  
-https://github.com/matt-seaton/compute_companion  
 optional (but higly recommended):  
-https://godotengine.org/asset-library/asset/1918  
+jolt engine - https://godotengine.org/asset-library/asset/1918   
   
 setup and usage (FAQ):    
 plugin installation - https://www.youtube.com/watch?v=190UDaqOisQ  (IMPORTANT, zip download does not work, follow instructions for git submodule or git clone)  
