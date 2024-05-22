@@ -362,14 +362,14 @@ func _deserialize() -> void:
 	# Since shapekeys are relative we start from empty
 	var sk = human_config.shapekeys.duplicate()
 	human_config.shapekeys = {}
-	set_rig(human_config.rig, false)
+	set_rig(human_config.rig)
 	for slot: String in human_config.body_parts:
 		var bp = human_config.body_parts[slot]
 		var mat = human_config.body_part_materials[slot]
-		set_body_part(bp, false)
+		set_body_part(bp)
 		set_body_part_material(bp.slot, mat)
 	for clothes: HumanClothes in human_config.clothes:
-		_add_clothes_mesh(clothes, false)
+		_add_clothes_mesh(clothes)
 	for clothes: String in human_config.clothes_materials:
 		set_clothes_material(clothes, human_config.clothes_materials[clothes])
 	if human_config.body_part_materials.has(&'skin'):
@@ -414,7 +414,7 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
 	body_mesh.visible = visible
 
-func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
+func set_body_part(bp: HumanBodyPart) -> void:
 	if baked:
 		push_warning("Can't change body parts.  Already baked")
 		notify_property_list_changed()
@@ -483,7 +483,7 @@ func apply_clothes(cl: HumanClothes) -> void:
 	#print('applying ' + cl.resource_name + ' clothes')
 	_add_clothes_mesh(cl)
 
-func _add_clothes_mesh(cl: HumanClothes, update: bool = true) -> void:
+func _add_clothes_mesh(cl: HumanClothes) -> void:
 	if cl.node != null:  # Already equipped
 		return
 	if not cl in human_config.clothes:
@@ -1106,7 +1106,7 @@ func _setup_overlay_material(asset: HumanAsset, mi: MeshInstance3D) -> void:
 	mat_config.add_overlay(asset.default_overlay)
 
 #### Animation ####
-func set_rig(rig_name: String, update: bool = true) -> void:
+func set_rig(rig_name: String) -> void:
 	if baked:
 		printerr('Cannot change rig on baked mesh.  Reset the character.')
 		return
@@ -1134,7 +1134,7 @@ func set_rig(rig_name: String, update: bool = true) -> void:
 	body_mesh.set_surface_override_material(0, mat)
 	body_mesh.skeleton = '../' + skeleton.name
 	_reset_animator()
-	if update:
+	if realtime_update:
 		_adjust_skeleton()
 		set_shapekeys(human_config.shapekeys)
 		for cl in human_config.clothes:
