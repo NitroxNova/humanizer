@@ -12,7 +12,7 @@ var normal_texture: Texture2D
 var ao_texture: Texture2D
 
 func update_material() -> void:
-	if DirAccess.dir_exists_absolute("res://addons/compute_companion/") and overlays.size() > 1:
+	if false:#DirAccess.dir_exists_absolute("res://addons/compute_companion/") and overlays.size() > 1:
 		update_material_gpu()
 	else:
 		update_material_cpu()

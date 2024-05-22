@@ -25,7 +25,8 @@ func _process(_delta) -> void:
 	if Input.is_key_pressed(KEY_SPACE):
 		if thread.is_alive():
 			return
-		thread.wait_to_finish()
+		elif thread.is_started():
+			thread.wait_to_finish()
 		t0 = Time.get_ticks_msec()
 		thread.start(_rebuild_human)
 	
@@ -37,16 +38,12 @@ func _process(_delta) -> void:
 		print('Rebuilding took ' + str(Time.get_ticks_msec() - t0) + ' msec')
 
 func _rebuild_human() -> void:
-	print('starting new human')
-
+	print('rebuilding human')
 	if shirt in human_config.clothes:
 		human_config.clothes.erase(shirt)
 	else:
 		human_config.clothes.append(shirt)
-	
-	for cl in human_config.clothes:
-		print(cl.resource_name)
-	
+		
 	var human = Humanizer.new()
 	human.human_config = human_config
 	human.load_human()

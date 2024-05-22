@@ -722,7 +722,7 @@ func bake_surface() -> void:
 				_new_shapekeys[sk_name + '-' + age] = shape
 
 	set_shapekeys(human_config.shapekeys) ## To get correct shapes on basis
-	if body_mesh in _bake_meshes:
+	if body_mesh != null and body_mesh in _bake_meshes:
 		_bake_meshes.erase(body_mesh)
 		hide_body_vertices()
 		_bake_meshes.append(body_mesh)
