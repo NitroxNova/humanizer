@@ -384,8 +384,13 @@ func _deserialize() -> void:
 	skin_color = human_config.skin_color
 	hair_color = human_config.hair_color
 	eye_color = human_config.eye_color
-	eyebrow_color = human_config.eyebrow_color
-	update_humanizer_materials()
+	eyebrow_color = human_config.eyebrow_colors
+	for bp in human_config.body_parts.values():
+		if bp.node is HumanizerMeshInstance:
+			bp.node.material_config.update_material()
+	for cl in human_config.clothes:
+		if cl.node is HumanizerMeshInstance:
+			cl.node.material_config.update_material()
 	hide_body_vertices()
 
 #### Mesh Management ####
@@ -411,6 +416,10 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	body_mesh.visible = visible
 
 func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
+	if baked:
+		push_warning("Can't change body parts.  Already baked")
+		notify_property_list_changed()
+		return
 	var rig_changed = bp.rigged #rebuild skeleton if the new asset or the removed assets have a rig
 	if human_config.body_parts.has(bp.slot):
 		if bp.node != null:  # Already equipped
@@ -424,7 +433,7 @@ func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
 	mi.name = bp.resource_name
 	bp.node = mi
 	if bp.default_overlay != null:
-		setup_overlay_material(bp, mi)
+		_setup_overlay_material(bp, mi)
 	else:
 		mi.get_surface_override_material(0).resource_path = ''
 	_add_child_node(mi)
@@ -449,9 +458,14 @@ func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
 	#notify_property_list_changed()
 
 func clear_body_part(clear_slot: String) -> void:
+	if baked:
+		push_warning("Can't change body parts.  Already baked")
+		notify_property_list_changed()
+		return
 	for slot in human_config.body_parts:
 		if slot == clear_slot:
 			var res = human_config.body_parts[clear_slot]
+			res.node = null
 			_delete_child_by_name(res.resource_name)
 			human_config.body_parts.erase(clear_slot)
 			if res.rigged:
@@ -459,6 +473,10 @@ func clear_body_part(clear_slot: String) -> void:
 			return
 
 func apply_clothes(cl: HumanClothes) -> void:
+	if baked:
+		push_warning("Can't change clothes.  Already baked")
+		notify_property_list_changed()
+		return
 	for wearing in human_config.clothes:
 		for slot in cl.slots:
 			if slot in wearing.slots:
@@ -475,7 +493,7 @@ func _add_clothes_mesh(cl: HumanClothes, update: bool = true) -> void:
 	cl.node = mi
 	mi.name = cl.resource_name
 	if cl.default_overlay != null:
-		setup_overlay_material(cl, mi)
+		_setup_overlay_material(cl, mi)
 	_add_child_node(mi)
 	_add_bone_weights(cl)
 	if realtime_update:
@@ -487,12 +505,21 @@ func _add_clothes_mesh(cl: HumanClothes, update: bool = true) -> void:
 		cl.node.transform = Transform3D(human_config.transforms[cl.resource_name])
 
 func clear_clothes_in_slot(slot: String) -> void:
+	if baked:
+		push_warning("Can't change clothes.  Already baked")
+		notify_property_list_changed()
+		return
 	for cl in human_config.clothes:
 		if slot in cl.slots:
 			#print('clearing ' + cl.resource_name + ' clothes')
 			remove_clothes(cl)
 
 func remove_clothes(cl: HumanClothes) -> void:
+	if baked:
+		push_warning("Can't change clothes.  Already baked")
+		notify_property_list_changed()
+		return
+	cl.node = null
 	if human_config.clothes_materials.has(cl.resource_name):
 		human_config.clothes_materials.erase(cl.resource_name)
 	for child in get_children():
@@ -502,6 +529,9 @@ func remove_clothes(cl: HumanClothes) -> void:
 	human_config.clothes.erase(cl)
 
 func hide_body_vertices() -> void:
+	if baked:
+		push_warning("Can't alter meshes.  Already baked")
+		return
 	var skin_mat = body_mesh.get_surface_override_material(0)
 	var arrays: Array = (body_mesh.mesh as ArrayMesh).surface_get_arrays(0)
 	var delete_verts_gd := []
@@ -538,6 +568,9 @@ func hide_body_vertices() -> void:
 	body_mesh.skeleton = '../' + skeleton.name
 
 func hide_clothes_vertices():
+	if baked:
+		push_warning("Can't alter meshes.  Already baked")
+		return
 	var delete_verts_mh := []
 	delete_verts_mh.resize(_helper_vertex.size())
 	
@@ -596,6 +629,9 @@ func _sort_clothes_by_z_depth(clothes_a, clothes_b): # from highest to lowest
 	return false
 
 func unhide_body_vertices() -> void:
+	if baked:
+		push_warning("Can't alter meshes.  Already baked")
+		return
 	var mat = body_mesh.get_surface_override_material(0)
 	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
 	set_shapekeys(human_config.shapekeys)
@@ -603,6 +639,9 @@ func unhide_body_vertices() -> void:
 	set_rig(human_config.rig)
 
 func unhide_clothes_vertices() -> void:
+	if baked:
+		push_warning("Can't alter meshes.  Already baked")
+		return
 	for cl in human_config.clothes:
 		_delete_child_by_name(cl.resource_name)
 		_add_clothes_mesh(cl)
@@ -636,6 +675,9 @@ func standard_bake() -> void:
 		bake_surface()
 
 func bake_surface() -> void:
+	if baked:
+		push_warning("Already baked")
+		return
 	if bake_surface_name in [null, '']:
 		push_error('Please provide a surface name before baking')
 		return
@@ -853,6 +895,10 @@ func _recalculate_normals() -> void:
 			mesh.mesh = MeshOperations.generate_normals_and_tangents(mesh.mesh)
 
 func set_shapekeys(shapekeys: Dictionary) -> void:
+	if baked:
+		printerr('Cannot change shapekeys on baked mesh.  Reset the character.')
+		notify_property_list_changed()
+		return
 	var prev_sk = human_config.shapekeys.duplicate()
 
 	# Set default macro/race values if not present
@@ -939,6 +985,10 @@ func add_shapekey() -> void:
 #### Materials ####
 func set_skin_texture(name: String) -> void:
 	#print('setting skin texture : ' + name)
+	if baked:
+		push_warning("Can't change skin.  Already baked")
+		notify_property_list_changed()
+		return
 	var texture: String
 	if not HumanizerRegistry.skin_textures.has(name):
 		human_config.body_part_materials[&'skin'] = ''
@@ -953,8 +1003,12 @@ func set_skin_texture(name: String) -> void:
 		body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
 	if realtime_update:
 		body_mesh.material_config.update_material()
-			
+
 func set_skin_normal_texture(name: String) -> void:
+	if baked:
+		printerr('Cannot change skin textures. Alrady baked.')
+		notify_property_list_changed()
+		return
 	#print('setting skin normal texture')
 	var texture: String
 	if not HumanizerRegistry.skin_normals.has(name):
@@ -973,6 +1027,9 @@ func set_skin_normal_texture(name: String) -> void:
 
 func set_body_part_material(set_slot: String, texture: String) -> void:
 	#print('setting material ' + texture + ' on ' + set_slot)
+	if baked:
+		printerr('Cannot change materials. Already baked.')
+		return
 	var bp: HumanBodyPart = human_config.body_parts[set_slot]
 	if bp.node == null:
 		return
@@ -1002,6 +1059,9 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 
 func set_clothes_material(cl_name: String, texture: String) -> void:
 	#print('setting texture ' + texture + ' on ' + cl_name)
+	if baked:
+		printerr('Cannot change materials. Already baked.')
+		return
 	var cl: HumanClothes = HumanizerRegistry.clothes[cl_name]
 	if cl.node == null:
 		return
@@ -1028,7 +1088,7 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 					notify_property_list_changed()
 	human_config.clothes_materials[cl_name] = texture
 
-func setup_overlay_material(asset: HumanAsset, mi: MeshInstance3D) -> void:
+func _setup_overlay_material(asset: HumanAsset, mi: MeshInstance3D) -> void:
 	mi.set_script(load("res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd"))
 	mi.material_config = HumanizerMaterial.new()
 	mi.initialize()
@@ -1043,24 +1103,16 @@ func setup_overlay_material(asset: HumanAsset, mi: MeshInstance3D) -> void:
 	mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	mat_config.add_overlay(asset.default_overlay)
 
-func update_humanizer_materials() -> void:
-	for bp in human_config.body_parts.values():
-		if bp.node is HumanizerMeshInstance:
-			bp.node.material_config.update_material()
-	for cl in human_config.clothes:
-		if cl.node is HumanizerMeshInstance:
-			cl.node.material_config.update_material()
-
 #### Animation ####
 func set_rig(rig_name: String, update: bool = true) -> void:
+	if baked:
+		printerr('Cannot change rig on baked mesh.  Reset the character.')
+		return
 	# Delete existing skeleton
 	for child in get_children():
 		if child is Skeleton3D:
 			_delete_child_node(child)
 	if rig_name == '':
-		return
-	if baked:
-		printerr('Cannot change rig on baked mesh.  Reset the character.')
 		return
 
 	var retargeted: bool = rig_name.ends_with('-RETARGETED')

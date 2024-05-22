@@ -12,12 +12,7 @@ const GRAVITY: float  = 9.8
 var moving: bool = false
 
 # Called when the node enters the scene tree for the first time.
-func _ready():
-	var msg: String = 'This script was automatically added to your generated human. '
-	msg += 'You can set a different default script in your HumanizerConfig resource '
-	msg += 'on the humanizer_global.tscn root node.'
-	print(msg)
-	
+func _ready():	
 	var anim = $AnimationTree as AnimationTree
 	# Seems like animation tree has to be inactivated for this to work
 	anim.active = false
