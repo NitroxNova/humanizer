@@ -1111,9 +1111,11 @@ func _adjust_skeleton() -> void:
 	var asset_bone_positions = []
 	asset_bone_positions.resize(skeleton.get_bone_count())	
 	for cl in human_config.clothes:
-		_get_asset_bone_positions(cl, asset_bone_positions)
+		if cl.rigged:
+			_get_asset_bone_positions(cl, asset_bone_positions)
 	for bp in human_config.body_parts.values():
-		_get_asset_bone_positions(bp, asset_bone_positions)
+		if bp.rigged:
+			_get_asset_bone_positions(bp, asset_bone_positions)
 	
 	for bone_id in skeleton.get_bone_count():
 		var bone_pos = Vector3.ZERO
