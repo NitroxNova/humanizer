@@ -47,7 +47,6 @@ func _rebuild_human() -> void:
 	var human = Humanizer.new()
 	human.human_config = human_config
 	human.load_human()
-	
 	human.standard_bake()
 	new_human = human.save_human_scene(false).instantiate()
 "

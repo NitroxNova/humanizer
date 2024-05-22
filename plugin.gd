@@ -2,7 +2,7 @@
 extends EditorPlugin
 
 # The new node type to be added
-const humanizer_node = preload('res://addons/humanizer/scripts/humanizer.gd')
+const humanizer_node = preload('res://addons/humanizer/scripts/auto_updating_humanizer.gd')
 # Its icon in the scene tree
 const node_icon = preload('res://addons/humanizer/icon.png')
 # Editor inspectors 

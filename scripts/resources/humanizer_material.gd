@@ -12,6 +12,9 @@ var normal_texture: Texture2D
 var ao_texture: Texture2D
 
 func update_material() -> void:
+	if overlays.size() == 0:
+		return
+		
 	for texture in textures:
 		var image: Image = null
 		if overlays[0].get(texture + '_texture_path') != '':

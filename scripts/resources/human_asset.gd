@@ -20,4 +20,4 @@ var material_path: String:
 		return path.path_join(path.get_file() + '_material.res')
 
 ## Non-serialized node reference.  
-var node: Node
+var node: Node3D

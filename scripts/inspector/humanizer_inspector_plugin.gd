@@ -2,7 +2,7 @@ class_name HumanizerEditorInspectorPlugin
 extends EditorInspectorPlugin
 
 func _can_handle(human):
-	return human is Humanizer
+	return human is AutoUpdatingHumanizer
 	
 func _parse_category(human, category):
 	if not Engine.is_editor_hint():
@@ -13,7 +13,7 @@ func _parse_category(human, category):
 	add_custom_control(scene)
 	
 	# Header Section
-	scene.get_node('%ResetButton').pressed.connect(human.realtime_reset_human)
+	scene.get_node('%ResetButton').pressed.connect(human.set_human_config.bind(HumanConfig.new()))
 	scene.get_node('%PresetsOptionButton').human = human
 
 	## Color pickers

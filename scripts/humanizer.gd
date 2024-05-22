@@ -14,7 +14,6 @@ const hips_id: int = 18127
 const feet_ids: Array[int] = [15500, 16804]
 const eyebrow_color_weight := 0.4
 
-var realtime_update: bool = Engine.is_editor_hint()
 var skeleton: Skeleton3D
 var body_mesh: MeshInstance3D
 var baked := false
@@ -67,8 +66,6 @@ var skin_color: Color = _DEFAULT_SKIN_COLOR:
 		human_config.skin_color = skin_color
 		if body_mesh.material_config.overlays.size() > 0:
 			body_mesh.material_config.overlays[0].color = skin_color
-		if realtime_update:
-			body_mesh.material_config.update_material()
 var hair_color: Color = _DEFAULT_HAIR_COLOR:
 	set(value):
 		if hair_color == value:
@@ -112,8 +109,6 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 			var overlay = mesh.material_config.overlays[1]
 			overlay.color = eye_color
 			mesh.material_config.set_overlay(1, overlay)
-			if realtime_update:
-				mesh.material_config.update_material()
 ## The meshes selected to be baked to a new surface
 @export var _bake_meshes: Array[MeshInstance3D]
 ## The new shapekeys which have been defined for this human.  These will survive the baking process.
@@ -124,10 +119,6 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 @export var human_config: HumanConfig:
 	set(value):
 		human_config = value.duplicate(true)
-		# This gets set before _ready causing issues so make sure we're loaded
-		if scene_loaded and realtime_update:
-			load_human()
-
 @export_group('Node Overrides')
 ## The root node type for baked humans
 @export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D", "Area3D") var _baked_root_node: String = HumanizerGlobalConfig.config.default_baked_root_node
@@ -170,14 +161,9 @@ func _ready() -> void:
 			baked = true
 	if not baked:
 		load_human()
-		rebuild_human()
 	scene_loaded = true
 
 ####  HumanConfig Resource Management ####
-
-func realtime_reset_human() -> void:
-	human_config = HumanConfig.new()
-	rebuild_human()
 
 func reset_human() -> void:
 	_new_shapekeys = {}
@@ -197,13 +183,6 @@ func reset_human() -> void:
 	notify_property_list_changed()
 	#print('Reset human')
 
-func rebuild_human() -> void: 
-	##rebuilds all asset meshes and bone weights. only call when absolutely needed.
-	##we can assume that rig bones are already in place
-	_adjust_skeleton()
-	fit_body_mesh()
-	_recalculate_normals()
-	
 func load_human() -> void:
 	## if we are calling on a node ont in the tree ready won't be called
 	if human_config == null and not scene_loaded:
@@ -213,6 +192,9 @@ func load_human() -> void:
 	baked = false
 	reset_human()
 	_deserialize()
+	_adjust_skeleton()
+	fit_body_mesh()
+	_recalculate_normals()
 	notify_property_list_changed()
 
 func save_human_scene(to_file: bool = true) -> PackedScene:
@@ -372,9 +354,6 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 	return res
 
 func _deserialize() -> void:
-	## no need for realtime updating during the load process
-	var realtime_setting := realtime_update
-	realtime_update = false
 	# Since shapekeys are relative we start from empty
 	var sk = human_config.shapekeys.duplicate()
 	human_config.shapekeys = {}
@@ -410,7 +389,6 @@ func _deserialize() -> void:
 	hide_body_vertices()
 	_adjust_skeleton()
 	_recalculate_normals()
-	realtime_update = realtime_setting
 
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
@@ -435,7 +413,7 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	body_mesh.visible = visible
 
 func fit_body_mesh() -> void:
-	#fit body mesh
+	# fit body mesh
 	if body_mesh != null:
 		var mesh := body_mesh.mesh as ArrayMesh
 		var surf_arrays = mesh.surface_get_arrays(0)
@@ -476,13 +454,7 @@ func set_body_part(bp: HumanBodyPart) -> void:
 		set_rig(human_config.rig) #update rig with additional asset bones, and remove any from previous asset
 	else:
 		_add_bone_weights(bp)
-		
-	if realtime_update:
-		var mhclo: MHCLO = load(bp.mhclo_path)
-		var new_mesh = MeshOperations.build_fitted_mesh(mi.mesh, _helper_vertex, mhclo)
-		new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
-		mi.mesh = new_mesh
-		
+
 	if 'eyebrow' in bp.slot.to_lower():
 		eyebrow_color = eyebrow_color
 	if human_config.transforms.has(bp.resource_name):
@@ -529,11 +501,7 @@ func _add_clothes_mesh(cl: HumanClothes) -> void:
 		_setup_overlay_material(cl, mi)
 	_add_child_node(mi)
 	_add_bone_weights(cl)
-	if realtime_update:
-		var mhclo: MHCLO = load(cl.mhclo_path)
-		var new_mesh = MeshOperations.build_fitted_mesh(mi.mesh, _helper_vertex, mhclo)
-		new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
-		mi.mesh = new_mesh
+	
 	if human_config.transforms.has(cl.resource_name):
 		cl.node.transform = Transform3D(human_config.transforms[cl.resource_name])
 
@@ -594,9 +562,6 @@ func hide_body_vertices() -> void:
 			delete_verts_gd[gd_id] = true
 			
 	_set_body_mesh(MeshOperations.delete_faces(body_mesh.mesh,delete_verts_gd))
-
-	if realtime_update:
-		_recalculate_normals()
 	body_mesh.set_surface_override_material(0, skin_mat)
 	body_mesh.skeleton = '../' + skeleton.name
 
@@ -930,36 +895,6 @@ func _recalculate_normals() -> void:
 		if not mesh.name.begins_with("Baked-"):
 			mesh.mesh = MeshOperations.generate_normals_and_tangents(mesh.mesh)
 
-func realtime_set_shapekeys(shapekeys: Dictionary) -> void:
-	if baked and not bake_in_progress:
-		printerr('Cannot change shapekeys on baked mesh.  Reset the character.')
-		notify_property_list_changed()
-		return
-		
-	set_shapekeys(shapekeys)
-	
-	fit_body_mesh()
-	
-	# Apply to body parts and clothes
-	for child in get_children():
-		if not child is MeshInstance3D:
-			continue
-		var res: HumanAsset = _get_asset_by_name(child.name)
-		if res != null:   # Body parts/clothes
-			var mhclo: MHCLO = load(res.mhclo_path)
-			var new_mesh = MeshOperations.build_fitted_mesh(child.mesh, _helper_vertex, mhclo)
-			child.mesh = new_mesh
-
-	_recalculate_normals()
-	_adjust_skeleton()
-	if main_collider != null:
-		_adjust_main_collider()
-			
-	## Face bones mess up the mesh when shapekeys applied.  This fixes it
-	if animator != null:
-		animator.active = not animator.active
-		animator.active = not animator.active
-
 func set_shapekeys(shapekeys: Dictionary) -> void:
 	if baked and not bake_in_progress:
 		printerr('Cannot change shapekeys on baked mesh.  Reset the character.')
@@ -1005,7 +940,6 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 		
 	for key in shapekeys:
 		human_config.shapekeys[key] = shapekeys[key]
-	
 
 func add_shapekey() -> void:
 	if new_shapekey_name in ['', null]:
@@ -1036,8 +970,6 @@ func set_skin_texture(name: String) -> void:
 			normal_texture = ''
 		var overlay = {&'albedo': texture, &'color': skin_color, &'normal': normal_texture}
 		body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
-	if realtime_update:
-		body_mesh.material_config.update_material()
 
 func set_skin_normal_texture(name: String) -> void:
 	if baked:
@@ -1167,14 +1099,7 @@ func set_rig(rig_name: String) -> void:
 	body_mesh.set_surface_override_material(0, mat)
 	body_mesh.skeleton = '../' + skeleton.name
 	_reset_animator()
-	if realtime_update:
-		_adjust_skeleton()
-		set_shapekeys(human_config.shapekeys)
-		for cl in human_config.clothes:
-			_add_bone_weights(cl)
-		for bp in human_config.body_parts.values():
-			_add_bone_weights(bp)
-	
+
 	if human_config.components.has(&'ragdoll'):
 		set_component_state(false, &'ragdoll')
 		set_component_state(true, &'ragdoll')

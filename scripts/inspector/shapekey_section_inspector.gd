@@ -64,9 +64,9 @@ func _on_value_changed(changed: bool, slider: HSlider) -> void:
 		var values := {}
 		for sk in sliders:
 			values[sk] = sliders[sk].value
-		human.realtime_set_shapekeys(values)
+		human.set_shapekeys(values)
 	else:
-		human.realtime_set_shapekeys({key: float(value)})
+		human.set_shapekeys({key: float(value)})
 	
 func _on_reset_sliders(human: Humanizer) -> void:
 	var values := {}
@@ -75,7 +75,7 @@ func _on_reset_sliders(human: Humanizer) -> void:
 		var value = (slider.min_value + slider.max_value) * 0.5
 		slider.value = value
 		values[sk] = value
-	human.realtime_set_shapekeys(values)
+	human.set_shapekeys(values)
 	print('Reset ' + name + ' sliders')
 	
 func _on_randomize_sliders(human: Humanizer, randomization: HSlider, asymmetry: HSlider) -> void:
@@ -102,5 +102,5 @@ func _on_randomize_sliders(human: Humanizer, randomization: HSlider, asymmetry: 
 		value = abs(value)
 		get_node('%' + sk).value = value
 		values[sk] = value
-	human.realtime_set_shapekeys(values)
+	human.set_shapekeys(values)
 	print('Randomized ' + name.replace('Container', '') + ' sliders')
