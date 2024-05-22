@@ -360,6 +360,7 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 
 func _deserialize() -> void:
 	## no need for realtime updating during the load process
+	var realtime_setting := realtime_update
 	realtime_update = false
 	# Since shapekeys are relative we start from empty
 	var sk = human_config.shapekeys.duplicate()
@@ -396,7 +397,7 @@ func _deserialize() -> void:
 	hide_body_vertices()
 	_adjust_skeleton()
 	_recalculate_normals()
-	realtime_update = Engine.is_editor_hint()
+	realtime_update = realtime_setting
 
 #### Mesh Management ####
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
