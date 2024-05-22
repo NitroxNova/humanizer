@@ -121,6 +121,8 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 @export var human_config: HumanConfig:
 	set(value):
 		human_config = value.duplicate(true)
+		if scene_loaded:
+			load_human()
 @export_group('Node Overrides')
 ## The root node type for baked humans
 @export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D", "Area3D") var _baked_root_node: String = HumanizerGlobalConfig.config.default_baked_root_node
