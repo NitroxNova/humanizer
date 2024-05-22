@@ -66,6 +66,8 @@ var skin_color: Color = _DEFAULT_SKIN_COLOR:
 		human_config.skin_color = skin_color
 		if body_mesh.material_config.overlays.size() > 0:
 			body_mesh.material_config.overlays[0].color = skin_color
+		if realtime_update:
+			body_mesh.material_config.update_material()
 var hair_color: Color = _DEFAULT_HAIR_COLOR:
 	set(value):
 		if hair_color == value:
@@ -75,7 +77,7 @@ var hair_color: Color = _DEFAULT_HAIR_COLOR:
 			return
 		human_config.hair_color = hair_color
 		if human_config.body_parts.has(&'Hair'):
-			var mesh = get_node(human_config.body_parts[&'Hair'].resource_name)
+			var mesh = human_config.body_parts[&'Hair'].node
 			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = hair_color 
 		eyebrow_color = Color(hair_color * eyebrow_color_weight, 1.)
 		notify_property_list_changed()
@@ -91,7 +93,7 @@ var eyebrow_color: Color = _DEFAULT_EYEBROW_COLOR:
 		for slot in slots:
 			if not human_config.body_parts.has(slot):
 				continue
-			var mesh = get_node(human_config.body_parts[slot].resource_name)
+			var mesh = human_config.body_parts[slot].node
 			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = eyebrow_color 
 var eye_color: Color = _DEFAULT_EYE_COLOR:
 	set(value):
@@ -105,11 +107,12 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 		for slot in slots:
 			if not human_config.body_parts.has(slot):
 				continue
-			var mesh = get_node(human_config.body_parts[slot].resource_name)
+			var mesh = human_config.body_parts[slot].node
 			var overlay = mesh.material_config.overlays[1]
 			overlay.color = eye_color
 			mesh.material_config.set_overlay(1, overlay)
-
+			if realtime_update:
+				mesh.material_config.update_material()
 ## The meshes selected to be baked to a new surface
 @export var _bake_meshes: Array[MeshInstance3D]
 ## The new shapekeys which have been defined for this human.  These will survive the baking process.
@@ -382,6 +385,7 @@ func _deserialize() -> void:
 	hair_color = human_config.hair_color
 	eye_color = human_config.eye_color
 	eyebrow_color = human_config.eyebrow_color
+	update_humanizer_materials()
 	hide_body_vertices()
 
 #### Mesh Management ####
@@ -409,7 +413,7 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
 	var rig_changed = bp.rigged #rebuild skeleton if the new asset or the removed assets have a rig
 	if human_config.body_parts.has(bp.slot):
-		if get_node_or_null(bp.resource_name) != null:
+		if bp.node != null:  # Already equipped
 			return
 		var current = human_config.body_parts[bp.slot]
 		if current.rigged:
@@ -418,6 +422,7 @@ func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
 	human_config.body_parts[bp.slot] = bp
 	var mi = load(bp.scene_path).instantiate() as MeshInstance3D
 	mi.name = bp.resource_name
+	bp.node = mi
 	if bp.default_overlay != null:
 		setup_overlay_material(bp, mi)
 	else:
@@ -439,8 +444,7 @@ func set_body_part(bp: HumanBodyPart, update: bool = true) -> void:
 	if 'eyebrow' in bp.slot.to_lower():
 		eyebrow_color = eyebrow_color
 	if human_config.transforms.has(bp.resource_name):
-		get_node(bp.resource_name).transform = Transform3D(human_config.transforms[bp.resource_name])
-
+		bp.node.transform = Transform3D(human_config.transforms[bp.resource_name])
 	
 	#notify_property_list_changed()
 
@@ -463,11 +467,12 @@ func apply_clothes(cl: HumanClothes) -> void:
 	_add_clothes_mesh(cl)
 
 func _add_clothes_mesh(cl: HumanClothes, update: bool = true) -> void:
-	if get_node_or_null(cl.resource_name) != null:
+	if cl.node != null:  # Already equipped
 		return
 	if not cl in human_config.clothes:
 		human_config.clothes.append(cl)
 	var mi = load(cl.scene_path).instantiate()
+	cl.node = mi
 	mi.name = cl.resource_name
 	if cl.default_overlay != null:
 		setup_overlay_material(cl, mi)
@@ -479,7 +484,7 @@ func _add_clothes_mesh(cl: HumanClothes, update: bool = true) -> void:
 		new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
 		mi.mesh = new_mesh
 	if human_config.transforms.has(cl.resource_name):
-		get_node(cl.resource_name).transform = Transform3D(human_config.transforms[cl.resource_name])
+		cl.node.transform = Transform3D(human_config.transforms[cl.resource_name])
 
 func clear_clothes_in_slot(slot: String) -> void:
 	for cl in human_config.clothes:
@@ -633,13 +638,16 @@ func standard_bake() -> void:
 func bake_surface() -> void:
 	if bake_surface_name in [null, '']:
 		push_error('Please provide a surface name before baking')
-	for child in _bake_meshes:
-		if not child.transform == Transform3D.IDENTITY:
-			human_config.transforms[child.name] = Transform3D(child.transform)
+		return
 	for child in get_children():
 		if child.name == 'Baked-' + bake_surface_name:
 			push_error('Surface ' + bake_surface_name + ' already exists.  Choose a different name.')
 			return
+	for node in _bake_meshes:
+		if not node.transform == Transform3D.IDENTITY:
+			human_config.transforms[node.name] = Transform3D(node.transform)
+		if node is HumanizerMeshInstance:
+			node.material_config.update_material()
 	if human_config.components.has(&'size_morphs') or human_config.components.has(&'age_morphs'):
 		if _new_shapekeys.size() > 1:
 			push_error('Age and Size morphs can not be mixed with more than 1 custom shape')
@@ -943,6 +951,8 @@ func set_skin_texture(name: String) -> void:
 			normal_texture = ''
 		var overlay = {&'albedo': texture, &'color': skin_color, &'normal': normal_texture}
 		body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
+	if realtime_update:
+		body_mesh.material_config.update_material()
 			
 func set_skin_normal_texture(name: String) -> void:
 	#print('setting skin normal texture')
@@ -965,7 +975,7 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 	#print('setting material ' + texture + ' on ' + set_slot)
 	var bp: HumanBodyPart = human_config.body_parts[set_slot]
 	human_config.body_part_materials[set_slot] = texture
-	var mi = get_node(bp.resource_name) as MeshInstance3D
+	var mi = bp.node as MeshInstance3D
 	if bp.default_overlay != null:
 		var mat_config: HumanizerMaterial = (mi as HumanizerMeshInstance).material_config
 		var overlay_dict = {&'albedo': bp.textures[texture]}
@@ -990,7 +1000,7 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 func set_clothes_material(cl_name: String, texture: String) -> void:
 	#print('setting texture ' + texture + ' on ' + cl_name)
 	var cl: HumanClothes = HumanizerRegistry.clothes[cl_name]
-	var mi: MeshInstance3D = get_node(cl_name)
+	var mi: MeshInstance3D = cl.node
 
 	if cl.default_overlay != null:
 		## HumanizerMaterials are always local to scene
@@ -1006,7 +1016,7 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 		## Need to set material settings for other assets sharing the same material
 		for other: HumanClothes in human_config.clothes:
 			if cl != other and not baked:
-				var other_mat: BaseMaterial3D = get_node(other.resource_name).get_surface_override_material(0)
+				var other_mat: BaseMaterial3D = other.node.get_surface_override_material(0)
 				var this_mat: BaseMaterial3D = mi.get_surface_override_material(0)
 				if other_mat.resource_path == this_mat.resource_path:
 					human_config.clothes_materials[other.resource_name] = texture
@@ -1028,8 +1038,13 @@ func setup_overlay_material(asset: HumanAsset, mi: MeshInstance3D) -> void:
 	mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	mat_config.add_overlay(asset.default_overlay)
 
-func get_helper_vertex_position(mh_id:int):
-	return _helper_vertex[mh_id]
+func update_humanizer_materials() -> void:
+	for bp in human_config.body_parts.values():
+		if bp.node is HumanizerMeshInstance:
+			bp.node.material_config.update_material()
+	for cl in human_config.clothes:
+		if cl.node is HumanizerMeshInstance:
+			cl.node.material_config.update_material()
 
 #### Animation ####
 func set_rig(rig_name: String, update: bool = true) -> void:
@@ -1128,7 +1143,7 @@ func _adjust_skeleton() -> void:
 	#print('Fit skeleton to mesh')
 
 func _get_asset_bone_positions(asset:HumanAsset,bone_positions:Array):
-	var sf_arrays = get_node(asset.resource_name).mesh.surface_get_arrays(0)
+	var sf_arrays = asset.node.mesh.surface_get_arrays(0)
 	var mhclo : MHCLO = load(asset.mhclo_path)
 	for rig_bone_id in mhclo.rigged_config.size():
 		var bone_config =  mhclo.rigged_config[rig_bone_id]
@@ -1140,7 +1155,7 @@ func _get_asset_bone_positions(asset:HumanAsset,bone_positions:Array):
 			bone_positions[bone_id] = 0.5 * (v1+v2) + bone_config.vertices.offset
 
 func _add_bone_weights(asset: HumanAsset) -> void:
-	var mi: MeshInstance3D = get_node_or_null(asset.resource_name)
+	var mi: MeshInstance3D = asset.node
 	if mi == null:
 		return
 		

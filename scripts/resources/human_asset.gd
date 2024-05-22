@@ -18,3 +18,6 @@ var mhclo_path: String:
 var material_path: String:
 	get:
 		return path.path_join(path.get_file() + '_material.res')
+
+## Non-serialized node reference.  
+var node: Node

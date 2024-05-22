@@ -6,11 +6,7 @@ signal on_material_updated
 
 const textures = ['albedo', 'normal', 'ao']
 
-@export var overlays: Array[HumanizerOverlay] = []:
-	set(value):
-		overlays = value
-		if overlays.size() > 0:
-			update_material()
+@export var overlays: Array[HumanizerOverlay] = []
 var albedo_texture: Texture2D
 var normal_texture: Texture2D
 var ao_texture: Texture2D
@@ -87,18 +83,15 @@ func set_base_textures(overlay: HumanizerOverlay) -> void:
 		# Don't append, we want to call the setter 
 		overlays = [overlay]
 	overlays[0] = overlay
-	update_material()
 
 func add_overlay(overlay: HumanizerOverlay) -> void:
 	if get_index(overlay.resource_name) != -1:
 		printerr('Overlay already present?')
 		return
 	overlays.append(overlay)
-	update_material()
 
 func set_overlay(idx: int, overlay: HumanizerOverlay) -> void:
 	overlays[idx] = overlay
-	update_material()
 	
 func remove_overlay(name: String) -> void:
 	var idx := get_index(name)
@@ -106,7 +99,6 @@ func remove_overlay(name: String) -> void:
 		printerr('Overlay not present?')
 		return
 	overlays.remove_at(idx)
-	update_material()
 	
 func get_index(name: String) -> int:
 	for i in overlays.size():
