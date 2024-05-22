@@ -376,7 +376,6 @@ func _deserialize() -> void:
 		set_clothes_material(clothes, human_config.clothes_materials[clothes])
 	if human_config.body_part_materials.has(&'skin'):
 		set_skin_texture(human_config.body_part_materials[&'skin'])
-	_adjust_skeleton()
 	set_shapekeys(sk)
 	for component in human_config.components:
 		if component in [&'root_bone', &'ragdoll']:
@@ -393,6 +392,8 @@ func _deserialize() -> void:
 		if cl.node is HumanizerMeshInstance:
 			cl.node.material_config.update_material()
 	hide_body_vertices()
+	_adjust_skeleton()
+	_recalculate_normals()
 	realtime_update = Engine.is_editor_hint()
 
 #### Mesh Management ####
