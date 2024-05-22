@@ -288,8 +288,6 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		var saccades : Node = load("res://addons/humanizer/scenes/subscenes/saccades.tscn").instantiate()
 		root_node.add_child(saccades)
 		saccades.owner = root_node
-	if human_config.components.has(&'root_bone'):
-		_add_root_bone(sk)
 	if has_node('MorphDriver'):
 		var morph_driver = $MorphDriver.duplicate()
 		morph_driver.bone_positions = $MorphDriver.bone_positions
