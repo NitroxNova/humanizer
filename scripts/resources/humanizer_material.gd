@@ -12,38 +12,6 @@ var normal_texture: Texture2D
 var ao_texture: Texture2D
 
 func update_material() -> void:
-	if false:#DirAccess.dir_exists_absolute("res://addons/compute_companion/") and overlays.size() > 1:
-		update_material_gpu()
-	else:
-		update_material_cpu()
-
-func update_material_gpu() -> void:
-	var colors := PackedVector3Array()
-	var size: Vector2i
-	var textures: Array[Image]
-	
-	for i in overlays.size():
-		var overlay := overlays[i]
-		if overlay.albedo_texture_path != '':
-			var image := load(overlay.albedo_texture_path).get_image() as Image
-			size = image.get_size()
-			textures.append(image)
-			colors.append(Vector3(overlay.color.r, overlay.color.g, overlay.color.b))
-	
-	if textures.size() > 0:
-		var compute := ComputeWorker.create("res://addons/humanizer/shaders/compute/overlay.glsl")
-		var textures_uniform := GPU_Texture2DArray.new(textures, 0, 'textures')
-		var output_uniform := GPU_Image.new(textures[0], 1, 'output_texture')
-		var colors_uniform := GPU_PackedVector3Array.new(colors, 2, true, 'colors')
-		var size_uniform = GPU_Int.new(len(textures), 3, false, 'size')
-		compute.uniform_sets[0].uniforms = [textures_uniform, output_uniform, colors_uniform, size_uniform]
-		compute.initialize(textures[0].get_size().x / 8, textures[0].get_size().y / 8, 1)
-		compute.execute_compute_shader()
-		var image: Image = output_uniform.get_uniform_data()
-		albedo_texture = ImageTexture.create_from_image(image)
-	on_material_updated.emit()
-
-func update_material_cpu() -> void:
 	for texture in textures:
 		var image: Image = null
 		if overlays[0].get(texture + '_texture_path') != '':
