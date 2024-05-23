@@ -202,7 +202,7 @@ func blend_color(image: Image, color: Color) -> void:
 		for y in image.get_height():
 			image.set_pixel(x, y, image.get_pixel(x, y) * color)
 			
-static func compress_material(args:Dictionary): 
+static func compress_material(args:Dictionary):
 	var mesh:ArrayMesh = args.mesh
 	for surface_id in mesh.get_surface_count():
 		var material: BaseMaterial3D = mesh.surface_get_material(surface_id)
@@ -219,5 +219,4 @@ static func compress_material(args:Dictionary):
 				if save_path != "":
 					ResourceSaver.save(ImageTexture.create_from_image(image), save_path)
 					material.set(texture + '_texture', load(save_path))
-				
 		ResourceSaver.save(material, material.resource_path)

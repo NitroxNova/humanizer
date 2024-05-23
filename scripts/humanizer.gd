@@ -167,8 +167,7 @@ func _ready() -> void:
 		load_human()
 	scene_loaded = true
 
-####  HumanConfig Resource Management ####
-
+####  HumanConfig Resource and Scene Management ####
 func reset_human() -> void:
 	_new_shapekeys = {}
 	if has_node('MorphDriver'):
@@ -198,10 +197,10 @@ func load_human() -> void:
 	_deserialize()
 	notify_property_list_changed()
 
-func save_human_scene(to_file: bool = true) -> PackedScene:
+func create_human_branch() -> Node3D:
 	_adjust_skeleton()
 	var new_mesh = _combine_meshes()
-	var scene = PackedScene.new()
+
 	var root_node: Node
 	var script: String
 	if _baked_root_node == 'StaticBody3D':
@@ -293,15 +292,18 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 		morph_driver.mesh_paths = [NodePath('../Avatar')] as Array[NodePath]
 		root_node.add_child(morph_driver)
 		morph_driver.owner = root_node
-			
-	scene.pack(root_node)
 
-	if not to_file:
-		return scene
+	return root_node
+
+func save_human_scene() -> void:
+	var scene_root_node = create_human_branch()
+	var mi: MeshInstance3D = scene_root_node.get_node('Avatar')
+	var scene = PackedScene.new()
+	scene.pack(scene_root_node)
 	DirAccess.make_dir_recursive_absolute(save_path)
 	
 	for surface in mi.mesh.get_surface_count():
-		var mat = mi.mesh.surface_get_material(surface).duplicate()
+		var mat = mi.mesh.surface_get_material(surface)
 		var surf_name: String = mi.mesh.surface_get_name(surface)
 		if mat.albedo_texture != null:
 			var path := save_path.path_join(surf_name + '_albedo.res')
@@ -323,10 +325,8 @@ func save_human_scene(to_file: bool = true) -> PackedScene:
 	ResourceSaver.save(human_config, save_path.path_join(human_name + '_config.res'))
 	if not FileAccess.file_exists(save_path.path_join(human_name + '.tscn')):
 		ResourceSaver.save(scene, save_path.path_join(human_name + '.tscn'))
-
 	print('Saved human to : ' + save_path)
 	HumanizerJobQueue.enqueue({callable=HumanizerSurfaceCombiner.compress_material,mesh=mi.mesh})
-	return scene
 
 func _add_child_node(node: Node) -> void:
 	add_child(node)
