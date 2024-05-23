@@ -58,18 +58,7 @@ func set_rig(rig_name: String) -> void:
 
 func set_shapekeys(shapekeys: Dictionary) -> void:
 	_set_shapekey_data(shapekeys)
-	_fit_body_mesh()
-	
-	# Apply to body parts and clothes
-	for child in get_children():
-		if not child is MeshInstance3D:
-			continue
-		var res: HumanAsset = _get_asset_by_name(child.name)
-		if res != null:   # Body parts/clothes
-			var mhclo: MHCLO = load(res.mhclo_path)
-			var new_mesh = MeshOperations.build_fitted_mesh(child.mesh, _helper_vertex, mhclo)
-			child.mesh = new_mesh
-
+	_fit_all_meshes()
 	_adjust_skeleton()
 	_recalculate_normals()
 
