@@ -17,7 +17,6 @@ var rebuilding: bool = false
 ## So he doesn't play the running animation
 var moving: bool = false
 
-signal new_human_received
 
 func _ready() -> void:
 	$RebuildTestHuman/AnimationTree
@@ -29,17 +28,20 @@ func _process(_delta) -> void:
 	## HumanizerJobQueue allows you to run background jobs
 	## Any callable that takes a dict argument will work
 	if Input.is_key_pressed(KEY_SPACE) and not rebuilding:
-		HumanizerJobQueue.enqueue({'callable': self._rebuild_human})
+		HumanizerJobQueue.enqueue({
+			'callable': self._rebuild_human,
+			#'on_finished': another_callback_if_needed,
+		})
 		rebuilding = true
 
 func _rebuild_human(job_data: Dictionary) -> void:
 	print('rebuilding human')
-	
+
+	t0 = Time.get_ticks_msec()	
 	## generally you have to be careful about variables running 
 	## background threads but here it's safe since we will only
 	## have one job running at a time.
-	
-	t0 = Time.get_ticks_msec()
+
 	## toggle shirt on or off
 	if shirt in human_config.clothes:
 		human_config.clothes.erase(shirt)
