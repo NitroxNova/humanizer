@@ -70,4 +70,10 @@ func _process_queue(semaphore : Semaphore) -> void:
 			semaphore.wait()
 		else:
 			(job_data.callable as Callable).call(job_data)
+			if job_data.has('on_finished'):
+				var next_job = (job_data.on_finished as Callable)
+				if next_job:
+					job_data.erase('job_finished')
+					next_job.call(job_data)
+					
 

@@ -8,14 +8,16 @@
 script/source = "extends Node
 
 @export var human_config: HumanConfig
-
-var thread := Thread.new()
-var t0: float
-
 @onready var current_human: Node = $RebuildTestHuman
-var new_human: Node = null
+
+var t0: float
 var shirt: HumanClothes
-var moving : bool = false
+var rebuilding: bool = false
+
+## So he doesn't play the running animation
+var moving: bool = false
+
+signal new_human_received
 
 func _ready() -> void:
 	$RebuildTestHuman/AnimationTree
@@ -24,33 +26,43 @@ func _ready() -> void:
 			shirt = cl
 
 func _process(_delta) -> void:
-	if Input.is_key_pressed(KEY_SPACE):
-		if thread.is_alive():
-			return
-		elif thread.is_started():
-			thread.wait_to_finish()
-		t0 = Time.get_ticks_msec()
-		thread.start(_rebuild_human)
-	
-	if new_human != null:
-		add_child(new_human)
-		remove_child(current_human)
-		current_human = new_human
-		new_human = null
-		print('Rebuilding took ' + str(Time.get_ticks_msec() - t0) + ' msec')
+	## HumanizerJobQueue allows you to run background jobs
+	## Any callable that takes a dict argument will work
+	if Input.is_key_pressed(KEY_SPACE) and not rebuilding:
+		HumanizerJobQueue.enqueue({'callable': self._rebuild_human})
+		rebuilding = true
 
-func _rebuild_human() -> void:
+func _rebuild_human(job_data: Dictionary) -> void:
 	print('rebuilding human')
+	
+	## generally you have to be careful about variables running 
+	## background threads but here it's safe since we will only
+	## have one job running at a time.
+	
+	t0 = Time.get_ticks_msec()
+	## toggle shirt on or off
 	if shirt in human_config.clothes:
 		human_config.clothes.erase(shirt)
 	else:
 		human_config.clothes.append(shirt)
 		
+	## rebuild and replace the scene character
 	var human = Humanizer.new()
 	human.human_config = human_config
 	human.load_human()
 	human.standard_bake()
-	new_human = human.save_human_scene(false).instantiate()
+	job_data['new_human'] = human.save_human_scene(false).instantiate()
+	
+	## only alter the SceneTree on the main thread
+	call_deferred('replace_human', job_data.new_human)
+
+func replace_human(new_human: Node3D) -> void:
+	remove_child(current_human)
+	add_child(new_human)
+	current_human.queue_free()
+	current_human = new_human
+	rebuilding = false
+	print('Finished in ' + str((Time.get_ticks_msec() - t0) / 1000.) + ' seconds')
 "
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_veuch"]
