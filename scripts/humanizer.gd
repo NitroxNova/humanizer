@@ -723,7 +723,7 @@ func bake_surface() -> void:
 	_bake_meshes = []
 
 	# Add morph driver if necessary
-	if _new_shapekeys.size() > 0 and ((not baked) or bake_in_progress) :
+	if _new_shapekeys.size() > 0 :
 		var morph_driver : Node
 		if not has_node('MorphDriver'):
 			morph_driver = load("res://addons/humanizer/scenes/subscenes/morph_driver.tscn").instantiate()
