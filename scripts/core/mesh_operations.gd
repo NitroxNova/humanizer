@@ -281,4 +281,70 @@ static func get_macro_category_offset(macro_name,macro_value):
 			ratio.remove_at(i)
 	
 	return {offset=offset,ratio=ratio}
-	
+
+static func prepare_shapekeys_for_baking(human_config: HumanConfig, _new_shapekeys: Dictionary) -> void:
+	# Add new shapekeys entries from shapekey components
+	if human_config.components.has(&'size_morphs') and human_config.components.has(&'age_morphs'):
+		# Use "average" as basis
+		human_config.shapekeys['muscle'] = 0.5
+		human_config.shapekeys['weight'] = 0.5
+		human_config.shapekeys['age'] = 0.25
+		for sk in _new_shapekeys:
+			_new_shapekeys[sk]['muscle'] = 0.5
+			_new_shapekeys[sk]['weight'] = 0.5
+			_new_shapekeys[sk]['age'] = 0.25
+		var new_sks = _new_shapekeys.duplicate()
+		for age in HumanizerMorphs.AGE_KEYS:
+			for muscle in HumanizerMorphs.MUSCLE_KEYS:
+				for weight in HumanizerMorphs.WEIGHT_KEYS:
+					if muscle == 'avgmuscle' and weight == 'avgweight' and age == 'young':
+						continue # Basis
+					var key = '-'.join([muscle, weight, age])
+					var shape = human_config.shapekeys.duplicate(true)
+					shape['muscle'] = HumanizerMorphs.MUSCLE_KEYS[muscle]
+					shape['weight'] = HumanizerMorphs.WEIGHT_KEYS[weight]
+					shape['age'] = HumanizerMorphs.AGE_KEYS[age]
+					_new_shapekeys['base-' + key] = shape
+					for sk_name in new_sks:
+						shape = new_sks[sk_name].duplicate(true)
+						shape['muscle'] = HumanizerMorphs.MUSCLE_KEYS[muscle]
+						shape['weight'] = HumanizerMorphs.WEIGHT_KEYS[weight]
+						shape['age'] = HumanizerMorphs.AGE_KEYS[age]
+						_new_shapekeys[sk_name + '-' + key] = shape
+	elif human_config.components.has(&'size_morphs'):
+		human_config.shapekeys['muscle'] = 0.5
+		human_config.shapekeys['weight'] = 0.5
+		for sk in _new_shapekeys:
+			_new_shapekeys[sk]['muscle'] = 0.5
+			_new_shapekeys[sk]['weight'] = 0.5
+		var new_sks = _new_shapekeys.duplicate()
+		for muscle in HumanizerMorphs.MUSCLE_KEYS:
+			for weight in HumanizerMorphs.WEIGHT_KEYS:
+				if muscle == 'avgmuscle' and weight == 'avgweight':
+					continue # Basis
+				var key = '-'.join([muscle, weight])
+				var shape = human_config.shapekeys.duplicate(true)
+				shape['muscle'] = HumanizerMorphs.MUSCLE_KEYS[muscle]
+				shape['weight'] = HumanizerMorphs.WEIGHT_KEYS[weight]
+				_new_shapekeys['base-' + key] = shape
+				for sk_name in new_sks:
+					shape = new_sks[sk_name].duplicate(true)
+					shape['muscle'] = HumanizerMorphs.MUSCLE_KEYS[muscle]
+					shape['weight'] = HumanizerMorphs.WEIGHT_KEYS[weight]
+					_new_shapekeys[sk_name + '-' + key] = shape
+	elif human_config.components.has(&'age_morphs'):
+		human_config.shapekeys['age'] = 0.25
+		for sk in _new_shapekeys:
+			_new_shapekeys[sk]['age'] = 0.25
+		var new_sks = _new_shapekeys.duplicate()
+		for age in HumanizerMorphs.AGE_KEYS:
+			if age == 'young':
+				continue 
+			var shape = human_config.shapekeys.duplicate(true)
+			shape['age'] = HumanizerMorphs.AGE_KEYS[age]
+			_new_shapekeys['base-' + age] = shape
+			for sk_name in new_sks:
+				shape = new_sks[sk_name].duplicate(true)
+				shape['age'] = HumanizerMorphs.AGE_KEYS[age]
+				_new_shapekeys[sk_name + '-' + age] = shape
+

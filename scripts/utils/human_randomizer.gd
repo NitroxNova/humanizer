@@ -44,7 +44,11 @@ func randomize_eyes() -> void:
 	color.b += rng.randf()
 	human.set_body_part(Random.choice(HumanizerRegistry.body_parts[&'LeftEye']))
 	human.set_body_part(Random.choice(HumanizerRegistry.body_parts[&'RightEye']))
-	human.eye_color = color
+	if Engine.is_editor_hint():
+		## This wil update the material immediately
+		human.set_eye_color(color)
+	else:
+		human.eye_color = color
 
 func randomize_eyelashes() -> void:
 	var left = HumanizerRegistry.body_parts[&'LeftEyelash'][&'LeftEyelash']
