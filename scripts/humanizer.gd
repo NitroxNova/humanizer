@@ -360,21 +360,17 @@ func _deserialize() -> void:
 	human_config.shapekeys = {}
 	set_rig(human_config.rig)
 	_set_shapekey_data(sk)
-	_fit_body_mesh()
 	for slot: String in human_config.body_parts:
 		var bp = human_config.body_parts[slot]
 		var mat = human_config.body_part_materials[slot]
 		set_body_part(bp)
 		set_body_part_material(bp.slot, mat)
-		_fit_body_part_mesh(bp)
 	for cl: HumanClothes in human_config.clothes:
 		_add_clothes_mesh(cl)
-		_fit_clothes_mesh(cl)
 	for cl: String in human_config.clothes_materials:
 		set_clothes_material(cl, human_config.clothes_materials[cl])
 	if human_config.body_part_materials.has(&'skin'):
 		set_skin_texture(human_config.body_part_materials[&'skin'])
-
 	for component in human_config.components:
 		if component in [&'root_bone', &'ragdoll']:
 			continue  # These are already set in set_rig
@@ -393,8 +389,8 @@ func _deserialize() -> void:
 				cl.node.material_config.update_material()
 	hide_body_vertices()
 	_adjust_skeleton()
+	_fit_all_meshes()
 	_recalculate_normals()
-	_fit_body_mesh()
 
 #### Mesh Management ####
 func set_body_part(bp: HumanBodyPart) -> void:
@@ -752,6 +748,8 @@ func bake_surface() -> void:
 			new_bs_array[Mesh.ARRAY_TANGENT] = PackedFloat32Array()
 			new_bs_array[Mesh.ARRAY_NORMAL] = PackedVector3Array()
 			_set_shapekey_data(_new_shapekeys[shape_name])
+			_adjust_skeleton()
+			_fit_all_meshes()
 			morph_data['bone_positions'][shape_name] = []
 			for bone in skeleton.get_bone_count():
 				morph_data['bone_positions'][shape_name].append(skeleton.get_bone_pose_position(bone))
@@ -825,6 +823,13 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
 	body_mesh.visible = visible
 
+func _fit_all_meshes() -> void:
+	_fit_body_mesh()
+	for bp in human_config.body_parts.values():
+		_fit_body_part_mesh(bp)
+	for cl in human_config.clothes:
+		_fit_clothes_mesh(cl)
+	
 func _fit_body_mesh() -> void:
 	# fit body mesh
 	if body_mesh != null:
