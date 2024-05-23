@@ -664,7 +664,7 @@ func bake_surface() -> void:
 	if atlas_resolution == 0:
 		atlas_resolution = HumanizerGlobalConfig.config.atlas_resolution
 	var baked_surface :ArrayMesh = HumanizerSurfaceCombiner.new(_bake_meshes, atlas_resolution).run()
-	baked_surface = MeshOperations.generate_normals_and_tangents(baked_surface)
+	#cant regenerate normals and tangents after baking, because it reorders the vertices, and in some cases resizes, which makes absolutely no sense, but it then breaks the exported morph shapekeys  
 	var mi: MeshInstance3D = MeshInstance3D.new()
 	mi.mesh = baked_surface
 	mi.name = 'Baked-' + bake_surface_name
