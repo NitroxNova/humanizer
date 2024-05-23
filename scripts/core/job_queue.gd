@@ -2,11 +2,11 @@
 class_name HumanizerJobQueue
 extends Node
 
-## Jobs are scheduled by the timer
 ## Enqueue a job with a dictionary with HumanizerJobQueue.enquque(job_data) 
 ## Ensure the job_data dictionary has a "callable" key pointing to the function
 ## The function should also accept a dictionary argument
 ## The job_data will be passed as the argument to the callable
+## Chain jobs together by passing the "on_finished" key
 
 static var Instance : HumanizerJobQueue
 
@@ -73,7 +73,7 @@ func _process_queue(semaphore : Semaphore) -> void:
 			if job_data.has('on_finished'):
 				var next_job = (job_data.on_finished as Callable)
 				if next_job:
-					job_data.erase('job_finished')
+					job_data.erase('on_finished')
 					next_job.call(job_data)
 					
 

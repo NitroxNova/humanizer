@@ -75,7 +75,8 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 
 	if main_collider != null:
 		_adjust_main_collider()
-			
+	
+	## HACK shapekeys mess up mesh
 	## Face bones mess up the mesh when shapekeys applied.  This fixes it
 	if animator != null:
 		animator.active = not animator.active

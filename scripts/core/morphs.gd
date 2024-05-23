@@ -28,13 +28,14 @@ extends Node
 		weight = v
 		if size_enabled:
 			update_shape()
-@export var mesh_paths : Array[NodePath]
-@export var skeleton : Skeleton3D
-@export var bone_positions : Dictionary
-@export var skeleton_motion_scale : Dictionary
-@export var collider_shapes : Dictionary
+@export var mesh_paths: Array[NodePath]
+@export var skeleton: Skeleton3D
+@export var aniamtor: AnimationTree
+@export var bone_positions: Dictionary
+@export var skeleton_motion_scale: Dictionary
+@export var collider_shapes: Dictionary
 
-@onready var collider : CollisionShape3D = $'../MainCollider'
+@onready var collider: CollisionShape3D = $'../MainCollider'
 var meshes: Array
 
 const AGE_KEYS = {&'baby': 0., &'child': 0.12, &'young': 0.25, &'old': 1.}
