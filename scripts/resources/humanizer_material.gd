@@ -32,17 +32,18 @@ func update_material() -> void:
 		## Blend overlay with its color then onto base texture
 		if overlays.size() > 1:
 			for ov in range(1, overlays.size()):
+				if ov == null:
+					continue
 				var overlay = overlays[ov]
 				var path = overlay.get(texture + '_texture_path')
 				if path == '':
 					continue
-				var overlay_texture: Image = load(path).get_image()
+				var overlay_image: Image = load(path).get_image()
 				if texture == 'albedo':
-					blend_color(overlay_texture, overlays[ov].color)
-				if overlay.size != Vector2i(0, 0):
-					image.blend_rect(overlay_texture, Rect2i(overlay.offset, overlay.size), overlay.offset)
-				else:
-					image.blend_rect(overlay_texture, Rect2i(Vector2i(), base_size), Vector2i())
+					blend_color(overlay_image, overlay.color)
+				image.blend_rect(overlay_image, 
+								Rect2i(Vector2i.ZERO, overlay_image.get_size()), 
+								overlay.offset)
 		## Create output textures
 		if image != null:
 			image.generate_mipmaps()
