@@ -784,12 +784,16 @@ func _fit_body_mesh() -> void:
 		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], {}, fmt)
 
 func _fit_body_part_mesh(bp: HumanBodyPart) -> void:
+	if bp.node == null:
+		return
 	var mhclo: MHCLO = load(bp.mhclo_path)
 	var new_mesh = MeshOperations.build_fitted_mesh(bp.node.mesh, _helper_vertex, mhclo)
 	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
 	bp.node.mesh = new_mesh
 
 func _fit_clothes_mesh(cl: HumanClothes) -> void:
+	if cl.node == null:
+		return
 	var mhclo: MHCLO = load(cl.mhclo_path)
 	var new_mesh = MeshOperations.build_fitted_mesh(cl.node.mesh, _helper_vertex, mhclo)
 	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
