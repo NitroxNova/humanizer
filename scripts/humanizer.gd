@@ -711,9 +711,11 @@ func bake_surface() -> void:
 			morph_data['bone_positions']['basis'].append(skeleton.get_bone_pose_position(bone))
 		morph_data['motion_scale']['basis'] = skeleton.motion_scale
 		morph_data['collider_shape']['basis'] = {&'center': main_collider.position.y, &'radius': main_collider.shape.radius, &'height': main_collider.shape.height}
-
-	# Finalize
+	
+	#reset shapekeys when done with morphs
 	_set_shapekey_data(human_config.shapekeys)
+	
+	# Finalize
 	add_child(mi)
 	mi.owner = self
 	mi.skeleton = '../' + skeleton.name
