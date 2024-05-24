@@ -9,6 +9,7 @@ const node_icon = preload('res://addons/humanizer/icon.png')
 var humanizer_inspector = HumanizerEditorInspectorPlugin.new()
 var asset_import_inspector = AssetImporterInspectorPlugin.new()
 var human_randomizer_inspector = HumanRandomizerInspectorPlugin.new()
+var humanizer_material_inspector = HumanizerMeshInstanceInspectorPlugin.new()
 
 # For mapping tool menu signals
 const menu_ids := {
@@ -34,6 +35,7 @@ func _enter_tree():
 	add_inspector_plugin(humanizer_inspector)
 	add_inspector_plugin(asset_import_inspector)
 	add_inspector_plugin(human_randomizer_inspector)
+	add_inspector_plugin(humanizer_material_inspector)
 	# Add custom humanizer node
 	add_custom_type('Humanizer', 'Node3D', humanizer_node, node_icon)
 	# Add a submenu to the Project/Tools menu
@@ -45,6 +47,7 @@ func _exit_tree():
 	remove_inspector_plugin(humanizer_inspector)
 	remove_inspector_plugin(asset_import_inspector)
 	remove_inspector_plugin(human_randomizer_inspector)
+	remove_inspector_plugin(humanizer_material_inspector)
 	remove_autoload_singleton('HumanizerGlobal')
 	if thread.is_started():
 		thread.wait_to_finish()

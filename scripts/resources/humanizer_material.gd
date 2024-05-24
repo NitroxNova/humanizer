@@ -14,11 +14,13 @@ var ao_texture: Texture2D
 func update_material() -> void:
 	if overlays.size() == 0:
 		return
-		
+	
+	var base_size: Vector2i 
 	for texture in textures:
 		var image: Image = null
 		if overlays[0].get(texture + '_texture_path') != '':
 			image = load(overlays[0].albedo_texture_path).get_image()
+			base_size = image.get_size()
 			image.convert(Image.FORMAT_RGBA8)
 			## Blend albedo color
 			if texture == 'albedo':
@@ -30,14 +32,17 @@ func update_material() -> void:
 		## Blend overlay with its color then onto base texture
 		if overlays.size() > 1:
 			for ov in range(1, overlays.size()):
-				var path = overlays[ov].get(texture + '_texture_path')
+				var overlay = overlays[ov]
+				var path = overlay.get(texture + '_texture_path')
 				if path == '':
 					continue
-				var overlay: Image = load(path).get_image()
+				var overlay_texture: Image = load(path).get_image()
 				if texture == 'albedo':
-					blend_color(overlay, overlays[ov].color)
-				var start = Vector2i()
-				image.blend_rect(overlay, Rect2i(start, overlay.get_size()), start)
+					blend_color(overlay_texture, overlays[ov].color)
+				if overlay.size != Vector2i(0, 0):
+					image.blend_rect(overlay_texture, Rect2i(overlay.offset, overlay.size), overlay.offset)
+				else:
+					image.blend_rect(overlay_texture, Rect2i(Vector2i(), base_size), Vector2i())
 		## Create output textures
 		if image != null:
 			image.generate_mipmaps()

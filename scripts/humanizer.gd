@@ -785,6 +785,7 @@ func _fit_body_mesh() -> void:
 
 func _fit_body_part_mesh(bp: HumanBodyPart) -> void:
 	if bp.node == null:
+		push_error(bp.resource_name + ' has no node set')
 		return
 	var mhclo: MHCLO = load(bp.mhclo_path)
 	var new_mesh = MeshOperations.build_fitted_mesh(bp.node.mesh, _helper_vertex, mhclo)
@@ -793,6 +794,7 @@ func _fit_body_part_mesh(bp: HumanBodyPart) -> void:
 
 func _fit_clothes_mesh(cl: HumanClothes) -> void:
 	if cl.node == null:
+		push_error(cl.resource_name + ' has no node set')
 		return
 	var mhclo: MHCLO = load(cl.mhclo_path)
 	var new_mesh = MeshOperations.build_fitted_mesh(cl.node.mesh, _helper_vertex, mhclo)

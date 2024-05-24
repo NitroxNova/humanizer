@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://bii54a5esq3i1"]
+[gd_scene load_steps=2 format=3 uid="uid://bii54a5esq3i1"]
 
 [ext_resource type="Theme" uid="uid://ckdypew3dhoqq" path="res://addons/humanizer/data/resources/humanizer_inspector_theme.tres" id="1_xtlgx"]
-[ext_resource type="Texture2D" uid="uid://qap1s32dubhw" path="res://addons/humanizer/icon.png" id="2_1sik5"]
 
 [node name="MarginContainer" type="MarginContainer"]
 anchors_preset = 15
@@ -11,63 +10,8 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_xtlgx")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 2
-
-[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 12
-
-[node name="ImportButton" type="Button" parent="VBoxContainer"]
+[node name="ImportButton" type="Button" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 text = "Import Asset"
-
-[node name="HSeparator2" type="HSeparator" parent="VBoxContainer"]
-layout_mode = 2
-size_flags_vertical = 12
-
-[node name="AssetTypeOptionButton" type="OptionButton" parent="VBoxContainer"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-item_count = 2
-popup/item_0/text = "Body Part"
-popup/item_0/id = 0
-popup/item_1/text = "Clothes"
-popup/item_1/id = 1
-
-[node name="Label" type="Label" parent="VBoxContainer"]
-visible = false
-layout_mode = 2
-size_flags_vertical = 8
-text = "--------------- Clothes Slots ---------------"
-horizontal_alignment = 1
-
-[node name="ClothingSlots" type="GridContainer" parent="VBoxContainer"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-size_flags_vertical = 8
-columns = 4
-
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
-visible = false
-layout_mode = 2
-size_flags_vertical = 4
-
-[node name="Label2" type="Label" parent="VBoxContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 8
-text = "Path to raw MH assset folder"
-
-[node name="LineEdit" type="LineEdit" parent="VBoxContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="Button" type="TextureButton" parent="VBoxContainer/HBoxContainer"]
-layout_mode = 2
-texture_normal = ExtResource("2_1sik5")
-stretch_mode = 6
