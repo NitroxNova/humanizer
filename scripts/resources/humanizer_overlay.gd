@@ -8,10 +8,6 @@ extends Resource
 @export var color := Color.WHITE
 @export var offset: Vector2i = Vector2i.ZERO
 
-var albedo_texture: Texture2D
-var normal_texture: Texture2D
-var ao_texture: Texture2D
-
 static func from_dict(data: Dictionary) -> HumanizerOverlay:
 	var overlay = HumanizerOverlay.new()
 	if data.has('albedo'):
