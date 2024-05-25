@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://col0xxaf71nlh"
-path="res://.godot/imported/wings_tattoo.png-10c347e8e6517bcdbcd55c386167fe29.ctex"
+path="res://.godot/imported/wings_tattoo.png-45ee41fea8304f37c1a4d0d23080eefb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/humanizer/data/assets/skins/_overlays/wings_tattoo.png"
-dest_files=["res://.godot/imported/wings_tattoo.png-10c347e8e6517bcdbcd55c386167fe29.ctex"]
+source_file="res://addons/humanizer/data/assets/overlay_example/wings_tattoo.png"
+dest_files=["res://.godot/imported/wings_tattoo.png-45ee41fea8304f37c1a4d0d23080eefb.ctex"]
 
 [params]
 

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="HumanizerOverlay" load_steps=2 format=3 uid="uid://bn74lop51f2q8"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="1_wtlea"]
+
+[resource]
+resource_name = "wings_tattoo"
+script = ExtResource("1_wtlea")
+albedo_texture_path = "res://addons/humanizer/data/overlay_example/wings_tattoo.png"
+normal_texture_path = ""
+ao_texture_path = ""
+color = Color(1, 1, 1, 0.843137)
+offset = Vector2i(216, 68)

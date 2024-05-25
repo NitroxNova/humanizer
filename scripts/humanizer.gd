@@ -4,7 +4,7 @@ extends Node3D
 
 ## Base humanizer node for use in-game when loading a new human from config
 
-const _BASE_MESH_NAME: String = 'Human'
+const _BASE_MESH_NAME: String = 'Skin'
 const _DEFAULT_SKIN_COLOR = Color.WHITE
 const _DEFAULT_EYE_COLOR = Color.SKY_BLUE
 const _DEFAULT_HAIR_COLOR = Color.WEB_MAROON
@@ -123,7 +123,7 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 		if value == null:
 			human_config = null
 		else:
-			human_config = value.duplicate(true)
+			human_config = value
 			if scene_loaded:
 				load_human()
 @export_group('Node Overrides')

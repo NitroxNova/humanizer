@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="HumanClothes" load_steps=2 format=3 uid="uid://dedsd4nxuc56s"]
+[gd_resource type="Resource" script_class="HumanClothes" load_steps=2 format=3 uid="uid://dst3h31r6jekp"]
 
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_clothes.gd" id="1_7vu8i"]
 

@@ -33,8 +33,6 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	
 func _add_clothes_mesh(cl: HumanClothes) -> void:
 	super(cl)
-	if cl.node == null:  
-		return
 	_fit_clothes_mesh(cl)
 
 func hide_body_vertices() -> void:

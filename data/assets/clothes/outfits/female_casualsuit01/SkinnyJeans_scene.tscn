@@ -1,8 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://fvn4t4hkklj8"]
+[gd_scene load_steps=3 format=3 uid="uid://dmjd1m8brlbf2"]
 
-[ext_resource type="ArrayMesh" uid="uid://bjr4812mco64" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/SkinnyJeans_mesh.res" id="1_vkyp0"]
-[ext_resource type="Material" uid="uid://du3yp6ir3k16a" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_material.res" id="2_j8bss"]
+[ext_resource type="ArrayMesh" uid="uid://bs3a2yxbkucv1" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/SkinnyJeans_mesh.res" id="1_o8k24"]
+[ext_resource type="Material" uid="uid://camlsufhluf4f" path="res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_material.res" id="2_ucphp"]
 
 [node name="SkinnyJeans" type="MeshInstance3D"]
-mesh = ExtResource("1_vkyp0")
-surface_material_override/0 = ExtResource("2_j8bss")
+mesh = ExtResource("1_o8k24")
+surface_material_override/0 = ExtResource("2_ucphp")
