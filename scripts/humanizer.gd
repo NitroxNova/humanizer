@@ -433,7 +433,7 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	else:
 		mi.get_surface_override_material(0).resource_path = ''
 	if not human_config.body_part_materials.has(bp.slot):
-		set_body_part_material(bp.slot, Random.choice(bp.textures))
+		set_body_part_material(bp.slot, Random.choice(bp.textures.keys()))
 	_add_child_node(mi)
 	
 	if rig_changed:
@@ -485,7 +485,7 @@ func _add_clothes_mesh(cl: HumanClothes) -> void:
 	_add_child_node(mi)
 	_add_bone_weights(cl)
 	if human_config.clothes_materials.has(cl.resource_name):
-		set_clothes_material(cl.resource_name, Random.choice(cl.textures))
+		set_clothes_material(cl.resource_name, Random.choice(cl.textures.keys()))
 	if human_config.transforms.has(cl.resource_name):
 		cl.node.transform = Transform3D(human_config.transforms[cl.resource_name])
 
