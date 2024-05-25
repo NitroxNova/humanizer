@@ -11,8 +11,8 @@ class_name HumanizerMeshInstance
 func initialize() -> void:
 	# Make everything local
 	if get_surface_override_material(0) != null:
-		get_surface_override_material(0).resource_path = ''
-	material_config.resource_path = ''
+		get_surface_override_material(0).resource_local_to_scene = true
+	material_config.resource_local_to_scene = true
 	if not material_config.on_material_updated.is_connected(update_material):
 		material_config.on_material_updated.connect(update_material)
 	

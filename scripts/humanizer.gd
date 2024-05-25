@@ -366,12 +366,13 @@ func _deserialize() -> void:
 			child.material_config = mat_config
 	
 	## Load textures for non-overlay materials
-	for slot in human_config.body_parts:
-		if not get_node(human_config.body_parts[slot].resource_name) is HumanizerMeshInstance:
+	for slot: String in human_config.body_parts:
+		var bp: HumanBodyPart = human_config.body_parts[slot]
+		if bp.node and not bp.node is HumanizerMeshInstance:
 			set_body_part_material(slot, human_config.body_part_materials[slot])
-	for cl: String in human_config.clothes_materials:
-		if not get_node(cl) is HumanizerMeshInstance:
-			set_clothes_material(cl, human_config.clothes_materials[cl])
+	for cl: HumanClothes in human_config.clothes:
+		if cl.node and not cl.node is HumanizerMeshInstance:
+			set_clothes_material(cl.resource_name, human_config.clothes_materials[cl.resource_name])
 
 	## Load components
 	for component in human_config.components:
@@ -421,7 +422,7 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	if bp.default_overlay != null or human_config.material_configs.has(bp.resource_name):
 		_setup_overlay_material(bp, human_config.material_configs.get(bp.resource_name))
 	else:
-		mi.get_surface_override_material(0).resource_path = ''
+		mi.get_surface_override_material(0).resource_local_to_scene = true
 	if not human_config.body_part_materials.has(bp.slot):
 		set_body_part_material(bp.slot, Random.choice(bp.textures.keys()))
 	_add_child_node(mi)
@@ -463,6 +464,7 @@ func apply_clothes(cl: HumanClothes) -> void:
 				remove_clothes(wearing)
 	#print('applying ' + cl.resource_name + ' clothes')
 	_add_clothes_mesh(cl)
+	notify_property_list_changed()
 
 func _add_clothes_mesh(cl: HumanClothes) -> void:
 	if not cl in human_config.clothes:
@@ -470,11 +472,13 @@ func _add_clothes_mesh(cl: HumanClothes) -> void:
 	var mi = load(cl.scene_path).instantiate()
 	cl.node = mi
 	mi.name = cl.resource_name
+	_add_child_node(mi)
 	if cl.default_overlay != null:
 		_setup_overlay_material(cl, human_config.material_configs.get(cl.resource_name))
-	_add_child_node(mi)
+	else:
+		mi.get_surface_override_material(0).resource_local_to_scene = true
 	_add_bone_weights(cl)
-	if human_config.clothes_materials.has(cl.resource_name):
+	if not human_config.clothes_materials.has(cl.resource_name):
 		set_clothes_material(cl.resource_name, Random.choice(cl.textures.keys()))
 	if human_config.transforms.has(cl.resource_name):
 		cl.node.transform = Transform3D(human_config.transforms[cl.resource_name])
@@ -993,11 +997,13 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 	if baked:
 		printerr('Cannot change materials. Already baked.')
 		return
-	var cl: HumanClothes = HumanizerRegistry.clothes[cl_name]
-	if cl.node == null:
-		return
+	var cl: HumanClothes
+	for c in human_config.clothes:
+		if c.resource_name == cl_name:
+			cl = c
+			if cl.node == null:
+				return
 	var mi: MeshInstance3D = cl.node
-	
 	if cl.default_overlay != null:
 		## HumanizerMaterials are always local to scene
 		var mat_config: HumanizerMaterial = (mi as HumanizerMeshInstance).mat_config
@@ -1009,14 +1015,6 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	else:
 		mi.get_surface_override_material(0).albedo_texture = load(cl.textures[texture])
-		## Need to set material settings for other assets sharing the same material
-		for other: HumanClothes in human_config.clothes:
-			if cl != other and not baked:
-				var other_mat: BaseMaterial3D = other.node.get_surface_override_material(0)
-				var this_mat: BaseMaterial3D = mi.get_surface_override_material(0)
-				if other_mat.resource_path == this_mat.resource_path:
-					human_config.clothes_materials[other.resource_name] = texture
-					notify_property_list_changed()
 	human_config.clothes_materials[cl_name] = texture
 
 func _setup_overlay_material(asset: HumanAsset, existing_config: HumanizerMaterial = null) -> void:
