@@ -24,7 +24,7 @@ func update_material() -> void:
 			image.convert(Image.FORMAT_RGBA8)
 			## Blend albedo color
 			if texture == 'albedo':
-				blend_color(image, overlays[0].color)
+				_blend_color(image, overlays[0].color)
 				
 		## TODO what if a base texture is null but overlay is not? 
 		## Need to create default base texture to overlay onto
@@ -40,7 +40,7 @@ func update_material() -> void:
 					continue
 				var overlay_image: Image = load(path).get_image()
 				if texture == 'albedo':
-					blend_color(overlay_image, overlay.color)
+					_blend_color(overlay_image, overlay.color)
 				image.blend_rect(overlay_image, 
 								Rect2i(Vector2i.ZERO, overlay_image.get_size()), 
 								overlay.offset)
@@ -50,7 +50,7 @@ func update_material() -> void:
 		set(texture + '_texture', ImageTexture.create_from_image(image) if image != null else null)
 	on_material_updated.emit()
 
-func blend_color(image: Image, color: Color) -> void:
+func _blend_color(image: Image, color: Color) -> void:
 	for x in image.get_width():
 		for y in image.get_height():
 			image.set_pixel(x, y, image.get_pixel(x, y) * color)
@@ -62,22 +62,25 @@ func set_base_textures(overlay: HumanizerOverlay) -> void:
 	overlays[0] = overlay
 
 func add_overlay(overlay: HumanizerOverlay) -> void:
-	if get_index(overlay.resource_name) != -1:
+	if _get_index(overlay.resource_name) != -1:
 		printerr('Overlay already present?')
 		return
 	overlays.append(overlay)
 
 func set_overlay(idx: int, overlay: HumanizerOverlay) -> void:
-	overlays[idx] = overlay
+	if overlays.size() >= idx - 1:
+		overlays[idx] = overlay
+	else:
+		push_error('Invalid overlay index')
 	
 func remove_overlay(name: String) -> void:
-	var idx := get_index(name)
+	var idx := _get_index(name)
 	if idx == -1:
 		printerr('Overlay not present?')
 		return
 	overlays.remove_at(idx)
 	
-func get_index(name: String) -> int:
+func _get_index(name: String) -> int:
 	for i in overlays.size():
 		if overlays[i].resource_name == name:
 			return i

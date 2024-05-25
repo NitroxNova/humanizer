@@ -8,6 +8,7 @@ extends Resource
 @export var color := Color.WHITE
 @export var offset: Vector2i = Vector2i.ZERO
 
+
 static func from_dict(data: Dictionary) -> HumanizerOverlay:
 	var overlay = HumanizerOverlay.new()
 	if data.has('albedo'):

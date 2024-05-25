@@ -27,3 +27,7 @@ func update_material() -> void:
 	mat.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, material_config.albedo_texture)
 	mat.set_texture(BaseMaterial3D.TEXTURE_NORMAL, material_config.normal_texture)
 	mat.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, material_config.ao_texture)
+
+	var humanizer := get_parent_node_3d()
+	if humanizer:
+		humanizer.human_config.overlay_material_configs[name] = material_config

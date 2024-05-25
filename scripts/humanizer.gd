@@ -120,9 +120,12 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 ## This resource stores all the data necessary to build the human model
 @export var human_config: HumanConfig:
 	set(value):
-		human_config = value.duplicate(true)
-		if scene_loaded:
-			load_human()
+		if value == null:
+			human_config = null
+		else:
+			human_config = value.duplicate(true)
+			if scene_loaded:
+				load_human()
 @export_group('Node Overrides')
 ## The root node type for baked humans
 @export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D", "Area3D") var _baked_root_node: String = HumanizerGlobalConfig.config.default_baked_root_node
@@ -355,30 +358,45 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 	return res
 
 func _deserialize() -> void:
-	# Since shapekeys are relative we start from empty
+	## Set shapekeys
 	var sk = human_config.shapekeys.duplicate()
 	human_config.shapekeys = {}
 	set_rig(human_config.rig)
 	_set_shapekey_data(sk)
-	for slot: String in human_config.body_parts:
-		var bp = human_config.body_parts[slot]
-		var mat = human_config.body_part_materials[slot]
+
+	## Load Assets
+	for bp: HumanBodyPart in human_config.body_parts.values():
 		set_body_part(bp)
-		set_body_part_material(bp.slot, mat)
 	for cl: HumanClothes in human_config.clothes:
 		_add_clothes_mesh(cl)
-	for cl: String in human_config.clothes_materials:
-		set_clothes_material(cl, human_config.clothes_materials[cl])
+		
+	## Load materials with overlays
+	for child in get_children():
+		if child.name in human_config.overlay_material_configs:
+			var mat_config = human_config.overlay_material_configs[child.name]
+			child.material_config = mat_config
+			
+	## Load textures
 	if human_config.body_part_materials.has(&'skin'):
 		set_skin_texture(human_config.body_part_materials[&'skin'])
+	for slot in human_config.body_part_materials:
+		set_body_part_material(slot, human_config.body_part_materials[slot])
+	for cl: String in human_config.clothes_materials:
+		set_clothes_material(cl, human_config.clothes_materials[cl])
+
+	## Load components
 	for component in human_config.components:
 		if component in [&'root_bone', &'ragdoll']:
 			continue  # These are already set in set_rig
 		set_component_state(true, component)
+	
+	## Load colors
 	skin_color = human_config.skin_color
 	hair_color = human_config.hair_color
 	eye_color = human_config.eye_color
 	eyebrow_color = human_config.eyebrow_color
+
+	## Update materials with overlays
 	for bp in human_config.body_parts.values():
 		if bp.node is HumanizerMeshInstance:
 			if bp.node.material_config.overlays.size() > 0:
@@ -387,6 +405,8 @@ func _deserialize() -> void:
 		if cl.node is HumanizerMeshInstance:
 			if cl.node.material_config.overlays.size() > 0:
 				cl.node.material_config.update_material()
+	
+	## Finalize
 	hide_body_vertices()
 	_adjust_skeleton()
 	_fit_all_meshes()

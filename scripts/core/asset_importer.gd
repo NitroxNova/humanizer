@@ -232,7 +232,7 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	mi.owner = self
 	
 	if resource.textures.has('overlay'):
-		resource.default_overlay = HumanizerOverlay.from_dict(data.textures.overlay)	
+		resource.default_overlay = HumanizerOverlay.from_dict(data.textures.overlay)
 		resource.textures.erase('overlay')
 
 	data.mesh.take_over_path(resource.mesh_path)
