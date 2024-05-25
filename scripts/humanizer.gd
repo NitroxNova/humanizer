@@ -955,10 +955,10 @@ func set_skin_normal_texture(name: String) -> void:
 		notify_property_list_changed()
 		return
 	#print('setting skin normal texture')
-	var texture: String
-	if name != 'None':
-		texture = HumanizerRegistry.skin_normals[name]
-	if body_mesh.material_config.overlays.size() == 0 and name != 'None':
+	var texture: String = '' if name == 'None' else HumanizerRegistry.skin_normals[name]
+	if body_mesh.material_config.overlays.size() == 0:
+		if texture == '':
+			return
 		var overlay = {&'normal': texture, &'color': skin_color}
 		body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
 	else:
