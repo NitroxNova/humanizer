@@ -7,7 +7,6 @@ extends Humanizer
 
 func set_human_config(config: HumanConfig) -> void:
 	human_config = config
-	load_human()
 	
 func set_hair_color(color: Color) -> void:
 	hair_color = color

@@ -120,13 +120,10 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 ## This resource stores all the data necessary to build the human model
 @export var human_config: HumanConfig:
 	set(value):
-		if value == null:
-			human_config = null
-		else:
-			human_config = value
-			if scene_loaded:
-				load_human()
-		notify_property_list_changed()
+		human_config = value
+		if scene_loaded and human_config != null:
+			load_human()
+			notify_property_list_changed()
 
 @export_group('Node Overrides')
 ## The root node type for baked humans
@@ -136,11 +133,7 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 ## Texture atlas resolution for the baked character
 @export_enum("1k:1024", "2k:2048", "4k:4096") var atlas_resolution: int = HumanizerGlobalConfig.config.atlas_resolution
 ## The scene to be added as an animator for the character
-@export var _animator_scene: PackedScene = HumanizerGlobalConfig.config.default_animation_tree:
-	set(value):
-		_animator_scene = value
-		if scene_loaded and skeleton != null:
-			_reset_animator()
+@export var _animator_scene: PackedScene = HumanizerGlobalConfig.config.default_animation_tree
 ## THe rendering layers for the human's 3d mesh instances
 @export_flags_3d_render var _render_layers = HumanizerGlobalConfig.config.default_character_render_layers:
 	set(value):
@@ -161,7 +154,7 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 
 
 func _ready() -> void:
-	if body_mesh == null and has_node("Human"):
+	if body_mesh == null and has_node(_BASE_MESH_NAME):
 		body_mesh = $Human
 	if human_config == null:
 		human_config = HumanConfig.new()
@@ -180,21 +173,16 @@ func reset_human() -> void:
 	baked = false
 	_helper_vertex = shapekey_data.basis.duplicate(true)
 	for child in get_children():
-		if child is MeshInstance3D and child.name != _BASE_MESH_NAME:
+		if child is MeshInstance3D:
 			_delete_child_node(child)
-	if body_mesh != null and body_mesh is HumanizerMeshInstance:
-		body_mesh.set_script(null)
+	body_mesh = null
 	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
 	set_component_state(true, &'main_collider')
 	if has_node('Saccades'):
 		_delete_child_by_name('Saccades')
 	notify_property_list_changed()
-	#print('Reset human')
 
 func load_human() -> void:
-	## if we are calling on a node ont in the tree ready won't be called
-	if human_config == null and not scene_loaded:
-		human_config = HumanConfig.new()
 	if human_config.rig == '':
 		human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 	baked = false
