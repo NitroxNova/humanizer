@@ -23,16 +23,17 @@ func set_eye_color(color: Color) -> void:
 	eye_color = color
 	for slot in [&'RightEye', &'LeftEye', &'Eyes']:
 		if human_config.body_parts.has(slot):
-			var mesh = human_config.body_parts[slot].node
-			mesh.material_config.update_material()
+			update_asset_material(human_config.body_parts[slot])
 
 func set_body_part(bp: HumanBodyPart) -> void:
 	super(bp)
 	_fit_body_part_mesh(bp)
+	update_asset_material(bp)
 	
 func _add_clothes_mesh(cl: HumanClothes) -> void:
 	super(cl)
 	_fit_clothes_mesh(cl)
+	update_asset_material(cl)
 
 func hide_body_vertices() -> void:
 	super()

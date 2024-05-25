@@ -1036,6 +1036,11 @@ func _setup_overlay_material(asset: HumanAsset, existing_config: HumanizerMateri
 	mi.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	mi.material_config.add_overlay(asset.default_overlay)
 
+func update_asset_material(asset:HumanAsset):
+	var mesh = asset.node
+	if "material_config" in mesh:
+		mesh.material_config.update_material()
+		
 #### Animation ####
 func set_rig(rig_name: String) -> void:
 	if baked:
