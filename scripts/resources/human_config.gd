@@ -28,5 +28,5 @@ extends Resource
 @export var eyebrow_color: Color = Humanizer._DEFAULT_EYEBROW_COLOR
 @export var hair_color: Color = Humanizer._DEFAULT_HAIR_COLOR
 
-## Overlay config
-@export var overlay_material_configs := {}
+## Overlay configs
+@export var material_configs := {}

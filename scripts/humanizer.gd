@@ -372,8 +372,8 @@ func _deserialize() -> void:
 		
 	## Load materials with overlays
 	for child in get_children():
-		if child.name in human_config.overlay_material_configs:
-			var mat_config = human_config.overlay_material_configs[child.name]
+		if child.name in human_config.material_configs:
+			var mat_config = human_config.material_configs[child.name]
 			child.material_config = mat_config
 	
 	## Load textures for non-overlay materials
@@ -428,8 +428,8 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	var mi = load(bp.scene_path).instantiate() as MeshInstance3D
 	mi.name = bp.resource_name
 	bp.node = mi
-	if bp.default_overlay != null:
-		_setup_overlay_material(bp, human_config.overlay_material_configs.get(bp.resource_name))
+	if bp.default_overlay != null or human_config.material_configs.has(bp.resource_name):
+		_setup_overlay_material(bp, human_config.material_configs.get(bp.resource_name))
 	else:
 		mi.get_surface_override_material(0).resource_path = ''
 	if not human_config.body_part_materials.has(bp.slot):
@@ -481,7 +481,7 @@ func _add_clothes_mesh(cl: HumanClothes) -> void:
 	cl.node = mi
 	mi.name = cl.resource_name
 	if cl.default_overlay != null:
-		_setup_overlay_material(cl, human_config.overlay_material_configs.get(cl.resource_name))
+		_setup_overlay_material(cl, human_config.material_configs.get(cl.resource_name))
 	_add_child_node(mi)
 	_add_bone_weights(cl)
 	if human_config.clothes_materials.has(cl.resource_name):
