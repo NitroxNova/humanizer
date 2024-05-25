@@ -7,7 +7,7 @@ extends Resource
 @export_file var ao_texture_path: String
 @export var color := Color.WHITE
 @export var offset: Vector2i = Vector2i.ZERO
-
+## TODO add normal strength
 
 static func from_dict(data: Dictionary) -> HumanizerOverlay:
 	var overlay = HumanizerOverlay.new()
