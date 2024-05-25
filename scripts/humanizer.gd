@@ -978,7 +978,7 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 
 	if bp.default_overlay != null:
 		var mat_config: HumanizerMaterial = mi.material_config
-		var overlay_dict = {&'albedo': texture}
+		var overlay_dict = {&'albedo': bp.textures[texture]}
 		if mi.get_surface_override_material(0).normal_texture != null:
 			overlay_dict[&'normal'] = mi.get_surface_override_material(0).normal_texture.resource_path
 		if mi.get_surface_override_material(0).ao_texture != null:
@@ -986,7 +986,7 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	else:
 		var mat: BaseMaterial3D = mi.get_surface_override_material(0)
-		mat.albedo_texture = load(texture)
+		mat.albedo_texture = load(bp.textures[texture])
 	if bp.slot in ['LeftEye', 'RightEye', 'Eyes']:
 		var iris: HumanizerOverlay = mi.material_config.overlays[1]
 		iris.color = eye_color
