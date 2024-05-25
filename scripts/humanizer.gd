@@ -309,25 +309,25 @@ func save_human_scene() -> void:
 		var mat = mi.mesh.surface_get_material(surface)
 		var surf_name: String = mi.mesh.surface_get_name(surface)
 		if mat.albedo_texture != null:
-			var path := save_path.path_join(surf_name + '_albedo.res')
+			var path := save_path.path_join('texture_albedo_' + surf_name + '.res')
 			mat.albedo_texture.take_over_path(path)
 		if mat.normal_texture != null:
-			var path := save_path.path_join(surf_name + '_normal.res')
+			var path := save_path.path_join('texture_normal_' + surf_name + '.res')
 			mat.normal_texture.take_over_path(path)
 		if mat.ao_texture != null:
-			var path := save_path.path_join(surf_name + '_ao.res')
+			var path := save_path.path_join('texture_ao_' + surf_name + '.res')
 			mat.ao_texture.take_over_path(path)
-		var path := save_path.path_join(surf_name + '_material.tres')
+		var path := save_path.path_join('material_' + surf_name + '.tres')
 		ResourceSaver.save(mat, path)
 		mat.take_over_path(path)
 		
 	var path := save_path.path_join('mesh.tres')
 	ResourceSaver.save(mi.mesh, path)
 	mi.mesh.take_over_path(path)
-	path = save_path.path_join(human_name + '.res')
-	ResourceSaver.save(human_config, save_path.path_join(human_name + '_config.res'))
-	if not FileAccess.file_exists(save_path.path_join(human_name + '.tscn')):
-		ResourceSaver.save(scene, save_path.path_join(human_name + '.tscn'))
+	path = save_path.path_join('config_' + human_name + '.res')
+	ResourceSaver.save(human_config, save_path.path_join('config_' + human_name + '.res'))
+	if not FileAccess.file_exists(save_path.path_join('scene_' + human_name + '.tscn')):
+		ResourceSaver.save(scene, save_path.path_join('scene_' + human_name + '.tscn'))
 	print('Saved human to : ' + save_path)
 	HumanizerJobQueue.enqueue({callable=HumanizerSurfaceCombiner.compress_material,mesh=mi.mesh})
 

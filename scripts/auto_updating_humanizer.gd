@@ -29,8 +29,6 @@ func set_eye_color(color: Color) -> void:
 
 func set_body_part(bp: HumanBodyPart) -> void:
 	super(bp)
-	if bp.node == null:
-		return
 	_fit_body_part_mesh(bp)
 	
 func _add_clothes_mesh(cl: HumanClothes) -> void:
