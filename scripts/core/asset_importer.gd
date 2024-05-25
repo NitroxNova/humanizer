@@ -11,12 +11,7 @@ var asset_type: HumanizerRegistry.AssetType
 var basis: Array
 
 func run(clean_only: bool = false) -> void:
-	if asset_type == HumanizerRegistry.AssetType.Clothes:
-		if clothing_slots.size() == 0:
-			printerr('Select clothing slots before processing clothes asset.')
-			return
-
-	basis = HumanizerUtils.get_shapekey_data().basis.duplicate(true)
+	basis = HumanizerUtils.shapekey_data.basis.duplicate(true)
 	if _asset_path != '':  # User operating from scene
 		for fl in OSPath.get_files(_asset_path):
 			if fl.get_extension() in ['res', 'tscn', 'tres']:
