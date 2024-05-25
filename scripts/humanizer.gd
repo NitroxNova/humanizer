@@ -4,7 +4,7 @@ extends Node3D
 
 ## Base humanizer node for use in-game when loading a new human from config
 
-const _BASE_MESH_NAME: String = 'Skin'
+const _BASE_MESH_NAME: String = 'Body'
 const _DEFAULT_SKIN_COLOR = Color.WHITE
 const _DEFAULT_EYE_COLOR = Color.SKY_BLUE
 const _DEFAULT_HAIR_COLOR = Color.WEB_MAROON
@@ -956,8 +956,9 @@ func set_skin_normal_texture(name: String) -> void:
 		return
 	#print('setting skin normal texture')
 	var texture: String
-	texture = HumanizerRegistry.skin_normals[name]
-	if body_mesh.material_config.overlays.size() == 0:
+	if name != 'None':
+		texture = HumanizerRegistry.skin_normals[name]
+	if body_mesh.material_config.overlays.size() == 0 and name != 'None':
 		var overlay = {&'normal': texture, &'color': skin_color}
 		body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
 	else:
