@@ -5,7 +5,7 @@
 [resource]
 resource_name = "wings_tattoo"
 script = ExtResource("1_wtlea")
-albedo_texture_path = "res://addons/humanizer/data/overlay_example/wings_tattoo.png"
+albedo_texture_path = "res://addons/humanizer/data/assets/overlay_example/wings_tattoo.png"
 normal_texture_path = ""
 ao_texture_path = ""
 color = Color(1, 1, 1, 0.843137)
