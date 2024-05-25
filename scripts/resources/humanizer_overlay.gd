@@ -11,6 +11,8 @@ extends Resource
 
 static func from_dict(data: Dictionary) -> HumanizerOverlay:
 	var overlay = HumanizerOverlay.new()
+	if data.has('offset'):
+		overlay.offset = data.offset
 	if data.has('albedo'):
 		overlay.albedo_texture_path = data.albedo
 		overlay.resource_name = data.albedo.get_file().get_basename().replace('_albedo', '').replace('_diffuse', '')
