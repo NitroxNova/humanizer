@@ -4,8 +4,9 @@ class_name HumanizerMeshInstance
 
 @export var material_config: HumanizerMaterial:
 	set(value):
-		material_config = value
-		initialize()
+		if material_config != value:
+			material_config = value
+			initialize()
 
 func initialize() -> void:
 	# Make everything local
@@ -26,6 +27,5 @@ func update_material() -> void:
 	mat.set_texture(BaseMaterial3D.TEXTURE_NORMAL, material_config.normal_texture)
 	mat.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, material_config.ao_texture)
 
-	var humanizer := get_parent_node_3d()
-	if humanizer:
-		humanizer.human_config.overlay_material_configs[name] = material_config
+	if get_parent_node_3d():
+		get_parent_node_3d().human_config.material_configs[name] = material_config
