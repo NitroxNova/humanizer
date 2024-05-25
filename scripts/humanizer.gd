@@ -126,6 +126,8 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 			human_config = value
 			if scene_loaded:
 				load_human()
+		notify_property_list_changed()
+
 @export_group('Node Overrides')
 ## The root node type for baked humans
 @export_enum("CharacterBody3D", "RigidBody3D", "StaticBody3D", "Area3D") var _baked_root_node: String = HumanizerGlobalConfig.config.default_baked_root_node
@@ -397,6 +399,7 @@ func _deserialize() -> void:
 	eyebrow_color = human_config.eyebrow_color
 
 	## Update materials with overlays
+	body_mesh.material_config.update_material()
 	for bp in human_config.body_parts.values():
 		if bp.node is HumanizerMeshInstance:
 			if bp.node.material_config.overlays.size() > 0:
