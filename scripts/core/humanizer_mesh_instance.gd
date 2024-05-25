@@ -2,14 +2,12 @@
 extends MeshInstance3D
 class_name HumanizerMeshInstance
 
-@export var material_config: HumanizerMaterial
-
-func _ready() -> void:
-	initialize()
+@export var material_config: HumanizerMaterial:
+	set(value):
+		material_config = value
+		initialize()
 
 func initialize() -> void:
-	if material_config == null:
-		material_config = HumanizerMaterial.new()
 	# Make everything local
 	if get_surface_override_material(0) != null:
 		get_surface_override_material(0).resource_path = ''

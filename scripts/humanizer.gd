@@ -769,7 +769,7 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	if body_mesh != null:
 		visible = body_mesh.visible
 		if body_mesh is HumanizerMeshInstance:
-			mat_config = body_mesh.material_config.duplicate(true)
+			mat_config = body_mesh.material_config
 	if body_mesh == null:
 		body_mesh = MeshInstance3D.new()
 		body_mesh.name = _BASE_MESH_NAME
@@ -778,7 +778,6 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	body_mesh.set_surface_override_material(0, StandardMaterial3D.new())
 	body_mesh.set_script(load('res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd'))
 	body_mesh.material_config = HumanizerMaterial.new() if mat_config == null else mat_config
-	body_mesh.initialize()
 	if skeleton != null:
 		body_mesh.skeleton = '../' + skeleton.name
 		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
@@ -979,7 +978,7 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 
 	if bp.default_overlay != null:
 		var mat_config: HumanizerMaterial = mi.material_config
-		var overlay_dict = {&'albedo': bp.textures[texture]}
+		var overlay_dict = {&'albedo': texture}
 		if mi.get_surface_override_material(0).normal_texture != null:
 			overlay_dict[&'normal'] = mi.get_surface_override_material(0).normal_texture.resource_path
 		if mi.get_surface_override_material(0).ao_texture != null:
@@ -987,7 +986,7 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	else:
 		var mat: BaseMaterial3D = mi.get_surface_override_material(0)
-		mat.albedo_texture = load(bp.textures[texture])
+		mat.albedo_texture = load(texture)
 	if bp.slot in ['LeftEye', 'RightEye', 'Eyes']:
 		var iris: HumanizerOverlay = mi.material_config.overlays[1]
 		iris.color = eye_color
@@ -1036,7 +1035,6 @@ func _setup_overlay_material(asset: HumanAsset, existing_config: HumanizerMateri
 		mi.material_config = existing_config
 		return
 	mi.material_config = HumanizerMaterial.new()
-	mi.initialize()
 	var overlay_dict = {'albedo': asset.textures.values()[0]}
 	if mi.get_surface_override_material(0).normal_texture != null:
 		overlay_dict['normal'] = mi.get_surface_override_material(0).normal_texture.resource_path
