@@ -43,6 +43,10 @@ func set_skin_texture(name: String) -> void:
 	super(name)
 	body_mesh.material_config.update_material()
 
+func set_skin_normal_texture(name: String) -> void:
+	super(name)
+	body_mesh.material_config.update_material()
+
 func set_rig(rig_name: String) -> void:
 	super(rig_name)
 	_adjust_skeleton()

@@ -957,19 +957,14 @@ func set_skin_normal_texture(name: String) -> void:
 		return
 	#print('setting skin normal texture')
 	var texture: String
-	if not HumanizerRegistry.skin_normals.has(name):
-		human_config.body_part_materials[&'skin_normal'] = ''
+	texture = HumanizerRegistry.skin_normals[name]
+	if body_mesh.material_config.overlays.size() == 0:
+		var overlay = {&'normal': texture, &'color': skin_color}
+		body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
 	else:
-		human_config.body_part_materials[&'skin_normal'] = name
-		texture = HumanizerRegistry.skin_normals[name]
-		if body_mesh.material_config.overlays.size() == 0:
-			var overlay = {&'name': name, &'normal': texture, &'color': skin_color}
-			body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
-		else:
-			var overlay = body_mesh.material_config.overlays[0]
-			overlay.normal_texture_path = texture
-			body_mesh.material_config.set_base_textures(overlay)
-		#(body_mesh.get_surface_override_material(0) as StandardMaterial3D).normal_scale = .2
+		var overlay = body_mesh.material_config.overlays[0]
+		overlay.normal_texture_path = texture
+		body_mesh.material_config.set_base_textures(overlay)
 
 func set_body_part_material(set_slot: String, texture: String) -> void:
 	#print('setting material ' + texture + ' on ' + set_slot)
