@@ -154,6 +154,7 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 
 
 func _ready() -> void:
+	body_mesh = get_node_or_null(_BASE_MESH_NAME)
 	if human_config == null:
 		human_config = HumanConfig.new()
 	for child in get_children():
