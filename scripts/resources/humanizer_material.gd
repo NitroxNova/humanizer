@@ -18,13 +18,15 @@ func update_material() -> void:
 	var base_size: Vector2i 
 	for texture in textures:
 		var image: Image = null
-		if overlays[0].get(texture + '_texture_path') != '':
-			image = load(overlays[0].albedo_texture_path).get_image()
-			base_size = image.get_size()
-			image.convert(Image.FORMAT_RGBA8)
-			## Blend albedo color
-			if texture == 'albedo':
-				_blend_color(image, overlays[0].color)
+		var path = overlays[0].get(texture + '_texture_path')
+		if path == '':
+			continue
+		image = load(path).get_image()
+		base_size = image.get_size()
+		image.convert(Image.FORMAT_RGBA8)
+		## Blend albedo color
+		if texture == 'albedo':
+			_blend_color(image, overlays[0].color)
 				
 		## TODO what if a base texture is null but overlay is not? 
 		## Need to create default base texture to overlay onto
@@ -35,7 +37,7 @@ func update_material() -> void:
 				if ov == null:
 					continue
 				var overlay = overlays[ov]
-				var path = overlay.get(texture + '_texture_path')
+				path = overlay.get(texture + '_texture_path')
 				if path == '':
 					continue
 				var overlay_image: Image = load(path).get_image()
