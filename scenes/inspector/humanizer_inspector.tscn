@@ -76,13 +76,14 @@ func _ready() -> void:
 		add_item(skin)
 	
 	if config != null:
-		if not config.body_part_materials.has(&'skin_normal'):
+		var mat_config = config.material_configs.get(&'Body')
+		if mat_config and mat_config.overlays.size() > 0:
+			var texture = mat_config.overlays[0].normal_texture_path.get_file().get_basename()
+			for item in item_count:
+				if get_item_text(item) == texture:
+					selected = item
+		else:
 			selected = 0
-			return
-		for item in item_count:
-			if get_item_text(item) == config.body_part_materials[&'skin_normal']:
-				selected = item
-				
 func reset() -> void:
 	selected = 0
 
@@ -322,9 +323,9 @@ item_count = 4
 selected = 0
 popup/item_0/text = "None"
 popup/item_0/id = 0
-popup/item_1/text = "Aksel_Skin_NRM"
+popup/item_1/text = "orkMeshNORMAL"
 popup/item_1/id = 1
-popup/item_2/text = "orkMeshNORMAL"
+popup/item_2/text = "Aksel_Skin_NRM"
 popup/item_2/id = 2
 popup/item_3/text = "skin_male_african_middleage_NRM"
 popup/item_3/id = 3

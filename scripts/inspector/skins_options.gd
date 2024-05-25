@@ -16,13 +16,16 @@ func _ready() -> void:
 		add_item(skin)
 	
 	if config != null:
-		if not config.body_part_materials.has(&'skin'):
+		var mat_config = config.material_configs.get(&'Body')
+		if mat_config and mat_config.overlays.size() > 0:
+			var texture = mat_config.overlays[0].albedo_texture_path.get_file().get_basename()
+			texture = texture.replace('_diffuse', '').replace('_albedo', '')
+			for item in item_count:
+				if get_item_text(item) == texture:
+					selected = item
+		else:
 			selected = 0
-			return
-		for item in item_count:
-			if get_item_text(item) == config.body_part_materials[&'skin']:
-				selected = item
-				
+	
 func reset() -> void:
 	selected = 0
 
