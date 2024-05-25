@@ -11,10 +11,6 @@ var asset_type: HumanizerRegistry.AssetType
 var basis: Array
 
 func run(clean_only: bool = false) -> void:
-	if _asset_path == '':
-		push_error('Please provide the path to the assets you want to import')
-		return
-	
 	if asset_type == HumanizerRegistry.AssetType.Clothes:
 		if clothing_slots.size() == 0:
 			printerr('Select clothing slots before processing clothes asset.')
