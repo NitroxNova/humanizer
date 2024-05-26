@@ -7,9 +7,9 @@ resource_name = "Shoes02"
 script = ExtResource("1_eihap")
 slots = Array[String](["Feet"])
 textures = {
-"blue_diffuse.png": "res://addons/humanizer/data/assets/clothes/shoes/shoes02/blue_diffuse.png",
-"brown_diffuse.png": "res://addons/humanizer/data/assets/clothes/shoes/shoes02/brown_diffuse.png",
-"white_diffuse.png": "res://addons/humanizer/data/assets/clothes/shoes/shoes02/white_diffuse.png"
+"blue_diffuse": "res://addons/humanizer/data/assets/clothes/shoes/shoes02/blue_diffuse.png",
+"brown_diffuse": "res://addons/humanizer/data/assets/clothes/shoes/shoes02/brown_diffuse.png",
+"white_diffuse": "res://addons/humanizer/data/assets/clothes/shoes/shoes02/white_diffuse.png"
 }
 path = "res://addons/humanizer/data/assets/clothes/shoes/shoes02"
 rigged = false

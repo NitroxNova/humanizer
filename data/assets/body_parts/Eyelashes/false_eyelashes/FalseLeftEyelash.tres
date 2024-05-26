@@ -7,7 +7,7 @@ resource_name = "FalseLeftEyelash"
 script = ExtResource("1_f01sq")
 slot = "LeftEyelash"
 textures = {
-"eyelashes04.png": "res://addons/humanizer/data/assets/body_parts/Eyelashes/false_eyelashes/eyelashes04.png"
+"eyelashes04": "res://addons/humanizer/data/assets/body_parts/Eyelashes/false_eyelashes/eyelashes04.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Eyelashes/false_eyelashes"
 rigged = false

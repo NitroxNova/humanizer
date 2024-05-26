@@ -7,7 +7,7 @@ resource_name = "MakeHumanTShirt"
 script = ExtResource("1_mgbbg")
 slots = Array[String](["Torso"])
 textures = {
-"female_casualsuit01_diffuse.png": "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_diffuse.png"
+"female_casualsuit01_diffuse": "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_diffuse.png"
 }
 path = "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01"
 rigged = false

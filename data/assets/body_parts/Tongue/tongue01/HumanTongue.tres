@@ -7,7 +7,7 @@ resource_name = "HumanTongue"
 script = ExtResource("1_a7jma")
 slot = "Tongue"
 textures = {
-"tongue01_diffuse.png": "res://addons/humanizer/data/assets/body_parts/Tongue/tongue01/tongue01_diffuse.png"
+"tongue01_diffuse": "res://addons/humanizer/data/assets/body_parts/Tongue/tongue01/tongue01_diffuse.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Tongue/tongue01"
 rigged = false

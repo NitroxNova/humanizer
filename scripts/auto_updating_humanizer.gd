@@ -16,24 +16,27 @@ func set_eyebrow_color(color: Color) -> void:
 
 func set_skin_color(color: Color) -> void:
 	skin_color = color
-	if body_mesh != null:
+	if body_mesh != null and body_mesh is HumanizerMeshInstance:
 		body_mesh.material_config.update_material()
 	
 func set_eye_color(color: Color) -> void:
 	eye_color = color
 	for slot in [&'RightEye', &'LeftEye', &'Eyes']:
-		if human_config.body_parts.has(slot):
-			update_asset_material(human_config.body_parts[slot])
+		var bp: HumanBodyPart = human_config.body_parts[slot]
+		if bp.node is HumanizerMeshInstance:
+			bp.node.material_config.update_material
 
 func set_body_part(bp: HumanBodyPart) -> void:
 	super(bp)
 	_fit_body_part_mesh(bp)
-	update_asset_material(bp)
-	
+	if bp.node is HumanizerMeshInstance:
+		bp.node.material_config.update_material
+
 func _add_clothes_mesh(cl: HumanClothes) -> void:
 	super(cl)
 	_fit_clothes_mesh(cl)
-	update_asset_material(cl)
+	if cl.node is HumanizerMeshInstance:
+		cl.node.material_config.update_material()
 
 func hide_body_vertices() -> void:
 	super()

@@ -7,7 +7,7 @@ resource_name = "LeftEyebrow-012"
 script = ExtResource("1_haiae")
 slot = "LeftEyebrow"
 textures = {
-"eyebrow012.png": "res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-012/eyebrow012.png"
+"eyebrow012": "res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-012/eyebrow012.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-012"
 rigged = false

@@ -3,13 +3,13 @@
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="1_r8sm5"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="2_2ciyf"]
 
-[sub_resource type="Resource" id="Resource_cpvmj"]
+[sub_resource type="Resource" id="Resource_o4xhn"]
 resource_name = "overlay_iris"
 script = ExtResource("1_r8sm5")
 albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/overlay_iris_albedo.png"
 normal_texture_path = ""
 ao_texture_path = ""
-color = Color(0.664395, 0.950725, 0.871435, 1)
+color = Color(1, 1, 1, 1)
 offset = Vector2i(0, 0)
 
 [resource]
@@ -17,8 +17,8 @@ resource_name = "LeftEyeBall-LowPoly"
 script = ExtResource("2_2ciyf")
 slot = "LeftEye"
 textures = {
-"eyeball_albedo.png": "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/eyeball_albedo.png"
+"eyeball_albedo": "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/eyeball_albedo.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs"
-default_overlay = SubResource("Resource_cpvmj")
+default_overlay = SubResource("Resource_o4xhn")
 rigged = false

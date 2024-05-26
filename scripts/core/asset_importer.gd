@@ -82,12 +82,12 @@ func _scan_path_for_assets(path: String) -> void:
 			# Eyes come with two textures for coloring iris, base and overlay
 			if 'overlay' in file_name.get_file():
 				textures['overlay'] = {'albedo': file_name}
-			elif file_name.rsplit('.', true, 1)[-2].ends_with('normal'):
+			elif file_name.get_basename().ends_with('normal'):
 				textures['normal'] = file_name
-			elif file_name.rsplit('.', true, 1)[-2].ends_with('ao'):
+			elif file_name.get_basename().ends_with('ao'):
 				textures['ao'] = file_name
 			else:
-				textures[file_name.get_file()] = file_name
+				textures[file_name.get_file().get_basename()] = file_name
 	_generate_material(path, textures)
 	
 	for asset in asset_data.values():

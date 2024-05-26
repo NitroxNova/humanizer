@@ -7,7 +7,7 @@ resource_name = "Fedora-Cocked"
 script = ExtResource("1_3r6k8")
 slots = Array[String](["Head"])
 textures = {
-"fedora_diffuse.png": "res://addons/humanizer/data/assets/clothes/hats/fedora/fedora_diffuse.png"
+"fedora_diffuse": "res://addons/humanizer/data/assets/clothes/hats/fedora/fedora_diffuse.png"
 }
 path = "res://addons/humanizer/data/assets/clothes/hats/fedora"
 rigged = false

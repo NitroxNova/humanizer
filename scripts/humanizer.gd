@@ -970,7 +970,6 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 		return
 	var mi = bp.node as MeshInstance3D
 	human_config.body_part_materials[set_slot] = texture
-
 	if bp.default_overlay != null:
 		var mat_config: HumanizerMaterial = mi.material_config
 		var overlay_dict = {&'albedo': bp.textures[texture]}
@@ -985,7 +984,7 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 	if bp.slot in ['LeftEye', 'RightEye', 'Eyes']:
 		var iris: HumanizerOverlay = mi.material_config.overlays[1]
 		iris.color = eye_color
-		mi.material_config.set_overlay(1, iris)
+		mi.material_config.set_overlay(1, iris)	
 	if bp.slot in ['RightEyebrow', 'LeftEyebrow', 'Eyebrows']:
 		mi.get_surface_override_material(0).albedo_color = Color(hair_color * eyebrow_color_weight, 1) 
 	elif bp.slot == 'Hair':
@@ -1033,11 +1032,6 @@ func _setup_overlay_material(asset: HumanAsset, existing_config: HumanizerMateri
 	mi.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	mi.material_config.add_overlay(asset.default_overlay)
 
-func update_asset_material(asset:HumanAsset):
-	var mesh = asset.node
-	if "material_config" in mesh:
-		mesh.material_config.update_material()
-		
 #### Animation ####
 func set_rig(rig_name: String) -> void:
 	if baked:

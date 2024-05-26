@@ -7,16 +7,16 @@ resource_name = "SuitSlacks"
 script = ExtResource("1_jq18p")
 slots = Array[String](["Legs"])
 textures = {
-"male_elegantsuit01_Blue.png": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_blue_with_red_striped_tie/male_elegantsuit01_Blue.png",
-"male_elegantsuit01_Brown.png": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_brown/male_elegantsuit01_Brown.png",
-"male_elegantsuit01_Burgundy.png": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_burgundy/male_elegantsuit01_Burgundy.png",
-"male_elegantsuit01_Eggplant.png": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_eggplant/male_elegantsuit01_Eggplant.png",
-"male_elegantsuit01_Gray.png": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_gray/male_elegantsuit01_Gray.png",
-"male_elegantsuit01_Olive.png": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_olive/male_elegantsuit01_Olive.png",
-"male_elegantsuit01_Pinstripe.png": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_gray_pinstripe_with_paisley_tie/male_elegantsuit01_Pinstripe.png",
-"male_elegantsuit01_PinstripeBlue.png": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_blue_pinstripe_with_paisley_tie/male_elegantsuit01_PinstripeBlue.png",
-"male_elegantsuit01_Teal.png": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_teal/male_elegantsuit01_Teal.png",
-"male_elegantsuit01_diffuse.png": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/male_elegantsuit01_diffuse.png"
+"male_elegantsuit01_Blue": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_blue_with_red_striped_tie/male_elegantsuit01_Blue.png",
+"male_elegantsuit01_Brown": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_brown/male_elegantsuit01_Brown.png",
+"male_elegantsuit01_Burgundy": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_burgundy/male_elegantsuit01_Burgundy.png",
+"male_elegantsuit01_Eggplant": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_eggplant/male_elegantsuit01_Eggplant.png",
+"male_elegantsuit01_Gray": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_gray/male_elegantsuit01_Gray.png",
+"male_elegantsuit01_Olive": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_olive/male_elegantsuit01_Olive.png",
+"male_elegantsuit01_Pinstripe": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_gray_pinstripe_with_paisley_tie/male_elegantsuit01_Pinstripe.png",
+"male_elegantsuit01_PinstripeBlue": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_blue_pinstripe_with_paisley_tie/male_elegantsuit01_PinstripeBlue.png",
+"male_elegantsuit01_Teal": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_teal/male_elegantsuit01_Teal.png",
+"male_elegantsuit01_diffuse": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/male_elegantsuit01_diffuse.png"
 }
 path = "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01"
 rigged = false

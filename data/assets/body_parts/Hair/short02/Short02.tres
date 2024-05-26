@@ -7,7 +7,7 @@ resource_name = "Short02"
 script = ExtResource("1_w46uq")
 slot = "Hair"
 textures = {
-"short02_diffuse.png": "res://addons/humanizer/data/assets/body_parts/Hair/short02/short02_diffuse.png"
+"short02_diffuse": "res://addons/humanizer/data/assets/body_parts/Hair/short02/short02_diffuse.png"
 }
 path = "res://addons/humanizer/data/assets/body_parts/Hair/short02"
 rigged = false
