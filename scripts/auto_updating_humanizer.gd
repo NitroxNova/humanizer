@@ -26,7 +26,7 @@ func set_eye_color(color: Color) -> void:
 			continue
 		var bp: HumanBodyPart = human_config.body_parts[slot]
 		if bp.node is HumanizerMeshInstance:
-			bp.node.material_config.update_material
+			bp.node.material_config.update_material()
 
 func set_body_part(bp: HumanBodyPart) -> void:
 	super(bp)
