@@ -1030,7 +1030,7 @@ func _setup_overlay_material(asset: HumanAsset, existing_config: HumanizerMateri
 		overlay_dict['ao'] = mi.get_surface_override_material(0).ao_texture.resource_path
 	var overlay = HumanizerOverlay.from_dict(overlay_dict)
 	mi.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
-	mi.material_config.add_overlay(asset.default_overlay)
+	mi.material_config.add_overlay(asset.default_overlay.duplicate(true))
 
 #### Animation ####
 func set_rig(rig_name: String) -> void:

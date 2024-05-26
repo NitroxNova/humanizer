@@ -22,6 +22,8 @@ func set_skin_color(color: Color) -> void:
 func set_eye_color(color: Color) -> void:
 	eye_color = color
 	for slot in [&'RightEye', &'LeftEye', &'Eyes']:
+		if not human_config.body_parts.has(slot):
+			continue
 		var bp: HumanBodyPart = human_config.body_parts[slot]
 		if bp.node is HumanizerMeshInstance:
 			bp.node.material_config.update_material
