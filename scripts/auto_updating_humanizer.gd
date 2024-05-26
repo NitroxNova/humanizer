@@ -32,7 +32,7 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	super(bp)
 	_fit_body_part_mesh(bp)
 	if bp.node is HumanizerMeshInstance:
-		bp.node.material_config.update_material
+		bp.node.material_config.update_material()
 
 func _add_clothes_mesh(cl: HumanClothes) -> void:
 	super(cl)
@@ -46,11 +46,13 @@ func hide_body_vertices() -> void:
 
 func set_skin_texture(name: String) -> void:
 	super(name)
-	body_mesh.material_config.update_material()
+	if body_mesh != null and body_mesh is HumanizerMeshInstance:
+		body_mesh.material_config.update_material()
 
 func set_skin_normal_texture(name: String) -> void:
 	super(name)
-	body_mesh.material_config.update_material()
+	if body_mesh != null and body_mesh is HumanizerMeshInstance:
+		body_mesh.material_config.update_material()
 
 func set_rig(rig_name: String) -> void:
 	super(rig_name)
