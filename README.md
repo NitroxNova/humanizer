@@ -1,6 +1,7 @@
 Humanizer Plugin - 3D Character Creator for Godot 4  
 converted from MakeHuman and MPFB2 plugin for blender  
-features demo - https://www.youtube.com/watch?v=30q_xET69K4  
+download zip file from https://github.com/NitroxNova/humanizer/releases/tag/v1.0.0.beta and extract into your addons folder  
+features and installation - https://www.youtube.com/watch?v=HcscAIpmVgE  
 
 FEATURES:  
 fully customizable character weight/height/gender/race/age  
@@ -16,12 +17,10 @@ optional (but higly recommended):
 jolt engine - https://godotengine.org/asset-library/asset/1918   
   
 setup and usage (FAQ):    
-plugin installation - https://www.youtube.com/watch?v=190UDaqOisQ  (IMPORTANT, zip download does not work, follow instructions for git submodule or git clone)  
 global config settings - https://www.youtube.com/watch?v=nAn8TILgigM  
 mixamo animation retargeting - https://www.youtube.com/watch?v=6eWP1-ws-JE  
 blender plugin setup (mpfb2, makeclothes2) - https://www.youtube.com/watch?v=UUwC_xWNlsk  
-clothing import 1 - https://www.youtube.com/watch?v=7seZynR93kU  
-clothing import 2 - https://www.youtube.com/watch?v=ROMLvSbfZv8  
+new mpfb2 clothing import - https://youtu.be/CKi8rJdgSFY  
 rigged assets - https://www.youtube.com/watch?v=NMK_w39wKi0  
 materials and overlays - https://www.youtube.com/watch?v=LnubU2OzvQA  
 adding custom shapekey targets - https://www.youtube.com/watch?v=scM3nRpdX20  
