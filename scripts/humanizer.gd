@@ -190,7 +190,7 @@ func load_human() -> void:
 	notify_property_list_changed()
 
 func create_human_branch() -> Node3D:
-	_adjust_skeleton()
+	#_adjust_skeleton()
 	var new_mesh = _combine_meshes()
 
 	var root_node: Node
