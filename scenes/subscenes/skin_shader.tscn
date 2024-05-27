@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dlk52rlqye7en"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/core/skin_shader.gd" id="1_yilnp"]
+
+[node name="SkinShader" type="Node"]
+script = ExtResource("1_yilnp")

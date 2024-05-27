@@ -176,6 +176,12 @@ func reset_human() -> void:
 			_delete_child_node(child)
 	body_mesh = null
 	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
+	var material: Material
+	if has_node('SkinShader'):
+		material = $SkinShader.setup_material(self)
+	else:
+		material = StandardMaterial3D.new()
+	body_mesh.set_surface_override_material(0, material)
 	set_component_state(true, &'main_collider')
 	if has_node('Saccades'):
 		_delete_child_by_name('Saccades')
@@ -239,7 +245,6 @@ func create_human_branch() -> Node3D:
 		var _animator = _animator_scene.instantiate()
 		root_node.add_child(_animator)
 		_animator.owner = root_node
-		_animator.active = true  # Doesn't work unfortunately
 		root_node.set_editable_instance(_animator, true)
 		var root_bone = sk.get_bone_name(0)
 		if _animator is AnimationTree:
@@ -760,8 +765,10 @@ func bake_surface() -> void:
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	var visible = true
 	var mat_config: HumanizerMaterial = null
+	var material: Material
 	if body_mesh != null:
 		visible = body_mesh.visible
+		material = body_mesh.get_surface_override_material(0)
 		if body_mesh is HumanizerMeshInstance:
 			mat_config = body_mesh.material_config
 	if body_mesh == null:
@@ -769,7 +776,7 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 		body_mesh.name = _BASE_MESH_NAME
 		_add_child_node(body_mesh)
 	body_mesh.mesh = meshdata
-	body_mesh.set_surface_override_material(0, StandardMaterial3D.new())
+	body_mesh.set_surface_override_material(0, StandardMaterial3D.new() if material == null else material)
 	body_mesh.set_script(load('res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd'))
 	body_mesh.material_config = HumanizerMaterial.new() if mat_config == null else mat_config
 	if skeleton != null:
@@ -1218,7 +1225,6 @@ func _reset_animator() -> void:
 	else:  # No example animator for specific rigs that aren't retargeted
 		return
 	_add_child_node(animator)
-	animator.active = true
 	set_editable_instance(animator, true)
 	if human_config.rig == 'default-RETARGETED':
 		reset_face_pose()
@@ -1256,8 +1262,6 @@ func set_component_state(enabled: bool, component: StringName) -> void:
 			var saccades = get_node_or_null('Saccades')
 			if saccades:
 				saccades.queue_free()
-			if animator != null:
-				animator.active = true
 			notify_property_list_changed()
 		elif component == &'root_bone':
 			if skeleton != null:
@@ -1280,7 +1284,6 @@ func _add_physical_skeleton() -> void:
 	skeleton.reset_bone_poses()
 	HumanizerPhysicalSkeleton.new(skeleton, _helper_vertex, _ragdoll_layers, _ragdoll_mask).run()
 	skeleton.reset_bone_poses()
-	animator.active = true
 	skeleton.animate_physical_bones = true
 
 func _adjust_main_collider():

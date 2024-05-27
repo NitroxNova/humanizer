@@ -1,0 +1,201 @@
+[gd_resource type="VisualShader" load_steps=15 format=3 uid="uid://2t74xqdfohp1"]
+
+[ext_resource type="Script" path="res://addons/shaderV/rgba/normalFromHeightmap.gd" id="1_ikpt3"]
+[ext_resource type="Texture2D" uid="uid://b20kxluaackve" path="res://addons/humanizer/data/textures/sss.png" id="2_s0atr"]
+
+[sub_resource type="VisualShaderNodeTextureParameterTriplanar" id="VisualShaderNodeTextureParameterTriplanar_pgcld"]
+parameter_name = "skin_cracks"
+texture_repeat = 1
+
+[sub_resource type="VisualShaderNodeCustom" id="VisualShaderNodeCustom_p4rfy"]
+default_input_values = [2, 0.5, 3, false, 4, false, 5, false]
+initialized = true
+script = ExtResource("1_ikpt3")
+
+[sub_resource type="VisualShaderNodeFloatConstant" id="VisualShaderNodeFloatConstant_ifgfd"]
+constant = 3.0
+
+[sub_resource type="VisualShaderNodeVectorDecompose" id="VisualShaderNodeVectorDecompose_7ujnh"]
+
+[sub_resource type="VisualShaderNodeTexture" id="VisualShaderNodeTexture_kd67j"]
+texture = ExtResource("2_s0atr")
+
+[sub_resource type="VisualShaderNodeTextureParameterTriplanar" id="VisualShaderNodeTextureParameterTriplanar_dbpxr"]
+parameter_name = "spots"
+texture_repeat = 1
+
+[sub_resource type="VisualShaderNodeTexture2DParameter" id="VisualShaderNodeTexture2DParameter_6hwva"]
+parameter_name = "albedo_texture"
+texture_type = 1
+texture_repeat = 2
+
+[sub_resource type="VisualShaderNodeTexture" id="VisualShaderNodeTexture_642ra"]
+source = 5
+texture_type = 1
+
+[sub_resource type="VisualShaderNodeMix" id="VisualShaderNodeMix_s8c7r"]
+default_input_values = [0, Vector3(0, 0, 0), 1, Vector3(1, 1, 1), 2, Vector3(0, 0, 0)]
+op_type = 3
+
+[sub_resource type="VisualShaderNodeColorParameter" id="VisualShaderNodeColorParameter_0447m"]
+parameter_name = "spot_color"
+default_value_enabled = true
+default_value = Color(0.270588, 0.137255, 0.054902, 0)
+
+[sub_resource type="VisualShaderNodeVectorOp" id="VisualShaderNodeVectorOp_x2xwg"]
+default_input_values = [0, Vector3(0, 0, 0), 1, Vector3(3, 3, 3)]
+operator = 2
+
+[sub_resource type="VisualShaderNodeVectorOp" id="VisualShaderNodeVectorOp_ik3n4"]
+operator = 5
+
+[resource]
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_lambert, specular_schlick_ggx;
+
+uniform sampler2D albedo_texture : source_color, repeat_disable;
+uniform vec4 spot_color : source_color = vec4(0.270588, 0.137255, 0.054902, 0.000000);
+uniform sampler2D spots : repeat_enable;
+uniform sampler2D skin_cracks : repeat_enable;
+uniform sampler2D tex_frg_15;
+
+
+// TextureParameterTriplanar
+	vec4 triplanar_texture(sampler2D p_sampler, vec3 p_weights, vec3 p_triplanar_pos) {
+		vec4 samp = vec4(0.0);
+		samp += texture(p_sampler, p_triplanar_pos.xy) * p_weights.z;
+		samp += texture(p_sampler, p_triplanar_pos.xz) * p_weights.y;
+		samp += texture(p_sampler, p_triplanar_pos.zy * vec2(-1.0, 1.0)) * p_weights.x;
+		return samp;
+	}
+
+	uniform vec3 triplanar_scale = vec3(1.0, 1.0, 1.0);
+	uniform vec3 triplanar_offset;
+	uniform float triplanar_sharpness = 0.5;
+
+	varying vec3 triplanar_power_normal;
+	varying vec3 triplanar_pos;
+// NormalFromHeightmap
+vec3 _normalFromHeightmapFunc(sampler2D _hm_tex, vec2 _hm_uv, float _norm_hm_strgth, bool _conv_hm_gray, bool _inv_x_norm, bool _inv_y_norm){
+	vec2 _hm_size = vec2(textureSize(_hm_tex, 1));
+	vec3 _hm_down = textureLod(_hm_tex, _hm_uv + vec2(0.0, 1.0 / _hm_size.y), 0.0).rgb;
+	vec3 _hm_up = textureLod(_hm_tex, _hm_uv - vec2(0.0, 1.0 / _hm_size.y), 0.0).rgb;
+	vec3 _hm_right = textureLod(_hm_tex, _hm_uv + vec2(1.0 / _hm_size.x, 0.0), 0.0).rgb;
+	vec3 _hm_left = textureLod(_hm_tex, _hm_uv - vec2(1.0 / _hm_size.x, 0.0), 0.0).rgb;
+	
+	if (_conv_hm_gray) {
+		_hm_down.r = 0.2126 * _hm_down.r + 0.7152 * _hm_down.g + 0.0722 * _hm_down.b;
+		_hm_up.r = 0.2126 * _hm_up.r + 0.7152 * _hm_up.g + 0.0722 * _hm_up.b;
+		_hm_right.r = 0.2126 * _hm_right.r + 0.7152 * _hm_right.g + 0.0722 * _hm_right.b;
+		_hm_left.r = 0.2126 * _hm_left.r + 0.7152 * _hm_left.g + 0.0722 * _hm_left.b;
+	}
+	
+	float dx = (1.0 - float(_inv_x_norm)) * (_hm_left.r - _hm_right.r) + 
+				(float(_inv_x_norm)) * (-_hm_left.r + _hm_right.r);
+	float dy = (1.0 - float(_inv_y_norm)) * (_hm_up.r - _hm_down.r) + 
+				(float(_inv_y_norm)) * (-_hm_up.r + _hm_down.r);
+	
+	return normalize(vec3(dx, dy, 1.0 / _norm_hm_strgth));
+}
+
+void vertex() {
+// TextureParameterTriplanar
+	{
+		triplanar_power_normal = pow(abs(NORMAL), vec3(triplanar_sharpness));
+		triplanar_power_normal /= dot(triplanar_power_normal, vec3(1.0));
+		triplanar_pos = VERTEX * triplanar_scale + triplanar_offset;
+		triplanar_pos *= vec3(1.0, -1.0, 1.0);
+	}
+}
+
+void fragment() {
+	vec4 n_out4p0;
+// Texture2D:4
+	n_out4p0 = texture(albedo_texture, UV);
+
+
+// ColorParameter:6
+	vec4 n_out6p0 = spot_color;
+
+
+// TextureParameterTriplanar:2
+	vec4 n_out2p0 = triplanar_texture(spots, triplanar_power_normal, triplanar_pos);
+
+
+// VectorOp:7
+	vec3 n_in7p1 = vec3(3.00000, 3.00000, 3.00000);
+	vec3 n_out7p0 = vec3(n_out2p0.xyz) * n_in7p1;
+
+
+// FloatConstant:13
+	float n_out13p0 = 3.000000;
+
+
+// VectorOp:9
+	vec3 n_out9p0 = pow(n_out7p0, vec3(n_out13p0));
+
+
+// Mix:5
+	vec3 n_out5p0 = mix(vec3(n_out4p0.xyz), vec3(n_out6p0.xyz), n_out9p0);
+
+
+// TextureParameterTriplanar:11
+	vec4 n_out11p0 = triplanar_texture(skin_cracks, triplanar_power_normal, triplanar_pos);
+
+
+	vec3 n_out12p0;
+// NormalFromHeightmap:12
+	float n_in12p2 = 0.50000;
+	bool n_in12p3 = false;
+	bool n_in12p4 = false;
+	bool n_in12p5 = false;
+	{
+		n_out12p0 = _normalFromHeightmapFunc(skin_cracks,UV,n_in12p2,n_in12p3,n_in12p4,n_in12p5);
+	}
+
+
+// Texture2D:15
+	vec4 n_out15p0 = texture(tex_frg_15, UV);
+
+
+// VectorDecompose:14
+	float n_out14p0 = vec3(n_out15p0.xyz).x;
+	float n_out14p1 = vec3(n_out15p0.xyz).y;
+	float n_out14p2 = vec3(n_out15p0.xyz).z;
+
+
+// Output:0
+	ALBEDO = n_out5p0;
+	NORMAL_MAP = n_out12p0;
+	SSS_STRENGTH = n_out14p0;
+
+
+}
+"
+graph_offset = Vector2(-325.277, -186.791)
+nodes/fragment/0/position = Vector2(640, 60)
+nodes/fragment/2/node = SubResource("VisualShaderNodeTextureParameterTriplanar_dbpxr")
+nodes/fragment/2/position = Vector2(-540, -220)
+nodes/fragment/3/node = SubResource("VisualShaderNodeTexture2DParameter_6hwva")
+nodes/fragment/3/position = Vector2(-260, -680)
+nodes/fragment/4/node = SubResource("VisualShaderNodeTexture_642ra")
+nodes/fragment/4/position = Vector2(100, -480)
+nodes/fragment/5/node = SubResource("VisualShaderNodeMix_s8c7r")
+nodes/fragment/5/position = Vector2(380, -460)
+nodes/fragment/6/node = SubResource("VisualShaderNodeColorParameter_0447m")
+nodes/fragment/6/position = Vector2(-180, -380)
+nodes/fragment/7/node = SubResource("VisualShaderNodeVectorOp_x2xwg")
+nodes/fragment/7/position = Vector2(-100, -80)
+nodes/fragment/9/node = SubResource("VisualShaderNodeVectorOp_ik3n4")
+nodes/fragment/9/position = Vector2(120, -140)
+nodes/fragment/11/node = SubResource("VisualShaderNodeTextureParameterTriplanar_pgcld")
+nodes/fragment/11/position = Vector2(-1500, 1180)
+nodes/fragment/12/node = SubResource("VisualShaderNodeCustom_p4rfy")
+nodes/fragment/12/position = Vector2(-1040, 1240)
+nodes/fragment/13/node = SubResource("VisualShaderNodeFloatConstant_ifgfd")
+nodes/fragment/13/position = Vector2(-40, 80)
+nodes/fragment/14/node = SubResource("VisualShaderNodeVectorDecompose_7ujnh")
+nodes/fragment/14/position = Vector2(440, 740)
+nodes/fragment/15/node = SubResource("VisualShaderNodeTexture_kd67j")
+nodes/fragment/15/position = Vector2(220, 980)
+nodes/fragment/connections = PackedInt32Array(3, 0, 4, 2, 4, 0, 5, 0, 6, 0, 5, 1, 2, 0, 7, 0, 7, 0, 9, 0, 11, 1, 12, 0, 5, 0, 0, 0, 13, 0, 9, 1, 9, 0, 5, 2, 12, 0, 0, 9, 14, 0, 0, 17, 15, 0, 14, 0)
