@@ -33,12 +33,16 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	_fit_body_part_mesh(bp)
 	if bp.node is HumanizerMeshInstance:
 		bp.node.material_config.update_material()
+	#adjust incase rigged assets modified skeleton
+	_adjust_skeleton()
 
 func _add_clothes_mesh(cl: HumanClothes) -> void:
 	super(cl)
 	_fit_clothes_mesh(cl)
 	if cl.node is HumanizerMeshInstance:
 		cl.node.material_config.update_material()
+	#adjust incase rigged assets modified skeleton
+	_adjust_skeleton()
 
 func hide_body_vertices() -> void:
 	super()
@@ -56,12 +60,12 @@ func set_skin_normal_texture(name: String) -> void:
 
 func set_rig(rig_name: String) -> void:
 	super(rig_name)
-	_adjust_skeleton()
 	set_shapekeys(human_config.shapekeys)
 	for cl in human_config.clothes:
 		_add_bone_weights(cl)
 	for bp in human_config.body_parts.values():
 		_add_bone_weights(bp)
+	_adjust_skeleton()
 
 func set_shapekeys(shapekeys: Dictionary) -> void:
 	_set_shapekey_data(shapekeys)
