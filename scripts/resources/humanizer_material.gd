@@ -74,8 +74,21 @@ func set_overlay(idx: int, overlay: HumanizerOverlay) -> void:
 		overlays[idx] = overlay
 	else:
 		push_error('Invalid overlay index')
+
+func remove_overlay(ov: HumanizerOverlay) -> void:
+	for o in overlays:
+		if o == ov:
+			overlays.erase(o) 
+			return
+	push_warning('Cannot remove overlay ' + ov.resource_name + '. Not found.')
 	
-func remove_overlay(name: String) -> void:
+func remove_overlay_at(idx: int) -> void:
+	if overlays.size() - 1 < idx or idx < 0:
+		push_error('Invalid index')
+		return
+	overlays.remove_at(idx)
+
+func remove_overlay_by_name(name: String) -> void:
 	var idx := _get_index(name)
 	if idx == -1:
 		printerr('Overlay not present?')

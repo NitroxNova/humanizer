@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://col0xxaf71nlh"
-path="res://.godot/imported/wings_tattoo.png-45ee41fea8304f37c1a4d0d23080eefb.ctex"
+uid="uid://c6xkfl78rb2a4"
+path="res://.godot/imported/black_eye.png-94b7daeade6f9ad2959a115077cfa73b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/humanizer/data/assets/overlay_example/wings_tattoo.png"
-dest_files=["res://.godot/imported/wings_tattoo.png-45ee41fea8304f37c1a4d0d23080eefb.ctex"]
+source_file="res://addons/humanizer/data/assets/overlay_examples/black_eye.png"
+dest_files=["res://.godot/imported/black_eye.png-94b7daeade6f9ad2959a115077cfa73b.ctex"]
 
 [params]
 
@@ -25,7 +25,7 @@ mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
-process/fix_alpha_border=false
+process/fix_alpha_border=true
 process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false

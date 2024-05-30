@@ -50,10 +50,10 @@ static func enqueue(job: Dictionary) -> void:
 		s.post()
 
 func _process_queue(semaphore : Semaphore) -> void:
+
 	while true:
 		var job_data : Dictionary
 		var wait : bool
-		
 		_mutex.lock()
 		var exit = _close_threads
 		if not _queue.is_empty():
@@ -70,10 +70,10 @@ func _process_queue(semaphore : Semaphore) -> void:
 			semaphore.wait()
 		else:
 			(job_data.callable as Callable).call(job_data)
-			if job_data.has('on_finished'):
+			while job_data.has('on_finished'):
 				var next_job = (job_data.on_finished as Callable)
+				job_data.erase('on_finished')
 				if next_job:
-					job_data.erase('on_finished')
 					next_job.call(job_data)
 					
 
