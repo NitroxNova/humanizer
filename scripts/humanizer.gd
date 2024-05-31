@@ -104,7 +104,17 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 			overlay.color = eye_color
 			mesh.material_config.set_overlay(1, overlay)
 ## The meshes selected to be baked to a new surface
-@export var bake_meshes: Array[MeshInstance3D]
+@export var _bake_meshes: Array[MeshInstance3D]
+var bake_mesh_names: Array = []:
+	set(value):
+		bake_mesh_names = value
+		if bake_mesh_names.size() == 0:
+			return
+		_bake_meshes = []
+		for name in value:
+			var node = get_node_or_null(name)
+			if node and not node in _bake_meshes:
+				_bake_meshes.append(node)
 ## The new shapekeys which have been defined for this human.  These will survive the baking process.
 @export var _new_shapekeys: Dictionary = {}
 
@@ -614,8 +624,8 @@ func unhide_clothes_vertices() -> void:
 		_delete_child_by_name(cl.resource_name)
 		_add_clothes_mesh(cl)
 
-func set_bake_meshes(subset: String) -> void:
-	bake_meshes = []
+func set__bake_meshes(subset: String) -> void:
+	_bake_meshes = []
 	bake_surface_name = subset
 	for child in get_children():
 		if not child is MeshInstance3D:
@@ -628,15 +638,15 @@ func set_bake_meshes(subset: String) -> void:
 		add = add or subset == 'Opaque' and mat != null and mat.transparency == BaseMaterial3D.TRANSPARENCY_DISABLED
 		add = add or subset == 'Transparent' and mat != null and mat.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
 		if add:
-			bake_meshes.append(child)
+			_bake_meshes.append(child)
 	notify_property_list_changed()
 
 func standard_bake() -> void:
-	set_bake_meshes('Opaque')
-	if bake_meshes.size() > 0:
+	set__bake_meshes('Opaque')
+	if _bake_meshes.size() > 0:
 		bake_surface()
-	set_bake_meshes('Transparent')
-	if bake_meshes.size() > 0:
+	set__bake_meshes('Transparent')
+	if _bake_meshes.size() > 0:
 		bake_surface()
 
 func bake_surface() -> void:
@@ -647,9 +657,11 @@ func bake_surface() -> void:
 		if child.name == 'Baked-' + bake_surface_name:
 			push_error('Surface ' + bake_surface_name + ' already exists.  Choose a different name.')
 			return
+	
+	for name in _bake_meshes
 
 	bake_in_progress = true
-	for node in bake_meshes:
+	for node in _bake_meshes:
 		if not node.transform == Transform3D.IDENTITY:
 			human_config.transforms[node.name] = Transform3D(node.transform)
 		if node is HumanizerMeshInstance:
@@ -664,14 +676,14 @@ func bake_surface() -> void:
 			_set_shapekey_data(human_config.shapekeys) ## To get correct shapes on basis
 			_fit_all_meshes()
 
-	if body_mesh != null and body_mesh in bake_meshes:
-		bake_meshes.erase(body_mesh)
+	if body_mesh != null and body_mesh in _bake_meshes:
+		_bake_meshes.erase(body_mesh)
 		hide_body_vertices()
-		bake_meshes.append(body_mesh)
+		_bake_meshes.append(body_mesh)
 		
 	if atlas_resolution == 0:
 		atlas_resolution = HumanizerGlobalConfig.config.atlas_resolution
-	var baked_surface :ArrayMesh = HumanizerSurfaceCombiner.new(bake_meshes, atlas_resolution).run()
+	var baked_surface :ArrayMesh = HumanizerSurfaceCombiner.new(_bake_meshes, atlas_resolution).run()
 	#cant regenerate normals and tangents after baking, because it reorders the vertices, and in some cases resizes, which makes absolutely no sense, but it then breaks the exported morph shapekeys  
 	var mi: MeshInstance3D = MeshInstance3D.new()
 	mi.mesh = baked_surface
@@ -701,7 +713,7 @@ func bake_surface() -> void:
 				morph_data['bone_positions'][shape_name].append(skeleton.get_bone_pose_position(bone))
 			morph_data['motion_scale'][shape_name] = skeleton.motion_scale
 			morph_data['collider_shape'][shape_name] = {&'center': main_collider.position.y, &'radius': main_collider.shape.radius, &'height': main_collider.shape.height}
-			for mesh_instance in bake_meshes:
+			for mesh_instance in _bake_meshes:
 				var sf_arrays = mesh_instance.mesh.surface_get_arrays(0)
 				new_bs_array[Mesh.ARRAY_VERTEX].append_array(sf_arrays[Mesh.ARRAY_VERTEX])
 				new_bs_array[Mesh.ARRAY_TANGENT].append_array(sf_arrays[Mesh.ARRAY_TANGENT])
@@ -724,10 +736,10 @@ func bake_surface() -> void:
 	add_child(mi)
 	mi.owner = self
 	mi.skeleton = '../' + skeleton.name
-	for mesh in bake_meshes:
+	for mesh in _bake_meshes:
 		remove_child(mesh)
 		mesh.queue_free()
-	bake_meshes = []
+	_bake_meshes = []
 
 	# Add morph driver if necessary
 	if _new_shapekeys.size() > 0 :
