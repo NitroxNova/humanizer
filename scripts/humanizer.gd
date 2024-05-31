@@ -4,7 +4,7 @@ extends Node3D
 
 ## Base humanizer node for use in-game when loading a new human from config
 
-const _BASE_MESH_NAME: String = 'Body'
+const BASE_MESH_NAME: String = 'Body'
 const _DEFAULT_SKIN_COLOR = Color.WHITE
 const _DEFAULT_EYE_COLOR = Color.SKY_BLUE
 const _DEFAULT_HAIR_COLOR = Color.WEB_MAROON
@@ -156,7 +156,7 @@ var bake_mesh_names: Array = []:
 
 
 func _ready() -> void:
-	body_mesh = get_node_or_null(_BASE_MESH_NAME)
+	body_mesh = get_node_or_null(BASE_MESH_NAME)
 	if human_config == null:
 		human_config = HumanConfig.new()
 	for child in get_children():
@@ -624,7 +624,7 @@ func unhide_clothes_vertices() -> void:
 		_delete_child_by_name(cl.resource_name)
 		_add_clothes_mesh(cl)
 
-func set__bake_meshes(subset: String) -> void:
+func set_bake_meshes(subset: String) -> void:
 	_bake_meshes = []
 	bake_surface_name = subset
 	for child in get_children():
@@ -642,10 +642,10 @@ func set__bake_meshes(subset: String) -> void:
 	notify_property_list_changed()
 
 func standard_bake() -> void:
-	set__bake_meshes('Opaque')
+	set_bake_meshes('Opaque')
 	if _bake_meshes.size() > 0:
 		bake_surface()
-	set__bake_meshes('Transparent')
+	set_bake_meshes('Transparent')
 	if _bake_meshes.size() > 0:
 		bake_surface()
 
@@ -768,7 +768,7 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 			mat_config = body_mesh.material_config
 	if body_mesh == null:
 		body_mesh = MeshInstance3D.new()
-		body_mesh.name = _BASE_MESH_NAME
+		body_mesh.name = BASE_MESH_NAME
 		_add_child_node(body_mesh)
 	body_mesh.mesh = meshdata
 	body_mesh.set_surface_override_material(0, StandardMaterial3D.new())
