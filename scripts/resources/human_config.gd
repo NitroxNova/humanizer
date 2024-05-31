@@ -41,7 +41,9 @@ signal clothes_removed(cl: HumanClothes)
 func set_body_part(bp: HumanBodyPart) -> void:
 	if body_parts.has(bp.slot):
 		remove_body_part(bp.slot)
-	body_parts[bp.slot] = bp
+	body_parts[bp.slot] = bp	
+	if body_part_materials.has(bp.slot):
+		body_part_materials.erase(bp.slot)
 	body_part_equipped.emit(bp)
 
 func remove_body_part(slot: String) -> void:
