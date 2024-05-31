@@ -657,9 +657,7 @@ func bake_surface() -> void:
 		if child.name == 'Baked-' + bake_surface_name:
 			push_error('Surface ' + bake_surface_name + ' already exists.  Choose a different name.')
 			return
-	
-	for name in _bake_meshes
-
+			
 	bake_in_progress = true
 	for node in _bake_meshes:
 		if not node.transform == Transform3D.IDENTITY:
