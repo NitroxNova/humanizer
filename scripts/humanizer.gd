@@ -58,8 +58,6 @@ var morph_data := {}
 
 var skin_color: Color = _DEFAULT_SKIN_COLOR:
 	set(value):
-		if skin_color == value:
-			return
 		skin_color = value
 		if body_mesh == null or (body_mesh as HumanizerMeshInstance) == null:
 			return
@@ -70,8 +68,6 @@ var skin_color: Color = _DEFAULT_SKIN_COLOR:
 			body_mesh.material_config.overlays[0].color = skin_color
 var hair_color: Color = _DEFAULT_HAIR_COLOR:
 	set(value):
-		if hair_color == value:
-			return
 		hair_color = value
 		if human_config == null or not scene_loaded:
 			return
@@ -83,8 +79,6 @@ var hair_color: Color = _DEFAULT_HAIR_COLOR:
 		notify_property_list_changed()
 var eyebrow_color: Color = _DEFAULT_EYEBROW_COLOR:
 	set(value):
-		if eyebrow_color == value:
-			return
 		eyebrow_color = value
 		if human_config == null or not scene_loaded:
 			return
@@ -97,8 +91,6 @@ var eyebrow_color: Color = _DEFAULT_EYEBROW_COLOR:
 			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = eyebrow_color 
 var eye_color: Color = _DEFAULT_EYE_COLOR:
 	set(value):
-		if eye_color == value:
-			return
 		eye_color = value
 		if human_config == null or not scene_loaded:
 			return
