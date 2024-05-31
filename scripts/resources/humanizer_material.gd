@@ -70,7 +70,7 @@ func add_overlay(overlay: HumanizerOverlay) -> void:
 	overlays.append(overlay)
 
 func set_overlay(idx: int, overlay: HumanizerOverlay) -> void:
-	if overlays.size() >= idx - 1:
+	if overlays.size() - 1 >= idx:
 		overlays[idx] = overlay
 	else:
 		push_error('Invalid overlay index')
