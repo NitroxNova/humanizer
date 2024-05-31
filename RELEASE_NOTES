@@ -1,1 +1,2 @@
 Updated HumanizerMaterial API, Can now remove overlays by reference, index, or name.
+Fixed bug where changing assets did not keep the assigned color.
