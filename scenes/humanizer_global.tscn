@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://dsrnmyw7n7drw"]
+[gd_scene load_steps=9 format=3 uid="uid://dsrnmyw7n7drw"]
 
 [ext_resource type="PackedScene" uid="uid://csan8bknfmodc" path="res://addons/humanizer/data/animations/animation_tree.tscn" id="2_24gy7"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/core/humanizer_global_config.gd" id="2_vm4hu"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_config.gd" id="3_21hmb"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/core/job_queue.gd" id="3_56c55"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/compute_shader_wrappers/skin_shader.gd" id="6_oxtn4"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/core/humanizer_registry.gd" id="57_651fh"]
 
 [sub_resource type="GDScript" id="GDScript_yaxf4"]
@@ -45,3 +46,8 @@ script = ExtResource("57_651fh")
 
 [node name="HumanizerJobQueue" type="Node" parent="."]
 script = ExtResource("3_56c55")
+
+[node name="ComputeShaders" type="Node" parent="."]
+
+[node name="SkinTextureGenerator" type="Node" parent="ComputeShaders"]
+script = ExtResource("6_oxtn4")

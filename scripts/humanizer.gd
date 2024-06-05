@@ -183,6 +183,7 @@ func reset_human() -> void:
 		_delete_child_by_name('Saccades')
 	notify_property_list_changed()
 
+
 func load_human() -> void:
 	if human_config.rig == '':
 		human_config.rig = HumanizerGlobalConfig.config.default_skeleton
@@ -404,6 +405,7 @@ func _deserialize() -> void:
 	_adjust_skeleton()
 	_fit_all_meshes()
 	_recalculate_normals()
+	HumanizerSkinShader.initialize(self)
 
 #### Mesh Management ####
 func set_body_part(bp: HumanBodyPart) -> void:
