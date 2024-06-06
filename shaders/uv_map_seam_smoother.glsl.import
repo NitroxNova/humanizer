@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://c0f4mbslp76wj"
+path="res://.godot/imported/uv_map_seam_smoother.glsl-2317466d8b5885cd4841fbefc2863f1d.res"
+
+[deps]
+
+source_file="res://addons/humanizer/shaders/uv_map_seam_smoother.glsl"
+dest_files=["res://.godot/imported/uv_map_seam_smoother.glsl-2317466d8b5885cd4841fbefc2863f1d.res"]
+
+[params]
+

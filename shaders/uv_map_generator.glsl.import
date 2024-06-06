@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://b5phjnkuydron"
+path="res://.godot/imported/uv_map_generator.glsl-18c819adecab05982d6a299684ed6958.res"
+
+[deps]
+
+source_file="res://addons/humanizer/shaders/uv_map_generator.glsl"
+dest_files=["res://.godot/imported/uv_map_generator.glsl-18c819adecab05982d6a299684ed6958.res"]
+
+[params]
+

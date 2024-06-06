@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://brqsqfd6pwoxo"
+path="res://.godot/imported/default_skin_texture_generator.glsl-2e8adc352610b1b587c15fcfb4134f57.res"
+
+[deps]
+
+source_file="res://addons/humanizer/shaders/default_skin_texture_generator.glsl"
+dest_files=["res://.godot/imported/default_skin_texture_generator.glsl-2e8adc352610b1b587c15fcfb4134f57.res"]
+
+[params]
+

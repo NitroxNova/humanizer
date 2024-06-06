@@ -74,8 +74,8 @@ bool texel_is_inside_face(vec3 barycentric_coords)
 		return false;
 	if (barycentric_coords.z > 1)
 		return false;
-	//if (abs(barycentric_coords.x + barycentric_coords.y + barycentric_coords.z - 1.0) > .0001)
-	//	return false;
+	if (abs(barycentric_coords.x + barycentric_coords.y + barycentric_coords.z - 1.0) > .0001)
+		return false;
 	return true;
 }
 
