@@ -45,7 +45,7 @@ float voronoi3D(vec3 pos) {
 void set_albedo(vec3 pos)
 {
     vec4 color = vec4(1.);
-    color.rgb = vec3(voronoi3D(pos * 10.));
+    color.rgb = vec3(voronoi3D(pos * 100.));
     imageStore(albedo, ivec2(gl_GlobalInvocationID.xy), color);
 }
 

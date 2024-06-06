@@ -30,7 +30,7 @@ static func cleanup() -> void:
 static func generate_texture_maps() -> void:
 	if skin_compute == null:
 		skin_compute = ComputeWorker.new(shader_params.shader_file)
-	if not skin_compute.initialized:
+	if true:#not skin_compute.initialized:
 		var uniforms: Array[GPUUniform] = []
 		uniforms.append(GPU_ReadonlyImage.new(uv_map, 'uv_map', 0))
 		var binding: int = 1
