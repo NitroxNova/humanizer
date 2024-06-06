@@ -8,12 +8,13 @@ extends Resource
 ## override the skin_textures function as needed
 
 ## The path to the glsl shader file
-@export_file var shader_file: String
+@export_file var shader_file: String = get_shader_file()
 ## A list of textures to be output by the shader
 @export var images := skin_textures()
 
 func _init(_file := '') -> void:
-	shader_file = _file
+	if _file != '':
+		shader_file = _file
 
 ## Gets a GPU_Multi uniform for aggregation of non-image shader parameters
 func get_uniform(binding) -> GPU_Multi:
@@ -22,3 +23,6 @@ func get_uniform(binding) -> GPU_Multi:
 
 func skin_textures() -> Array[String]:
 	return [] as Array[String]
+
+func get_shader_file() -> String:
+	return ''

@@ -404,7 +404,7 @@ func _deserialize() -> void:
 	_adjust_skeleton()
 	_fit_all_meshes()
 	_recalculate_normals()
-	var shader_parameters := DefaultSkinShader.new('res://addons/humanizer/shaders/default_skin_texture_generator.glsl')
+	var shader_parameters := DefaultSkinShader.new()
 	HumanizerShaderController.initialize(body_mesh, shader_parameters)
 
 #### Mesh Management ####
