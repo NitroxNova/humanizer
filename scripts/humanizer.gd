@@ -643,8 +643,18 @@ func set_bake_meshes(subset: String) -> void:
 
 func standard_bake() -> void:
 	set_bake_meshes('Opaque')
-	if _bake_meshes.size() > 0:
-		bake_surface()
+	if &'skin_shader' in human_config.components:
+		## If using the shader bake the skin separately as standard
+		if body_mesh != null and body_mesh in _bake_meshes:
+			_bake_meshes.erase(body_mesh)
+		if len(_bake_meshes) > 0:
+			bake_surface()
+		if body_mesh != null:
+			_bake_meshes = [body_mesh]
+			bake_surface()
+	else:
+		if _bake_meshes.size() > 0:
+			bake_surface()
 	set_bake_meshes('Transparent')
 	if _bake_meshes.size() > 0:
 		bake_surface()
@@ -677,6 +687,10 @@ func bake_surface() -> void:
 	if body_mesh != null and body_mesh in _bake_meshes:
 		_bake_meshes.erase(body_mesh)
 		hide_body_vertices()
+		## If we have the skin_shader component reset the uv map.
+		## The rects will move during the bake process
+		if &'skin_shader' in human_config.components:
+			$SkinShader.uv_map = null
 		_bake_meshes.append(body_mesh)
 		
 	if atlas_resolution == 0:
