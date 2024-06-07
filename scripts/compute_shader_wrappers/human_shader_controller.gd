@@ -2,39 +2,32 @@
 class_name HumanizerShaderController
 extends Node
 
+@export var mesh: MeshInstance3D
+@export var shader_params: SkinShaderParameters
 
-static var skin_compute: ComputeWorker
-static var uv_map: Image
-static var mesh: MeshInstance3D
-static var texture_size: Vector2i
-static var shader_params: SkinShaderParameters
+var skin_compute: ComputeWorker
+var uv_map: Image
+var texture_size: Vector2i
 
-static func initialize(_mesh: MeshInstance3D, _shader_params: SkinShaderParameters) -> void:
-	mesh = _mesh
-	## We can optimize and skip this later once it's working fully
-	## Only need to update it when shapekeys change
-	if true:#uv_map == null:
-		get_texture_space_to_object_space_map(mesh)
-		smooth_uv_map_seams()  ##  Why does this do nothing?
 
-	#var mat = mesh.get_surface_override_material(0)
-	#mat.albedo_texture = ImageTexture.create_from_image(uv_map)
-	#return
-	shader_params = _shader_params
+func _enter_tree() -> void:
+	get_texture_space_to_object_space_map(mesh)
+	smooth_uv_map_seams()  ##  Why does this do nothing?
 	generate_texture_maps()
 
-static func cleanup() -> void:
-	skin_compute.destroy()
+func _exit_tree() -> void:
+	if skin_compute != null:
+		skin_compute.destroy()
 
 ## Generate the final texture maps to put on our skin material
-static func generate_texture_maps() -> void:
+func generate_texture_maps() -> void:
 	if skin_compute == null:
 		skin_compute = ComputeWorker.new(shader_params.shader_file)
 	if true:#not skin_compute.initialized:
 		var uniforms: Array[GPUUniform] = []
 		uniforms.append(GPU_ReadonlyImage.new(uv_map, 'uv_map', 0))
 		var binding: int = 1
-		for texture in shader_params.images:
+		for texture in shader_params.skin_textures:
 			var image := Image.create(texture_size.x, texture_size.y, false, Image.FORMAT_RGBAF)
 			uniforms.append(GPU_WriteonlyImage.new(image, texture, binding))
 			binding += 1
@@ -47,12 +40,12 @@ static func generate_texture_maps() -> void:
 	skin_compute.execute()
 	
 	var material: BaseMaterial3D = mesh.get_surface_override_material(0)
-	for texture in shader_params.images:
+	for texture in shader_params.skin_textures:
 		if texture == 'albedo':
-			material.albedo_texture = ImageTexture.create_from_image(skin_compute.get_uniform_data_by_alias(texture))
+			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, ImageTexture.create_from_image(skin_compute.get_uniform_data_by_alias(texture)))
 	
 ## Generates an image representing a map from texture space to object space
-static func get_texture_space_to_object_space_map(_mesh: MeshInstance3D) -> void:
+func get_texture_space_to_object_space_map(_mesh: MeshInstance3D) -> void:
 	var uv_mapping_compute := ComputeWorker.new('res://addons/humanizer/shaders/uv_map_generator.glsl')
 	if mesh.get_surface_override_material(0).albedo_texture != null:
 		texture_size = mesh.get_surface_override_material(0).albedo_texture.get_size()
@@ -86,9 +79,10 @@ static func get_texture_space_to_object_space_map(_mesh: MeshInstance3D) -> void
 	uv_mapping_compute.execute()
 	uv_map = uv_mapping_compute.get_uniform_data_by_alias('mapping').duplicate()
 	uv_mapping_compute.destroy()
+	smooth_uv_map_seams()
 
 ## Trying to smooth out the seams of the uv map, not working
-static func smooth_uv_map_seams() -> void:
+func smooth_uv_map_seams() -> void:
 	var seam_compute := ComputeWorker.new('res://addons/humanizer/shaders/uv_map_seam_smoother.glsl')
 	var input_texture := GPU_ReadonlyImage.new(uv_map, 'input_texture', 0)
 	var output_texture := GPU_WriteonlyImage.new(uv_map, 'output_texture', 1)

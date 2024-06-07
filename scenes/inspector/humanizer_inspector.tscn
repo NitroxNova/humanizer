@@ -194,6 +194,14 @@ size_flags_vertical = 3
 tooltip_text = "Human will retain muscle and weight sliders after baking and a node will be added to control them"
 text = "Size Morphs"
 
+[node name="SkinShaderCheckBox" type="CheckBox" parent="VBoxContainer/ComponentsGridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+tooltip_text = "Adds a node that uses compute shaders to generate detailed procedural texture maps for the skin."
+text = "Skin Shader"
+
 [node name="SaccadesCheckBox" type="CheckBox" parent="VBoxContainer/ComponentsGridContainer"]
 unique_name_in_owner = true
 layout_mode = 2

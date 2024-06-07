@@ -1,6 +1,9 @@
 #[compute]
 #version 450
 
+
+// Generate an image encoding a mapping from texture space to object space
+
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
 layout(set = 0, binding = 0, std140) restrict readonly uniform n_faces_buffer {

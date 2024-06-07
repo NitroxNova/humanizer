@@ -5,6 +5,7 @@ extends SkinShaderParameters
 @export_range(0.01, 0.99, 0.01) var spot_amount: float = 0.2
 @export_range(0.005, 0.1) var spot_size: float = 0.01
 
+
 func get_uniform(binding: int) -> GPU_Multi:
 	var uniform := GPU_Multi.new([
 		GPU_Color.new(spot_color, 'spot_color'),
@@ -14,7 +15,11 @@ func get_uniform(binding: int) -> GPU_Multi:
 	uniform.uniform_type = GPUUniformSingle.UNIFORM_TYPES.UNIFORM_BUFFER
 	return uniform
 
-func skin_textures() -> Array[String]:
+func default_shader_file() -> String:
+	return 'res://addons/humanizer/shaders/default_skin_texture_generator.glsl'
+
+func default_skin_textures() -> Array[String]:
 	return [
-		'albedo', 'normal',
+		'albedo',
+		'normal',
 	]

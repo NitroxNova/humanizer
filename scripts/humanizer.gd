@@ -404,8 +404,6 @@ func _deserialize() -> void:
 	_adjust_skeleton()
 	_fit_all_meshes()
 	_recalculate_normals()
-	var shader_parameters := DefaultSkinShader.new()
-	HumanizerShaderController.initialize(body_mesh, shader_parameters)
 
 #### Mesh Management ####
 func set_body_part(bp: HumanBodyPart) -> void:
@@ -1245,6 +1243,8 @@ func set_component_state(enabled: bool, component: StringName) -> void:
 			_add_saccades()
 		elif component == &'root_bone':
 			_add_root_bone(skeleton)
+		elif component == &'skin_shader':
+			_add_skin_shader()
 	else:
 		human_config.components.erase(component)
 		if component == &'main_collider':
@@ -1266,6 +1266,8 @@ func set_component_state(enabled: bool, component: StringName) -> void:
 		elif component == &'root_bone':
 			if skeleton != null:
 				set_rig(human_config.rig)
+		elif component == &'skin_shader':
+			remove_child($SkinShader)
 
 func _add_main_collider() -> void:
 	if has_node('MainCollider'):
@@ -1329,3 +1331,10 @@ func _add_root_bone(sk: Skeleton3D) -> void:
 		return
 	sk.add_bone('Root')
 	sk.set_bone_parent(0, skeleton.get_bone_count() - 1)
+
+func _add_skin_shader() -> void:
+	var shader_controller: HumanizerShaderController = load('res://addons/humanizer/scenes/subscenes/skin_shader.tscn').instantiate()
+	shader_controller.mesh = body_mesh
+	shader_controller.shader_params = DefaultSkinShader.new()
+	_add_child_node(shader_controller)
+	move_child(shader_controller, 1)
