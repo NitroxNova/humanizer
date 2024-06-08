@@ -181,6 +181,8 @@ func reset_human() -> void:
 	set_component_state(true, &'main_collider')
 	if has_node('Saccades'):
 		_delete_child_by_name('Saccades')
+	if has_node('SkinShaderController'):
+		_delete_child_by_name('SkinShaderController')
 	notify_property_list_changed()
 
 func load_human() -> void:
@@ -274,7 +276,7 @@ func create_human_branch() -> Node3D:
 		root_node.add_child(coll)
 		coll.owner = root_node
 	if human_config.components.has(&'saccades'):
-		var saccades : Node = load("res://addons/humanizer/scenes/subscenes/saccades.tscn").instantiate()
+		var saccades : Node = Saccades.new()
 		root_node.add_child(saccades)
 		saccades.owner = root_node
 	if has_node('MorphDriver'):
@@ -286,7 +288,15 @@ func create_human_branch() -> Node3D:
 		morph_driver.mesh_paths = [NodePath('../Avatar')] as Array[NodePath]
 		root_node.add_child(morph_driver)
 		morph_driver.owner = root_node
-
+	if human_config.components.has(&'skin_shader'):
+		var skin_shader = HumanizerShaderController.new()
+		skin_shader.name = 'SkinShaderController'
+		skin_shader.shader_params = $SkinShaderController.shader_params.duplicate(true)
+		skin_shader.uv_map = $SkinShaderController.uv_map
+		skin_shader.mesh = mi
+		root_node.add_child(skin_shader)
+		skin_shader.owner = root_node
+		
 	return root_node
 
 func save_human_scene() -> void:
@@ -644,17 +654,10 @@ func set_bake_meshes(subset: String) -> void:
 func standard_bake() -> void:
 	set_bake_meshes('Opaque')
 	if &'skin_shader' in human_config.components:
-		## If using the shader bake the skin separately as standard
 		if body_mesh != null and body_mesh in _bake_meshes:
 			_bake_meshes.erase(body_mesh)
-		if len(_bake_meshes) > 0:
-			bake_surface()
-		if body_mesh != null:
-			_bake_meshes = [body_mesh]
-			bake_surface()
-	else:
-		if _bake_meshes.size() > 0:
-			bake_surface()
+	if _bake_meshes.size() > 0:
+		bake_surface()
 	set_bake_meshes('Transparent')
 	if _bake_meshes.size() > 0:
 		bake_surface()
@@ -757,7 +760,8 @@ func bake_surface() -> void:
 	if _new_shapekeys.size() > 0 :
 		var morph_driver : Node
 		if not has_node('MorphDriver'):
-			morph_driver = load("res://addons/humanizer/scenes/subscenes/morph_driver.tscn").instantiate()
+			morph_driver = HumanizerMorphs.new()
+			morph_driver.name = 'MorphDriver'
 			morph_driver.meshes = [mi]
 			morph_driver.skeleton = skeleton
 			morph_driver.bone_positions = morph_data.bone_positions
@@ -1281,7 +1285,7 @@ func set_component_state(enabled: bool, component: StringName) -> void:
 			if skeleton != null:
 				set_rig(human_config.rig)
 		elif component == &'skin_shader':
-			remove_child($SkinShader)
+			remove_child($SkinShaderController)
 
 func _add_main_collider() -> void:
 	if has_node('MainCollider'):
@@ -1321,17 +1325,18 @@ func _adjust_main_collider():
 
 func _add_saccades() -> void:
 	if human_config.rig == 'default-RETARGETED':
-		var saccades : Node = get_node_or_null('Saccades')
+		var saccades: Node = get_node_or_null('Saccades')
 		if saccades != null:
 			saccades.human = self
 			saccades.enabled = true
-			return
-		saccades = load("res://addons/humanizer/scenes/subscenes/saccades.tscn").instantiate()
-		saccades.skeleton = skeleton
-		_add_child_node(saccades)
-		move_child(saccades, 0)
-		## So you can see the effect without the animation tree overriding
-		animator.active = false 
+		else:
+			saccades = Saccades.new()
+			saccades.name = 'Saccades'
+			saccades.skeleton = skeleton
+			_add_child_node(saccades)
+			move_child(saccades, 0)
+			## So you can see the effect without the animation tree overriding
+			animator.active = false 
 	else:
 		printerr('Saccades are not compatible with the selected rig')
 		set_component_state(false, &'saccades')
@@ -1347,8 +1352,10 @@ func _add_root_bone(sk: Skeleton3D) -> void:
 	sk.set_bone_parent(0, skeleton.get_bone_count() - 1)
 
 func _add_skin_shader() -> void:
-	var shader_controller: HumanizerShaderController = load('res://addons/humanizer/scenes/subscenes/skin_shader.tscn').instantiate()
+	var shader_controller := HumanizerShaderController.new()
+	shader_controller.name = 'SkinShaderController'
 	shader_controller.mesh = body_mesh
 	shader_controller.shader_params = DefaultSkinShader.new()
 	_add_child_node(shader_controller)
-	move_child(shader_controller, 1)
+	move_child(shader_controller, 0)
+	shader_controller.generate_texture_maps()

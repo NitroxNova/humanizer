@@ -1,4 +1,5 @@
 @tool
+class_name Saccades
 extends Node
 
 @export var enabled: bool = true:

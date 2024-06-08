@@ -30,7 +30,7 @@ extends Node
 			update_shape()
 @export var mesh_paths: Array[NodePath]
 @export var skeleton: Skeleton3D
-@export var aniamtor: AnimationTree
+@export var animator: AnimationTree
 @export var bone_positions: Dictionary
 @export var skeleton_motion_scale: Dictionary
 @export var collider_shapes: Dictionary

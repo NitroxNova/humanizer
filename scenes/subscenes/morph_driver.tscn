@@ -1,9 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://dpefhcqagh62j"]
-
-[ext_resource type="Script" path="res://addons/humanizer/scripts/core/morphs.gd" id="1_wb3bp"]
-
-[node name="MorphDriver" type="Node"]
-script = ExtResource("1_wb3bp")
-age = 0.251
-muscle = 0.0
-weight = 0.412

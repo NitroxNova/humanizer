@@ -9,9 +9,9 @@ layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 layout(set = 0, binding = 0, rgba32f) restrict readonly uniform image2D uv_map;
 
-layout(set = 0, binding = 1, rgba32f) restrict writeonly uniform image2D albedo;
+layout(set = 0, binding = 1, rgba8ui) restrict writeonly uniform uimage2D albedo;
 
-layout(set = 0, binding = 2, rgba32f) restrict writeonly uniform image2D normal;
+layout(set = 0, binding = 2, rgba8ui) restrict writeonly uniform uimage2D normal;
 
 layout(set = 0, binding = 3, std140) restrict readonly uniform shader_paramters_buffer
 {
@@ -50,7 +50,7 @@ void set_albedo(vec3 pos)
 {
     vec4 color = vec4(1.);
     color.rgb = vec3(voronoi3D(pos * 100.));
-    imageStore(albedo, ivec2(gl_GlobalInvocationID.xy), color);
+    imageStore(albedo, ivec2(gl_GlobalInvocationID.xy), uvec4(color * 255.0));
 }
 
 void main()
