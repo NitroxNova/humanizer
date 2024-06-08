@@ -20,6 +20,7 @@ func update_material() -> void:
 		var image: Image = null
 		var path = overlays[0].get(texture + '_texture_path')
 		if path == '':
+			set(texture + '_texture', null)
 			continue
 		image = load(path).get_image()
 		base_size = image.get_size()
