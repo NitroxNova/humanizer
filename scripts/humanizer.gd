@@ -1358,4 +1358,3 @@ func _add_skin_shader() -> void:
 	shader_controller.shader_params = DefaultSkinShader.new()
 	_add_child_node(shader_controller)
 	move_child(shader_controller, 0)
-	shader_controller.generate_texture_maps()

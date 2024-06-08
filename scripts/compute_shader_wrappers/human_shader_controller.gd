@@ -20,8 +20,7 @@ var skin_compute: ComputeWorker
 
 func _ready() -> void:
 	if uv_map == null:
-		get_texture_space_to_object_space_map(mesh)
-		smooth_uv_map_seams()
+		HumanizerJobQueue.enqueue({'callable': self.get_texture_space_to_object_space_map})
 
 func _exit_tree() -> void:
 	if skin_compute != null:
@@ -40,7 +39,7 @@ func find_material() -> void:
 		material = mesh.mesh.surface_get_material(surf)
 	
 ## Generate the final texture maps to put on our skin material
-func generate_texture_maps() -> void:
+func generate_texture_maps(job: Dictionary) -> void:
 	print('generating texture maps')
 	if skin_compute == null:
 		skin_compute = ComputeWorker.new(shader_params.shader_file)
@@ -66,7 +65,7 @@ func generate_texture_maps() -> void:
 			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, ImageTexture.create_from_image(albedo))
 	
 ## Generates an image representing a map from texture space to object space
-func get_texture_space_to_object_space_map(_mesh: MeshInstance3D) -> void:
+func get_texture_space_to_object_space_map(job: Dictionary) -> void:
 	print('generating texture space to object space map')
 	var uv_mapping_compute := ComputeWorker.new('res://addons/humanizer/shaders/uv_map_generator.glsl')
 
@@ -96,10 +95,11 @@ func get_texture_space_to_object_space_map(_mesh: MeshInstance3D) -> void:
 
 	uv_mapping_compute.execute()
 	uv_map = uv_mapping_compute.get_uniform_data_by_alias('mapping').duplicate()
+	job.on_finished = self.smooth_uv_map_seams
 	uv_mapping_compute.destroy()
 
 ## Trying to smooth out the seams of the uv map, not working
-func smooth_uv_map_seams() -> void:
+func smooth_uv_map_seams(job: Dictionary) -> void:
 	print('smoothing uv map seams')
 	var seam_compute := ComputeWorker.new('res://addons/humanizer/shaders/uv_map_seam_smoother.glsl')
 	var input_texture := GPU_ReadonlyImage.new(uv_map, 'input_texture', 0)
@@ -109,3 +109,4 @@ func smooth_uv_map_seams() -> void:
 	seam_compute.execute()
 	uv_map = seam_compute.get_uniform_data_by_alias('output_texture').duplicate()
 	seam_compute.destroy()
+	job.on_finished = self.generate_texture_maps
