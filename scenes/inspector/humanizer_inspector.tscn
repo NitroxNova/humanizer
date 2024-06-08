@@ -159,7 +159,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-tooltip_text = "Set up a physical skeleton"
+tooltip_text = "Enables LOD generation on the character"
 text = "Level of Detail"
 
 [node name="RagdollCheckBox" type="CheckBox" parent="VBoxContainer/ComponentsGridContainer"]
@@ -199,7 +199,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-tooltip_text = "Set up a physical skeleton"
+tooltip_text = "Enable rapid eye movements (requires default rig)"
 text = "Saccades"
 
 [node name="HSeparator5" type="HSeparator" parent="VBoxContainer"]
