@@ -9,12 +9,6 @@ extends Node
 ## Chain jobs together by passing the "on_finished" key
 
 static var Instance : HumanizerJobQueue
-
-@export_range(1, 4, 1) var _n_threads: int = 1:
-	set(value):
-		_n_threads = value
-		if Instance != null:
-			Instance._n_threads = value
 var _threads : Array[Thread] = []
 var _semaphores : Array[Semaphore] = []
 var _mutex : Mutex = Mutex.new()
@@ -28,7 +22,7 @@ func _init() -> void:
 	else:
 		return
 	
-	for i in _n_threads:
+	for i in HumanizerGlobalConfig.config.job_queue_threads:
 		_threads.append(Thread.new())
 		_semaphores.append(Semaphore.new())
 		_threads[i].start(_process_queue.bind(_semaphores[i]))

@@ -66,3 +66,6 @@ extends Resource
 @export_flags_3d_render var default_character_render_layers = 1
 ## Texture atlas resolution
 @export_enum("1k:1024", "2k:2048", "4k:4096") var atlas_resolution: int = 2048
+
+@export_group('Misc')
+@export_range(1, 8) var job_queue_threads: int = 2
