@@ -436,6 +436,8 @@ func set_body_part(bp: HumanBodyPart) -> void:
 
 	if 'eyebrow' in bp.slot.to_lower():
 		eyebrow_color = eyebrow_color  ## trigger setter logic
+	elif bp.slot in ["Eyes","LeftEye","RightEye"]:
+		eye_color = eye_color
 	elif bp.slot == "Hair":
 		hair_color = hair_color
 	if human_config.transforms.has(bp.resource_name):
