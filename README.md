@@ -1,6 +1,6 @@
 Humanizer Plugin - 3D Character Creator for Godot 4  
 converted from MakeHuman and MPFB2 plugin for blender  
-download zip file from https://github.com/NitroxNova/humanizer/releases/tag/v1.0.0.beta and extract into your addons folder (make sure its just named 'humanizer')  
+download zip file from https://github.com/NitroxNova/humanizer/releases/tag/v1.0.1.beta and extract into your addons folder (make sure its just named 'humanizer')  
 features and installation - https://www.youtube.com/watch?v=HcscAIpmVgE  
 
 FEATURES:  
