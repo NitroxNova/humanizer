@@ -31,16 +31,12 @@ func set_eye_color(color: Color) -> void:
 func set_body_part(bp: HumanBodyPart) -> void:
 	super(bp)
 	_fit_body_part_mesh(bp)
-	if bp.node is HumanizerMeshInstance:
-		bp.node.material_config.update_material()
 	#adjust incase rigged assets modified skeleton
 	_adjust_skeleton()
 
 func _add_clothes_mesh(cl: HumanClothes) -> void:
 	super(cl)
 	_fit_clothes_mesh(cl)
-	if cl.node is HumanizerMeshInstance:
-		cl.node.material_config.update_material()
 	#adjust incase rigged assets modified skeleton
 	_adjust_skeleton()
 
