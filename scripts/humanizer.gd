@@ -941,7 +941,11 @@ func set_skin_texture(name: String) -> void:
 		texture = HumanizerRegistry.skin_textures[name]
 		var normal_texture = texture.get_base_dir() + '/' + name + '_normal.' + texture.get_extension()
 		if not FileAccess.file_exists(normal_texture):
-			normal_texture = ''
+			if body_mesh.material_config.overlays.size() > 0:
+				var overlay = body_mesh.material_config.overlays[0]
+				normal_texture = overlay.normal_texture_path
+			else:
+				normal_texture = ''
 		var overlay = {&'albedo': texture, &'color': skin_color, &'normal': normal_texture}
 		body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
 
