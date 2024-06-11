@@ -4,7 +4,7 @@ class_name HumanizerMaterial
 
 signal on_material_updated
 
-const textures = ['albedo', 'normal', 'ao']
+const TEXTURE_LAYERS = ['albedo', 'normal', 'ao']
 
 @export var overlays: Array[HumanizerOverlay] = []
 var albedo_texture: Texture2D
@@ -12,43 +12,38 @@ var normal_texture: Texture2D
 var ao_texture: Texture2D
 
 func update_material() -> void:
+	#print("updating material")
 	if overlays.size() == 0:
 		return
 	
-	var base_size: Vector2i 
-	for texture in textures:
+	for texture in TEXTURE_LAYERS:
 		var image: Image = null
-		var path = overlays[0].get(texture + '_texture_path')
-		if path == '':
-			continue
-		image = load(path).get_image()
-		base_size = image.get_size()
-		image.convert(Image.FORMAT_RGBA8)
-		## Blend albedo color
-		if texture == 'albedo':
-			_blend_color(image, overlays[0].color)
+		for overlay in overlays:
+			if overlay == null:
+				continue
+			var path = overlay.get(texture + '_texture_path')
+			if path == '':
+				continue
+			var overlay_image = load(path).get_image()
+			overlay_image.convert(Image.FORMAT_RGBA8)
+			
+			if texture == 'albedo':
+				#blend color with overlay texture and then copy to base image
+				_blend_color(overlay_image, overlay.color)
+			if image == null:
+				image = overlay_image
+			else:
+				image.blend_rect(overlay_image, 
+								Rect2i(Vector2i.ZERO, overlay_image.get_size()), 
+								overlay.offset)
 				
 		## TODO what if a base texture is null but overlay is not? 
 		## Need to create default base texture to overlay onto
 
-		## Blend overlay with its color then onto base texture
-		if overlays.size() > 1:
-			for ov in range(1, overlays.size()):
-				if ov == null:
-					continue
-				var overlay = overlays[ov]
-				path = overlay.get(texture + '_texture_path')
-				if path == '':
-					continue
-				var overlay_image: Image = load(path).get_image()
-				if texture == 'albedo':
-					_blend_color(overlay_image, overlay.color)
-				image.blend_rect(overlay_image, 
-								Rect2i(Vector2i.ZERO, overlay_image.get_size()), 
-								overlay.offset)
 		## Create output textures
 		if image != null:
 			image.generate_mipmaps()
+
 		set(texture + '_texture', ImageTexture.create_from_image(image) if image != null else null)
 	on_material_updated.emit()
 
