@@ -34,6 +34,4 @@ more material and overlay options
 procedurally generated skin textures    
 compute shaders and visual shaders for faster everything (maybe)  
 bone poses for clothing (like high heals)  
-  
-and if you want to help support this project, so we can continue providing free and open source tools, please donate at https://www.patreon.com/EmberlightStudios  
 
