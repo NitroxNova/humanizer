@@ -35,4 +35,5 @@ more material and overlay options
 procedurally generated skin textures    
 compute shaders and visual shaders for faster everything (maybe)  
 bone poses for clothing (like high heals)  
-
+  
+* no longer afficilated with emberlight, donations to that patreon are not received here *
