@@ -1,6 +1,6 @@
 Humanizer Plugin - 3D Character Creator for Godot 4  
-converted from MakeHuman and MPFB2 plugin for blender  
-download zip file from https://github.com/NitroxNova/humanizer/releases/tag/v1.0.1.beta and extract into your addons folder (make sure its just named 'humanizer')  
+converted from MakeHuman and MPFB2 plugin for blender - https://static.makehumancommunity.org/mpfb.html  
+download zip file from https://github.com/NitroxNova/humanizer/releases/tag/v1.0.1.beta and extract into your addons folder (make sure its named lowercase 'humanizer')  
 features and installation - https://www.youtube.com/watch?v=HcscAIpmVgE  
 
 FEATURES:  
@@ -18,7 +18,7 @@ jolt engine - https://godotengine.org/asset-library/asset/1918
   
 setup and usage (FAQ):    
 global config settings - https://www.youtube.com/watch?v=nAn8TILgigM  
-mixamo animation retargeting - https://www.youtube.com/watch?v=6eWP1-ws-JE  
+mixamo animation retargeting -  https://youtu.be/6-gsOdKq6gA  
 blender plugin setup (mpfb2, makeclothes2) - https://www.youtube.com/watch?v=UUwC_xWNlsk  
 new mpfb2 clothing import - https://youtu.be/CKi8rJdgSFY  
 rigged assets - https://www.youtube.com/watch?v=NMK_w39wKi0  
@@ -36,4 +36,4 @@ procedurally generated skin textures
 compute shaders and visual shaders for faster everything (maybe)  
 bone poses for clothing (like high heals)  
   
-* no longer afficilated with emberlight, donations to that patreon are not received here *
+* no longer affiliated with emberlight, donations to that patreon are not received here *
