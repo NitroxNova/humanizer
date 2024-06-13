@@ -1,7 +1,6 @@
 Humanizer Plugin - 3D Character Creator for Godot 4  
-converted from MakeHuman and MPFB2 plugin for blender - https://static.makehumancommunity.org/mpfb.html  
-download zip file from https://github.com/NitroxNova/humanizer/releases/tag/v1.0.1.beta and extract into your addons folder (make sure its named lowercase 'humanizer')  
-features and installation - https://www.youtube.com/watch?v=HcscAIpmVgE  
+converted from MakeHuman and MPFB2 plugin for blender   
+  - https://static.makehumancommunity.org/mpfb.html
 
 FEATURES:  
 fully customizable character weight/height/gender/race/age  
@@ -13,6 +12,11 @@ change eye, hair and skin colors with overlay system
 physical ragdolls  
 base clothing and body part assets from MakeHuman  
 
+INSTALLATION:  
+download zip file from https://github.com/NitroxNova/humanizer/releases/tag/v1.0.1.beta and extract into your addons folder (make sure its named lowercase 'humanizer')  
+features and installation - https://www.youtube.com/watch?v=HcscAIpmVgE  
+to work on the current repo version you cannot 'download zip' from the '<> code' dropdown, the resources will be corrupted. Use the /git clone or /git submodule commands instead  
+  
 optional (but higly recommended):  
 jolt engine - https://godotengine.org/asset-library/asset/1918   
   
