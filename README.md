@@ -28,6 +28,7 @@ stress testing & implications - https://www.youtube.com/watch?v=dtIaeQt59hs
 in-game example menu - https://github.com/NitroxNova/Humanizer_Example  
   
 UPCOMING:  
+english to face shapes - https://github.com/met4citizen/TalkingHead/blob/cf86ab31942bd0ee38d0e952214fcb1542dc0e67/modules/lipsync-en.mjs#L14-27  
 bake in pose (statues)  
 dismemberment  
 more material and overlay options  
