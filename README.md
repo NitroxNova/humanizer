@@ -21,14 +21,13 @@ optional (but higly recommended):
 jolt engine - https://godotengine.org/asset-library/asset/1918   
   
 setup and usage (FAQ):    
-global config settings - https://www.youtube.com/watch?v=nAn8TILgigM  
-mixamo animation retargeting -  https://youtu.be/6-gsOdKq6gA (mixamo_reduced.fbx moved to scenes/mixamo_import)  
-blender plugin setup (mpfb2, makeclothes2) - https://www.youtube.com/watch?v=UUwC_xWNlsk  
+mixamo animation import, now with Root Motion! -   https://youtu.be/i9EqQV76oeA  
 new mpfb2 clothing import - https://youtu.be/CKi8rJdgSFY  
 rigged assets - https://www.youtube.com/watch?v=NMK_w39wKi0  
 materials and overlays - https://www.youtube.com/watch?v=LnubU2OzvQA  
 adding custom shapekey targets - https://www.youtube.com/watch?v=scM3nRpdX20  
 stress testing & implications - https://www.youtube.com/watch?v=dtIaeQt59hs  
+global config settings - https://www.youtube.com/watch?v=nAn8TILgigM  
 in-game example menu - https://github.com/NitroxNova/Humanizer_Example  
   
 UPCOMING:  
