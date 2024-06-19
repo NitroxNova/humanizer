@@ -3,16 +3,18 @@
 [sub_resource type="GDScript" id="GDScript_81jgd"]
 script/source = "extends Node
 
-@export var in_folder = \"res://addons/humanizer/scenes/mixamo_import/Input/\"
-@export var out_file = \"res://addons/humanizer/scenes/mixamo_import/Output/animations.res\"
+
+@export var input_folder = \"res://addons/humanizer/scenes/mixamo_import/Input/\"
+@export var output_name = \"animations\"
+@export var output_folder = \"res://addons/humanizer/scenes/mixamo_import/Output/\"
 @export var add_root = true
 
 func _ready():
 	#replace .gdignore file
-	FileAccess.open(in_folder.path_join(\".gdignore\"), FileAccess.WRITE).store_string(\"\")
+	FileAccess.open(input_folder.path_join(\".gdignore\"), FileAccess.WRITE).store_string(\"\")
 	
 	var anim_lib = AnimationLibrary.new()
-	for file_name in OSPath.get_files(in_folder):
+	for file_name in OSPath.get_files(input_folder):
 		if file_name.get_extension() == \"fbx\":
 			var curr_lib : AnimationLibrary = load(file_name)
 			var loop = false
@@ -38,7 +40,12 @@ func _ready():
 							anim.track_set_key_value(hips_pos_track,key,hips_pos)
 				#assuming theres only 1 animation per fbx file (standard mixamo output)
 				anim_lib.add_animation(file_name.get_file().get_basename(),anim)
-	ResourceSaver.save(anim_lib,out_file)
+	var file_name = output_folder.path_join(output_name+\".res\")
+	var increment = 2
+	while FileAccess.file_exists(file_name):
+		file_name = output_folder.path_join(output_name + str(increment) + \".res\")
+		increment += 1
+	ResourceSaver.save(anim_lib,file_name)
 
 
 "
