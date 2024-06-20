@@ -1,2 +1,10 @@
+1.1.0-beta  
+added animation retargeting for ANY skeleton, so mixamo packs can be imported without blender  
+root motion toggle for animation import    
+
+1.0.1-beta  
+fixed more bugs with materials and normals   
+
+1.0.0-beta  
 Updated HumanizerMaterial API, Can now remove overlays by reference, index, or name.
 Fixed bug where changing assets did not keep the assigned color.
