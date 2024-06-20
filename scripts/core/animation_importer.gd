@@ -12,7 +12,6 @@ extends Node
 @export var add_root = true
 
 func create_import_settings():
-	DirAccess.remove_absolute(input_folder.path_join(".gdignore"))
 	var import_text = FileAccess.open("res://addons/humanizer/data/animations/import_settings.txt", FileAccess.READ).get_as_text()
 	var ep = EditorPlugin.new()
 	for file_name in OSPath.get_files(input_folder):
@@ -21,16 +20,9 @@ func create_import_settings():
 			FileAccess.open(import_filename, FileAccess.WRITE).store_string(import_text.replace("FBX_FILE_NAME",file_name))
 			ep.get_editor_interface().get_resource_filesystem().update_file(file_name)
 			ep.get_editor_interface().get_resource_filesystem().reimport_files(PackedStringArray([file_name]))
-	
-
-	#ep.get_editor_interface().get_resource_filesystem().scan()
 	ep.free()
 
-
 func create_animation_resource():
-	#replace .gdignore file
-	FileAccess.open(input_folder.path_join(".gdignore"), FileAccess.WRITE).store_string("")
-	
 	var anim_lib = AnimationLibrary.new()
 	for file_name in OSPath.get_files(input_folder):
 		if file_name.get_extension() == "fbx":
@@ -64,3 +56,7 @@ func create_animation_resource():
 		file_name = output_folder.path_join(output_name + str(increment) + ".res")
 		increment += 1
 	ResourceSaver.save(anim_lib,file_name)
+	
+	#replace .gdignore file - although it should still be there, but just in case
+	FileAccess.open(input_folder.path_join(".gdignore"), FileAccess.WRITE).store_string("")
+	
