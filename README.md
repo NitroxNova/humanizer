@@ -13,7 +13,7 @@ physical ragdolls
 base clothing and body part assets from MakeHuman  
 
 INSTALLATION:  
-download zip file from https://github.com/NitroxNova/humanizer/releases/tag/v1.0.1.beta and extract into your addons folder (make sure its named lowercase 'humanizer')  
+download zip file from https://github.com/NitroxNova/humanizer/releases/tag/v1.1.0.beta and extract into your addons folder (make sure its named lowercase 'humanizer')  
 features and installation - https://www.youtube.com/watch?v=HcscAIpmVgE  
 to work on the current repo version you cannot 'download zip' from the '<> code' dropdown, the resources will be corrupted. Use the /git clone or /git submodule commands instead  
   
@@ -21,7 +21,7 @@ optional (but higly recommended):
 jolt engine - https://godotengine.org/asset-library/asset/1918   
   
 setup and usage (FAQ):    
-mixamo animation import, now with Root Motion! -   https://youtu.be/i9EqQV76oeA  
+mixamo animation import, works with animation packs or single animations, now with Root Motion! - https://youtu.be/_TsO6bwbGsM  
 new mpfb2 clothing import - https://youtu.be/CKi8rJdgSFY  
 rigged assets - https://www.youtube.com/watch?v=NMK_w39wKi0  
 materials and overlays - https://www.youtube.com/watch?v=LnubU2OzvQA  
