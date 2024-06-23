@@ -1,3 +1,7 @@
+1.2.0-beta  
+remove lfs tracking as it was going over the limit, and place shapekey data into seperate files so they are less than 100mb  
+this will probably break all previous releases   
+
 1.1.0-beta  
 added animation retargeting for ANY skeleton, so mixamo packs can be imported without blender  
 root motion toggle for animation import    
