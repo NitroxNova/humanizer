@@ -26,9 +26,15 @@ static func save_json(file_path, data):
 
 static func get_shapekey_data() -> Dictionary:
 	var shapekey_data: Dictionary
-	var file := FileAccess.open("res://addons/humanizer/data/resources/shapekeys.dat", FileAccess.READ)	
-	shapekey_data = file.get_var(true)
-	file.close()
+	shapekey_data.shapekeys = {}
+	for file_path in OSPath.get_files("res://addons/humanizer/data/resources/shapekey/"):
+		var file := FileAccess.open(file_path, FileAccess.READ)	
+		if file_path.get_file() == "_base_data.dat":
+			shapekey_data.basis = file.get_var(true)
+			shapekey_data.macro_shapekeys = file.get_var(true)
+		else:
+			shapekey_data.shapekeys.merge(file.get_var(true))
+		file.close()
 	return shapekey_data
 
 static var _shapekey_data: Dictionary = {}
