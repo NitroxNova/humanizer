@@ -5,6 +5,15 @@ class_name HumanAsset
 @export_dir var path: String
 @export var default_overlay: HumanizerOverlay = null
 @export var rigged: bool = false
+@export var textures: Dictionary
+@export var slots: Array[String]
+
+#@export var slot: String:
+	#set(value):
+		#if value not in HumanizerGlobalConfig.config.body_part_slots:
+			#printerr('Undefined slot ' + value)
+		#else:
+			#slot = value
 
 var scene_path: String:
 	get:

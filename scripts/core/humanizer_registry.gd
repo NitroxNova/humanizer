@@ -25,11 +25,12 @@ static func load_all() -> void:
 
 static func add_body_part_asset(asset: HumanBodyPart) -> void:
 	#print('Registering body part ' + asset.resource_name)
-	if not body_parts.has(asset.slot):
-		body_parts[asset.slot] = {}
-	if body_parts[asset.slot].has(asset.resource_name):
-		body_parts[asset.slot].erase(asset.resource_name)
-	body_parts[asset.slot][asset.resource_name] = asset
+	var slot = asset.slots[0]
+	if not body_parts.has(slot):
+		body_parts[slot] = {}
+	if body_parts[slot].has(asset.resource_name):
+		body_parts[slot].erase(asset.resource_name)
+	body_parts[slot][asset.resource_name] = asset
 
 static func add_clothes_asset(asset: HumanClothes) -> void:
 	#print('Registering clothes ' + asset.resource_name)

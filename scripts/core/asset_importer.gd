@@ -180,8 +180,8 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
 		for tag in data.mhclo.tags:
 			if tag in HumanizerGlobalConfig.config.body_part_slots:
-				resource.slot = tag
-		if resource.slot in ['', null]:
+				resource.slots.append(tag)
+		if resource.slots[0] in ['', null]:
 			printerr('Slot not recognized.  Check your mhclo tags.')
 			return
 		if HumanizerRegistry.body_parts.has(slot):

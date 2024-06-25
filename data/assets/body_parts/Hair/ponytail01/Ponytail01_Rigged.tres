@@ -1,13 +1,13 @@
-[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=2 format=3 uid="uid://d3f1p6084pj1t"]
+[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=2 format=3 uid="uid://bpci7gfcrec23"]
 
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="1_rcdyo"]
 
 [resource]
 resource_name = "Ponytail01_Rigged"
 script = ExtResource("1_rcdyo")
-slot = "Hair"
+path = "res://addons/humanizer/data/assets/body_parts/Hair/ponytail01"
+rigged = true
 textures = {
 "ponytail01_diffuse": "res://addons/humanizer/data/assets/body_parts/Hair/ponytail01/ponytail01_diffuse.png"
 }
-path = "res://addons/humanizer/data/assets/body_parts/Hair/ponytail01"
-rigged = true
+slots = Array[String](["Hair"])

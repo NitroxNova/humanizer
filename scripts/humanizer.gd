@@ -412,12 +412,13 @@ func set_body_part(bp: HumanBodyPart) -> void:
 		notify_property_list_changed()
 		return
 	var rig_changed = bp.rigged #rebuild skeleton if the new asset or the removed assets have a rig
-	if human_config.body_parts.has(bp.slot):
-		var current = human_config.body_parts[bp.slot]
+	var slot = bp.slots[0]
+	if human_config.body_parts.has(slot):
+		var current = human_config.body_parts[slot]
 		if current.rigged:
 			rig_changed = true
 		_delete_child_by_name(current.resource_name)
-	human_config.body_parts[bp.slot] = bp
+	human_config.body_parts[slot] = bp
 	var mi = load(bp.scene_path).instantiate() as MeshInstance3D
 	mi.name = bp.resource_name
 	bp.node = mi
@@ -425,8 +426,8 @@ func set_body_part(bp: HumanBodyPart) -> void:
 		_setup_overlay_material(bp, human_config.material_configs.get(bp.resource_name))
 	else:
 		mi.get_surface_override_material(0).resource_local_to_scene = true
-	if not human_config.body_part_materials.has(bp.slot):
-		set_body_part_material(bp.slot, Random.choice(bp.textures.keys()))
+	if not human_config.body_part_materials.has(slot):
+		set_body_part_material(slot, Random.choice(bp.textures.keys()))
 	_add_child_node(mi)
 	
 	if rig_changed:
@@ -434,11 +435,11 @@ func set_body_part(bp: HumanBodyPart) -> void:
 	else:
 		_add_bone_weights(bp)
 
-	if 'eyebrow' in bp.slot.to_lower():
+	if 'eyebrow' in slot.to_lower():
 		eyebrow_color = eyebrow_color  ## trigger setter logic
-	elif bp.slot in ["Eyes","LeftEye","RightEye"]:
+	elif slot in ["Eyes","LeftEye","RightEye"]:
 		eye_color = eye_color
-	elif bp.slot == "Hair":
+	elif slot == "Hair":
 		hair_color = hair_color
 	if human_config.transforms.has(bp.resource_name):
 		bp.node.transform = Transform3D(human_config.transforms[bp.resource_name])
@@ -991,13 +992,15 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 	else:
 		var mat: BaseMaterial3D = mi.get_surface_override_material(0)
 		mat.albedo_texture = load(bp.textures[texture])
-	if bp.slot in ['LeftEye', 'RightEye', 'Eyes']:
+	var slot = bp.slots[0]
+	if slot in ['LeftEye', 'RightEye', 'Eyes']:
 		var iris: HumanizerOverlay = mi.material_config.overlays[1]
 		iris.color = eye_color
 		mi.material_config.set_overlay(1, iris)	
-	if bp.slot in ['RightEyebrow', 'LeftEyebrow', 'Eyebrows']:
+		mi.material_config.update_material()
+	if slot in ['RightEyebrow', 'LeftEyebrow', 'Eyebrows']:
 		mi.get_surface_override_material(0).albedo_color = Color(hair_color * eyebrow_color_weight, 1) 
-	elif bp.slot == 'Hair':
+	elif slot == 'Hair':
 		mi.get_surface_override_material(0).albedo_color = hair_color
 	notify_property_list_changed()
 

@@ -1,13 +1,13 @@
-[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=2 format=3 uid="uid://bbtukotd0663d"]
+[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=2 format=3 uid="uid://fm5uaf8l465l"]
 
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="1_f01sq"]
 
 [resource]
 resource_name = "FalseLeftEyelash"
 script = ExtResource("1_f01sq")
-slot = "LeftEyelash"
+path = "res://addons/humanizer/data/assets/body_parts/Eyelashes/false_eyelashes"
+rigged = false
 textures = {
 "eyelashes04": "res://addons/humanizer/data/assets/body_parts/Eyelashes/false_eyelashes/eyelashes04.png"
 }
-path = "res://addons/humanizer/data/assets/body_parts/Eyelashes/false_eyelashes"
-rigged = false
+slots = Array[String](["LeftEyelash"])

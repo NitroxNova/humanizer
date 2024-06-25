@@ -5,10 +5,10 @@
 [resource]
 resource_name = "Shoes01"
 script = ExtResource("1_tg7sa")
-slots = Array[String](["Feet"])
+path = "res://addons/humanizer/data/assets/clothes/shoes/shoes01"
+rigged = false
 textures = {
 "black_diffuse": "res://addons/humanizer/data/assets/clothes/shoes/shoes01/black_diffuse.png",
 "brown_diffuse": "res://addons/humanizer/data/assets/clothes/shoes/shoes01/brown_diffuse.png"
 }
-path = "res://addons/humanizer/data/assets/clothes/shoes/shoes01"
-rigged = false
+slots = Array[String](["Feet"])

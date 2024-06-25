@@ -1,8 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://bj4eswav4r1pd"]
+[gd_scene load_steps=3 format=3 uid="uid://by3i3v0cpf3jk"]
 
-[ext_resource type="ArrayMesh" uid="uid://deqr5js3u6qn1" path="res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/RightEyeball-LowPoly_mesh.res" id="1_a6l5f"]
-[ext_resource type="Material" uid="uid://d0icqv16td5q3" path="res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/Eyeballs_material.res" id="2_vi08a"]
+[ext_resource type="ArrayMesh" uid="uid://blwbmotnmfgl7" path="res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/RightEyeball-LowPoly_mesh.res" id="1_xj6i0"]
+[ext_resource type="Material" uid="uid://d0icqv16td5q3" path="res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/Eyeballs_material.res" id="2_yhghs"]
 
 [node name="RightEyeball-LowPoly" type="MeshInstance3D"]
-mesh = ExtResource("1_a6l5f")
-surface_material_override/0 = ExtResource("2_vi08a")
+mesh = ExtResource("1_xj6i0")
+surface_material_override/0 = ExtResource("2_yhghs")

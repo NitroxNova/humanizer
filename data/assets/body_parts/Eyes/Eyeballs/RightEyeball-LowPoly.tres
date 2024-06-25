@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=4 format=3 uid="uid://sejcvoq5frp5"]
+[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=4 format=3 uid="uid://cbhr5qax32ebs"]
 
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="1_2dig7"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="2_tg3fk"]
 
-[sub_resource type="Resource" id="Resource_5mnub"]
+[sub_resource type="Resource" id="Resource_264vt"]
 resource_name = "overlay_iris"
 script = ExtResource("1_2dig7")
 albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/overlay_iris_albedo.png"
@@ -15,10 +15,10 @@ offset = Vector2i(0, 0)
 [resource]
 resource_name = "RightEyeball-LowPoly"
 script = ExtResource("2_tg3fk")
-slot = "RightEye"
+path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs"
+default_overlay = SubResource("Resource_264vt")
+rigged = false
 textures = {
 "eyeball_albedo": "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/eyeball_albedo.png"
 }
-path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs"
-default_overlay = SubResource("Resource_5mnub")
-rigged = false
+slots = Array[String](["RightEye"])

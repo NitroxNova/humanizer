@@ -1,13 +1,13 @@
-[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=2 format=3 uid="uid://dm2i1dr74vh37"]
+[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=2 format=3 uid="uid://d0bdwftamp3db"]
 
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="1_jubhi"]
 
 [resource]
 resource_name = "Teeth00"
 script = ExtResource("1_jubhi")
-slot = "Teeth"
+path = "res://addons/humanizer/data/assets/body_parts/Teeth/basic_teeth"
+rigged = false
 textures = {
 "teeth": "res://addons/humanizer/data/assets/body_parts/Teeth/basic_teeth/teeth.png"
 }
-path = "res://addons/humanizer/data/assets/body_parts/Teeth/basic_teeth"
-rigged = false
+slots = Array[String](["Teeth"])

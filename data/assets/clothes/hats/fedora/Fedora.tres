@@ -5,9 +5,9 @@
 [resource]
 resource_name = "Fedora"
 script = ExtResource("1_nan42")
-slots = Array[String](["Head"])
+path = "res://addons/humanizer/data/assets/clothes/hats/fedora"
+rigged = false
 textures = {
 "fedora_diffuse": "res://addons/humanizer/data/assets/clothes/hats/fedora/fedora_diffuse.png"
 }
-path = "res://addons/humanizer/data/assets/clothes/hats/fedora"
-rigged = false
+slots = Array[String](["Head"])

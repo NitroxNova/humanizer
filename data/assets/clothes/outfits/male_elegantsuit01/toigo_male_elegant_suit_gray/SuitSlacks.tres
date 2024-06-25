@@ -5,9 +5,9 @@
 [resource]
 resource_name = "SuitSlacks"
 script = ExtResource("1_wfw5w")
-slots = Array[String](["Legs"])
+path = "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_gray"
+rigged = false
 textures = {
 "male_elegantsuit01_Gray": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_gray/male_elegantsuit01_Gray.png"
 }
-path = "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/toigo_male_elegant_suit_gray"
-rigged = false
+slots = Array[String](["Legs"])
