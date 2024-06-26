@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="HumanClothes" load_steps=2 format=3 uid="uid://bmrtnu6a74b4v"]
+[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://bfalx66c84k1t"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_clothes.gd" id="1_nan42"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_ep5bk"]
 
 [resource]
 resource_name = "Fedora"
-script = ExtResource("1_nan42")
+script = ExtResource("1_ep5bk")
 path = "res://addons/humanizer/data/assets/clothes/hats/fedora"
 rigged = false
 textures = {

@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="HumanClothes" load_steps=2 format=3 uid="uid://ueirwibwr3gd"]
+[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://b8add2iib6qfi"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_clothes.gd" id="1_3gcuq"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_k7hss"]
 
 [resource]
 resource_name = "SuitTop"
-script = ExtResource("1_3gcuq")
+script = ExtResource("1_k7hss")
 path = "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01"
 rigged = false
 textures = {

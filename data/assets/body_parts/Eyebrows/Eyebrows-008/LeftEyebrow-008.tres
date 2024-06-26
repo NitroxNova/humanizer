@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=2 format=3 uid="uid://cgpjj5pakwuv2"]
+[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://gt6vorx184on"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="1_vi28p"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_hv6la"]
 
 [resource]
 resource_name = "LeftEyebrow-008"
-script = ExtResource("1_vi28p")
+script = ExtResource("1_hv6la")
 path = "res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-008"
 rigged = false
 textures = {

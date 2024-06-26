@@ -1,8 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://dlulwhtmdl1i4"]
+[gd_scene load_steps=3 format=3 uid="uid://bre3knaomcsi5"]
 
-[ext_resource type="ArrayMesh" uid="uid://5r1buayvc3ym" path="res://addons/humanizer/data/assets/clothes/hats/fedora/Fedora-Cocked_mesh.res" id="1_tcbc6"]
-[ext_resource type="Material" uid="uid://dfoko8jbyocnl" path="res://addons/humanizer/data/assets/clothes/hats/fedora/fedora_material.res" id="2_g5dk7"]
+[ext_resource type="ArrayMesh" uid="uid://2inlkqriqoys" path="res://addons/humanizer/data/assets/clothes/hats/fedora/Fedora-Cocked_mesh.res" id="1_ve27x"]
+[ext_resource type="Material" uid="uid://dfoko8jbyocnl" path="res://addons/humanizer/data/assets/clothes/hats/fedora/fedora_material.res" id="2_tqjuj"]
 
 [node name="Fedora-Cocked" type="MeshInstance3D"]
-mesh = ExtResource("1_tcbc6")
-surface_material_override/0 = ExtResource("2_g5dk7")
+mesh = ExtResource("1_ve27x")
+surface_material_override/0 = ExtResource("2_tqjuj")

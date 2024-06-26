@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="HumanClothes" load_steps=2 format=3 uid="uid://dst3h31r6jekp"]
+[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://pp1vw0uuhega"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_clothes.gd" id="1_7vu8i"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_cknoa"]
 
 [resource]
 resource_name = "SkinnyJeans"
-script = ExtResource("1_7vu8i")
+script = ExtResource("1_cknoa")
 path = "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01"
 rigged = false
 textures = {

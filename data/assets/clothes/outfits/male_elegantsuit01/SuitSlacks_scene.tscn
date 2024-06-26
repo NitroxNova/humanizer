@@ -1,8 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://ddyfhuhiwcyts"]
+[gd_scene load_steps=3 format=3 uid="uid://dk1hafjw36iyt"]
 
-[ext_resource type="ArrayMesh" uid="uid://b8khbtxyv4g38" path="res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/SuitSlacks_mesh.res" id="1_nyjku"]
-[ext_resource type="Material" uid="uid://uvy640vqisu8" path="res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/male_elegantsuit01_material.res" id="2_6xkai"]
+[ext_resource type="ArrayMesh" uid="uid://b4b50hi7qjtns" path="res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/SuitSlacks_mesh.res" id="1_l0jfe"]
+[ext_resource type="Material" uid="uid://uvy640vqisu8" path="res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/male_elegantsuit01_material.res" id="2_vikux"]
 
 [node name="SuitSlacks" type="MeshInstance3D"]
-mesh = ExtResource("1_nyjku")
-surface_material_override/0 = ExtResource("2_6xkai")
+mesh = ExtResource("1_l0jfe")
+surface_material_override/0 = ExtResource("2_vikux")

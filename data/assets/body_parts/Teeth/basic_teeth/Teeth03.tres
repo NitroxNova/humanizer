@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=2 format=3 uid="uid://bvw888e5rk24a"]
+[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://5ne0grhdr38k"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="1_cokuu"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_jp6e2"]
 
 [resource]
 resource_name = "Teeth03"
-script = ExtResource("1_cokuu")
+script = ExtResource("1_jp6e2")
 path = "res://addons/humanizer/data/assets/body_parts/Teeth/basic_teeth"
 rigged = false
 textures = {

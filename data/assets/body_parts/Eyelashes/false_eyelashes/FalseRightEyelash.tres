@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="HumanBodyPart" load_steps=2 format=3 uid="uid://bvkfagkd2u81b"]
+[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://c0468o167eln2"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_body_part.gd" id="1_mb2wa"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_00ixu"]
 
 [resource]
 resource_name = "FalseRightEyelash"
-script = ExtResource("1_mb2wa")
+script = ExtResource("1_00ixu")
 path = "res://addons/humanizer/data/assets/body_parts/Eyelashes/false_eyelashes"
 rigged = false
 textures = {

@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="HumanClothes" load_steps=2 format=3 uid="uid://dxpbcd2n8dqc"]
+[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://c326vk8dmdlpi"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_clothes.gd" id="1_mgbbg"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_vcbra"]
 
 [resource]
 resource_name = "MakeHumanTShirt"
-script = ExtResource("1_mgbbg")
+script = ExtResource("1_vcbra")
 path = "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01"
 rigged = false
 textures = {
