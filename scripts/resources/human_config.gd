@@ -2,10 +2,10 @@
 class_name HumanConfig
 extends Resource
 
-signal body_part_equipped(bp: HumanBodyPart)
-signal body_part_removed(bp: HumanBodyPart)
-signal clothes_equipped(cl: HumanClothes)
-signal clothes_removed(cl: HumanClothes)
+signal body_part_equipped(bp: HumanAsset)
+signal body_part_removed(bp: HumanAsset)
+signal clothes_equipped(cl: HumanAsset)
+signal clothes_removed(cl: HumanAsset)
 
 
 ## Rig
@@ -38,7 +38,7 @@ signal clothes_removed(cl: HumanClothes)
 @export var material_configs := {}
 
 
-func set_body_part(bp: HumanBodyPart) -> void:
+func set_body_part(bp: HumanAsset) -> void:
 	if body_parts.has(bp.slot):
 		remove_body_part(bp.slot)
 	body_parts[bp.slot] = bp	
@@ -51,7 +51,7 @@ func remove_body_part(slot: String) -> void:
 	body_parts.erase(slot)
 	body_part_removed.emit(current)
 	
-func apply_clothes(cl: HumanClothes) -> void:
+func apply_clothes(cl: HumanAsset) -> void:
 	for wearing in clothes:
 		for slot in cl.slots:
 			if slot in wearing.slots:
@@ -59,6 +59,6 @@ func apply_clothes(cl: HumanClothes) -> void:
 	clothes.append(cl)
 	clothes_equipped.emit(cl)
 	
-func remove_clothes(cl: HumanClothes) -> void:
+func remove_clothes(cl: HumanAsset) -> void:
 	clothes.erase(cl)
 	clothes_removed.emit(cl)

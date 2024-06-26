@@ -24,17 +24,17 @@ func set_eye_color(color: Color) -> void:
 	for slot in [&'RightEye', &'LeftEye', &'Eyes']:
 		if not human_config.body_parts.has(slot):
 			continue
-		var bp: HumanBodyPart = human_config.body_parts[slot]
+		var bp: HumanAsset = human_config.body_parts[slot]
 		if bp.node is HumanizerMeshInstance:
 			bp.node.material_config.update_material()
 
-func set_body_part(bp: HumanBodyPart) -> void:
+func set_body_part(bp: HumanAsset) -> void:
 	super(bp)
 	_fit_body_part_mesh(bp)
 	#adjust incase rigged assets modified skeleton
 	_adjust_skeleton()
 
-func _add_clothes_mesh(cl: HumanClothes) -> void:
+func _add_clothes_mesh(cl: HumanAsset) -> void:
 	super(cl)
 	_fit_clothes_mesh(cl)
 	#adjust incase rigged assets modified skeleton

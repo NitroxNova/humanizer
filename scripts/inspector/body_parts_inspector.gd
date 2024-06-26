@@ -9,7 +9,7 @@ var asset_option_buttons := {}
 var texture_option_buttons := {}
 var config: HumanConfig
 
-signal body_part_changed(bp: HumanBodyPart)
+signal body_part_changed(bp: HumanAsset)
 signal body_slot_cleared(slot: String)
 signal material_set(slot: String, texture: String)
 
@@ -73,7 +73,7 @@ func build_grid() -> void:
 
 func fill_table(config: HumanConfig) -> void:
 	for slot in config.body_parts:
-		var bp: HumanBodyPart = config.body_parts[slot]
+		var bp: HumanAsset = config.body_parts[slot]
 		var options = asset_option_buttons[slot] as OptionButton
 		for option in options.item_count:
 			if options.get_item_text(option) == bp.resource_name:

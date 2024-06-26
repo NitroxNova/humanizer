@@ -23,7 +23,7 @@ static func load_all() -> void:
 	_load_clothes()
 	_get_skin_textures()
 
-static func add_body_part_asset(asset: HumanBodyPart) -> void:
+static func add_body_part_asset(asset: HumanAsset) -> void:
 	#print('Registering body part ' + asset.resource_name)
 	var slot = asset.slots[0]
 	if not body_parts.has(slot):
@@ -32,14 +32,14 @@ static func add_body_part_asset(asset: HumanBodyPart) -> void:
 		body_parts[slot].erase(asset.resource_name)
 	body_parts[slot][asset.resource_name] = asset
 
-static func add_clothes_asset(asset: HumanClothes) -> void:
+static func add_clothes_asset(asset: HumanAsset) -> void:
 	#print('Registering clothes ' + asset.resource_name)
 	if clothes.has(asset.resource_name):
 		clothes.erase(asset.resource_name)
 	clothes[asset.resource_name] = asset
 
-static func filter_clothes(filter: Dictionary) -> Array[HumanClothes]:
-	var filtered_clothes: Array[HumanClothes]
+static func filter_clothes(filter: Dictionary) -> Array[HumanAsset]:
+	var filtered_clothes: Array[HumanAsset]
 	for cl in clothes.values():
 		for key in filter:
 			if key == &'slot':
@@ -118,9 +118,6 @@ static func _scan_dir(path: String, asset_type: AssetType) -> void:
 			continue
 		if asset_type == AssetType.BodyPart:
 			var asset = load(file)
-			if asset is HumanClothes:
-				printerr(file.get_file() + ' was imported as clothes but should be a body part.  Please Re-import.')
-				continue
 			add_body_part_asset(asset)
 		else:
 			add_clothes_asset(load(file))

@@ -152,12 +152,7 @@ func _generate_material(path: String, textures: Dictionary) -> void:
 
 func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	# Build resource object
-	var resource: HumanAsset
-	if asset_type == HumanizerRegistry.AssetType.BodyPart:
-		resource = HumanBodyPart.new()
-	elif asset_type == HumanizerRegistry.AssetType.Clothes:
-		resource = HumanClothes.new()
-
+	var resource := HumanAsset.new()
 	# Mesh operations
 	data.mesh = _build_import_mesh(path, data.mhclo)
 	

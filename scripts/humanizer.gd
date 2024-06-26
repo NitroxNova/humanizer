@@ -341,11 +341,11 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 	var res: HumanAsset = null
 	for slot in human_config.body_parts:
 		if human_config.body_parts[slot].resource_name == mesh_name:
-			res = human_config.body_parts[slot] as HumanBodyPart
+			res = human_config.body_parts[slot]
 	if res == null:
 		for cl in human_config.clothes:
 			if cl.resource_name == mesh_name:
-				res = cl as HumanClothes
+				res = cl 
 	return res
 
 func _deserialize() -> void:
@@ -356,9 +356,9 @@ func _deserialize() -> void:
 	_set_shapekey_data(sk)
 
 	## Load Assets
-	for bp: HumanBodyPart in human_config.body_parts.values():
+	for bp: HumanAsset in human_config.body_parts.values():
 		set_body_part(bp)
-	for cl: HumanClothes in human_config.clothes:
+	for cl: HumanAsset in human_config.clothes:
 		_add_clothes_mesh(cl)
 		
 	## Load materials with overlays
@@ -369,10 +369,10 @@ func _deserialize() -> void:
 	
 	## Load textures for non-overlay materials
 	for slot: String in human_config.body_parts:
-		var bp: HumanBodyPart = human_config.body_parts[slot]
+		var bp: HumanAsset = human_config.body_parts[slot]
 		if bp.node and not bp.node is HumanizerMeshInstance:
 			set_body_part_material(slot, human_config.body_part_materials[slot])
-	for cl: HumanClothes in human_config.clothes:
+	for cl: HumanAsset in human_config.clothes:
 		if cl.node and not cl.node is HumanizerMeshInstance:
 			set_clothes_material(cl.resource_name, human_config.clothes_materials[cl.resource_name])
 
@@ -406,7 +406,7 @@ func _deserialize() -> void:
 	_recalculate_normals()
 
 #### Mesh Management ####
-func set_body_part(bp: HumanBodyPart) -> void:
+func set_body_part(bp: HumanAsset) -> void:
 	if baked:
 		push_warning("Can't change body parts.  Already baked")
 		notify_property_list_changed()
@@ -460,7 +460,7 @@ func clear_body_part(clear_slot: String) -> void:
 				set_rig(human_config.rig) #remove bones from previous asset
 			return
 
-func apply_clothes(cl: HumanClothes) -> void:
+func apply_clothes(cl: HumanAsset) -> void:
 	if baked:
 		push_warning("Can't change clothes.  Already baked")
 		notify_property_list_changed()
@@ -473,7 +473,7 @@ func apply_clothes(cl: HumanClothes) -> void:
 	_add_clothes_mesh(cl)
 	notify_property_list_changed()
 
-func _add_clothes_mesh(cl: HumanClothes) -> void:
+func _add_clothes_mesh(cl: HumanAsset) -> void:
 	if not cl in human_config.clothes:
 		human_config.clothes.append(cl)
 	var mi = load(cl.scene_path).instantiate()
@@ -500,7 +500,7 @@ func clear_clothes_in_slot(slot: String) -> void:
 			#print('clearing ' + cl.resource_name + ' clothes')
 			remove_clothes(cl)
 
-func remove_clothes(cl: HumanClothes) -> void:
+func remove_clothes(cl: HumanAsset) -> void:
 	if baked:
 		push_warning("Can't change clothes.  Already baked")
 		notify_property_list_changed()
@@ -532,7 +532,7 @@ func hide_body_vertices() -> void:
 		if not child is MeshInstance3D:
 			continue
 		var res: HumanAsset = _get_asset_by_name(child.name)
-		if res is HumanClothes or res is HumanBodyPart:
+		if not res == null:
 			var mhclo : MHCLO = load(res.mhclo_path)
 			for entry in mhclo.delete_vertices:
 					if entry.size() == 1:
@@ -562,7 +562,7 @@ func hide_clothes_vertices():
 		if not child is MeshInstance3D:
 			continue
 		var res: HumanAsset = _get_asset_by_name(child.name)
-		if res is HumanClothes or res is HumanBodyPart:
+		if res != null:
 			depth_sorted_clothes.append(child)
 	
 	depth_sorted_clothes.sort_custom(_sort_clothes_by_z_depth)
@@ -806,7 +806,7 @@ func _fit_body_mesh() -> void:
 	mesh.clear_surfaces()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], {}, fmt)
 
-func _fit_body_part_mesh(bp: HumanBodyPart) -> void:
+func _fit_body_part_mesh(bp: HumanAsset) -> void:
 	if bp.node == null:
 		return
 	var mhclo: MHCLO = load(bp.mhclo_path)
@@ -814,7 +814,7 @@ func _fit_body_part_mesh(bp: HumanBodyPart) -> void:
 	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
 	bp.node.mesh = new_mesh
 
-func _fit_clothes_mesh(cl: HumanClothes) -> void:
+func _fit_clothes_mesh(cl: HumanAsset) -> void:
 	if cl.node == null:
 		return
 	var mhclo: MHCLO = load(cl.mhclo_path)
@@ -976,7 +976,7 @@ func set_body_part_material(set_slot: String, texture: String) -> void:
 	if baked:
 		printerr('Cannot change materials. Already baked.')
 		return
-	var bp: HumanBodyPart = human_config.body_parts[set_slot]
+	var bp: HumanAsset = human_config.body_parts[set_slot]
 	if bp.node == null:
 		return
 	var mi = bp.node as MeshInstance3D
@@ -1009,7 +1009,7 @@ func set_clothes_material(cl_name: String, texture: String) -> void:
 	if baked:
 		printerr('Cannot change materials. Already baked.')
 		return
-	var cl: HumanClothes
+	var cl: HumanAsset
 	for c in human_config.clothes:
 		if c.resource_name == cl_name:
 			cl = c

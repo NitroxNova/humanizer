@@ -10,7 +10,7 @@ var asset_option_buttons := {}
 var material_option_buttons := {}
 var config: HumanConfig
 
-signal clothes_changed(cl: HumanClothes)
+signal clothes_changed(cl: HumanAsset)
 signal clothes_cleared(slot: String)
 signal material_set(name: String, material_index: int)
 
@@ -72,7 +72,7 @@ func build_grid() -> void:
 		child.owner = self
 		
 func fill_table(config: HumanConfig) -> void:
-	for clothes: HumanClothes in config.clothes:
+	for clothes: HumanAsset in config.clothes:
 		for slot in asset_option_buttons:
 			var options = asset_option_buttons[slot] as OptionButton
 			var materials = material_option_buttons[slot] as OptionButton 
@@ -152,7 +152,7 @@ func _item_selected(index: int, slot: String):
 	
 	## Emit signals and set to default material
 	if config != null and not config.clothes.has(HumanizerRegistry.clothes[name]):
-		var clothes: HumanClothes = HumanizerRegistry.clothes[name]
+		var clothes: HumanAsset = HumanizerRegistry.clothes[name]
 		for sl in slots:
 			last_equipped[sl] = clothes
 		clothes_changed.emit(clothes)
