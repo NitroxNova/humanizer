@@ -30,13 +30,13 @@ func set_eye_color(color: Color) -> void:
 
 func set_body_part(bp: HumanAsset) -> void:
 	super(bp)
-	_fit_body_part_mesh(bp)
+	_fit_equipment_mesh(bp)
 	#adjust incase rigged assets modified skeleton
 	_adjust_skeleton()
 
 func _add_clothes_mesh(cl: HumanAsset) -> void:
 	super(cl)
-	_fit_clothes_mesh(cl)
+	_fit_equipment_mesh(cl)
 	#adjust incase rigged assets modified skeleton
 	_adjust_skeleton()
 

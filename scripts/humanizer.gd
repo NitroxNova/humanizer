@@ -787,9 +787,9 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 func _fit_all_meshes() -> void:
 	_fit_body_mesh()
 	for bp in human_config.body_parts.values():
-		_fit_body_part_mesh(bp)
+		_fit_equipment_mesh(bp)
 	for cl in human_config.clothes:
-		_fit_clothes_mesh(cl)
+		_fit_equipment_mesh(cl)
 	
 func _fit_body_mesh() -> void:
 	# fit body mesh
@@ -806,21 +806,14 @@ func _fit_body_mesh() -> void:
 	mesh.clear_surfaces()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], {}, fmt)
 
-func _fit_body_part_mesh(bp: HumanAsset) -> void:
-	if bp.node == null:
-		return
-	var mhclo: MHCLO = load(bp.mhclo_path)
-	var new_mesh = MeshOperations.build_fitted_mesh(bp.node.mesh, _helper_vertex, mhclo)
-	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
-	bp.node.mesh = new_mesh
 
-func _fit_clothes_mesh(cl: HumanAsset) -> void:
-	if cl.node == null:
+func _fit_equipment_mesh(equipment: HumanAsset) -> void:
+	if equipment.node == null:
 		return
-	var mhclo: MHCLO = load(cl.mhclo_path)
-	var new_mesh = MeshOperations.build_fitted_mesh(cl.node.mesh, _helper_vertex, mhclo)
+	var mhclo: MHCLO = load(equipment.mhclo_path)
+	var new_mesh = MeshOperations.build_fitted_mesh(equipment.node.mesh, _helper_vertex, mhclo)
 	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
-	cl.node.mesh = new_mesh
+	equipment.node.mesh = new_mesh
 
 func _combine_meshes() -> ArrayMesh:
 	var new_mesh = ImporterMesh.new()
