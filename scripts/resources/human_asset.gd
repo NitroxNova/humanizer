@@ -7,13 +7,8 @@ class_name HumanAsset
 @export var rigged: bool = false
 @export var textures: Dictionary
 @export var slots: Array[String]
-
-#@export var slot: String:
-	#set(value):
-		#if value not in HumanizerGlobalConfig.config.body_part_slots:
-			#printerr('Undefined slot ' + value)
-		#else:
-			#slot = value
+@export var texture_name: String #currently selected texture name
+@export var material_config: HumanizerMaterial
 
 var scene_path: String:
 	get:

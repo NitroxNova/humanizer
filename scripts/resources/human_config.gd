@@ -19,11 +19,9 @@ signal clothes_removed(cl: HumanAsset)
 
 ## Equipped body parts
 @export var body_parts := {}
-@export var body_part_materials := {}
 
 ## Equipped clothes
 @export var clothes := []
-@export var clothes_materials := {}
 
 ## Custom Transforms
 @export var transforms := {}
@@ -34,16 +32,13 @@ signal clothes_removed(cl: HumanAsset)
 @export var eyebrow_color: Color = Humanizer._DEFAULT_EYEBROW_COLOR
 @export var hair_color: Color = Humanizer._DEFAULT_HAIR_COLOR
 
-## Overlay configs
-@export var material_configs := {}
-
+@export var body_material : HumanizerMaterial
 
 func set_body_part(bp: HumanAsset) -> void:
-	if body_parts.has(bp.slot):
-		remove_body_part(bp.slot)
-	body_parts[bp.slot] = bp	
-	if body_part_materials.has(bp.slot):
-		body_part_materials.erase(bp.slot)
+	var slot = bp.slots[0]
+	if body_parts.has(slot):
+		remove_body_part(slot)
+	body_parts[slot] = bp	
 	body_part_equipped.emit(bp)
 
 func remove_body_part(slot: String) -> void:

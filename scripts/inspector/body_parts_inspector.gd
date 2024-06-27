@@ -80,8 +80,9 @@ func fill_table(config: HumanConfig) -> void:
 				options.selected = option
 				_item_selected(option, slot)
 				break
+		
 		for option in texture_option_buttons[slot].item_count:
-			if texture_option_buttons[slot].get_item_text(option) == config.body_part_materials[slot]:
+			if texture_option_buttons[slot].get_item_text(option) == config.body_parts[slot].texture_name:
 				texture_option_buttons[slot].selected = option
 			
 func _item_selected(index: int, slot: String):

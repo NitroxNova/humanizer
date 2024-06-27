@@ -16,7 +16,7 @@ func _ready() -> void:
 		add_item(skin)
 	
 	if config != null:
-		var mat_config = config.material_configs.get(&'Body')
+		var mat_config = config.body_material
 		if mat_config and mat_config.overlays.size() > 0:
 			var texture = mat_config.overlays[0].albedo_texture_path.get_file().get_basename()
 			texture = texture.replace('_diffuse', '').replace('_albedo', '')

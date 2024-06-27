@@ -26,6 +26,7 @@ func update_material() -> void:
 	mat.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, material_config.albedo_texture)
 	mat.set_texture(BaseMaterial3D.TEXTURE_NORMAL, material_config.normal_texture)
 	mat.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, material_config.ao_texture)
-
-	if get_parent_node_3d():
-		get_parent_node_3d().human_config.material_configs[name] = material_config
+	
+	#TODO editor updates should change equipment config as well
+	#if get_parent_node_3d():
+		#get_parent_node_3d().human_config.material_configs[name] = material_config
