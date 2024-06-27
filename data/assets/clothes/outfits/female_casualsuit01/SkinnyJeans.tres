@@ -10,4 +10,5 @@ rigged = false
 textures = {
 "female_casualsuit01_diffuse": "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_diffuse.png"
 }
-slots = Array[String](["Legs"])
+slots = Array[String](["LegsClothes"])
+texture_name = ""

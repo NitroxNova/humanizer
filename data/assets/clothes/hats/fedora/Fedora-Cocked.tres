@@ -10,4 +10,5 @@ rigged = false
 textures = {
 "fedora_diffuse": "res://addons/humanizer/data/assets/clothes/hats/fedora/fedora_diffuse.png"
 }
-slots = Array[String](["Head"])
+slots = Array[String](["HeadClothes"])
+texture_name = ""

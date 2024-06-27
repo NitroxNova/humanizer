@@ -12,4 +12,5 @@ textures = {
 "brown_diffuse": "res://addons/humanizer/data/assets/clothes/shoes/shoes02/brown_diffuse.png",
 "white_diffuse": "res://addons/humanizer/data/assets/clothes/shoes/shoes02/white_diffuse.png"
 }
-slots = Array[String](["Feet"])
+slots = Array[String](["FeetClothes"])
+texture_name = ""

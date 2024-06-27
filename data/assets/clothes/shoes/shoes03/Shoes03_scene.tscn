@@ -1,8 +1,8 @@
 [gd_scene load_steps=3 format=3 uid="uid://cg7dnvltti054"]
 
-[ext_resource type="ArrayMesh" uid="uid://bk5nl158bj6ik" path="res://addons/humanizer/data/assets/clothes/shoes/shoes03/Shoes03_mesh.res" id="1_yn7g1"]
-[ext_resource type="Material" uid="uid://cfycyt17v8y8t" path="res://addons/humanizer/data/assets/clothes/shoes/shoes03/shoes03_material.res" id="2_t7ydj"]
+[ext_resource type="ArrayMesh" uid="uid://bk5nl158bj6ik" path="res://addons/humanizer/data/assets/clothes/shoes/shoes03/Shoes03_mesh.res" id="1_jbnnn"]
+[ext_resource type="Material" uid="uid://cfycyt17v8y8t" path="res://addons/humanizer/data/assets/clothes/shoes/shoes03/shoes03_material.res" id="2_lutnl"]
 
 [node name="Shoes03" type="MeshInstance3D"]
-mesh = ExtResource("1_yn7g1")
-surface_material_override/0 = ExtResource("2_t7ydj")
+mesh = ExtResource("1_jbnnn")
+surface_material_override/0 = ExtResource("2_lutnl")
