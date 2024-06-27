@@ -34,7 +34,7 @@ func _ready() -> void:
 		
 		options.add_item('None')
 		for asset in HumanizerRegistry.clothes.values():
-			if slot in asset.slots:
+			if slot+"Clothes" in asset.slots:
 				options.add_item(asset.resource_name)
 	
 	if config != null:
@@ -96,8 +96,9 @@ func reset() -> void:
 func clear_clothes(slot: String) -> void:
 	var cl = last_equipped[slot]
 	for sl in asset_option_buttons:
-		if last_equipped.has(sl) and last_equipped[sl] == cl:
-			last_equipped.erase(sl)
+		var slot_name = sl+"Clothes"
+		if last_equipped.has(slot_name) and last_equipped[slot_name] == cl:
+			last_equipped.erase(slot_name)
 			var options = asset_option_buttons[sl] as OptionButton
 			options.selected = 0
 			material_option_buttons[sl].selected = -1

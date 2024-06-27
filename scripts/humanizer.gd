@@ -493,8 +493,6 @@ func remove_clothes(cl: HumanAsset) -> void:
 		notify_property_list_changed()
 		return
 	cl.node = null
-	if human_config.clothes_materials.has(cl.resource_name):
-		human_config.clothes_materials.erase(cl.resource_name)
 	for child in get_children():
 		if child.name == cl.resource_name:
 			#print('removing ' + cl.resource_name + ' clothes')

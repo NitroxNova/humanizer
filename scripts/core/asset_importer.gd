@@ -187,7 +187,7 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 			HumanizerRegistry.clothes.erase(resource.resource_name)
 		for tag in data.mhclo.tags:
 			if tag in HumanizerGlobalConfig.config.clothing_slots:
-				resource.slots.append(tag)
+				resource.slots.append(tag+"Clothes")
 		if resource.slots.size() == 0:
 			printerr('No slots found for clothes.  Check your mhclo tags.')
 			return
