@@ -25,3 +25,10 @@ var material_path: String:
 
 ## Non-serialized node reference.  
 var node: Node3D
+
+func in_slot(slot_names:Array):
+	for sl_name in slot_names:
+		if sl_name in slots:
+			return true
+	return false
+	

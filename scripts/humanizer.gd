@@ -414,7 +414,7 @@ func set_body_part(bp: HumanAsset) -> void:
 	else:
 		mi.get_surface_override_material(0).resource_local_to_scene = true
 	if bp.material_config == null:
-		set_body_part_material(slot, Random.choice(bp.textures.keys()))
+		set_equipment_material(bp, Random.choice(bp.textures.keys()))
 	_add_child_node(mi)
 	
 	if rig_changed:
@@ -473,7 +473,7 @@ func _add_clothes_mesh(cl: HumanAsset) -> void:
 		mi.get_surface_override_material(0).resource_local_to_scene = true
 	_add_bone_weights(cl)
 	if cl.texture_name == null:
-		set_clothes_material(cl.resource_name, Random.choice(cl.textures.keys()))
+		set_equipment_material(cl, Random.choice(cl.textures.keys()))
 	if human_config.transforms.has(cl.resource_name):
 		cl.node.transform = Transform3D(human_config.transforms[cl.resource_name])
 
@@ -949,64 +949,45 @@ func set_skin_normal_texture(name: String) -> void:
 		overlay.normal_texture_path = texture
 		body_mesh.material_config.set_base_textures(overlay)
 
-func set_body_part_material(set_slot: String, texture: String) -> void:
-	#print('setting material ' + texture + ' on ' + set_slot)
+func set_body_part_material(slot_name:String, texture: String):
+	set_equipment_material(human_config.body_parts[slot_name],texture)
+
+func set_clothes_material(equipment_name:String, texture:String):
+	for clothes in human_config.clothes:
+		if clothes.resource_name == equipment_name:
+			set_equipment_material(clothes, texture)
+
+func set_equipment_material(equipment:HumanAsset, texture: String) -> void:
+	#print('setting material ' + texture + ' on ' + equipment.resource_name)
 	if baked:
 		printerr('Cannot change materials. Already baked.')
 		return
-	var bp: HumanAsset = human_config.body_parts[set_slot]
-	if bp.node == null:
+	equipment.texture_name = texture
+	var mesh_inst = equipment.node
+	if mesh_inst == null:
 		return
-	var mi = bp.node as MeshInstance3D
-	bp.texture_name = texture
-	if bp.default_overlay != null:
-		var mat_config: HumanizerMaterial = mi.material_config
-		var overlay_dict = {&'albedo': bp.textures[texture]}
-		if mi.get_surface_override_material(0).normal_texture != null:
-			overlay_dict[&'normal'] = mi.get_surface_override_material(0).normal_texture.resource_path
-		if mi.get_surface_override_material(0).ao_texture != null:
-			overlay_dict[&'ao'] = mi.get_surface_override_material(0).ao_texture.resource_path
+	if equipment.default_overlay != null:
+		var mat_config: HumanizerMaterial = mesh_inst.material_config
+		var overlay_dict = {&'albedo': equipment.textures[texture]}
+		if mesh_inst.get_surface_override_material(0).normal_texture != null:
+			overlay_dict[&'normal'] = mesh_inst.get_surface_override_material(0).normal_texture.resource_path
+		if mesh_inst.get_surface_override_material(0).ao_texture != null:
+			overlay_dict[&'ao'] = mesh_inst.get_surface_override_material(0).ao_texture.resource_path
 		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	else:
-		var mat: BaseMaterial3D = mi.get_surface_override_material(0)
-		mat.albedo_texture = load(bp.textures[texture])
-	var slot = bp.slots[0]
-	if slot in ['LeftEye', 'RightEye', 'Eyes']:
-		var iris: HumanizerOverlay = mi.material_config.overlays[1]
+		mesh_inst.get_surface_override_material(0).albedo_texture = load(equipment.textures[texture])
+	
+	if equipment.in_slot(['LeftEye', 'RightEye', 'Eyes']):	
+		var iris: HumanizerOverlay = mesh_inst.material_config.overlays[1]
 		iris.color = eye_color
-		mi.material_config.set_overlay(1, iris)	
-		mi.material_config.update_material()
-	if slot in ['RightEyebrow', 'LeftEyebrow', 'Eyebrows']:
-		mi.get_surface_override_material(0).albedo_color = Color(hair_color * eyebrow_color_weight, 1) 
-	elif slot == 'Hair':
-		mi.get_surface_override_material(0).albedo_color = hair_color
+		mesh_inst.material_config.set_overlay(1, iris)	
+		mesh_inst.material_config.update_material()
+	elif equipment.in_slot(['RightEyebrow', 'LeftEyebrow', 'Eyebrows']):
+		mesh_inst.get_surface_override_material(0).albedo_color = Color(hair_color * eyebrow_color_weight, 1) 
+	elif equipment.in_slot(['Hair']):
+		mesh_inst.get_surface_override_material(0).albedo_color = hair_color
 	notify_property_list_changed()
-
-func set_clothes_material(cl_name: String, texture: String) -> void:
-	#print('setting texture ' + texture + ' on ' + cl_name)
-	if baked:
-		printerr('Cannot change materials. Already baked.')
-		return
-	var cl: HumanAsset
-	for c in human_config.clothes:
-		if c.resource_name == cl_name:
-			cl = c
-			if cl.node == null:
-				return
-	var mi: MeshInstance3D = cl.node
-	if cl.default_overlay != null:
-		## HumanizerMaterials are always local to scene
-		var mat_config: HumanizerMaterial = (mi as HumanizerMeshInstance).mat_config
-		var overlay_dict = HumanizerOverlay.from_dict({'albedo': cl.textures[texture]})
-		if mi.get_surface_override_material(0).normal_texture != null:
-			overlay_dict['normal'] = mi.get_surface_override_material(0).normal_texture.resource_path
-		if mi.get_surface_override_material(0).ao_texture != null:
-			overlay_dict['ao'] = mi.get_surface_override_material(0).ao_texture.resource_path
-		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
-	else:
-		mi.get_surface_override_material(0).albedo_texture = load(cl.textures[texture])
-	cl.texture_name = texture
-
+	
 func _setup_overlay_material(asset: HumanAsset, existing_config: HumanizerMaterial = null) -> void:
 	var mi: MeshInstance3D = asset.node
 	mi.set_script(load("res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd"))
