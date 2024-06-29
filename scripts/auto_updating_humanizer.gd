@@ -21,24 +21,15 @@ func set_skin_color(color: Color) -> void:
 	
 func set_eye_color(color: Color) -> void:
 	eye_color = color
-	for slot in [&'RightEye', &'LeftEye', &'Eyes']:
-		if not human_config.body_parts.has(slot):
-			continue
-		var bp: HumanAsset = human_config.body_parts[slot]
-		if bp.node is HumanizerMeshInstance:
-			bp.node.material_config.update_material()
-
-func set_body_part(bp: HumanAsset) -> void:
-	super(bp)
-	_fit_equipment_mesh(bp)
-	#adjust incase rigged assets modified skeleton
-	_adjust_skeleton()
-
-func _add_clothes_mesh(cl: HumanAsset) -> void:
-	super(cl)
-	_fit_equipment_mesh(cl)
-	#adjust incase rigged assets modified skeleton
-	_adjust_skeleton()
+	var slots = ["LeftEye","RightEye","Eyes"]
+	for equip in human_config.get_equipment_in_slots(slots):
+		equip.node.material_config.update_material()
+	
+func add_equipment(equip: HumanAsset) -> void:
+	super(equip)
+	_fit_equipment_mesh(equip)
+	if equip.node is HumanizerMeshInstance:
+		equip.node.material_config.update_material()
 
 func hide_body_vertices() -> void:
 	super()
@@ -57,10 +48,8 @@ func set_skin_normal_texture(name: String) -> void:
 func set_rig(rig_name: String) -> void:
 	super(rig_name)
 	set_shapekeys(human_config.shapekeys)
-	for cl in human_config.clothes:
-		_add_bone_weights(cl)
-	for bp in human_config.body_parts.values():
-		_add_bone_weights(bp)
+	for equip in human_config.equipment.values():
+		_add_bone_weights(equip)
 	_adjust_skeleton()
 
 func set_shapekeys(shapekeys: Dictionary) -> void:

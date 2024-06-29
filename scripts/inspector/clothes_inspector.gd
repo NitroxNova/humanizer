@@ -72,8 +72,10 @@ func build_grid() -> void:
 		child.owner = self
 		
 func fill_table(config: HumanConfig) -> void:
-	for clothes: HumanAsset in config.clothes:
-		for slot in asset_option_buttons:
+	for slot in HumanizerGlobalConfig.config.clothing_slots:
+		var clothes_slot = slot+"Clothes"
+		var clothes = config.get_equipment_in_slot(clothes_slot)
+		if clothes != null:
 			var options = asset_option_buttons[slot] as OptionButton
 			var materials = material_option_buttons[slot] as OptionButton 
 			for item in options.item_count:
@@ -151,7 +153,7 @@ func _item_selected(index: int, slot: String):
 			materials.add_item(mat.get_file().replace('.tres', ''))
 	
 	## Emit signals and set to default material
-	if config != null and not config.clothes.has(HumanizerRegistry.clothes[name]):
+	if config != null and not name in config.equipment:
 		var clothes: HumanAsset = HumanizerRegistry.clothes[name]
 		for sl in slots:
 			last_equipped[sl] = clothes

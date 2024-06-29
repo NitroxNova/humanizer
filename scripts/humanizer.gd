@@ -72,8 +72,9 @@ var hair_color: Color = _DEFAULT_HAIR_COLOR:
 		if human_config == null or not scene_loaded:
 			return
 		human_config.hair_color = hair_color
-		if human_config.body_parts.has(&'Hair'):
-			var mesh = human_config.body_parts[&'Hair'].node
+		var hair_equip = human_config.get_equipment_in_slot("Hair")
+		if hair_equip != null:
+			var mesh = hair_equip.node
 			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = hair_color 
 		eyebrow_color = Color(hair_color * eyebrow_color_weight, 1.)
 		notify_property_list_changed()
@@ -83,11 +84,9 @@ var eyebrow_color: Color = _DEFAULT_EYEBROW_COLOR:
 		if human_config == null or not scene_loaded:
 			return
 		human_config.eyebrow_color = eyebrow_color
-		var slots: Array = [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows']
-		for slot in slots:
-			if not human_config.body_parts.has(slot):
-				continue
-			var mesh = human_config.body_parts[slot].node
+		var slots: Array = ['RightEyebrow', 'LeftEyebrow', 'Eyebrows']
+		for equip in human_config.get_equipment_in_slots(slots):
+			var mesh = equip.node
 			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = eyebrow_color 
 var eye_color: Color = _DEFAULT_EYE_COLOR:
 	set(value):
@@ -96,10 +95,8 @@ var eye_color: Color = _DEFAULT_EYE_COLOR:
 			return
 		human_config.eye_color = eye_color
 		var slots: Array = [&'RightEye', &'LeftEye', &'Eyes']
-		for slot in slots:
-			if not human_config.body_parts.has(slot):
-				continue
-			var mesh = human_config.body_parts[slot].node
+		for equip in human_config.get_equipment_in_slots(slots):
+			var mesh = equip.node
 			var overlay = mesh.material_config.overlays[1]
 			overlay.color = eye_color
 			mesh.material_config.set_overlay(1, overlay)
@@ -339,13 +336,8 @@ func _delete_child_by_name(name: String) -> void:
 
 func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 	var res: HumanAsset = null
-	for slot in human_config.body_parts:
-		if human_config.body_parts[slot].resource_name == mesh_name:
-			res = human_config.body_parts[slot]
-	if res == null:
-		for cl in human_config.clothes:
-			if cl.resource_name == mesh_name:
-				res = cl 
+	if mesh_name in human_config.equipment:
+		res = human_config.equipment[mesh_name]
 	return res
 
 func _deserialize() -> void:
@@ -356,12 +348,8 @@ func _deserialize() -> void:
 	_set_shapekey_data(sk)
 
 	## Load Assets
-	for bp: HumanAsset in human_config.body_parts.values():
-		set_body_part(bp)
-		bp.node.material_config = bp.material_config
-	for cl: HumanAsset in human_config.clothes:
-		_add_clothes_mesh(cl)
-		cl.node.material_config = cl.material_config
+	for equip: HumanAsset in human_config.equipment.values():
+		add_equipment(equip)
 		
 	## Load components
 	for component in human_config.components:
@@ -377,15 +365,10 @@ func _deserialize() -> void:
 
 	## Update materials with overlays
 	body_mesh.material_config.update_material()
-	for bp in human_config.body_parts.values():
-		if bp.node is HumanizerMeshInstance:
-			if bp.node.material_config.overlays.size() > 0:
-				bp.node.material_config.update_material()
-	for cl in human_config.clothes:
-		if cl.node is HumanizerMeshInstance:
-			if cl.node.material_config.overlays.size() > 0:
-				cl.node.material_config.update_material()
-	
+	for equip in human_config.equipment.values():
+		if equip.node is HumanizerMeshInstance:
+			if equip.node.material_config.overlays.size() > 0:
+				equip.node.material_config.update_material()
 	## Finalize
 	hide_body_vertices()
 	_adjust_skeleton()
@@ -393,111 +376,58 @@ func _deserialize() -> void:
 	_recalculate_normals()
 
 #### Mesh Management ####
-func set_body_part(bp: HumanAsset) -> void:
+func add_equipment(equip: HumanAsset) -> void:
 	if baked:
-		push_warning("Can't change body parts.  Already baked")
+		push_warning("Can't change equipment.  Already baked")
 		notify_property_list_changed()
 		return
-	var rig_changed = bp.rigged #rebuild skeleton if the new asset or the removed assets have a rig
-	var slot = bp.slots[0]
-	if human_config.body_parts.has(slot):
-		var current = human_config.body_parts[slot]
-		if current.rigged:
-			rig_changed = true
-		_delete_child_by_name(current.resource_name)
-	human_config.body_parts[slot] = bp
-	var mi = load(bp.scene_path).instantiate() as MeshInstance3D
-	mi.name = bp.resource_name
-	bp.node = mi
-	if bp.default_overlay != null or bp.material_config != null:
-		_setup_overlay_material(bp, bp.material_config)
-	else:
-		mi.get_surface_override_material(0).resource_local_to_scene = true
-	if bp.material_config == null:
-		set_equipment_material(bp, Random.choice(bp.textures.keys()))
-	_add_child_node(mi)
+	for prev_equip in human_config.get_equipment_in_slots(equip.slots):
+		remove_equipment(prev_equip)
+	human_config.add_equipment(equip)
 	
-	if rig_changed:
+	var mesh_inst = load(equip.scene_path).instantiate() as MeshInstance3D
+	mesh_inst.name = equip.resource_name
+	equip.node = mesh_inst
+	if equip.default_overlay != null or equip.material_config != null:
+		_setup_overlay_material(equip, equip.material_config)
+	else:
+		mesh_inst.get_surface_override_material(0).resource_local_to_scene = true
+	if equip.texture_name == null:
+		set_equipment_material(equip, Random.choice(equip.textures.keys()))
+	if human_config.transforms.has(equip.resource_name):
+		equip.node.transform = Transform3D(human_config.transforms[equip.resource_name])
+	
+	_add_child_node(mesh_inst)	
+	if equip.rigged:
 		set_rig(human_config.rig) #update rig with additional asset bones, and remove any from previous asset
 	else:
-		_add_bone_weights(bp)
-
-	if 'eyebrow' in slot.to_lower():
+		_add_bone_weights(equip)
+	if equip.in_slot(["LeftEyebrow","RightEyebrow","Eyebrows"]):
 		eyebrow_color = eyebrow_color  ## trigger setter logic
-	elif slot in ["Eyes","LeftEye","RightEye"]:
+	elif equip.in_slot(["Eyes","LeftEye","RightEye"]):
 		eye_color = eye_color
-	elif slot == "Hair":
+	elif equip.in_slot(["Hair"]):
 		hair_color = hair_color
-	if human_config.transforms.has(bp.resource_name):
-		bp.node.transform = Transform3D(human_config.transforms[bp.resource_name])
-	#notify_property_list_changed()
-
-func clear_body_part(clear_slot: String) -> void:
-	if baked:
-		push_warning("Can't change body parts.  Already baked")
-		notify_property_list_changed()
-		return
-	for slot in human_config.body_parts:
-		if slot == clear_slot:
-			var res = human_config.body_parts[clear_slot]
-			res.node = null
-			_delete_child_by_name(res.resource_name)
-			human_config.body_parts.erase(clear_slot)
-			if res.rigged:
-				set_rig(human_config.rig) #remove bones from previous asset
-			return
-
-func apply_clothes(cl: HumanAsset) -> void:
-	if baked:
-		push_warning("Can't change clothes.  Already baked")
-		notify_property_list_changed()
-		return
-	for wearing in human_config.clothes:
-		for slot in cl.slots:
-			if slot in wearing.slots:
-				remove_clothes(wearing)
-	#print('applying ' + cl.resource_name + ' clothes')
-	_add_clothes_mesh(cl)
 	notify_property_list_changed()
+	
+func remove_equipment(equip: HumanAsset) -> void:
+	if baked:
+		push_warning("Can't change equipment.  Already baked")
+		notify_property_list_changed()
+		return
+	_delete_child_by_name(equip.resource_name)
+	human_config.remove_equipment(equip)
+	if equip.rigged:
+		set_rig(human_config.rig) #remove bones from previous asset
 
-func _add_clothes_mesh(cl: HumanAsset) -> void:
-	if not cl in human_config.clothes:
-		human_config.clothes.append(cl)
-	var mi = load(cl.scene_path).instantiate()
-	cl.node = mi
-	mi.name = cl.resource_name
-	_add_child_node(mi)
-	if cl.default_overlay != null:
-		_setup_overlay_material(cl, human_config.material_configs.get(cl.resource_name))
-	else:
-		mi.get_surface_override_material(0).resource_local_to_scene = true
-	_add_bone_weights(cl)
-	if cl.texture_name == null:
-		set_equipment_material(cl, Random.choice(cl.textures.keys()))
-	if human_config.transforms.has(cl.resource_name):
-		cl.node.transform = Transform3D(human_config.transforms[cl.resource_name])
-
-func clear_clothes_in_slot(slot: String) -> void:
+func remove_equipment_in_slot(slot: String) -> void:
 	if baked:
 		push_warning("Can't change clothes.  Already baked")
 		notify_property_list_changed()
 		return
-	for cl in human_config.clothes:
-		if slot in cl.slots:
-			#print('clearing ' + cl.resource_name + ' clothes')
-			remove_clothes(cl)
-
-func remove_clothes(cl: HumanAsset) -> void:
-	if baked:
-		push_warning("Can't change clothes.  Already baked")
-		notify_property_list_changed()
-		return
-	cl.node = null
-	for child in get_children():
-		if child.name == cl.resource_name:
-			#print('removing ' + cl.resource_name + ' clothes')
-			_delete_child_node(child)
-	human_config.clothes.erase(cl)
+	var equip = human_config.get_equipment_in_slot(slot)
+	if equip != null:
+		remove_equipment(equip)	
 
 func hide_body_vertices() -> void:
 	if baked:
@@ -610,9 +540,9 @@ func unhide_clothes_vertices() -> void:
 	if baked:
 		push_warning("Can't alter meshes.  Already baked")
 		return
-	for cl in human_config.clothes:
-		_delete_child_by_name(cl.resource_name)
-		_add_clothes_mesh(cl)
+	for equip:HumanAsset in human_config.equipment.values():
+		equip.node.mesh = load(equip.get_mesh_path())
+		_add_bone_weights(equip)
 
 func set_bake_meshes(subset: String) -> void:
 	_bake_meshes = []
@@ -771,10 +701,8 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 
 func _fit_all_meshes() -> void:
 	_fit_body_mesh()
-	for bp in human_config.body_parts.values():
-		_fit_equipment_mesh(bp)
-	for cl in human_config.clothes:
-		_fit_equipment_mesh(cl)
+	for equip in human_config.equipment.values():
+		_fit_equipment_mesh(equip)
 	
 func _fit_body_mesh() -> void:
 	# fit body mesh
@@ -949,22 +877,24 @@ func set_skin_normal_texture(name: String) -> void:
 		overlay.normal_texture_path = texture
 		body_mesh.material_config.set_base_textures(overlay)
 
-func set_body_part_material(slot_name:String, texture: String):
-	set_equipment_material(human_config.body_parts[slot_name],texture)
+func set_equipment_texture_by_slot(slot_name:String, texture: String):
+	var equip = human_config.get_equipment_in_slot(slot_name)
+	if equip != null:
+		set_equipment_material(equip,texture)
 
-func set_clothes_material(equipment_name:String, texture:String):
-	for clothes in human_config.clothes:
-		if clothes.resource_name == equipment_name:
-			set_equipment_material(clothes, texture)
+func set_equipment_texture_by_name(equip_name:String, texture:String):
+	if equip_name in human_config.equipment:
+		var equip = human_config.equipment[equip_name]
+		set_equipment_material(equip,texture)
 
 func set_equipment_material(equipment:HumanAsset, texture: String) -> void:
-	#print('setting material ' + texture + ' on ' + equipment.resource_name)
 	if baked:
 		printerr('Cannot change materials. Already baked.')
 		return
 	equipment.texture_name = texture
 	var mesh_inst = equipment.node
 	if mesh_inst == null:
+		print(equipment.resource_name + " has no mesh instance " )
 		return
 	if equipment.default_overlay != null:
 		var mat_config: HumanizerMaterial = mesh_inst.material_config
@@ -1058,12 +988,9 @@ func _adjust_skeleton() -> void:
 	asset_bone_positions.resize(skeleton.get_bone_count())	
 	
 	if not baked:
-		for cl in human_config.clothes:
-			if cl.rigged:
-				_get_asset_bone_positions(cl, asset_bone_positions)
-		for bp in human_config.body_parts.values():
-			if bp.rigged:
-				_get_asset_bone_positions(bp, asset_bone_positions)
+		for equip in human_config.equipment.values():
+			if equip.rigged:
+				_get_asset_bone_positions(equip, asset_bone_positions)
 	
 	for bone_id in skeleton.get_bone_count():
 		var bone_pos = Vector3.ZERO

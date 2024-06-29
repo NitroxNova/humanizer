@@ -72,18 +72,19 @@ func build_grid() -> void:
 		child.owner = self
 
 func fill_table(config: HumanConfig) -> void:
-	for slot in config.body_parts:
-		var bp: HumanAsset = config.body_parts[slot]
-		var options = asset_option_buttons[slot] as OptionButton
-		for option in options.item_count:
-			if options.get_item_text(option) == bp.resource_name:
-				options.selected = option
-				_item_selected(option, slot)
-				break
-		
-		for option in texture_option_buttons[slot].item_count:
-			if texture_option_buttons[slot].get_item_text(option) == config.body_parts[slot].texture_name:
-				texture_option_buttons[slot].selected = option
+	for slot in HumanizerGlobalConfig.config.body_part_slots:
+		var bp: HumanAsset = config.get_equipment_in_slot(slot)
+		if bp != null:
+			var options = asset_option_buttons[slot] as OptionButton
+			for option in options.item_count:
+				if options.get_item_text(option) == bp.resource_name:
+					options.selected = option
+					_item_selected(option, slot)
+					break
+			
+			for option in texture_option_buttons[slot].item_count:
+				if texture_option_buttons[slot].get_item_text(option) == bp.texture_name:
+					texture_option_buttons[slot].selected = option
 			
 func _item_selected(index: int, slot: String):
 	var options = asset_option_buttons[slot]
@@ -97,8 +98,8 @@ func _item_selected(index: int, slot: String):
 	
 	for mat in registry.body_parts[slot][name].textures:
 		texture_options.add_item(mat)
-		
-	if config == null or not config.body_parts.has(slot) or config.body_parts[slot].resource_name != name:
+	
+	if config == null or config.get_equipment_in_slot(slot) == null or not name in config.equipment:
 		body_part_changed.emit(registry.body_parts[slot][name])
 		
 func _material_selected(idx: int, slot: String) -> void:

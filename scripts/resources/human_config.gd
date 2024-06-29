@@ -2,11 +2,8 @@
 class_name HumanConfig
 extends Resource
 
-signal body_part_equipped(bp: HumanAsset)
-signal body_part_removed(bp: HumanAsset)
-signal clothes_equipped(cl: HumanAsset)
-signal clothes_removed(cl: HumanAsset)
-
+signal equipment_added(equip:HumanAsset)
+signal equipment_removed(equip:HumanAsset)
 
 ## Rig
 @export var rig: String
@@ -17,11 +14,8 @@ signal clothes_removed(cl: HumanAsset)
 ## Additional Components
 @export var components := [&'main_collider', &'lod']
 
-## Equipped body parts
-@export var body_parts := {}
-
-## Equipped clothes
-@export var clothes := []
+## Equipped Assets: Clothes and Body Parts
+@export var equipment := {}
 
 ## Custom Transforms
 @export var transforms := {}
@@ -34,26 +28,29 @@ signal clothes_removed(cl: HumanAsset)
 
 @export var body_material : HumanizerMaterial
 
-func set_body_part(bp: HumanAsset) -> void:
-	var slot = bp.slots[0]
-	if body_parts.has(slot):
-		remove_body_part(slot)
-	body_parts[slot] = bp	
-	body_part_equipped.emit(bp)
+func get_equipment_in_slot(slot_name:String):
+	for equip in equipment.values():
+		if slot_name in equip.slots:
+			return equip # should only be one item per slot
 
-func remove_body_part(slot: String) -> void:
-	var current = body_parts[slot]
-	body_parts.erase(slot)
-	body_part_removed.emit(current)
-	
-func apply_clothes(cl: HumanAsset) -> void:
-	for wearing in clothes:
-		for slot in cl.slots:
-			if slot in wearing.slots:
-				remove_clothes(wearing)
-	clothes.append(cl)
-	clothes_equipped.emit(cl)
-	
-func remove_clothes(cl: HumanAsset) -> void:
-	clothes.erase(cl)
-	clothes_removed.emit(cl)
+func get_equipment_in_slots(slot_names:Array):
+	var equip_list = []
+	for slot_name in slot_names:
+		var equip = get_equipment_in_slot(slot_name)
+		if equip != null and not equip in equip_list:
+			equip_list.append(equip)
+	return equip_list
+
+func add_equipment(equip:HumanAsset) -> void:
+	#print("Equipping " + equip.resource_name)
+	for prev_equip in get_equipment_in_slots(equip.slots):
+		remove_equipment(prev_equip)
+	equipment[equip.resource_name] = equip
+	equipment_added.emit(equip)
+
+func remove_equipment(equip:HumanAsset):
+	#print("Removing " + equip.resource_name)
+	if equip.resource_name in equipment: #make sure hasnt already been unequipped
+		equipment.erase(equip.resource_name)
+		equipment_removed.emit(equip)
+		
