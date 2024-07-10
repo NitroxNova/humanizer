@@ -708,17 +708,7 @@ func _fit_body_mesh() -> void:
 	# fit body mesh
 	if body_mesh == null:
 		return
-	var mesh := body_mesh.mesh as ArrayMesh
-	var surf_arrays = mesh.surface_get_arrays(0)
-	var fmt = mesh.surface_get_format(0)
-	var vtx_arrays = surf_arrays[Mesh.ARRAY_VERTEX]
-	surf_arrays[Mesh.ARRAY_VERTEX] = _helper_vertex.slice(0, vtx_arrays.size())
-	for gd_id in surf_arrays[Mesh.ARRAY_VERTEX].size():
-		var mh_id = surf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-		surf_arrays[Mesh.ARRAY_VERTEX][gd_id] = _helper_vertex[mh_id]
-	mesh.clear_surfaces()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, surf_arrays, [], {}, fmt)
-
+	body_mesh.mesh = HumanizerBodyService.fit_mesh(body_mesh.mesh,_helper_vertex)
 
 func _fit_equipment_mesh(equipment: HumanAsset) -> void:
 	if equipment.node == null:

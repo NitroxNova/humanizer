@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3 uid="uid://bosdpnid5c76x"]
+
+[sub_resource type="GDScript" id="GDScript_ljccp"]
+script/source = "extends Node3D
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	var char = HumanizerCharacterBody.new()
+	char.human_config = HumanConfig.new()
+	add_child(char)
+"
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_2pt8o"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_r152r"]
+sky_material = SubResource("ProceduralSkyMaterial_2pt8o")
+
+[sub_resource type="Environment" id="Environment_63uko"]
+background_mode = 2
+sky = SubResource("Sky_r152r")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="CharacterBodyTest" type="Node3D"]
+script = SubResource("GDScript_ljccp")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_63uko")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.61411)

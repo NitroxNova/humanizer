@@ -22,3 +22,4 @@ textures = {
 "eyeball_albedo": "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/eyeball_albedo.png"
 }
 slots = Array[String](["LeftEye"])
+texture_name = ""
