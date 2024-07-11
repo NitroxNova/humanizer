@@ -39,4 +39,4 @@ procedurally generated skin textures
 compute shaders and visual shaders for faster everything (maybe)  
 bone poses for clothing (like high heals)  
   
-* no longer affiliated with emberlight, donations to that patreon are not received here *
+if youd like to help support the project - https://www.patreon.com/ReignBowGames
