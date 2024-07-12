@@ -1,6 +1,8 @@
 Humanizer Plugin - 3D Character Creator for Godot 4  
 converted from MakeHuman and MPFB2 plugin for blender   
-  - https://static.makehumancommunity.org/mpfb.html
+  - https://static.makehumancommunity.org/mpfb.html  
+  - https://github.com/makehumancommunity/mpfb2  
+  - https://github.com/makehumancommunity/makehuman  
 
 FEATURES:  
 fully customizable character weight/height/gender/race/age  
