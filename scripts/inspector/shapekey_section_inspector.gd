@@ -26,10 +26,12 @@ func _ready() -> void:
 			slider.min_value = 0
 
 		slider.step = 0.01
-		if human.human_config != null and human.human_config.shapekeys.has(key):
-			slider.value = human.human_config.shapekeys[key]
-		else:
-			slider.value = 0
+		slider.value = 0
+		if human.human_config != null :
+			if name.begins_with('Macro') or name.begins_with('Race') or key in ['cupsize', 'firmness']:
+				slider.value = human.human_config.targets.macro[key]
+			elif human.human_config.targets.raw.has(key):
+				slider.value = human.human_config.targets.raw[key]
 
 		slider.custom_minimum_size = Vector2i(150, 10)
 		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL

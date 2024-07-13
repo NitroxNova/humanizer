@@ -9,7 +9,7 @@ signal equipment_removed(equip:HumanAsset)
 @export var rig: String
 
 ## Shapekey Settings
-@export var shapekeys := {}
+@export var targets : HumanTargetConfig = HumanTargetConfig.new()
 
 ## Additional Components
 @export var components := [&'main_collider', &'lod']

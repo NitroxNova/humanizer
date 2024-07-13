@@ -13,7 +13,7 @@ func _parse_category(human, category):
 	add_custom_control(scene)
 	
 	# Header Section
-	scene.get_node('%ResetButton').pressed.connect(human.set_human_config.bind(HumanConfig.new()))
+	scene.get_node('%ResetButton').pressed.connect(human.reset)
 	scene.get_node('%PresetsOptionButton').human = human
 
 	## Color pickers
@@ -91,7 +91,7 @@ func _parse_category(human, category):
 	skin_normal_options.config = human.human_config
 	
 	# Add shapekey categories and sliders
-	var sliders = HumanizerUtils.get_shapekey_categories()
+	var sliders = HumanizerTargetService.get_shapekey_categories()
 	var cat_scene = load("res://addons/humanizer/scenes/inspector/slider_category_inspector.tscn")
 	for cat in sliders:
 		if sliders[cat].size() == 0:

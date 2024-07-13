@@ -11,3 +11,4 @@ textures = {
 "ponytail01_diffuse": "res://addons/humanizer/data/assets/body_parts/Hair/ponytail01/ponytail01_diffuse.png"
 }
 slots = Array[String](["Hair"])
+texture_name = ""

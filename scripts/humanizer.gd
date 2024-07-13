@@ -9,11 +9,7 @@ const _DEFAULT_SKIN_COLOR = Color.WHITE
 const _DEFAULT_EYE_COLOR = Color.SKY_BLUE
 const _DEFAULT_HAIR_COLOR = Color.WEB_MAROON
 const _DEFAULT_EYEBROW_COLOR = Color.BLACK
-## Vertex ids
-const shoulder_id: int = 16951 
-const waist_id: int = 17346
-const hips_id: int = 18127
-const feet_ids: Array[int] = [15500, 16804]
+
 const eyebrow_color_weight := 0.4
 
 var skeleton: Skeleton3D
@@ -34,11 +30,9 @@ var _base_motion_scale: float:
 		return sk.motion_scale
 var _base_hips_height: float:
 	get:
-		return shapekey_data.basis[hips_id].y
-var shapekey_data: Dictionary:
-	get:
-		return HumanizerUtils.shapekey_data
-var _helper_vertex: PackedVector3Array = []
+		return HumanizerTargetService.data.basis[HumanizerBodyService.hips_id].y
+
+var helper_vertex: PackedVector3Array = []
 var save_path: String:
 	get:
 		var path = HumanizerGlobalConfig.config.human_export_path
@@ -165,11 +159,10 @@ func _ready() -> void:
 
 ####  HumanConfig Resource and Scene Management ####
 func reset_human() -> void:
-	_new_shapekeys = {}
 	if has_node('MorphDriver'):
 		_delete_child_node($MorphDriver)
 	baked = false
-	_helper_vertex = shapekey_data.basis.duplicate(true)
+	helper_vertex = HumanizerTargetService.data.basis.duplicate()
 	for child in get_children():
 		if child is MeshInstance3D:
 			_delete_child_node(child)
@@ -186,6 +179,9 @@ func load_human() -> void:
 	baked = false
 	reset_human()
 	_deserialize()
+	if human_config.targets.macro == {}:
+		var default_macros = HumanizerMacroService.get_default_macros()
+		_set_shapekey_data(default_macros)
 	notify_property_list_changed()
 
 func create_human_branch() -> Node3D:
@@ -342,8 +338,8 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 
 func _deserialize() -> void:
 	## Set shapekeys
-	var sk = human_config.shapekeys.duplicate()
-	human_config.shapekeys = {}
+	var sk = human_config.targets.raw.duplicate()
+	human_config.targets.raw = {}
 	set_rig(human_config.rig)
 	_set_shapekey_data(sk)
 
@@ -438,7 +434,7 @@ func hide_body_vertices() -> void:
 	var delete_verts_gd := []
 	delete_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
 	var delete_verts_mh := []
-	delete_verts_mh.resize(_helper_vertex.size())
+	delete_verts_mh.resize(helper_vertex.size())
 	var remap_verts_gd = PackedInt32Array() #old to new
 	remap_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
 	remap_verts_gd.fill(-1)
@@ -470,7 +466,7 @@ func hide_clothes_vertices():
 		push_warning("Can't alter meshes.  Already baked")
 		return
 	var delete_verts_mh := []
-	delete_verts_mh.resize(_helper_vertex.size())
+	delete_verts_mh.resize(helper_vertex.size())
 	
 	var depth_sorted_clothes := []
 	for child in get_children():
@@ -708,13 +704,13 @@ func _fit_body_mesh() -> void:
 	# fit body mesh
 	if body_mesh == null:
 		return
-	body_mesh.mesh = HumanizerBodyService.fit_mesh(body_mesh.mesh,_helper_vertex)
+	body_mesh.mesh = HumanizerBodyService.fit_mesh(body_mesh.mesh,helper_vertex)
 
 func _fit_equipment_mesh(equipment: HumanAsset) -> void:
 	if equipment.node == null:
 		return
 	var mhclo: MHCLO = load(equipment.mhclo_path)
-	var new_mesh = MeshOperations.build_fitted_mesh(equipment.node.mesh, _helper_vertex, mhclo)
+	var new_mesh = MeshOperations.build_fitted_mesh(equipment.node.mesh, helper_vertex, mhclo)
 	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
 	equipment.node.mesh = new_mesh
 
@@ -777,46 +773,7 @@ func _set_shapekey_data(shapekeys: Dictionary) -> void:
 		printerr('Cannot change shapekeys on baked mesh.  Reset the character.')
 		notify_property_list_changed()
 		return
-	var prev_sk = human_config.shapekeys.duplicate()
-
-	# Set default macro/race values if not present
-	var macro_vals := {}
-	for sk in MeshOperations.get_macro_options():
-		macro_vals[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.5))
-	var race_vals := {}
-	for sk in MeshOperations.get_race_options():
-		race_vals[sk] = shapekeys.get(sk, prev_sk.get(sk, 0.333))
-	
-	for sk in macro_vals:
-		shapekeys[sk] = macro_vals[sk]
-	for sk in race_vals:
-		shapekeys[sk] = race_vals[sk]
-	
-	# Clear all macro shapekeys then re-apply results from macro sliders
-	for sk in shapekey_data.macro_shapekeys:
-		shapekeys[sk] = 0
-	var sk_values = MeshOperations.get_macro_shapekey_values(macro_vals, race_vals)
-	for sk in sk_values:
-		shapekeys[sk] = sk_values[sk]
-	
-	# Apply shapekey changes to base mesh
-	for sk in shapekeys:
-		var prev_val: float = prev_sk.get(sk, 0)
-		if prev_val == shapekeys[sk]:
-			continue
-		if sk not in shapekey_data.shapekeys:
-			continue
-		for mh_id in shapekey_data.shapekeys[sk]:
-			_helper_vertex[mh_id] += shapekey_data.shapekeys[sk][mh_id] * (shapekeys[sk] - prev_val)
-	
-	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
-	var _foot_offset = Vector3.UP * offset
-	
-	for i in _helper_vertex.size():
-		_helper_vertex[i] -= _foot_offset
-		
-	for key in shapekeys:
-		human_config.shapekeys[key] = shapekeys[key]
+	HumanizerTargetService.set_targets(shapekeys,human_config.targets,helper_vertex)
 
 func add_shapekey() -> void:
 	if new_shapekey_name in ['', null]:
@@ -970,8 +927,7 @@ func _adjust_skeleton() -> void:
 	skeleton.reset_bone_poses()
 	var rig = human_config.rig.split('-')[0]
 	var skeleton_config = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].config_json_path)
-	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
-	var _foot_offset = Vector3.UP * offset
+	var _foot_offset = HumanizerBodyService.get_foot_offset(helper_vertex)
 	skeleton.motion_scale = 1
 	
 	var asset_bone_positions = []
@@ -991,12 +947,12 @@ func _adjust_skeleton() -> void:
 			var bone_data = skeleton_config[bone_id]
 			if "vertex_indices" in bone_data.head:
 				for vid in bone_data.head.vertex_indices:
-					bone_pos += _helper_vertex[int(vid)]
+					bone_pos += helper_vertex[int(vid)]
 				bone_pos /= bone_data.head.vertex_indices.size()
 			else:
-				bone_pos = _helper_vertex[int(bone_data.head.vertex_index)]
+				bone_pos = helper_vertex[int(bone_data.head.vertex_index)]
 		if skeleton.get_bone_name(bone_id) != 'Root':
-			bone_pos -= _foot_offset
+			bone_pos.y -= _foot_offset
 		else:
 			bone_pos = Vector3.ZERO  # Root should always be at origin
 		var parent_id = skeleton.get_bone_parent(bone_id)
@@ -1007,7 +963,7 @@ func _adjust_skeleton() -> void:
 		skeleton.set_bone_rest(bone_id, skeleton.get_bone_pose(bone_id))
 
 	
-	skeleton.motion_scale = _base_motion_scale * (_helper_vertex[hips_id].y - _foot_offset.y) / _base_hips_height
+	skeleton.motion_scale = _base_motion_scale * (HumanizerBodyService.get_hips_height(helper_vertex) - _foot_offset) / _base_hips_height
 	skeleton.reset_bone_poses()
 	for child in get_children():
 		if child is MeshInstance3D:
@@ -1167,26 +1123,19 @@ func _add_physical_skeleton() -> void:
 		return
 	animator.active = false
 	skeleton.reset_bone_poses()
-	HumanizerPhysicalSkeleton.new(skeleton, _helper_vertex, _ragdoll_layers, _ragdoll_mask).run()
+	HumanizerPhysicalSkeleton.new(skeleton, helper_vertex, _ragdoll_layers, _ragdoll_mask).run()
 	skeleton.reset_bone_poses()
 	animator.active = true
 	skeleton.animate_physical_bones = true
 
 func _adjust_main_collider():
-	var head_height = _helper_vertex[14570].y
-	var offset = max(_helper_vertex[feet_ids[0]].y, _helper_vertex[feet_ids[1]].y)
+	var head_height = HumanizerBodyService.get_head_height(helper_vertex)
+	var offset = HumanizerBodyService.get_foot_offset(helper_vertex)
 	var height = head_height - offset
 	main_collider.shape.height = height
 	main_collider.position.y = height/2 + offset
 
-	var width_ids = [shoulder_id,waist_id,hips_id]
-	var max_width = 0
-	for mh_id in width_ids:
-		var vertex_position = _helper_vertex[mh_id]
-		var distance = Vector2(vertex_position.x,vertex_position.z).distance_to(Vector2.ZERO)
-		if distance > max_width:
-			max_width = distance
-	main_collider.shape.radius = max_width * 1.5
+	main_collider.shape.radius = HumanizerBodyService.get_max_width(helper_vertex)
 
 func _add_saccades() -> void:
 	if human_config.rig == 'default-RETARGETED':

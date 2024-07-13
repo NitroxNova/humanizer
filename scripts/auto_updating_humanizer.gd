@@ -5,6 +5,11 @@ extends Humanizer
 ## For use in character editor scenes where the character should be 
 ## continuously updated with every change
 
+func reset():
+	#var new_config = HumanConfig.new()
+	set_human_config(HumanConfig.new())
+	set_shapekeys({})
+
 func set_human_config(config: HumanConfig) -> void:
 	human_config = config
 	
@@ -47,7 +52,7 @@ func set_skin_normal_texture(name: String) -> void:
 
 func set_rig(rig_name: String) -> void:
 	super(rig_name)
-	set_shapekeys(human_config.shapekeys)
+	set_shapekeys(human_config.targets.raw)
 	for equip in human_config.equipment.values():
 		_add_bone_weights(equip)
 	_adjust_skeleton()

@@ -11,7 +11,7 @@ var asset_type: HumanizerRegistry.AssetType
 var basis: Array
 
 func run(clean_only: bool = false) -> void:
-	basis = HumanizerUtils.shapekey_data.basis.duplicate(true)
+	basis = HumanizerTargetService.data.basis
 	if _asset_path != '':  # User operating from scene
 		for fl in OSPath.get_files(_asset_path):
 			if fl.get_extension() in ['res', 'tscn', 'tres']:

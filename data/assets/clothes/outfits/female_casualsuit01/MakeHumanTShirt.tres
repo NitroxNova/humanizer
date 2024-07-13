@@ -11,4 +11,4 @@ textures = {
 "female_casualsuit01_diffuse": "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_diffuse.png"
 }
 slots = Array[String](["TorsoClothes"])
-texture_name = ""
+texture_name = "female_casualsuit01_diffuse"
