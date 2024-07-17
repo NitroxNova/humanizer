@@ -33,6 +33,7 @@ static func get_shapekey_categories() -> Dictionary:
 	var categories := {
 		'Macro': [],
 		'Race': [],
+		'BodyShape': [],
 		'Head': [],
 		'Eyes': [],
 		'Mouth': [],
@@ -56,6 +57,8 @@ static func get_shapekey_categories() -> Dictionary:
 			continue
 		elif name.begins_with('custom'):
 			categories['Custom'].append(raw_name)
+		elif 'bodyshape' in name:
+			categories['BodyShape'].append(raw_name)
 		elif 'head' in name or 'brown' in name or 'top' in name:
 			categories['Head'].append(raw_name)
 		elif 'eye' in name:
