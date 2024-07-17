@@ -28,6 +28,9 @@ static func set_targets_raw(new_targets:Dictionary,target_config:HumanTargetConf
 				target_config.raw.erase(target_name)
 			else:
 				target_config.raw[target_name] = new_targets[target_name]
+	var foot_offset = HumanizerBodyService.get_foot_offset(helper_vertex)
+	for mh_id in helper_vertex.size():
+		helper_vertex[mh_id].y -= foot_offset
 
 static func get_shapekey_categories() -> Dictionary:
 	var categories := {
