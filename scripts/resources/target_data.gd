@@ -6,4 +6,3 @@ class_name HumanizerTargetData
 @export var index : PackedInt32Array 
 @export var names : Dictionary 
 @export var basis : PackedVector3Array 
-@export var macros : PackedStringArray 

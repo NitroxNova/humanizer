@@ -10,6 +10,7 @@ func run():
 		printerr("missing core target files, download from https://github.com/makehumancommunity/makehuman/tree/master/makehuman/data/targets")
 		printerr("and copy them to " + HumanizerGlobalConfig.config.asset_import_paths[0].path_join("targets"))
 		return
+	
 	print('Collecting shape key data from target files')
 	target_data = HumanizerTargetData.new()
 	HumanizerTargetService.data = target_data #clear reference to file
@@ -30,11 +31,6 @@ func run():
 	for path in HumanizerGlobalConfig.config.asset_import_paths:
 		_get_shape_keys(path + 'targets/')
 	
-	for sk in target_data.names:
-		if sk.begins_with('african') or sk.begins_with('asian') or sk.begins_with('caucasian')\
-				or sk.begins_with('female') or sk.begins_with('male') or sk.begins_with('universal'):
-			target_data.macros.append(sk)
-				
 	ResourceSaver.save(target_data,"res://addons/humanizer/data/resources/target_data.res")	
 	
 	HumanizerTargetService.data = load("res://addons/humanizer/data/resources/target_data.res")

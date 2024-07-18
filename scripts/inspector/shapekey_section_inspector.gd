@@ -40,11 +40,6 @@ func _ready() -> void:
 		slider.owner = self
 		slider.unique_name_in_owner = true
 
-		#var line_edit = LineEdit.new()
-		#line_edit.text = str(0)
-		#line_edit.text_changed.connect(_on_value_changed.bind(key))
-		#line_edit.text_changed.connect(set_shapekey.bind(key))
-
 func _on_value_changed(changed: bool, slider: HSlider) -> void:
 	var key = slider.name
 	var value = slider.value
