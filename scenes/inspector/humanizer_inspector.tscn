@@ -9,7 +9,7 @@
 script/source = "@tool
 extends OptionButton
 
-var human : Humanizer:
+var human : HumanizerEditorTool:
 	set(value):
 		human = value
 		set_options()
@@ -30,7 +30,7 @@ func _load_preset(idx) -> void:
 script/source = "@tool
 extends OptionButton
 
-var human: Humanizer
+var human: HumanizerEditorTool
 
 
 func _ready() -> void:

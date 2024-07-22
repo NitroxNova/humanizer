@@ -1,5 +1,5 @@
 @tool
-class_name Humanizer
+class_name HumanizerEditorTool
 extends Node3D
 
 ## Base humanizer node for use in-game when loading a new human from config

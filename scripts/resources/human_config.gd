@@ -21,10 +21,10 @@ signal equipment_removed(equip:HumanAsset)
 @export var transforms := {}
 
 ## Colors
-@export var skin_color: Color = Humanizer._DEFAULT_SKIN_COLOR
-@export var eye_color: Color = Humanizer._DEFAULT_EYE_COLOR
-@export var eyebrow_color: Color = Humanizer._DEFAULT_EYEBROW_COLOR
-@export var hair_color: Color = Humanizer._DEFAULT_HAIR_COLOR
+@export var skin_color: Color = HumanizerEditorTool._DEFAULT_SKIN_COLOR
+@export var eye_color: Color = HumanizerEditorTool._DEFAULT_EYE_COLOR
+@export var eyebrow_color: Color = HumanizerEditorTool._DEFAULT_EYEBROW_COLOR
+@export var hair_color: Color = HumanizerEditorTool._DEFAULT_HAIR_COLOR
 
 @export var body_material : HumanizerMaterial
 

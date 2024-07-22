@@ -2,7 +2,7 @@
 extends MarginContainer
 
 var shapekeys
-var human: Humanizer
+var human: HumanizerEditorTool
 
 func _ready() -> void:
 	if shapekeys == null:
@@ -65,7 +65,7 @@ func _on_value_changed(changed: bool, slider: HSlider) -> void:
 	else:
 		human.set_shapekeys({key: float(value)})
 	
-func _on_reset_sliders(human: Humanizer) -> void:
+func _on_reset_sliders(human: HumanizerEditorTool) -> void:
 	var values := {}
 	for sk in shapekeys:
 		var slider: HSlider = get_node('%' + sk)
@@ -75,7 +75,7 @@ func _on_reset_sliders(human: Humanizer) -> void:
 	human.set_shapekeys(values)
 	print('Reset ' + name + ' sliders')
 	
-func _on_randomize_sliders(human: Humanizer, randomization: HSlider, asymmetry: HSlider) -> void:
+func _on_randomize_sliders(human: HumanizerEditorTool, randomization: HSlider, asymmetry: HSlider) -> void:
 	var rng = RandomNumberGenerator.new()
 	var values := {}
 	for sk in shapekeys:

@@ -1,6 +1,6 @@
 @tool
 class_name AutoUpdatingHumanizer
-extends Humanizer
+extends HumanizerEditorTool
 
 ## For use in character editor scenes where the character should be 
 ## continuously updated with every change

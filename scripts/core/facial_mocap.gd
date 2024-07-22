@@ -49,7 +49,7 @@ var next_key: float
 var clip: Animation
 var socket := UDPServer.new()
 var peer: PacketPeerUDP
-@onready var human: Humanizer = $'../'
+@onready var human: HumanizerEditorTool = $'../'
 var skeleton: Skeleton3D:
 	get:
 		return human.skeleton
