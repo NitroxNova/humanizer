@@ -16,7 +16,7 @@ func setup(_human_rnd: HumanRandomizer):
 	%RandomizeShapekeysButton.pressed.connect(_randomize_shapekeys)
 	%RandomizeBodyPartsButton.pressed.connect(human_rnd.randomize_body_parts)
 	%RandomizeClothesButton.pressed.connect(human_rnd.randomize_clothes)
-	shapekeys = HumanizerUtils.get_shapekey_categories()
+	shapekeys = HumanizerTargetService.get_shapekey_categories()
 	for cat in shapekeys:
 		if shapekeys[cat].size() == 0:
 			continue
