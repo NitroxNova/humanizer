@@ -2,7 +2,7 @@
 class_name HumanRandomizer
 extends Node
 
-@export var human: Humanizer
+@export var human: HumanizerEditorTool
 var categories: Dictionary
 var randomization: Dictionary
 var asymmetry: Dictionary
