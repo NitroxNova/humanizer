@@ -4,6 +4,12 @@ class_name HumanizerTargetService
 
 static var data: HumanizerTargetData = load("res://addons/humanizer/data/resources/target_data.res")
 
+static func init_helper_vertex(target_config=null)->PackedVector3Array:
+	var helper_vertex = data.basis.duplicate()
+	if target_config != null:
+		pass
+	return helper_vertex
+
 static func set_targets(new_targets:Dictionary,target_config:HumanTargetConfig,helper_vertex:PackedVector3Array):
 	#print(new_targets)
 	var macros = {}
