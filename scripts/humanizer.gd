@@ -12,6 +12,7 @@ const _DEFAULT_EYEBROW_COLOR = Color.BLACK
 
 const eyebrow_color_weight := 0.4
 
+var humanizer : Humanizer
 var skeleton: Skeleton3D
 var body_mesh: MeshInstance3D
 var baked := false
@@ -32,7 +33,6 @@ var _base_hips_height: float:
 	get:
 		return HumanizerTargetService.data.basis[HumanizerBodyService.hips_id].y
 
-var helper_vertex: PackedVector3Array = []
 var save_path: String:
 	get:
 		var path = HumanizerGlobalConfig.config.human_export_path
@@ -162,7 +162,7 @@ func reset_human() -> void:
 	if has_node('MorphDriver'):
 		_delete_child_node($MorphDriver)
 	baked = false
-	helper_vertex = HumanizerTargetService.data.basis.duplicate()
+	humanizer = Humanizer.new()
 	for child in get_children():
 		if child is MeshInstance3D:
 			_delete_child_node(child)
@@ -434,7 +434,7 @@ func hide_body_vertices() -> void:
 	var delete_verts_gd := []
 	delete_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
 	var delete_verts_mh := []
-	delete_verts_mh.resize(helper_vertex.size())
+	delete_verts_mh.resize(humanizer.helper_vertex.size())
 	var remap_verts_gd = PackedInt32Array() #old to new
 	remap_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
 	remap_verts_gd.fill(-1)
@@ -466,7 +466,7 @@ func hide_clothes_vertices():
 		push_warning("Can't alter meshes.  Already baked")
 		return
 	var delete_verts_mh := []
-	delete_verts_mh.resize(helper_vertex.size())
+	delete_verts_mh.resize(humanizer.helper_vertex.size())
 	
 	var depth_sorted_clothes := []
 	for child in get_children():
@@ -704,13 +704,13 @@ func _fit_body_mesh() -> void:
 	# fit body mesh
 	if body_mesh == null:
 		return
-	body_mesh.mesh = HumanizerBodyService.fit_mesh(body_mesh.mesh,helper_vertex)
+	body_mesh.mesh = HumanizerBodyService.fit_mesh(body_mesh.mesh,humanizer.helper_vertex)
 
 func _fit_equipment_mesh(equipment: HumanAsset) -> void:
 	if equipment.node == null:
 		return
 	var mhclo: MHCLO = load(equipment.mhclo_path)
-	var new_mesh = MeshOperations.build_fitted_mesh(equipment.node.mesh, helper_vertex, mhclo)
+	var new_mesh = MeshOperations.build_fitted_mesh(equipment.node.mesh, humanizer.helper_vertex, mhclo)
 	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
 	equipment.node.mesh = new_mesh
 
@@ -773,8 +773,8 @@ func _set_shapekey_data(shapekeys: Dictionary) -> void:
 		printerr('Cannot change shapekeys on baked mesh.  Reset the character.')
 		notify_property_list_changed()
 		return
-	HumanizerTargetService.set_targets(shapekeys,human_config.targets,helper_vertex)
-
+	humanizer.set_targets(shapekeys)
+	
 func add_shapekey() -> void:
 	if new_shapekey_name in ['', null]:
 		printerr('Invalid shapekey name')
@@ -927,7 +927,7 @@ func _adjust_skeleton() -> void:
 	skeleton.reset_bone_poses()
 	var rig = human_config.rig.split('-')[0]
 	var skeleton_config = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].config_json_path)
-	var _foot_offset = HumanizerBodyService.get_foot_offset(helper_vertex)
+	var _foot_offset = humanizer.get_foot_offset()
 	skeleton.motion_scale = 1
 	
 	var asset_bone_positions = []
@@ -947,10 +947,10 @@ func _adjust_skeleton() -> void:
 			var bone_data = skeleton_config[bone_id]
 			if "vertex_indices" in bone_data.head:
 				for vid in bone_data.head.vertex_indices:
-					bone_pos += helper_vertex[int(vid)]
+					bone_pos += humanizer.helper_vertex[int(vid)]
 				bone_pos /= bone_data.head.vertex_indices.size()
 			else:
-				bone_pos = helper_vertex[int(bone_data.head.vertex_index)]
+				bone_pos = humanizer.helper_vertex[int(bone_data.head.vertex_index)]
 		if skeleton.get_bone_name(bone_id) != 'Root':
 			bone_pos.y -= _foot_offset
 		else:
@@ -963,7 +963,7 @@ func _adjust_skeleton() -> void:
 		skeleton.set_bone_rest(bone_id, skeleton.get_bone_pose(bone_id))
 
 	
-	skeleton.motion_scale = _base_motion_scale * (HumanizerBodyService.get_hips_height(helper_vertex) - _foot_offset) / _base_hips_height
+	skeleton.motion_scale = _base_motion_scale * (humanizer.get_hips_height() - _foot_offset) / _base_hips_height
 	skeleton.reset_bone_poses()
 	for child in get_children():
 		if child is MeshInstance3D:
@@ -1123,19 +1123,19 @@ func _add_physical_skeleton() -> void:
 		return
 	animator.active = false
 	skeleton.reset_bone_poses()
-	HumanizerPhysicalSkeleton.new(skeleton, helper_vertex, _ragdoll_layers, _ragdoll_mask).run()
+	HumanizerPhysicalSkeleton.new(skeleton, humanizer.helper_vertex, _ragdoll_layers, _ragdoll_mask).run()
 	skeleton.reset_bone_poses()
 	animator.active = true
 	skeleton.animate_physical_bones = true
 
 func _adjust_main_collider():
-	var head_height = HumanizerBodyService.get_head_height(helper_vertex)
-	var offset = HumanizerBodyService.get_foot_offset(helper_vertex)
+	var head_height = humanizer.get_head_height()
+	var offset = humanizer.get_foot_offset()
 	var height = head_height - offset
 	main_collider.shape.height = height
 	main_collider.position.y = height/2 + offset
 
-	main_collider.shape.radius = HumanizerBodyService.get_max_width(helper_vertex)
+	main_collider.shape.radius = humanizer.get_max_width()
 
 func _add_saccades() -> void:
 	if human_config.rig == 'default-RETARGETED':
