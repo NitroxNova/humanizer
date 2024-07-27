@@ -4,10 +4,16 @@ class_name Humanizer
 
 var human_config:HumanConfig
 var helper_vertex:PackedVector3Array = []
+var mesh_arrays : Dictionary = {}
 
-func _init(_human_config:HumanConfig=HumanConfig.new()):
-	human_config = _human_config
-	helper_vertex = HumanizerTargetService.init_helper_vertex()
+func _init(_human_config = null):
+	if _human_config == null:
+		human_config = HumanConfig.new()
+		human_config.targets.init_macros()
+	else:	
+		human_config = _human_config
+	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
+	#mesh_arrays.body = HumanizerBodyService.load_mesh_arrays("rig",helper_vertex)
 
 func set_targets(target_data:Dictionary):
 	HumanizerTargetService.set_targets(target_data,human_config.targets,helper_vertex)

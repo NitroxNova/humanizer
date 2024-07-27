@@ -5,10 +5,6 @@ extends Node3D
 ## Base humanizer node for use in-game when loading a new human from config
 
 const BASE_MESH_NAME: String = 'Body'
-const _DEFAULT_SKIN_COLOR = Color.WHITE
-const _DEFAULT_EYE_COLOR = Color.SKY_BLUE
-const _DEFAULT_HAIR_COLOR = Color.WEB_MAROON
-const _DEFAULT_EYEBROW_COLOR = Color.BLACK
 
 const eyebrow_color_weight := 0.4
 
@@ -50,7 +46,7 @@ var bake_surface_name: String
 var new_shapekey_name: String = ''
 var morph_data := {}
 
-var skin_color: Color = _DEFAULT_SKIN_COLOR:
+var skin_color: Color = Color.WHITE:
 	set(value):
 		skin_color = value
 		if body_mesh == null or (body_mesh as HumanizerMeshInstance) == null:
@@ -60,7 +56,7 @@ var skin_color: Color = _DEFAULT_SKIN_COLOR:
 		human_config.skin_color = skin_color
 		if body_mesh.material_config.overlays.size() > 0:
 			body_mesh.material_config.overlays[0].color = skin_color
-var hair_color: Color = _DEFAULT_HAIR_COLOR:
+var hair_color: Color = Color.WHITE:
 	set(value):
 		hair_color = value
 		if human_config == null or not scene_loaded:
@@ -72,7 +68,7 @@ var hair_color: Color = _DEFAULT_HAIR_COLOR:
 			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = hair_color 
 		eyebrow_color = Color(hair_color * eyebrow_color_weight, 1.)
 		notify_property_list_changed()
-var eyebrow_color: Color = _DEFAULT_EYEBROW_COLOR:
+var eyebrow_color: Color = Color.WHITE:
 	set(value):
 		eyebrow_color = value
 		if human_config == null or not scene_loaded:
@@ -82,7 +78,7 @@ var eyebrow_color: Color = _DEFAULT_EYEBROW_COLOR:
 		for equip in human_config.get_equipment_in_slots(slots):
 			var mesh = equip.node
 			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = eyebrow_color 
-var eye_color: Color = _DEFAULT_EYE_COLOR:
+var eye_color: Color = Color.WHITE:
 	set(value):
 		eye_color = value
 		if human_config == null or not scene_loaded:
@@ -179,9 +175,7 @@ func load_human() -> void:
 	baked = false
 	reset_human()
 	_deserialize()
-	if human_config.targets.macro == {}:
-		var default_macros = HumanizerMacroService.get_default_macros()
-		_set_shapekey_data(default_macros)
+
 	notify_property_list_changed()
 
 func create_human_branch() -> Node3D:
@@ -703,6 +697,7 @@ func _fit_all_meshes() -> void:
 func _fit_body_mesh() -> void:
 	# fit body mesh
 	if body_mesh == null:
+		print("body mesh is null")
 		return
 	body_mesh.mesh = HumanizerBodyService.fit_mesh(body_mesh.mesh,humanizer.helper_vertex)
 

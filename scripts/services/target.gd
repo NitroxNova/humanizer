@@ -7,7 +7,7 @@ static var data: HumanizerTargetData = load("res://addons/humanizer/data/resourc
 static func init_helper_vertex(target_config=null)->PackedVector3Array:
 	var helper_vertex = data.basis.duplicate()
 	if target_config != null:
-		pass
+		set_targets_raw(target_config.raw,helper_vertex)
 	return helper_vertex
 
 static func set_targets(new_targets:Dictionary,target_config:HumanTargetConfig,helper_vertex:PackedVector3Array):
@@ -19,9 +19,9 @@ static func set_targets(new_targets:Dictionary,target_config:HumanTargetConfig,h
 			new_targets.erase(target_name)
 	if not macros.is_empty():
 		HumanizerMacroService.set_macros(macros,target_config,helper_vertex)
-	set_targets_raw(new_targets,target_config,helper_vertex)
+	set_targets_raw(new_targets,helper_vertex,target_config)
 
-static func set_targets_raw(new_targets:Dictionary,target_config:HumanTargetConfig,helper_vertex:PackedVector3Array):
+static func set_targets_raw(new_targets:Dictionary,helper_vertex:PackedVector3Array,target_config=null):
 	for target_name in new_targets:
 		if target_name in data.names:
 			var offset = data.names[target_name]
@@ -29,11 +29,15 @@ static func set_targets_raw(new_targets:Dictionary,target_config:HumanTargetConf
 				var mh_id =  data.index[ref_id]
 				var coords = data.coords[ref_id]
 				#print(mh_id)
-				helper_vertex[mh_id] += coords * (new_targets[target_name] - target_config.raw.get(target_name,0))
-			if new_targets[target_name] == 0:
-				target_config.raw.erase(target_name)
-			else:
-				target_config.raw[target_name] = new_targets[target_name]
+				var prev_value = 0
+				if target_config != null:
+					prev_value = target_config.raw.get(target_name,0)
+				helper_vertex[mh_id] += coords * (new_targets[target_name] - prev_value)
+			if target_config != null:
+				if new_targets[target_name] == 0:
+					target_config.raw.erase(target_name)
+				else:
+					target_config.raw[target_name] = new_targets[target_name]
 	var foot_offset = HumanizerBodyService.get_foot_offset(helper_vertex)
 	if foot_offset != 0:
 		for mh_id in helper_vertex.size():

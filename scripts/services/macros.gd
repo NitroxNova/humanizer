@@ -49,7 +49,7 @@ static func set_macros(macros:Dictionary,target_config:HumanTargetConfig,helper_
 			if not target_name in new_targets:
 				new_targets[target_name]=0
 		target_config.combo[combo_name] = macro_target_data.combos[combo_name]
-	HumanizerTargetService.set_targets_raw(new_targets,target_config,helper_vertex)
+	HumanizerTargetService.set_targets_raw(new_targets,helper_vertex,target_config)
 
 	target_config.macro = macros
 	

@@ -9,3 +9,7 @@ class_name HumanTargetConfig
 func _init():
 	for combo_name in HumanizerMacroService.macro_combos:
 		combo[combo_name] = []
+
+func init_macros():
+	macro = HumanizerMacroService.get_default_macros()
+	raw.merge(HumanizerMacroService.get_macro_shapekey_values(macro).targets,true)
