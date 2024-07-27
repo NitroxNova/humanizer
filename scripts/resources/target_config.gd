@@ -12,4 +12,6 @@ func _init():
 
 func init_macros():
 	macro = HumanizerMacroService.get_default_macros()
-	raw.merge(HumanizerMacroService.get_macro_shapekey_values(macro).targets,true)
+	var new_macros = HumanizerMacroService.get_macro_shapekey_values(macro)
+	raw.merge(new_macros.targets,true)
+	combo = new_macros.combos
