@@ -6,8 +6,8 @@ extends HumanizerEditorTool
 ## continuously updated with every change
 
 func reset():
-	#var new_config = HumanConfig.new()
-	set_human_config(HumanConfig.new())
+	#set_human_config(HumanConfig.new())
+	load_human()
 	set_shapekeys({})
 
 func set_human_config(config: HumanConfig) -> void:

@@ -110,9 +110,9 @@ var bake_mesh_names: Array = []:
 @export var human_config: HumanConfig:
 	set(value):
 		human_config = value
-		if scene_loaded and human_config != null:
-			load_human()
-			notify_property_list_changed()
+		#if scene_loaded and human_config != null:
+			#load_human()
+			#notify_property_list_changed()
 
 @export_group('Node Overrides')
 ## The root node type for baked humans
@@ -159,6 +159,8 @@ func reset_human() -> void:
 		_delete_child_node($MorphDriver)
 	baked = false
 	humanizer = Humanizer.new()
+	human_config = humanizer.human_config
+	human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 	for child in get_children():
 		if child is MeshInstance3D:
 			_delete_child_node(child)
@@ -331,11 +333,8 @@ func _get_asset_by_name(mesh_name: String) -> HumanAsset:
 	return res
 
 func _deserialize() -> void:
-	## Set shapekeys
-	var sk = human_config.targets.raw.duplicate()
-	human_config.targets.raw = {}
+	## set rig
 	set_rig(human_config.rig)
-	_set_shapekey_data(sk)
 
 	## Load Assets
 	for equip: HumanAsset in human_config.equipment.values():
