@@ -1,6 +1,9 @@
 extends Resource
 class_name HumanizerRigService
 
+static func get_rig(rig_name:String)->HumanizerRig:
+	return HumanizerRegistry.rigs[rig_name.split('-')[0]]
+
 static func set_body_weights_array(rig: HumanizerRig,body_arrays:Array)->Array:
 	var weights = HumanizerUtils.read_json(rig.bone_weights_json_path)
 	var mh_bone_array = weights.bones

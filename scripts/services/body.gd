@@ -10,16 +10,6 @@ const hips_id: int = 18127
 const feet_ids: Array[int] = [15500, 16804]
 const head_top_id : int = 14570
 
-static func load_mesh(rig, helper_vertex:PackedVector3Array)->ArrayMesh:
-	var basis_mesh = load_basis_mesh()
-	var basis_arrays = basis_mesh.surface_get_arrays(0)
-	var mesh = ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,basis_arrays,[],{},basis_mesh.surface_get_format(0))
-	return mesh
-
-static func load_mesh_arrays(rig ,helper_vertex:PackedVector3Array)->Array:
-	return fit_mesh_arrays(load_basis_arrays(),helper_vertex)
-
 static func load_basis_arrays()->Array:
 	return load_basis_mesh().surface_get_arrays(0)
 

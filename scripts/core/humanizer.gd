@@ -5,18 +5,37 @@ class_name Humanizer
 var human_config:HumanConfig
 var helper_vertex:PackedVector3Array = []
 var mesh_arrays : Dictionary = {}
+var rig: HumanizerRig 
 
 func _init(_human_config = null):
 	if _human_config == null:
 		human_config = HumanConfig.new()
 		human_config.targets.init_macros()
+		human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 	else:	
 		human_config = _human_config
 	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
-	#mesh_arrays.body = HumanizerBodyService.load_mesh_arrays("rig",helper_vertex)
+	mesh_arrays.body = HumanizerBodyService.load_basis_arrays()
+	rig = HumanizerRigService.get_rig(human_config.rig)
+	HumanizerRigService.set_body_weights_array(rig,mesh_arrays.body)
+	fit_meshes()
+	
+func get_mesh(mesh_name:String):
+	var mesh_arrays = mesh_arrays[mesh_name].duplicate()
+	mesh_arrays[Mesh.ARRAY_CUSTOM0] = null
+	var mesh = ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,mesh_arrays)
+	return mesh
+
+func get_body_mesh():
+	return get_mesh("body")
 
 func set_targets(target_data:Dictionary):
 	HumanizerTargetService.set_targets(target_data,human_config.targets,helper_vertex)
+	fit_meshes()
+	
+func fit_meshes():
+	mesh_arrays.body = HumanizerBodyService.fit_mesh_arrays(mesh_arrays.body,helper_vertex)
 
 func get_foot_offset()->float:
 	return HumanizerBodyService.get_foot_offset(helper_vertex)

@@ -160,7 +160,6 @@ func reset_human() -> void:
 	baked = false
 	humanizer = Humanizer.new()
 	human_config = humanizer.human_config
-	human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 	for child in get_children():
 		if child is MeshInstance3D:
 			_delete_child_node(child)
@@ -445,10 +444,10 @@ func hide_body_vertices() -> void:
 						for mh_id in range(entry[0], entry[1] + 1):
 							delete_verts_mh[mh_id] = true
 	
-	for gd_id in arrays[Mesh.ARRAY_VERTEX].size():
-		var mh_id = arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-		if delete_verts_mh[mh_id]:
-			delete_verts_gd[gd_id] = true
+	#for gd_id in arrays[Mesh.ARRAY_VERTEX].size():
+		#var mh_id = arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+		#if delete_verts_mh[mh_id]:
+			#delete_verts_gd[gd_id] = true
 			
 	_set_body_mesh(MeshOperations.delete_faces(body_mesh.mesh,delete_verts_gd))
 	body_mesh.set_surface_override_material(0, skin_mat)
@@ -698,7 +697,8 @@ func _fit_body_mesh() -> void:
 	if body_mesh == null:
 		print("body mesh is null")
 		return
-	body_mesh.mesh = HumanizerBodyService.fit_mesh(body_mesh.mesh,humanizer.helper_vertex)
+	body_mesh.mesh = humanizer.get_body_mesh()
+	#body_mesh.mesh = HumanizerBodyService.fit_mesh(body_mesh.mesh,humanizer.helper_vertex)
 
 func _fit_equipment_mesh(equipment: HumanAsset) -> void:
 	if equipment.node == null:
