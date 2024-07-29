@@ -25,8 +25,8 @@ func get_mesh(mesh_name:String):
 	var new_arrays = mesh_arrays[mesh_name].duplicate()
 	new_arrays[Mesh.ARRAY_CUSTOM0] = null
 	var mesh = ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays)
-	return mesh
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays,[],{},Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS)
+	return HumanizerMeshService.generate_normals_and_tangents(mesh)
 
 func get_body_mesh():
 	return get_mesh("body")

@@ -360,7 +360,6 @@ func _deserialize() -> void:
 	## Finalize
 	_adjust_skeleton()
 	_fit_all_meshes()
-	_recalculate_normals()
 
 #### Mesh Management ####
 func add_equipment(equip: HumanAsset) -> void:
@@ -676,7 +675,7 @@ func _fit_equipment_mesh(equipment: HumanAsset) -> void:
 		return
 	var mhclo: MHCLO = load(equipment.mhclo_path)
 	var new_mesh = MeshOperations.build_fitted_mesh(equipment.node.mesh, humanizer.helper_vertex, mhclo)
-	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
+	#new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
 	equipment.node.mesh = new_mesh
 
 func _combine_meshes() -> ArrayMesh:
@@ -720,18 +719,6 @@ func _combine_meshes() -> ArrayMesh:
 	if human_config.components.has(&'lod'):
 		new_mesh.generate_lods(25, 60, [])
 	return new_mesh.get_mesh()
-
-func _recalculate_normals() -> void:
-	if body_mesh != null:
-		var mat = body_mesh.get_surface_override_material(0)
-		_set_body_mesh(MeshOperations.generate_normals_and_tangents(body_mesh.mesh))
-		body_mesh.set_surface_override_material(0, mat)
-	
-	for mesh in get_children():
-		if not mesh is MeshInstance3D or mesh == body_mesh: #dont need to generate body_mesh again
-			continue
-		if not mesh.name.begins_with("Baked-"):
-			mesh.mesh = MeshOperations.generate_normals_and_tangents(mesh.mesh)
 
 func _set_shapekey_data(shapekeys: Dictionary) -> void:
 	if baked and not bake_in_progress:

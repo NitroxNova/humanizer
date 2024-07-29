@@ -1,17 +1,5 @@
 class_name MeshOperations
 
-
-static func generate_normals_and_tangents(import_mesh:ArrayMesh):
-	var ST = SurfaceTool.new()
-	ST.clear()
-	ST.create_from(import_mesh,0)
-	ST.set_skin_weight_count(SurfaceTool.SKIN_8_WEIGHTS)
-	ST.generate_normals()
-	ST.generate_tangents()
-	var flags = import_mesh.surface_get_format(0)
-	var new_mesh = ST.commit(null,flags)
-	return new_mesh
-
 static func build_fitted_mesh(mesh: ArrayMesh, helper_vertex_array: PackedVector3Array, mhclo: MHCLO) -> ArrayMesh: 
 	# the static mesh with no shapekeys
 	var new_mesh = ArrayMesh.new()

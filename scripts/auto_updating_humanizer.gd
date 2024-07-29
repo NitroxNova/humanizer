@@ -57,7 +57,6 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 	_set_shapekey_data(shapekeys)
 	_fit_all_meshes()
 	_adjust_skeleton()
-	_recalculate_normals()
 
 	if main_collider != null:
 		_adjust_main_collider()
