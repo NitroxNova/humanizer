@@ -108,7 +108,7 @@ func run():
 	var new_mesh = ArrayMesh.new()
 	flags = helper_mesh.surface_get_format(0)
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_sf_arrays, [], {}, flags)
-	new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
+	new_mesh = HumanizerMeshService.generate_normals_and_tangents(new_mesh)
 	ResourceSaver.save(new_mesh,"res://addons/humanizer/data/resources/base_human.res")
 	#endregion
 	

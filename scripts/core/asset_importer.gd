@@ -260,7 +260,7 @@ func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh:
 	var new_sf_arrays = MeshOperations.build_fitted_arrays(mesh, basis, mhclo)
 	var flags = mesh.surface_get_format(0)
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_sf_arrays,[],{},flags)
-	var shaded_mesh: ArrayMesh = MeshOperations.generate_normals_and_tangents(new_mesh)
+	var shaded_mesh: ArrayMesh = HumanizerMeshService.generate_normals_and_tangents(new_mesh)
 	mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(shaded_mesh)
 	return shaded_mesh
 
