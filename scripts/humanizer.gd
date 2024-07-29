@@ -358,7 +358,6 @@ func _deserialize() -> void:
 			if equip.node.material_config.overlays.size() > 0:
 				equip.node.material_config.update_material()
 	## Finalize
-	hide_body_vertices()
 	_adjust_skeleton()
 	_fit_all_meshes()
 	_recalculate_normals()
@@ -421,37 +420,9 @@ func hide_body_vertices() -> void:
 	if baked:
 		push_warning("Can't alter meshes.  Already baked")
 		return
-	var skin_mat = body_mesh.get_surface_override_material(0)
-	var arrays: Array = (body_mesh.mesh as ArrayMesh).surface_get_arrays(0)
-	var delete_verts_gd := []
-	delete_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
-	var delete_verts_mh := []
-	delete_verts_mh.resize(humanizer.helper_vertex.size())
-	var remap_verts_gd = PackedInt32Array() #old to new
-	remap_verts_gd.resize(arrays[Mesh.ARRAY_VERTEX].size())
-	remap_verts_gd.fill(-1)
 	
-	for child in get_children():
-		if not child is MeshInstance3D:
-			continue
-		var res: HumanAsset = _get_asset_by_name(child.name)
-		if not res == null:
-			var mhclo : MHCLO = load(res.mhclo_path)
-			for entry in mhclo.delete_vertices:
-					if entry.size() == 1:
-						delete_verts_mh[entry[0]] = true
-					else:
-						for mh_id in range(entry[0], entry[1] + 1):
-							delete_verts_mh[mh_id] = true
-	
-	#for gd_id in arrays[Mesh.ARRAY_VERTEX].size():
-		#var mh_id = arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-		#if delete_verts_mh[mh_id]:
-			#delete_verts_gd[gd_id] = true
-			
-	_set_body_mesh(MeshOperations.delete_faces(body_mesh.mesh,delete_verts_gd))
-	body_mesh.set_surface_override_material(0, skin_mat)
-	body_mesh.skeleton = '../' + skeleton.name
+	humanizer.hide_body_vertices()
+	body_mesh.mesh = humanizer.get_body_mesh()
 
 func hide_clothes_vertices():
 	if baked:
@@ -496,8 +467,8 @@ func hide_clothes_vertices():
 				any_deleted = true
 				cl_delete_verts_gd[gd_id] = true
 		
-		if any_deleted:
-			clothes_node.mesh = MeshOperations.delete_faces(clothes_node.mesh,cl_delete_verts_gd)			
+		#if any_deleted:
+			#clothes_node.mesh = MeshOperations.delete_faces(clothes_node.mesh,cl_delete_verts_gd)			
 		
 		#update delete verts to apply to all subsequent clothes
 		for entry in mhclo.delete_vertices:
@@ -768,6 +739,7 @@ func _set_shapekey_data(shapekeys: Dictionary) -> void:
 		notify_property_list_changed()
 		return
 	humanizer.set_targets(shapekeys)
+	#print(body_mesh.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size())
 	
 func add_shapekey() -> void:
 	if new_shapekey_name in ['', null]:

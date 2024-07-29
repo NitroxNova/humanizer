@@ -36,10 +36,6 @@ func add_equipment(equip: HumanAsset) -> void:
 	if equip.node is HumanizerMeshInstance:
 		equip.node.material_config.update_material()
 
-func hide_body_vertices() -> void:
-	super()
-	_recalculate_normals()
-
 func set_skin_texture(name: String) -> void:
 	super(name)
 	if body_mesh != null and body_mesh is HumanizerMeshInstance:

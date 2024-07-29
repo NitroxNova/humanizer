@@ -16,20 +16,24 @@ func _init(_human_config = null):
 		human_config = _human_config
 	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
 	mesh_arrays.body = HumanizerBodyService.load_basis_arrays()
+	hide_body_vertices()
 	rig = HumanizerRigService.get_rig(human_config.rig)
 	HumanizerRigService.set_body_weights_array(rig,mesh_arrays.body)
 	fit_meshes()
 	
 func get_mesh(mesh_name:String):
-	var mesh_arrays = mesh_arrays[mesh_name].duplicate()
-	mesh_arrays[Mesh.ARRAY_CUSTOM0] = null
+	var new_arrays = mesh_arrays[mesh_name].duplicate()
+	new_arrays[Mesh.ARRAY_CUSTOM0] = null
 	var mesh = ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,mesh_arrays)
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays)
 	return mesh
 
 func get_body_mesh():
 	return get_mesh("body")
 
+func hide_body_vertices():
+	HumanizerBodyService.hide_vertices(mesh_arrays.body,human_config.equipment)
+			
 func set_targets(target_data:Dictionary):
 	HumanizerTargetService.set_targets(target_data,human_config.targets,helper_vertex)
 	fit_meshes()
