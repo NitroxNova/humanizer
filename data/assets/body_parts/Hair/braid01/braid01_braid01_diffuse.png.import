@@ -3,10 +3,9 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dsv1i4jpslin4"
-path.s3tc="res://.godot/imported/braid01_braid01_diffuse.png-e374dc4a84bae4f7170e42a0301dee70.s3tc.ctex"
+path="res://.godot/imported/braid01_braid01_diffuse.png-e374dc4a84bae4f7170e42a0301dee70.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 generator_parameters={
 "md5": "d3140b8f11fefc5e3871ffe148109291"
@@ -15,7 +14,7 @@ generator_parameters={
 [deps]
 
 source_file="res://addons/humanizer/data/assets/body_parts/Hair/braid01/braid01_braid01_diffuse.png"
-dest_files=["res://.godot/imported/braid01_braid01_diffuse.png-e374dc4a84bae4f7170e42a0301dee70.s3tc.ctex"]
+dest_files=["res://.godot/imported/braid01_braid01_diffuse.png-e374dc4a84bae4f7170e42a0301dee70.ctex"]
 
 [params]
 

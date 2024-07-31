@@ -1,28 +1,5 @@
 class_name MeshOperations
 
-static func build_fitted_mesh(mesh: ArrayMesh, helper_vertex_array: PackedVector3Array, mhclo: MHCLO) -> ArrayMesh: 
-	# the static mesh with no shapekeys
-	var new_mesh = ArrayMesh.new()
-	var new_sf_arrays = build_fitted_arrays(mesh, helper_vertex_array, mhclo)
-	var flags = mesh.surface_get_format(0)
-	var lods := {}
-	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_sf_arrays, [], lods, flags)
-	return new_mesh
-
-static func build_fitted_arrays(mesh: ArrayMesh, helper_vertex_array: PackedVector3Array, mhclo: MHCLO) -> Array: 
-	var new_sf_arrays = mesh.surface_get_arrays(0)
-	var clothes_scale = calculate_mhclo_scale(helper_vertex_array,mhclo)
-	for mh_id in mhclo.vertex_data.size():
-		var vertex_line = mhclo.vertex_data[mh_id]
-		var new_coords = get_mhclo_vertex_position(helper_vertex_array,vertex_line,clothes_scale)
-		var g_id_array = mhclo.mh2gd_index[mh_id]
-		for g_id in g_id_array:
-			new_sf_arrays[Mesh.ARRAY_VERTEX][g_id] = new_coords
-			
-	#if bone_weights_enabled:
-	#	add_bone_weights(new_sf_arrays)
-	return new_sf_arrays
-
 static func calculate_mhclo_scale(helper_vertex_array: Array, mhclo: MHCLO) -> Vector3:
 	var mhclo_scale = Vector3.ZERO
 	for axis in ["x","y","z"]:
@@ -47,22 +24,6 @@ static func get_mhclo_vertex_position( helper_vertex_array: PackedVector3Array, 
 			new_coords += v_coords
 		new_coords += (vertex_line.offset * mhclo_scale)
 	return new_coords
-	
-static func skin_mesh(rig: HumanizerRig, skeleton: Skeleton3D, basemesh: ArrayMesh) -> ArrayMesh:
-	# Load bone and weight arrays for base mesh
-	var mesh_arrays = basemesh.surface_get_arrays(0)
-	var lods := {}
-	var flags := basemesh.surface_get_format(0)
-
-	mesh_arrays = HumanizerRigService.set_body_weights_array(rig,mesh_arrays)
-
-	# Build new mesh
-	var skinned_mesh = ArrayMesh.new()
-	skinned_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
-	for bs in basemesh.get_blend_shape_count():
-		skinned_mesh.add_blend_shape(basemesh.get_blend_shape_name(bs))
-	skinned_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh_arrays, [], lods, flags)
-	return skinned_mesh
 
 static func prepare_shapekeys_for_baking(human_config: HumanConfig, _new_shapekeys: Dictionary) -> void:
 	# Add new shapekeys entries from shapekey components

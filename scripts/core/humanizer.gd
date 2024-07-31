@@ -6,6 +6,8 @@ var human_config:HumanConfig
 var helper_vertex:PackedVector3Array = []
 var mesh_arrays : Dictionary = {}
 var rig: HumanizerRig 
+var skeleton_data : Dictionary = {} #bone names with parent, position and rotation data
+var bone_ids : PackedStringArray
 
 func _init(_human_config = null):
 	if _human_config == null:
@@ -17,9 +19,8 @@ func _init(_human_config = null):
 	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
 	mesh_arrays.body = HumanizerBodyService.load_basis_arrays()
 	hide_body_vertices()
-	rig = HumanizerRigService.get_rig(human_config.rig)
-	HumanizerRigService.set_body_weights_array(rig,mesh_arrays.body)
-	fit_meshes()
+	fit_all_meshes()
+	set_rig(human_config.rig)
 	
 func get_mesh(mesh_name:String):
 	var new_arrays = mesh_arrays[mesh_name].duplicate()
@@ -28,6 +29,13 @@ func get_mesh(mesh_name:String):
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays)
 	return HumanizerMeshService.generate_normals_and_tangents(mesh)
 
+func add_equipment(equip:HumanAsset):
+	human_config.add_equipment(equip)
+	mesh_arrays[equip.resource_name] = HumanizerEquipmentService.load_mesh_arrays(equip)
+	fit_equipment_mesh(equip.resource_name)
+	update_equipment_weights(equip.resource_name)
+	
+	
 func get_body_mesh():
 	return get_mesh("body")
 
@@ -36,11 +44,42 @@ func hide_body_vertices():
 			
 func set_targets(target_data:Dictionary):
 	HumanizerTargetService.set_targets(target_data,human_config.targets,helper_vertex)
-	fit_meshes()
+	fit_all_meshes()
 	
-func fit_meshes():
+func fit_all_meshes():
 	mesh_arrays.body = HumanizerBodyService.fit_mesh_arrays(mesh_arrays.body,helper_vertex)
+	for equip_name in human_config.equipment:
+		fit_equipment_mesh(equip_name)
 
+func fit_equipment_mesh(equip_name:String):
+	var equip:HumanAsset = human_config.equipment[equip_name]
+	var mhclo = load(equip.mhclo_path)
+	mesh_arrays[equip_name] = HumanizerEquipmentService.fit_mesh_arrays(mesh_arrays[equip_name],helper_vertex,mhclo)
+
+func set_rig(rig_name:String):
+	human_config.rig = rig_name
+	var retargeted: bool = rig_name.ends_with('-RETARGETED')
+	rig = HumanizerRigService.get_rig(rig_name)
+	skeleton_data = HumanizerRigService.init_skeleton_data(rig,retargeted)
+	bone_ids = []
+	for bone_name in skeleton_data:
+		bone_ids.append(bone_name)
+	update_bone_weights()
+
+func get_skeleton()->Skeleton3D:
+	return HumanizerRigService.get_skeleton_3D(skeleton_data,bone_ids)
+
+func update_bone_weights():
+	HumanizerRigService.set_body_weights_array(rig,mesh_arrays.body)
+	for equip_name in human_config.equipment:
+		update_equipment_weights(equip_name)
+		
+func update_equipment_weights(equip_name:String):
+	var equip:HumanAsset = human_config.equipment[equip_name]
+	var mhclo = load(equip.mhclo_path)
+	HumanizerRigService.set_equipment_weights_array(equip,  mesh_arrays[equip_name], rig, skeleton_data)
+		
+	
 func get_foot_offset()->float:
 	return HumanizerBodyService.get_foot_offset(helper_vertex)
 	

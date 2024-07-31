@@ -2,12 +2,10 @@
 class_name HumanizerEditorTool
 extends Node3D
 
-## Base humanizer node for use in-game when loading a new human from config
+## editor tool for creating new humans
 
 const BASE_MESH_NAME: String = 'Body'
-
 const eyebrow_color_weight := 0.4
-
 var humanizer : Humanizer
 var skeleton: Skeleton3D
 var body_mesh: MeshInstance3D
@@ -369,7 +367,9 @@ func add_equipment(equip: HumanAsset) -> void:
 		return
 	for prev_equip in human_config.get_equipment_in_slots(equip.slots):
 		remove_equipment(prev_equip)
-	human_config.add_equipment(equip)
+	
+	humanizer.add_equipment(equip)	
+	#human_config.add_equipment(equip)
 	
 	var mesh_inst = load(equip.scene_path).instantiate() as MeshInstance3D
 	mesh_inst.name = equip.resource_name
@@ -672,11 +672,9 @@ func _fit_body_mesh() -> void:
 
 func _fit_equipment_mesh(equipment: HumanAsset) -> void:
 	if equipment.node == null:
+		print("missing equipment node")
 		return
-	var mhclo: MHCLO = load(equipment.mhclo_path)
-	var new_mesh = MeshOperations.build_fitted_mesh(equipment.node.mesh, humanizer.helper_vertex, mhclo)
-	#new_mesh = MeshOperations.generate_normals_and_tangents(new_mesh)
-	equipment.node.mesh = new_mesh
+	equipment.node.mesh = humanizer.get_mesh(equipment.resource_name)
 
 func _combine_meshes() -> ArrayMesh:
 	var new_mesh = ImporterMesh.new()
@@ -847,21 +845,17 @@ func set_rig(rig_name: String) -> void:
 		return
 
 	var retargeted: bool = rig_name.ends_with('-RETARGETED')
-	var rig: HumanizerRig = HumanizerRegistry.rigs[rig_name.split('-')[0]]
-	human_config.rig = rig_name
-	skeleton = rig.load_skeleton()  # Json file needs base skeleton names even if using retargeted
-	var skinned_mesh: ArrayMesh = MeshOperations.skin_mesh(rig, skeleton, body_mesh.mesh)
-	
-	# Set rig in scene
-	if retargeted:
-		skeleton = rig.load_retargeted_skeleton()
+	humanizer.set_rig(rig_name)
+	var rig:HumanizerRig = humanizer.rig
+	skeleton = humanizer.get_skeleton()
 	_add_child_node(skeleton)
 	skeleton.unique_name_in_owner = true
 	# Set new mesh
 	var mat = body_mesh.get_surface_override_material(0)
-	_set_body_mesh(skinned_mesh)
+	body_mesh.mesh = humanizer.get_body_mesh()
 	body_mesh.set_surface_override_material(0, mat)
 	body_mesh.skeleton = '../' + skeleton.name
+	body_mesh.skin = skeleton.create_skin_from_rest_transforms()
 	_reset_animator()
 
 	if human_config.components.has(&'ragdoll'):
@@ -939,69 +933,7 @@ func _add_bone_weights(asset: HumanAsset) -> void:
 	if asset.node == null:
 		return
 	var mi: MeshInstance3D = asset.node
-
-	var rig = human_config.rig.split('-')[0]
-	var bone_weights = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].bone_weights_json_path)
-	var bone_count = 8
-	var mhclo: MHCLO = load(asset.mhclo_path) 
-	var mh2gd_index = mhclo.mh2gd_index
-	var mesh: ArrayMesh
-	
-	if asset.rigged:
-		for bone_id in mhclo.rigged_config.size():
-			var bone_config = mhclo.rigged_config[bone_id]
-			if bone_config.name != "neutral_bone":
-				var bone_name = bone_config.name
-				#print("adding bone " + bone_name)
-				var parent_bone = -1
-				if bone_config.parent == -1:
-					for tag in mhclo.tags:
-						if tag.begins_with("bone_name"):
-							var parent_name = tag.get_slice(" ",1)
-							parent_bone = skeleton.find_bone(parent_name)
-							if parent_bone != -1:
-								break
-				else:
-					var parent_bone_config = mhclo.rigged_config[bone_config.parent]
-					parent_bone = skeleton.find_bone(parent_bone_config.name)
-				if not parent_bone == -1:
-					skeleton.add_bone(bone_name)
-					var new_bone_id = skeleton.find_bone(bone_name)
-					skeleton.set_bone_parent(new_bone_id,parent_bone)
-					skeleton.set_bone_rest(new_bone_id, bone_config.transform)
-					
-	mesh = mi.mesh as ArrayMesh
-	var new_sf_arrays = mesh.surface_get_arrays(0)
-	
-	new_sf_arrays[Mesh.ARRAY_BONES] = PackedInt32Array()
-	new_sf_arrays[Mesh.ARRAY_BONES].resize(bone_count * new_sf_arrays[Mesh.ARRAY_VERTEX].size())
-	new_sf_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
-	new_sf_arrays[Mesh.ARRAY_WEIGHTS].resize(bone_count * new_sf_arrays[Mesh.ARRAY_VERTEX].size())
-	
-	var rigged_bone_ids = []
-	if asset.rigged:
-		for rig_bone_id in mhclo.rigged_config.size():
-			var bone_name = mhclo.rigged_config[rig_bone_id].name
-			rigged_bone_ids.append(skeleton.find_bone(bone_name))
-	for mh_id in mhclo.vertex_data.size():
-		
-		var vertex_bone_weights = mhclo.calculate_vertex_bone_weights(mh_id,bone_weights, rigged_bone_ids)
-		
-		if mh_id < mh2gd_index.size():
-			var g_id_array = mh2gd_index[mh_id]
-			for g_id in g_id_array:
-				for i in bone_count:
-					new_sf_arrays[Mesh.ARRAY_BONES][g_id * bone_count + i] = vertex_bone_weights.bones[i]
-					new_sf_arrays[Mesh.ARRAY_WEIGHTS][g_id * bone_count + i] = vertex_bone_weights.weights[i]
-		else:
-			print("missing " + str(mh_id) + " from " + mhclo.name)
-
-	var flags = mesh.surface_get_format(0)
-	var lods = {}
-	var bs_arrays = mesh.surface_get_blend_shape_arrays(0)
-	mesh.clear_surfaces()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_sf_arrays, bs_arrays, lods, flags)
-	mi.mesh = mesh
+	mi.mesh = humanizer.get_mesh(asset.resource_name)
 	mi.skeleton = &'../' + skeleton.name
 	mi.skin = skeleton.create_skin_from_rest_transforms()
 
