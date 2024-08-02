@@ -14,15 +14,7 @@ var bake_in_progress := false
 var scene_loaded: bool = false
 var main_collider: CollisionShape3D
 var animator: Node
-var _base_motion_scale: float:
-	get:
-		var rig: HumanizerRig = HumanizerRegistry.rigs[human_config.rig.split('-')[0]]
-		var sk: Skeleton3D
-		if human_config.rig.ends_with('RETARGETED'):
-			sk = rig.load_retargeted_skeleton()
-		else:
-			sk = rig.load_skeleton()
-		return sk.motion_scale
+
 var _base_hips_height: float:
 	get:
 		return HumanizerTargetService.data.basis[HumanizerBodyService.hips_id].y
@@ -872,63 +864,12 @@ func _adjust_skeleton() -> void:
 	if skeleton == null:
 		return
 	skeleton.reset_bone_poses()
-	var rig = human_config.rig.split('-')[0]
-	var skeleton_config = HumanizerUtils.read_json(HumanizerRegistry.rigs[rig].config_json_path)
-	var _foot_offset = humanizer.get_foot_offset()
-	skeleton.motion_scale = 1
-	
-	var asset_bone_positions = []
-	asset_bone_positions.resize(skeleton.get_bone_count())	
-	
-	if not baked:
-		for equip in human_config.equipment.values():
-			if equip.rigged:
-				_get_asset_bone_positions(equip, asset_bone_positions)
-	
-	for bone_id in skeleton.get_bone_count():
-		var bone_pos = Vector3.ZERO
-		## manually added bones won't be in the config
-		if skeleton_config.size() < bone_id + 1:
-			bone_pos = asset_bone_positions[bone_id]
-		else:
-			var bone_data = skeleton_config[bone_id]
-			if "vertex_indices" in bone_data.head:
-				for vid in bone_data.head.vertex_indices:
-					bone_pos += humanizer.helper_vertex[int(vid)]
-				bone_pos /= bone_data.head.vertex_indices.size()
-			else:
-				bone_pos = humanizer.helper_vertex[int(bone_data.head.vertex_index)]
-		if skeleton.get_bone_name(bone_id) != 'Root':
-			bone_pos.y -= _foot_offset
-		else:
-			bone_pos = Vector3.ZERO  # Root should always be at origin
-		var parent_id = skeleton.get_bone_parent(bone_id)
-		if not parent_id == -1:
-			var parent_xform = skeleton.get_bone_global_pose(parent_id)
-			bone_pos = bone_pos * parent_xform
-		skeleton.set_bone_pose_position(bone_id, bone_pos)
-		skeleton.set_bone_rest(bone_id, skeleton.get_bone_pose(bone_id))
-
-	
-	skeleton.motion_scale = _base_motion_scale * (humanizer.get_hips_height() - _foot_offset) / _base_hips_height
+	humanizer.adjust_skeleton(skeleton)	
 	skeleton.reset_bone_poses()
 	for child in get_children():
 		if child is MeshInstance3D:
 			child.skin = skeleton.create_skin_from_rest_transforms()
-	#print('Fit skeleton to mesh')
-
-func _get_asset_bone_positions(asset:HumanAsset, bone_positions:Array):
-	var sf_arrays = asset.node.mesh.surface_get_arrays(0)
-	var mhclo : MHCLO = load(asset.mhclo_path)
-	for rig_bone_id in mhclo.rigged_config.size():
-		var bone_config =  mhclo.rigged_config[rig_bone_id]
-		var bone_name = bone_config.name
-		var bone_id = skeleton.find_bone(bone_name)
-		if bone_id != -1:
-			var v1 = sf_arrays[Mesh.ARRAY_VERTEX][mhclo.mh2gd_index[bone_config.vertices.ids[0]][0]]
-			var v2 = sf_arrays[Mesh.ARRAY_VERTEX][mhclo.mh2gd_index[bone_config.vertices.ids[1]][0]]
-			bone_positions[bone_id] = 0.5 * (v1+v2) + bone_config.vertices.offset
-
+		
 func _add_bone_weights(asset: HumanAsset) -> void:
 	if asset.node == null:
 		return
@@ -961,8 +902,7 @@ func reset_face_pose() -> void:
 #### Additional Components ####
 func set_component_state(enabled: bool, component: StringName) -> void:
 	if enabled:
-		if not human_config.components.has(component):
-			human_config.components.append(component)
+		human_config.enable_component(component)
 		if component == &'main_collider':
 			_add_main_collider()
 		elif component == &'ragdoll':
@@ -970,9 +910,10 @@ func set_component_state(enabled: bool, component: StringName) -> void:
 		elif component == &'saccades':
 			_add_saccades()
 		elif component == &'root_bone':
-			_add_root_bone(skeleton)
+			humanizer.enable_root_bone_component()
+			rebuild_skeleton()
 	else:
-		human_config.components.erase(component)
+		human_config.disable_component(component)
 		if component == &'main_collider':
 			if main_collider != null:
 				_delete_child_node(main_collider)
@@ -990,8 +931,9 @@ func set_component_state(enabled: bool, component: StringName) -> void:
 				animator.active = true
 			notify_property_list_changed()
 		elif component == &'root_bone':
+			humanizer.disable_root_bone_component()
 			if skeleton != null:
-				set_rig(human_config.rig)
+				rebuild_skeleton()
 
 func _add_main_collider() -> void:
 	if has_node('MainCollider'):
@@ -1038,13 +980,13 @@ func _add_saccades() -> void:
 	else:
 		printerr('Saccades are not compatible with the selected rig')
 		set_component_state(false, &'saccades')
-
-func _add_root_bone(sk: Skeleton3D) -> void:
-	if sk.find_bone('Root') != -1:
-		push_warning("Rig already has root bone")
-		return
-	if sk.find_bone('Hips') != 0:
-		push_error('Cannot add root bone.  Current root bone must be "Hips"')
-		return
-	sk.add_bone('Root')
-	sk.set_bone_parent(0, skeleton.get_bone_count() - 1)
+	
+func rebuild_skeleton():
+	humanizer.update_skeleton(skeleton)
+	$AnimationTree.set_active(false)
+	skeleton.reset_bone_poses()
+	$AnimationTree.set_active(true)
+	#for child in get_children():
+		#if child is MeshInstance3D:
+			#child.skin = skeleton.create_skin_from_rest_transforms()
+	

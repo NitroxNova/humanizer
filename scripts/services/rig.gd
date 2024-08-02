@@ -8,16 +8,61 @@ static func get_rig(rig_name:String)->HumanizerRig:
 static func get_skeleton_3D(skeleton_data:Dictionary,bone_ids:Array):
 	var skeleton = Skeleton3D.new()
 	skeleton.name = "GeneralSkeleton"
+	rebuild_skeleton_3D(skeleton,skeleton_data,bone_ids)
+	skeleton.set_unique_name_in_owner(true)
+	return skeleton
+
+static func rebuild_skeleton_3D(skeleton3D:Skeleton3D,skeleton_data:Dictionary,bone_ids:Array):
+	skeleton3D.clear_bones()
 	for bone_id in bone_ids.size():
 		var bone_name = bone_ids[bone_id]
 		var bone_data = skeleton_data[bone_name]
-		skeleton.add_bone(bone_name)
-		skeleton.set_bone_rest(bone_id,bone_data.xform)
+		skeleton3D.add_bone(bone_name)
+		
 		if "parent" in bone_data:
-			var parent_id = skeleton.find_bone(bone_data.parent)
-			skeleton.set_bone_parent(bone_id,parent_id)
-	return skeleton
+			var parent_id = skeleton3D.find_bone(bone_data.parent)
+			skeleton3D.set_bone_parent(bone_id,parent_id)
+		
+		adjust_skeleton_3D(skeleton3D,skeleton_data)
 
+static func adjust_skeleton_3D(skeleton3D:Skeleton3D,skeleton_data:Dictionary):
+	for bone_name in skeleton_data:
+		var bone_id = skeleton3D.find_bone(bone_name)
+		var bone_data = skeleton_data[bone_name]
+		var local_pos = bone_data.global_pos
+		if "parent" in bone_data:
+			var parent_id = skeleton3D.find_bone(bone_data.parent)
+			var parent_xform = skeleton3D.get_bone_global_rest(parent_id)
+			local_pos = local_pos * parent_xform
+		var bone_xform = Transform3D(bone_data.local_xform)
+		bone_xform.origin = local_pos
+		skeleton3D.set_bone_rest(bone_id, bone_xform)
+		skeleton3D.reset_bone_pose(bone_id)
+	#skeleton.motion_scale = _base_motion_scale * (humanizer.get_hips_height() - _foot_offset) / _base_hips_height
+
+		
+static func adjust_bone_positions(skeleton_data:Dictionary,rig:HumanizerRig,helper_vertex:PackedVector3Array):
+	var skeleton_config = HumanizerUtils.read_json(rig.config_json_path)
+	var bone_id = 0
+	for bone_name in skeleton_data:
+		var bone_pos = Vector3.ZERO
+		## manually added bones won't be in the config
+		if skeleton_config.size() < bone_id + 1:
+			#bone_pos = asset_bone_positions[bone_id]
+			pass
+		else:
+			var bone_data = skeleton_config[bone_id]
+			if "vertex_indices" in bone_data.head:
+				for vid in bone_data.head.vertex_indices:
+					bone_pos += helper_vertex[int(vid)]
+				bone_pos /= bone_data.head.vertex_indices.size()
+			else:
+				bone_pos = helper_vertex[int(bone_data.head.vertex_index)]
+		if bone_name == 'Root':
+			bone_pos = Vector3.ZERO  # Root should always be at origin
+		skeleton_data[bone_name].global_pos = bone_pos
+		bone_id += 1
+				
 static func init_skeleton_data(rig: HumanizerRig,retargeted:bool)->Dictionary:
 	var skeleton_data = {}
 	
@@ -33,7 +78,8 @@ static func init_skeleton_data(rig: HumanizerRig,retargeted:bool)->Dictionary:
 		var parent_id = skeleton.get_bone_parent(bone_id)
 		if parent_id != -1:
 			bone_data.parent = skeleton.get_bone_name(parent_id)
-		bone_data.xform = skeleton.get_bone_rest(bone_id)
+		bone_data.local_xform = skeleton.get_bone_rest(bone_id)
+		bone_data.global_pos = skeleton.get_bone_global_rest(bone_id).origin
 		skeleton_data[bone_name] = bone_data
 	
 	return skeleton_data
@@ -79,9 +125,59 @@ static func set_equipment_weights_array(equip:HumanAsset,  mesh_arrays:Array, ri
 		var mh_id = mesh_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
 		mesh_arrays[Mesh.ARRAY_BONES].append_array(mh_bone_weights[mh_id].bones)
 		mesh_arrays[Mesh.ARRAY_WEIGHTS].append_array(mh_bone_weights[mh_id].weights)		
-	
-#func add_equipment_weights(equip:HumanAsset, rig:HumanizerRig, skeleton:Skeleton3D, mesh_arrays:Array):
+		
+static func get_base_motion_scale(rig:HumanizerRig, retargeted:bool):
+	var sk: Skeleton3D
+	if retargeted:
+		sk = rig.load_retargeted_skeleton()
+	else:
+		sk = rig.load_skeleton()
+	return sk.motion_scale
 
+
+#static func adjust_skeleton_3D(skeleton:Skeleton3D,skeleton_data:Dictionary,rig:HumanizerRig,helper_vertex:PackedVector3Array):
+	
+	
+	#var _foot_offset = HumanizerBodyService.get_foot_offset(helper_vertex)
+	##print(_foot_offset)
+	#skeleton.motion_scale = 1
+	
+	#var asset_bone_positions = []
+	#asset_bone_positions.resize(skeleton.get_bone_count())	
+	#if not baked:
+		#for equip in human_config.equipment.values():
+			#if equip.rigged:
+				#_get_asset_bone_positions(equip, asset_bone_positions)
+	
+	
+		#var parent_id = skeleton.get_bone_parent(bone_id)
+		#if not parent_id == -1:
+			#var parent_xform = skeleton.get_bone_global_pose(parent_id)
+			#bone_pos = bone_pos * parent_xform
+		#skeleton.set_bone_pose_position(bone_id, bone_pos)
+		#skeleton.set_bone_rest(bone_id, skeleton.get_bone_pose(bone_id))
+
+	
+	#skeleton.motion_scale = _base_motion_scale * (humanizer.get_hips_height() - _foot_offset) / _base_hips_height
+
+	#print('Fit skeleton to mesh')
+
+func _get_asset_bone_positions(skeleton:Skeleton3D,asset:HumanAsset, bone_positions:Array):
+	var sf_arrays = asset.node.mesh.surface_get_arrays(0)
+	var mhclo : MHCLO = load(asset.mhclo_path)
+	for rig_bone_id in mhclo.rigged_config.size():
+		var bone_config =  mhclo.rigged_config[rig_bone_id]
+		var bone_name = bone_config.name
+		var bone_id = skeleton.find_bone(bone_name)
+		if bone_id != -1:
+			var v1 = sf_arrays[Mesh.ARRAY_VERTEX][mhclo.mh2gd_index[bone_config.vertices.ids[0]][0]]
+			var v2 = sf_arrays[Mesh.ARRAY_VERTEX][mhclo.mh2gd_index[bone_config.vertices.ids[1]][0]]
+			bone_positions[bone_id] = 0.5 * (v1+v2) + bone_config.vertices.offset
+
+
+
+
+#func add_equipment_weights(equip:HumanAsset, rig:HumanizerRig, skeleton:Skeleton3D, mesh_arrays:Array):
 	#if equip.rigged:
 		#for bone_id in mhclo.rigged_config.size():
 			#var bone_config = mhclo.rigged_config[bone_id]

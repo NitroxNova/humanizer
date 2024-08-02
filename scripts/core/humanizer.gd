@@ -35,7 +35,6 @@ func add_equipment(equip:HumanAsset):
 	fit_equipment_mesh(equip.resource_name)
 	update_equipment_weights(equip.resource_name)
 	
-	
 func get_body_mesh():
 	return get_mesh("body")
 
@@ -45,6 +44,7 @@ func hide_body_vertices():
 func set_targets(target_data:Dictionary):
 	HumanizerTargetService.set_targets(target_data,human_config.targets,helper_vertex)
 	fit_all_meshes()
+	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex)
 	
 func fit_all_meshes():
 	mesh_arrays.body = HumanizerBodyService.fit_mesh_arrays(mesh_arrays.body,helper_vertex)
@@ -64,10 +64,18 @@ func set_rig(rig_name:String):
 	bone_ids = []
 	for bone_name in skeleton_data:
 		bone_ids.append(bone_name)
+	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex)
 	update_bone_weights()
 
 func get_skeleton()->Skeleton3D:
+	#print(skeleton_data)
 	return HumanizerRigService.get_skeleton_3D(skeleton_data,bone_ids)
+
+func rebuild_skeleton(skeleton:Skeleton3D):
+	HumanizerRigService.rebuild_skeleton_3D(skeleton,skeleton_data,bone_ids)
+
+func adjust_skeleton(skeleton:Skeleton3D):
+	HumanizerRigService.adjust_skeleton_3D(skeleton,skeleton_data)
 
 func update_bone_weights():
 	HumanizerRigService.set_body_weights_array(rig,mesh_arrays.body)
@@ -78,7 +86,21 @@ func update_equipment_weights(equip_name:String):
 	var equip:HumanAsset = human_config.equipment[equip_name]
 	var mhclo = load(equip.mhclo_path)
 	HumanizerRigService.set_equipment_weights_array(equip,  mesh_arrays[equip_name], rig, skeleton_data)
+
+func enable_root_bone_component():
+	human_config.enable_component(&'root_bone')
+	if "Root" not in skeleton_data:
+		skeleton_data.Root = {xform=Transform3D()}
+		skeleton_data[bone_ids[0]].parent = "Root"
+		#bone_ids.insert(0,"Root")
+		bone_ids.append("Root")	
 		
+func disable_root_bone_component():
+	human_config.disable_component(&'root_bone')
+	if "Root" in skeleton_data:
+		skeleton_data.erase("Root")
+		bone_ids.remove_at(bone_ids.find("Root"))	
+		skeleton_data[bone_ids[0]].parent = ""
 	
 func get_foot_offset()->float:
 	return HumanizerBodyService.get_foot_offset(helper_vertex)

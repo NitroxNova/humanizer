@@ -53,4 +53,10 @@ func remove_equipment(equip:HumanAsset):
 	if equip.resource_name in equipment: #make sure hasnt already been unequipped
 		equipment.erase(equip.resource_name)
 		equipment_removed.emit(equip)
-		
+
+func enable_component(c_name:StringName):
+	if not components.has(c_name):
+			components.append(c_name)
+
+func disable_component(c_name:StringName):
+	components.erase(c_name)
