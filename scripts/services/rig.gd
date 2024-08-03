@@ -14,16 +14,15 @@ static func get_skeleton_3D(skeleton_data:Dictionary,bone_ids:Array):
 
 static func rebuild_skeleton_3D(skeleton3D:Skeleton3D,skeleton_data:Dictionary,bone_ids:Array):
 	skeleton3D.clear_bones()
-	for bone_id in bone_ids.size():
-		var bone_name = bone_ids[bone_id]
+	var bone_id = 0
+	for bone_name in skeleton_data:
 		var bone_data = skeleton_data[bone_name]
 		skeleton3D.add_bone(bone_name)
-		
 		if "parent" in bone_data:
 			var parent_id = skeleton3D.find_bone(bone_data.parent)
 			skeleton3D.set_bone_parent(bone_id,parent_id)
-		
-		adjust_skeleton_3D(skeleton3D,skeleton_data)
+		bone_id+=1
+	adjust_skeleton_3D(skeleton3D,skeleton_data)
 
 static func adjust_skeleton_3D(skeleton3D:Skeleton3D,skeleton_data:Dictionary):
 	for bone_name in skeleton_data:
@@ -85,6 +84,7 @@ static func init_skeleton_data(rig: HumanizerRig,retargeted:bool)->Dictionary:
 	return skeleton_data
 
 static func set_body_weights_array(rig: HumanizerRig,body_arrays:Array):
+	#print("HumanizerRigService - set body weights array")
 	var weights = HumanizerUtils.read_json(rig.bone_weights_json_path)
 	var mh_bone_array = weights.bones
 	var mh_weight_array = weights.weights

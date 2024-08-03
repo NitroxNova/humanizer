@@ -829,27 +829,22 @@ func set_rig(rig_name: String) -> void:
 	if baked:
 		printerr('Cannot change rig on baked mesh.  Reset the character.')
 		return
-	# Delete existing skeleton
+	
+	 #Delete existing skeleton
 	for child in get_children():
 		if child is Skeleton3D:
 			_delete_child_node(child)
 	if rig_name == '':
 		return
-
-	var retargeted: bool = rig_name.ends_with('-RETARGETED')
+		
 	humanizer.set_rig(rig_name)
-	var rig:HumanizerRig = humanizer.rig
 	skeleton = humanizer.get_skeleton()
 	_add_child_node(skeleton)
-	skeleton.unique_name_in_owner = true
-	# Set new mesh
-	var mat = body_mesh.get_surface_override_material(0)
 	body_mesh.mesh = humanizer.get_body_mesh()
-	body_mesh.set_surface_override_material(0, mat)
 	body_mesh.skeleton = '../' + skeleton.name
 	body_mesh.skin = skeleton.create_skin_from_rest_transforms()
 	_reset_animator()
-
+#
 	if human_config.components.has(&'ragdoll'):
 		set_component_state(false, &'ragdoll')
 		set_component_state(true, &'ragdoll')
