@@ -848,9 +848,6 @@ func set_rig(rig_name: String) -> void:
 	if human_config.components.has(&'ragdoll'):
 		set_component_state(false, &'ragdoll')
 		set_component_state(true, &'ragdoll')
-	if human_config.components.has(&'root_bone'):
-		set_component_state(true, &'root_bone')
-		notify_property_list_changed()
 	if human_config.components.has(&'saccades'):
 		if rig_name != &'default-RETARGETED':
 			set_component_state(false, &'saccades')
@@ -928,7 +925,7 @@ func set_component_state(enabled: bool, component: StringName) -> void:
 		elif component == &'root_bone':
 			humanizer.disable_root_bone_component()
 			if skeleton != null:
-				rebuild_skeleton()
+				set_rig(human_config.rig)
 
 func _add_main_collider() -> void:
 	if has_node('MainCollider'):
@@ -977,11 +974,13 @@ func _add_saccades() -> void:
 		set_component_state(false, &'saccades')
 	
 func rebuild_skeleton():
-	humanizer.update_skeleton(skeleton)
-	$AnimationTree.set_active(false)
+	##TODO figure out why this only works when adding bones and not for removing. something about bone count on the skin
+	humanizer.rebuild_skeleton(skeleton)
 	skeleton.reset_bone_poses()
-	$AnimationTree.set_active(true)
-	#for child in get_children():
-		#if child is MeshInstance3D:
-			#child.skin = skeleton.create_skin_from_rest_transforms()
+	reskin_skeleton_meshes()
+	
+func reskin_skeleton_meshes():
+	for child in get_children():
+		if child is MeshInstance3D:
+			child.skin = skeleton.create_skin_from_rest_transforms()
 	

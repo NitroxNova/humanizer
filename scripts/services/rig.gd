@@ -5,23 +5,25 @@ class_name HumanizerRigService
 static func get_rig(rig_name:String)->HumanizerRig:
 	return HumanizerRegistry.rigs[rig_name.split('-')[0]]
 
-static func get_skeleton_3D(skeleton_data:Dictionary,bone_ids:Array):
+static func get_skeleton_3D(skeleton_data:Dictionary):
 	var skeleton = Skeleton3D.new()
 	skeleton.name = "GeneralSkeleton"
-	rebuild_skeleton_3D(skeleton,skeleton_data,bone_ids)
+	rebuild_skeleton_3D(skeleton,skeleton_data)
 	skeleton.set_unique_name_in_owner(true)
 	return skeleton
 
-static func rebuild_skeleton_3D(skeleton3D:Skeleton3D,skeleton_data:Dictionary,bone_ids:Array):
+static func rebuild_skeleton_3D(skeleton3D:Skeleton3D,skeleton_data:Dictionary):
 	skeleton3D.clear_bones()
-	var bone_id = 0
+	for bone_name in skeleton_data:
+		skeleton3D.add_bone(bone_name)
+	
+	#because root bone is added after
 	for bone_name in skeleton_data:
 		var bone_data = skeleton_data[bone_name]
-		skeleton3D.add_bone(bone_name)
+		var bone_id = skeleton3D.find_bone(bone_name)
 		if "parent" in bone_data:
 			var parent_id = skeleton3D.find_bone(bone_data.parent)
 			skeleton3D.set_bone_parent(bone_id,parent_id)
-		bone_id+=1
 	adjust_skeleton_3D(skeleton3D,skeleton_data)
 
 static func adjust_skeleton_3D(skeleton3D:Skeleton3D,skeleton_data:Dictionary):
