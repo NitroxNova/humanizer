@@ -128,14 +128,12 @@ static func set_equipment_weights_array(equip:HumanAsset,  mesh_arrays:Array, ri
 		mesh_arrays[Mesh.ARRAY_WEIGHTS].append_array(mh_bone_weights[mh_id].weights)		
 
 static func get_motion_scale(rig_name:String, helper_vertex:PackedVector3Array):
-	var base_motion_scale = get_base_motion_scale(rig_name)
+	var base_motion_scale = _get_base_motion_scale(rig_name)
 	var hips_height = HumanizerBodyService.get_hips_height(helper_vertex)
-	var foot_offset = HumanizerBodyService.get_foot_offset(helper_vertex)
 	var base_hips_height = HumanizerBodyService.get_hips_height(HumanizerTargetService.data.basis)
-	return base_motion_scale * (hips_height - foot_offset) / base_hips_height
+	return base_motion_scale * (hips_height  / base_hips_height)
 
-			
-static func get_base_motion_scale(rig_name:String):
+static func _get_base_motion_scale(rig_name:String):
 	var sk: Skeleton3D
 	var retargeted = is_retargeted(rig_name)
 	var rig = get_rig(rig_name)
