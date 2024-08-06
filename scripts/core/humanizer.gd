@@ -18,8 +18,10 @@ func _init(_human_config = null):
 	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
 	mesh_arrays.body = HumanizerBodyService.load_basis_arrays()
 	hide_body_vertices()
-	fit_all_meshes()
-	set_rig(human_config.rig)
+	for equip in human_config.equipment.values():
+		mesh_arrays[equip.resource_name] = HumanizerEquipmentService.load_mesh_arrays(equip)
+	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
+	
 	
 func get_mesh(mesh_name:String):
 	var new_arrays = mesh_arrays[mesh_name].duplicate()
@@ -68,8 +70,13 @@ func set_rig(rig_name:String):
 	var retargeted: bool = rig_name.ends_with('-RETARGETED')
 	rig = HumanizerRigService.get_rig(rig_name)
 	skeleton_data = HumanizerRigService.init_skeleton_data(rig,retargeted)
+	for equip in human_config.equipment.values():
+		if equip.rigged:
+			HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip.resource_name],skeleton_data)
 	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex,human_config.equipment,mesh_arrays)
 	update_bone_weights()
+	if &'root_bone' in human_config.components:
+		enable_root_bone_component()
 
 func get_skeleton()->Skeleton3D:
 	#print(skeleton_data)
