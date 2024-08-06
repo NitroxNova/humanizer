@@ -32,8 +32,16 @@ func add_equipment(equip:HumanAsset):
 	human_config.add_equipment(equip)
 	mesh_arrays[equip.resource_name] = HumanizerEquipmentService.load_mesh_arrays(equip)
 	fit_equipment_mesh(equip.resource_name)
+	if equip.rigged:
+		HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip.resource_name], skeleton_data)
 	update_equipment_weights(equip.resource_name)
 	
+func remove_equipment(equip:HumanAsset):
+	human_config.remove_equipment(equip)
+	mesh_arrays.erase(equip.resource_name)
+	if equip.rigged:
+		HumanizerRigService.skeleton_remove_rigged_equipment(equip, skeleton_data)
+
 func get_body_mesh():
 	return get_mesh("body")
 
@@ -43,7 +51,7 @@ func hide_body_vertices():
 func set_targets(target_data:Dictionary):
 	HumanizerTargetService.set_targets(target_data,human_config.targets,helper_vertex)
 	fit_all_meshes()
-	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex)
+	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex,human_config.equipment,mesh_arrays)
 	
 func fit_all_meshes():
 	mesh_arrays.body = HumanizerBodyService.fit_mesh_arrays(mesh_arrays.body,helper_vertex)
@@ -60,7 +68,7 @@ func set_rig(rig_name:String):
 	var retargeted: bool = rig_name.ends_with('-RETARGETED')
 	rig = HumanizerRigService.get_rig(rig_name)
 	skeleton_data = HumanizerRigService.init_skeleton_data(rig,retargeted)
-	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex)
+	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex,human_config.equipment,mesh_arrays)
 	update_bone_weights()
 
 func get_skeleton()->Skeleton3D:

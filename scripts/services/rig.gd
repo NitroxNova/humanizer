@@ -40,16 +40,26 @@ static func adjust_skeleton_3D(skeleton3D:Skeleton3D,skeleton_data:Dictionary):
 		skeleton3D.set_bone_rest(bone_id, bone_xform)
 		skeleton3D.reset_bone_pose(bone_id)
 	
-		
-static func adjust_bone_positions(skeleton_data:Dictionary,rig:HumanizerRig,helper_vertex:PackedVector3Array):
+static func adjust_bone_positions(skeleton_data:Dictionary,rig:HumanizerRig,helper_vertex:PackedVector3Array,equipment:Dictionary,mesh_arrays:Dictionary):
+	var asset_bone_positions = []
+	asset_bone_positions.resize(skeleton_data.size())
+	for equip in equipment.values():
+		if equip.rigged:
+			var mhclo : MHCLO = load(equip.mhclo_path)
+			for bone_config in mhclo.rigged_config:
+				var bone_id = skeleton_data.keys().find(bone_config.name)
+				if bone_id > -1:
+					asset_bone_positions[bone_id] = get_asset_bone_position(mesh_arrays[equip.resource_name],mhclo,bone_config)				
+	
 	var skeleton_config = HumanizerUtils.read_json(rig.config_json_path)
 	var bone_id = 0
 	for bone_name in skeleton_data:
 		var bone_pos = Vector3.ZERO
+		if bone_name == 'Root':
+			bone_pos = Vector3.ZERO  # Root should always be at origin
 		## manually added bones won't be in the config
-		if skeleton_config.size() < bone_id + 1:
-			#bone_pos = asset_bone_positions[bone_id]
-			pass
+		elif skeleton_config.size() < bone_id + 1:
+			bone_pos = asset_bone_positions[bone_id]
 		else:
 			var bone_data = skeleton_config[bone_id]
 			if "vertex_indices" in bone_data.head:
@@ -58,14 +68,12 @@ static func adjust_bone_positions(skeleton_data:Dictionary,rig:HumanizerRig,help
 				bone_pos /= bone_data.head.vertex_indices.size()
 			else:
 				bone_pos = helper_vertex[int(bone_data.head.vertex_index)]
-		if bone_name == 'Root':
-			bone_pos = Vector3.ZERO  # Root should always be at origin
+		
 		skeleton_data[bone_name].global_pos = bone_pos
 		bone_id += 1
 				
 static func init_skeleton_data(rig: HumanizerRig,retargeted:bool)->Dictionary:
 	var skeleton_data = {}
-	
 	var skeleton : Skeleton3D
 	if retargeted:
 		skeleton = rig.load_retargeted_skeleton()
@@ -117,6 +125,10 @@ static func set_equipment_weights_array(equip:HumanAsset,  mesh_arrays:Array, ri
 	mesh_arrays[Mesh.ARRAY_BONES] = PackedInt32Array()
 	mesh_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
 	var rigged_bone_ids = []
+	if equip.rigged:
+		for bone in mhclo.rigged_config:
+			var bone_id = skeleton_data.keys().find(bone.name) 
+			rigged_bone_ids.append(bone_id)
 	var mh_bone_weights = []
 	for mh_id in mhclo.vertex_data.size():	
 		var vertex_bone_weights = mhclo.calculate_vertex_bone_weights(mh_id,bone_weights, rigged_bone_ids)
@@ -143,81 +155,42 @@ static func _get_base_motion_scale(rig_name:String):
 		sk = rig.load_skeleton()
 	return sk.motion_scale
 
-
 static func is_retargeted(rig_name:String):
 	if rig_name.ends_with("RETARGETED"):
 		return true
 	return false
-
-#static func adjust_skeleton_3D(skeleton:Skeleton3D,skeleton_data:Dictionary,rig:HumanizerRig,helper_vertex:PackedVector3Array):
 	
-	
-	#var _foot_offset = HumanizerBodyService.get_foot_offset(helper_vertex)
-	##print(_foot_offset)
-	#skeleton.motion_scale = 1
-	
-	#var asset_bone_positions = []
-	#asset_bone_positions.resize(skeleton.get_bone_count())	
-	#if not baked:
-		#for equip in human_config.equipment.values():
-			#if equip.rigged:
-				#_get_asset_bone_positions(equip, asset_bone_positions)
-	
-	
-		#var parent_id = skeleton.get_bone_parent(bone_id)
-		#if not parent_id == -1:
-			#var parent_xform = skeleton.get_bone_global_pose(parent_id)
-			#bone_pos = bone_pos * parent_xform
-		#skeleton.set_bone_pose_position(bone_id, bone_pos)
-		#skeleton.set_bone_rest(bone_id, skeleton.get_bone_pose(bone_id))
-
-	
-	#skeleton.motion_scale = _base_motion_scale * (humanizer.get_hips_height() - _foot_offset) / _base_hips_height
-
-	#print('Fit skeleton to mesh')
-
-func _get_asset_bone_positions(skeleton:Skeleton3D,asset:HumanAsset, bone_positions:Array):
-	var sf_arrays = asset.node.mesh.surface_get_arrays(0)
-	var mhclo : MHCLO = load(asset.mhclo_path)
-	for rig_bone_id in mhclo.rigged_config.size():
-		var bone_config =  mhclo.rigged_config[rig_bone_id]
+static func skeleton_add_rigged_equipment(equipment:HumanAsset, sf_arrays:Array,skeleton_data:Dictionary):
+	var mhclo : MHCLO = load(equipment.mhclo_path)
+	for bone_config in mhclo.rigged_config:
 		var bone_name = bone_config.name
-		var bone_id = skeleton.find_bone(bone_name)
-		if bone_id != -1:
-			var v1 = sf_arrays[Mesh.ARRAY_VERTEX][mhclo.mh2gd_index[bone_config.vertices.ids[0]][0]]
-			var v2 = sf_arrays[Mesh.ARRAY_VERTEX][mhclo.mh2gd_index[bone_config.vertices.ids[1]][0]]
-			bone_positions[bone_id] = 0.5 * (v1+v2) + bone_config.vertices.offset
+		if bone_name != "neutral_bone":
+			skeleton_data[bone_name] = {}
+			skeleton_data[bone_name].global_pos = get_asset_bone_position(sf_arrays,mhclo,bone_config)
+			skeleton_data[bone_name].local_xform = bone_config.transform
+			var parent_name = get_rigged_parent_bone(mhclo,bone_config,skeleton_data)
+			if parent_name != null:
+				skeleton_data[bone_name].parent = parent_name
+	
+static func get_asset_bone_position(sf_arrays:Array,mhclo:MHCLO,bone_config:Dictionary):
+	var v1 = sf_arrays[Mesh.ARRAY_VERTEX][mhclo.mh2gd_index[bone_config.vertices.ids[0]][0]]
+	var v2 = sf_arrays[Mesh.ARRAY_VERTEX][mhclo.mh2gd_index[bone_config.vertices.ids[1]][0]]
+	var bone_pos = 0.5 * (v1+v2) + bone_config.vertices.offset
+	return bone_pos
 
-
-
-
-#func add_equipment_weights(equip:HumanAsset, rig:HumanizerRig, skeleton:Skeleton3D, mesh_arrays:Array):
-	#if equip.rigged:
-		#for bone_id in mhclo.rigged_config.size():
-			#var bone_config = mhclo.rigged_config[bone_id]
-			#if bone_config.name != "neutral_bone":
-				#var bone_name = bone_config.name
-				##print("adding bone " + bone_name)
-				#var parent_bone = -1
-				#if bone_config.parent == -1:
-					#for tag in mhclo.tags:
-						#if tag.begins_with("bone_name"):
-							#var parent_name = tag.get_slice(" ",1)
-							#parent_bone = skeleton.find_bone(parent_name)
-							#if parent_bone != -1:
-								#break
-				#else:
-					#var parent_bone_config = mhclo.rigged_config[bone_config.parent]
-					#parent_bone = skeleton.find_bone(parent_bone_config.name)
-				#if not parent_bone == -1:
-					#skeleton.add_bone(bone_name)
-					#var new_bone_id = skeleton.find_bone(bone_name)
-					#skeleton.set_bone_parent(new_bone_id,parent_bone)
-					#skeleton.set_bone_rest(new_bone_id, bone_config.transform)
-						#
-	#var rigged_bone_ids = []
-	#if equip.rigged:
-		#for rig_bone_id in mhclo.rigged_config.size():
-			#var bone_name = mhclo.rigged_config[rig_bone_id].name
-			#rigged_bone_ids.append(skeleton.find_bone(bone_name))
-
+static func skeleton_remove_rigged_equipment(equipment:HumanAsset,skeleton_data:Dictionary):
+	var mhclo : MHCLO = load(equipment.mhclo_path)
+	for bone_config in mhclo.rigged_config:
+		var bone_name = bone_config.name
+		skeleton_data.erase(bone_name)			
+				
+static func get_rigged_parent_bone(mhclo:MHCLO,bone_config:Dictionary,skeleton_data:Dictionary):
+	if bone_config.parent == -1:
+		for tag in mhclo.tags:
+			if tag.begins_with("bone_name"):
+				var parent_name = tag.get_slice(" ",1)
+				if parent_name in skeleton_data:
+					return parent_name
+	else:
+		return mhclo.rigged_config[bone_config.parent].name
+		 

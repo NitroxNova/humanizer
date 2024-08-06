@@ -361,7 +361,6 @@ func add_equipment(equip: HumanAsset) -> void:
 		remove_equipment(prev_equip)
 	
 	humanizer.add_equipment(equip)	
-	#human_config.add_equipment(equip)
 	
 	var mesh_inst = load(equip.scene_path).instantiate() as MeshInstance3D
 	mesh_inst.name = equip.resource_name
@@ -377,9 +376,8 @@ func add_equipment(equip: HumanAsset) -> void:
 	
 	_add_child_node(mesh_inst)	
 	if equip.rigged:
-		set_rig(human_config.rig) #update rig with additional asset bones, and remove any from previous asset
-	else:
-		_add_bone_weights(equip)
+		rebuild_skeleton() #update rig with additional asset bones, and remove any from previous asset
+	_add_bone_weights(equip)
 	if equip.in_slot(["LeftEyebrow","RightEyebrow","Eyebrows"]):
 		eyebrow_color = eyebrow_color  ## trigger setter logic
 	elif equip.in_slot(["Eyes","LeftEye","RightEye"]):
@@ -394,7 +392,7 @@ func remove_equipment(equip: HumanAsset) -> void:
 		notify_property_list_changed()
 		return
 	_delete_child_by_name(equip.resource_name)
-	human_config.remove_equipment(equip)
+	humanizer.remove_equipment(equip)
 	if equip.rigged:
 		set_rig(human_config.rig) #remove bones from previous asset
 

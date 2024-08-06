@@ -105,7 +105,7 @@ func calculate_vertex_bone_weights(mh_id:int,bone_weights:Dictionary, rigged_bon
 		for array_id in rigged_bones[mh_id].size():
 			var rig_bone_id = rigged_bones[mh_id][array_id]
 			var bone_id = rigged_bone_ids[rig_bone_id]
-			if bone_id == -1:
+			if bone_id == -1: # the "neutral bone", where the hair connects to the head, for example
 				remainder += rigged_weights[mh_id][array_id]
 			else:
 				bones.append(bone_id)
