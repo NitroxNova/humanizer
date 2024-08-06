@@ -72,6 +72,7 @@ func rebuild_skeleton(skeleton:Skeleton3D):
 
 func adjust_skeleton(skeleton:Skeleton3D):
 	HumanizerRigService.adjust_skeleton_3D(skeleton,skeleton_data)
+	skeleton.motion_scale = HumanizerRigService.get_motion_scale(human_config.rig,helper_vertex)
 
 func update_bone_weights():
 	HumanizerRigService.set_body_weights_array(rig,mesh_arrays.body)

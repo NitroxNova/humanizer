@@ -39,8 +39,7 @@ static func adjust_skeleton_3D(skeleton3D:Skeleton3D,skeleton_data:Dictionary):
 		bone_xform.origin = local_pos
 		skeleton3D.set_bone_rest(bone_id, bone_xform)
 		skeleton3D.reset_bone_pose(bone_id)
-	#skeleton.motion_scale = _base_motion_scale * (humanizer.get_hips_height() - _foot_offset) / _base_hips_height
-
+	
 		
 static func adjust_bone_positions(skeleton_data:Dictionary,rig:HumanizerRig,helper_vertex:PackedVector3Array):
 	var skeleton_config = HumanizerUtils.read_json(rig.config_json_path)
@@ -127,15 +126,30 @@ static func set_equipment_weights_array(equip:HumanAsset,  mesh_arrays:Array, ri
 		var mh_id = mesh_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
 		mesh_arrays[Mesh.ARRAY_BONES].append_array(mh_bone_weights[mh_id].bones)
 		mesh_arrays[Mesh.ARRAY_WEIGHTS].append_array(mh_bone_weights[mh_id].weights)		
-		
-static func get_base_motion_scale(rig:HumanizerRig, retargeted:bool):
+
+static func get_motion_scale(rig_name:String, helper_vertex:PackedVector3Array):
+	var base_motion_scale = get_base_motion_scale(rig_name)
+	var hips_height = HumanizerBodyService.get_hips_height(helper_vertex)
+	var foot_offset = HumanizerBodyService.get_foot_offset(helper_vertex)
+	var base_hips_height = HumanizerBodyService.get_hips_height(HumanizerTargetService.data.basis)
+	return base_motion_scale * (hips_height - foot_offset) / base_hips_height
+
+			
+static func get_base_motion_scale(rig_name:String):
 	var sk: Skeleton3D
+	var retargeted = is_retargeted(rig_name)
+	var rig = get_rig(rig_name)
 	if retargeted:
 		sk = rig.load_retargeted_skeleton()
 	else:
 		sk = rig.load_skeleton()
 	return sk.motion_scale
 
+
+static func is_retargeted(rig_name:String):
+	if rig_name.ends_with("RETARGETED"):
+		return true
+	return false
 
 #static func adjust_skeleton_3D(skeleton:Skeleton3D,skeleton_data:Dictionary,rig:HumanizerRig,helper_vertex:PackedVector3Array):
 	
