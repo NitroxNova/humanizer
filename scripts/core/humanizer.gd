@@ -20,6 +20,7 @@ func _init(_human_config = null):
 	hide_body_vertices()
 	for equip in human_config.equipment.values():
 		mesh_arrays[equip.resource_name] = HumanizerEquipmentService.load_mesh_arrays(equip)
+	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
 	
 	
