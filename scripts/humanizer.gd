@@ -54,7 +54,7 @@ var hair_color: Color = Color.WHITE:
 		human_config.hair_color = hair_color
 		var hair_equip = human_config.get_equipment_in_slot("Hair")
 		if hair_equip != null:
-			var mesh = hair_equip.node
+			var mesh = get_node(hair_equip.resource_name)
 			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = hair_color 
 		eyebrow_color = Color(hair_color * eyebrow_color_weight, 1.)
 		notify_property_list_changed()
@@ -66,7 +66,7 @@ var eyebrow_color: Color = Color.WHITE:
 		human_config.eyebrow_color = eyebrow_color
 		var slots: Array = ['RightEyebrow', 'LeftEyebrow', 'Eyebrows']
 		for equip in human_config.get_equipment_in_slots(slots):
-			var mesh = equip.node
+			var mesh = get_node(equip.resource_name)
 			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = eyebrow_color 
 var eye_color: Color = Color.WHITE:
 	set(value):
@@ -76,7 +76,7 @@ var eye_color: Color = Color.WHITE:
 		human_config.eye_color = eye_color
 		var slots: Array = [&'RightEye', &'LeftEye', &'Eyes']
 		for equip in human_config.get_equipment_in_slots(slots):
-			var mesh = equip.node
+			var mesh = get_node(equip.resource_name)
 			var overlay = mesh.material_config.overlays[1]
 			overlay.color = eye_color
 			mesh.material_config.set_overlay(1, overlay)
@@ -364,7 +364,6 @@ func add_equipment(equip: HumanAsset) -> void:
 	
 	var mesh_inst = load(equip.scene_path).instantiate() as MeshInstance3D
 	mesh_inst.name = equip.resource_name
-	equip.node = mesh_inst
 	if equip.default_overlay != null or equip.material_config != null:
 		_setup_overlay_material(equip, equip.material_config)
 	else:
@@ -661,10 +660,7 @@ func _fit_body_mesh() -> void:
 	#body_mesh.mesh = HumanizerBodyService.fit_mesh(body_mesh.mesh,humanizer.helper_vertex)
 
 func _fit_equipment_mesh(equipment: HumanAsset) -> void:
-	if equipment.node == null:
-		print("missing equipment node")
-		return
-	equipment.node.mesh = humanizer.get_mesh(equipment.resource_name)
+	get_node(equipment.resource_name).mesh = humanizer.get_mesh(equipment.resource_name)
 
 func _combine_meshes() -> ArrayMesh:
 	var new_mesh = ImporterMesh.new()
@@ -780,7 +776,7 @@ func set_equipment_material(equipment:HumanAsset, texture: String) -> void:
 		printerr('Cannot change materials. Already baked.')
 		return
 	equipment.texture_name = texture
-	var mesh_inst = equipment.node
+	var mesh_inst = get_node(equipment.resource_name)
 	if mesh_inst == null:
 		print(equipment.resource_name + " has no mesh instance " )
 		return
@@ -861,9 +857,7 @@ func _adjust_skeleton() -> void:
 			child.skin = skeleton.create_skin_from_rest_transforms()
 		
 func _add_bone_weights(asset: HumanAsset) -> void:
-	if asset.node == null:
-		return
-	var mi: MeshInstance3D = asset.node
+	var mi: MeshInstance3D = get_node(asset.resource_name)
 	mi.mesh = humanizer.get_mesh(asset.resource_name)
 	mi.skeleton = &'../' + skeleton.name
 	mi.skin = skeleton.create_skin_from_rest_transforms()

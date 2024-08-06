@@ -23,9 +23,6 @@ var material_path: String:
 	get:
 		return path.path_join(path.get_file() + '_material.res')
 
-## Non-serialized node reference.  
-var node: Node3D
-
 func in_slot(slot_names:Array):
 	for sl_name in slot_names:
 		if sl_name in slots:
