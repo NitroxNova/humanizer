@@ -10,9 +10,7 @@ class_name HumanAsset
 @export var texture_name: String #currently selected texture name
 @export var material_config: HumanizerMaterial
 
-var scene_path: String:
-	get:
-		return path.path_join(resource_name.replace("_Rigged","") + '_scene.tscn')
+
 var mesh_path: String:
 	get:
 		return path.path_join(resource_name.replace("_Rigged","") + '_mesh.res')

@@ -162,15 +162,13 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	resource.path = path
 	resource.resource_name = data.mhclo.resource_name
 	print('Importing asset ' + resource.resource_name)
-	
+	#
 	resource.textures = data.textures.duplicate()
 	if data.has('overlay'):
+		resource.default_overlay = HumanizerOverlay.from_dict(data.textures.overlay)
+		resource.textures.erase('overlay')
 		HumanizerRegistry.overlays[resource.resource_name] = HumanizerOverlay.from_dict(data.overlay)
-	if resource.scene_path in EditorInterface.get_open_scenes():
-		printerr('Cannot process ' + resource.resource_name + ' because its scene is open in the editor')
-		return
-	
-	
+	#
 	# Set slot(s)
 	if asset_type == HumanizerRegistry.AssetType.BodyPart:
 		for tag in data.mhclo.tags:
@@ -191,47 +189,16 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 		if resource.slots.size() == 0:
 			printerr('No slots found for clothes.  Check your mhclo tags.')
 			return
+	
+
 
 	# Save resources
 	data.mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(data.mesh)
 	resource.take_over_path(path.path_join(resource.resource_name + '.tres'))
 	ResourceSaver.save(data.mhclo, resource.mhclo_path)
-
-	# Put main resource in registry for easy access later
-	if asset_type == HumanizerRegistry.AssetType.BodyPart:
-		HumanizerRegistry.add_body_part_asset(resource)
-	elif asset_type == HumanizerRegistry.AssetType.Clothes:
-		HumanizerRegistry.add_clothes_asset(resource)
-
-	# Create packed scene
-	var mi: MeshInstance3D
-	if softbody:
-		mi = SoftBody3D.new()
-	else:
-		mi = MeshInstance3D.new()
-	var scene = PackedScene.new()
-	var mat = load(resource.material_path)
-	mi.mesh = data.mesh
-	mi.name = resource.resource_name
-	mi.set_surface_override_material(0, mat)
-	add_child(mi)
-	mi.owner = self
-	
-	if resource.textures.has('overlay'):
-		resource.default_overlay = HumanizerOverlay.from_dict(data.textures.overlay)
-		resource.textures.erase('overlay')
-
-	data.mesh.take_over_path(resource.mesh_path)
-	scene.pack(mi)
 	ResourceSaver.save(data.mesh, resource.mesh_path)
-	if softbody:
-		ResourceSaver.save(resource, resource.resource_path + '_SoftBody')
-		ResourceSaver.save(scene, resource.softbody_scene_path)
-	else:
-		ResourceSaver.save(resource, resource.resource_path)
-		ResourceSaver.save(scene, resource.scene_path)
-
 	ResourceSaver.save(resource, resource.resource_path)
+	
 	if data.has('rigged'):
 		var rigged_resource = resource.duplicate()
 		rigged_resource.rigged = true
@@ -241,8 +208,12 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 			HumanizerRegistry.add_body_part_asset(rigged_resource)
 		elif asset_type == HumanizerRegistry.AssetType.Clothes:
 			HumanizerRegistry.add_clothes_asset(rigged_resource)
-	
-	mi.queue_free()
+#
+	# Put main resource in registry for easy access later
+	if asset_type == HumanizerRegistry.AssetType.BodyPart:
+		HumanizerRegistry.add_body_part_asset(resource)
+	elif asset_type == HumanizerRegistry.AssetType.Clothes:
+		HumanizerRegistry.add_clothes_asset(resource)
 
 func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh: 
 	# build basis from obj file
@@ -256,13 +227,7 @@ func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh:
 	var delete_vertex = mhclo.delete_vertices
 	var scale_config = mhclo.scale_config
 	
-	#var new_mesh = ArrayMesh.new()
-	#var new_sf_arrays = MeshOperations.build_fitted_arrays(mesh, basis, mhclo)
-	#var flags = mesh.surface_get_format(0)
-	#new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_sf_arrays,[],{},flags)
-	var shaded_mesh: ArrayMesh = HumanizerMeshService.generate_normals_and_tangents(mesh)
-	mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(shaded_mesh)
-	return shaded_mesh
+	return mesh
 
 func _build_bone_arrays(data: Dictionary) -> void:
 	var obj_arrays = (data.mesh as ArrayMesh).surface_get_arrays(0)

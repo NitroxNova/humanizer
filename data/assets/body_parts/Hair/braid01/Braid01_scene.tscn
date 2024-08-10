@@ -1,8 +1,0 @@
-[gd_scene load_steps=3 format=3 uid="uid://dru8avvxe8wug"]
-
-[ext_resource type="ArrayMesh" uid="uid://bbfvbmsttoyva" path="res://addons/humanizer/data/assets/body_parts/Hair/braid01/Braid01_mesh.res" id="1_3n72j"]
-[ext_resource type="Material" uid="uid://ygpxmqaj2tad" path="res://addons/humanizer/data/assets/body_parts/Hair/braid01/braid01_material.res" id="2_ughy5"]
-
-[node name="Braid01" type="MeshInstance3D"]
-mesh = ExtResource("1_3n72j")
-surface_material_override/0 = ExtResource("2_ughy5")

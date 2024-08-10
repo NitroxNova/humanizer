@@ -1,8 +1,0 @@
-[gd_scene load_steps=3 format=3 uid="uid://tft800blui12"]
-
-[ext_resource type="ArrayMesh" uid="uid://yq7hw1b6c601" path="res://addons/humanizer/data/assets/body_parts/Hair/Afro/Afro01_mesh.res" id="1_kw0nb"]
-[ext_resource type="Material" uid="uid://deec468emk0n6" path="res://addons/humanizer/data/assets/body_parts/Hair/Afro/Afro_material.res" id="2_4ornx"]
-
-[node name="Afro01" type="MeshInstance3D"]
-mesh = ExtResource("1_kw0nb")
-surface_material_override/0 = ExtResource("2_4ornx")

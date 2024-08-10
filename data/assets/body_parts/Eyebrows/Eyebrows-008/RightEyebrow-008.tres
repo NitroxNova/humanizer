@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://cyx31ifveppx0"]
+[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://ce76oanoq8al"]
 
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_67ibw"]
 
@@ -11,3 +11,4 @@ textures = {
 "eyebrow008": "res://addons/humanizer/data/assets/body_parts/Eyebrows/Eyebrows-008/eyebrow008.png"
 }
 slots = Array[String](["RightEyebrow"])
+texture_name = ""

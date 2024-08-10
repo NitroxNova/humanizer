@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://c1cejswo7g8sx"]
+[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://bf16s2sgswq7l"]
 
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_5dpio"]
 
