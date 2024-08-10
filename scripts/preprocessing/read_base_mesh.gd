@@ -36,22 +36,6 @@ func run():
 	ResourceSaver.save(helper_mesh,"res://addons/humanizer/data/resources/base_helpers.res")
 	#endregion
 
-	#region Generate uv helper data for hiding vertices
-	var mh_uv_index = {face=[], uv=[], mh_index_size = mh2gd_index.size()}
-	for face_id in obj_data.face.size():
-		var face_data = PackedInt32Array()
-		var uv_data = PackedVector2Array()
-		for i in 4:
-			face_data.append(obj_data.face[face_id][i][0])
-			var uv_id = obj_data.face[face_id][i][1]
-			uv_data.append(obj_data.uv[uv_id])
-		mh_uv_index.face.append(face_data)
-		mh_uv_index.uv.append(uv_data)
-	
-	var save_file = FileAccess.open("res://addons/humanizer/data/resources/mh_uv_index.dat",FileAccess.WRITE)
-	save_file.store_var(mh_uv_index)
-	save_file.close()
-	#endregion
 
 	#region Remove helper vertices to get base mesh
 	var mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(helper_mesh)
@@ -108,7 +92,7 @@ func run():
 	var new_mesh = ArrayMesh.new()
 	flags = helper_mesh.surface_get_format(0)
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_sf_arrays, [], {}, flags)
-	new_mesh = HumanizerMeshService.generate_normals_and_tangents(new_mesh)
+	#new_mesh = HumanizerMeshService.generate_normals_and_tangents(new_mesh)
 	ResourceSaver.save(new_mesh,"res://addons/humanizer/data/resources/base_human.res")
 	#endregion
 	

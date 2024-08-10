@@ -29,7 +29,8 @@ func get_mesh(mesh_name:String):
 	new_arrays[Mesh.ARRAY_CUSTOM0] = null
 	var mesh = ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays)
-	return HumanizerMeshService.generate_normals_and_tangents(mesh)
+	mesh = HumanizerMeshService.generate_normals_and_tangents(mesh)
+	return mesh
 
 func add_equipment(equip:HumanAsset):
 	human_config.add_equipment(equip)
