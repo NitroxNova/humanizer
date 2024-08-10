@@ -26,13 +26,13 @@ func set_eye_color(color: Color) -> void:
 	eye_color = color
 	var slots = ["LeftEye","RightEye","Eyes"]
 	for equip in human_config.get_equipment_in_slots(slots):
-		equip.node.material_config.update_material()
+		get_node(equip.resource_name).material_config.update_material()
 	
 func add_equipment(equip: HumanAsset) -> void:
 	super(equip)
 	_fit_equipment_mesh(equip)
 	var equip_node = get_node(equip.resource_name)
-	if equip_node is HumanizerMeshInstance:
+	if equip_node is HumanizerMeshInstance and equip_node.material_config != null:
 		equip_node.material_config.update_material()
 
 func set_skin_texture(name: String) -> void:

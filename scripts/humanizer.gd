@@ -362,18 +362,29 @@ func add_equipment(equip: HumanAsset) -> void:
 	
 	humanizer.add_equipment(equip)	
 	
-	var mesh_inst = load(equip.scene_path).instantiate() as MeshInstance3D
+	var mesh_inst = HumanizerMeshInstance.new()
 	mesh_inst.name = equip.resource_name
-	if equip.default_overlay != null or equip.material_config != null:
-		_setup_overlay_material(equip, equip.material_config)
-	else:
-		mesh_inst.get_surface_override_material(0).resource_local_to_scene = true
-	if equip.texture_name == null:
-		set_equipment_material(equip, Random.choice(equip.textures.keys()))
+	mesh_inst.mesh = humanizer.get_mesh(equip.resource_name)
+	var sf_material :StandardMaterial3D = load(equip.material_path)
+	mesh_inst.set_surface_override_material(0,sf_material)
+	_add_child_node(mesh_inst)
+	if equip.default_overlay != null and mesh_inst.material_config == null:
+		mesh_inst.material_config = HumanizerMaterial.new()
+		mesh_inst.material_config.add_overlay(HumanizerOverlay.from_dict({albedo=equip.textures[equip.textures.keys()[0]]}))
+		mesh_inst.material_config.add_overlay(equip.default_overlay.duplicate(true))
+	
+	#if equip.texture_name == null or equip.texture_name=="":
+		#set_equipment_material(equip, Random.choice(equip.textures.keys()))
+	#else:
+		#set_equipment_material(equip, equip.texture_name)
+	#if equip.default_overlay != null or equip.material_config != null:
+		#pass
+		#_setup_overlay_material(equip, equip.material_config)
+
+	mesh_inst.get_surface_override_material(0).resource_local_to_scene = true
 	if human_config.transforms.has(equip.resource_name):
 		equip.node.transform = Transform3D(human_config.transforms[equip.resource_name])
-	
-	_add_child_node(mesh_inst)	
+		
 	if equip.rigged:
 		rebuild_skeleton() #update rig with additional asset bones, and remove any from previous asset
 	_add_bone_weights(equip)
@@ -782,6 +793,7 @@ func set_equipment_material(equipment:HumanAsset, texture: String) -> void:
 		return
 	if equipment.default_overlay != null:
 		var mat_config: HumanizerMaterial = mesh_inst.material_config
+
 		var overlay_dict = {&'albedo': equipment.textures[texture]}
 		if mesh_inst.get_surface_override_material(0).normal_texture != null:
 			overlay_dict[&'normal'] = mesh_inst.get_surface_override_material(0).normal_texture.resource_path
@@ -791,19 +803,19 @@ func set_equipment_material(equipment:HumanAsset, texture: String) -> void:
 	else:
 		mesh_inst.get_surface_override_material(0).albedo_texture = load(equipment.textures[texture])
 	
-	if equipment.in_slot(['LeftEye', 'RightEye', 'Eyes']):	
-		var iris: HumanizerOverlay = mesh_inst.material_config.overlays[1]
-		iris.color = eye_color
-		mesh_inst.material_config.set_overlay(1, iris)	
-		mesh_inst.material_config.update_material()
-	elif equipment.in_slot(['RightEyebrow', 'LeftEyebrow', 'Eyebrows']):
-		mesh_inst.get_surface_override_material(0).albedo_color = Color(hair_color * eyebrow_color_weight, 1) 
-	elif equipment.in_slot(['Hair']):
-		mesh_inst.get_surface_override_material(0).albedo_color = hair_color
+	#if equipment.in_slot(['LeftEye', 'RightEye', 'Eyes']):	
+		#var iris: HumanizerOverlay = mesh_inst.material_config.overlays[1]
+		#iris.color = eye_color
+		#mesh_inst.material_config.set_overlay(1, iris)	
+		#mesh_inst.material_config.update_material()
+	#elif equipment.in_slot(['RightEyebrow', 'LeftEyebrow', 'Eyebrows']):
+		#mesh_inst.get_surface_override_material(0).albedo_color = Color(hair_color * eyebrow_color_weight, 1) 
+	#elif equipment.in_slot(['Hair']):
+		#mesh_inst.get_surface_override_material(0).albedo_color = hair_color
 	notify_property_list_changed()
 	
 func _setup_overlay_material(asset: HumanAsset, existing_config: HumanizerMaterial = null) -> void:
-	var mi: MeshInstance3D = asset.node
+	var mi: MeshInstance3D = get_node(asset.resource_name)
 	mi.set_script(load("res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd"))
 	if existing_config != null:
 		mi.material_config = existing_config
