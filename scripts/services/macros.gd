@@ -26,32 +26,34 @@ const macro_options = ["age","gender","height","weight","muscle","proportions","
 const race_options = ["african","asian","caucasian"]
 
 
-static func set_macros(macros:Dictionary,target_config:HumanTargetConfig,helper_vertex:PackedVector3Array):
+static func set_macros(macros:Dictionary,current_targets:Dictionary,helper_vertex:PackedVector3Array):
 	var changed = PackedStringArray()
 	for m in macro_options:
 		if m in macros:
 			changed.append(m)
 		else:
-			macros[m] = target_config.macro.get(m,0.5)
+			macros[m] = current_targets.get(m,0.5)
 	var race_changed = false
 	for r in race_options:
 		if r in macros:
 			race_changed = true
 		else:
-			macros[r] = target_config.macro[r]
+			macros[r] = current_targets[r]
 	if race_changed:
 		normalize_race_values(macros)
 		changed.append("race")
-	var macro_target_data = get_macro_shapekey_values(macros,changed)
-	var new_targets = macro_target_data.targets
-	for combo_name in macro_target_data.combos:
-		for target_name in target_config.combo[combo_name]:
+	var new_combo_data = get_macro_target_combos(macros,changed)
+	var old_combo_data = get_macro_target_combos(current_targets,changed)
+	
+	var new_targets = new_combo_data.targets
+	for combo_name in new_combo_data.combos:
+		for target_name in old_combo_data.combos[combo_name]:
 			if not target_name in new_targets:
 				new_targets[target_name]=0
-		target_config.combo[combo_name] = macro_target_data.combos[combo_name]
-	HumanizerTargetService.set_targets_raw(new_targets,helper_vertex,target_config)
-
-	target_config.macro = macros
+				
+	HumanizerTargetService.set_targets_raw(new_targets,helper_vertex,current_targets)
+	for m in macros:
+		current_targets[m] = macros[m]
 	
 static func get_default_macros():
 	var macros = {}
@@ -61,9 +63,8 @@ static func get_default_macros():
 		macros[r] = 1.0/race_options.size()
 	return macros	
 
-#call this from the menu to get the new shapekeys
-#this does not include reseting the previous macro shapekeys tho
-static func get_macro_shapekey_values(macros:Dictionary,changed_list:PackedStringArray=[]):
+#call this from the menu to get the new macro combos
+static func get_macro_target_combos(macros:Dictionary,changed_list:PackedStringArray=[]):
 	if changed_list.is_empty():
 		#default to recalculate all
 		for m in macro_options:
@@ -76,13 +77,12 @@ static func get_macro_shapekey_values(macros:Dictionary,changed_list:PackedStrin
 	for macro_name in macros:
 		if macro_name in race_options:
 			macro_data.race[macro_name] = macros[macro_name]
-		else:
+		elif macro_name in macro_options:
 			macro_data[macro_name] = get_macro_category_offset(macro_name,macros[macro_name])
-		
 	for combo_name in macro_combos:
 		for changed_name in changed_list:
 			if changed_name in macro_combos[combo_name]:
-				var combo_shapekeys = get_combination_shapekeys(combo_name,macro_data)
+				var combo_shapekeys = get_combination_values(combo_name,macro_data)
 				new_targets.merge(combo_shapekeys,true)
 				new_combos[combo_name] = combo_shapekeys.keys()
 				break	
@@ -102,7 +102,7 @@ static func normalize_race_values(macros:Dictionary):
 		for race in macros:
 			macros[race] *= ratio
 	
-static func get_combination_shapekeys(combo_name:String,data:Dictionary):
+static func get_combination_values(combo_name:String,data:Dictionary):
 	var next_shapes = {}
 	var combo_shapekeys = {""=1} # shapekey name / value pairs
 	for macro_name in macro_combos[combo_name]:
@@ -134,7 +134,6 @@ static func get_macro_category_offset(macro_name,macro_value):
 	var category = macro_ranges[macro_name]
 	var offset : Array = [] # low and high offset
 	var ratio : Array = [] #ratio between low (0) and high (1)
-	
 	var counter = 0
 	for i in category.size():
 		if macro_value == category[i][1]:
@@ -152,5 +151,4 @@ static func get_macro_category_offset(macro_name,macro_value):
 		if category[offset[i]][0] == "":
 			offset.remove_at(i)
 			ratio.remove_at(i)
-	
 	return {offset=offset,ratio=ratio}

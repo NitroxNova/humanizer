@@ -9,7 +9,7 @@ signal equipment_removed(equip:HumanAsset)
 @export var rig: String
 
 ## Shapekey Settings
-@export var targets : HumanTargetConfig = HumanTargetConfig.new()
+@export var targets : Dictionary = {}
 
 ## Additional Components
 @export var components := [&'main_collider', &'lod']
@@ -27,6 +27,12 @@ signal equipment_removed(equip:HumanAsset)
 @export var hair_color: Color = Color.WEB_MAROON
 
 @export var body_material : HumanizerMaterial
+
+func init_macros():
+	var macros = HumanizerMacroService.get_default_macros()
+	var new_targets = HumanizerMacroService.get_macro_target_combos(macros)
+	targets.merge(new_targets.targets,true)
+	targets.merge(macros,true)
 
 func get_equipment_in_slot(slot_name:String):
 	for equip in equipment.values():

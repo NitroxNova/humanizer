@@ -47,7 +47,6 @@ func set_skin_normal_texture(name: String) -> void:
 
 func set_rig(rig_name: String) -> void:
 	super(rig_name)
-	set_shapekeys(human_config.targets.raw)
 	for equip in human_config.equipment.values():
 		_add_bone_weights(equip)
 	_adjust_skeleton()

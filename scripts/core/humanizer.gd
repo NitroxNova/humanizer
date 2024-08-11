@@ -11,7 +11,7 @@ var skeleton_data : Dictionary = {} #bone names with parent, position and rotati
 func _init(_human_config = null):
 	if _human_config == null:
 		human_config = HumanConfig.new()
-		human_config.targets.init_macros()
+		human_config.init_macros()
 		human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 	else:	
 		human_config = _human_config
@@ -22,8 +22,7 @@ func _init(_human_config = null):
 		mesh_arrays[equip.resource_name] = HumanizerEquipmentService.load_mesh_arrays(equip)
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
-	
-	
+		
 func get_mesh(mesh_name:String):
 	var new_arrays = mesh_arrays[mesh_name].duplicate()
 	new_arrays[Mesh.ARRAY_CUSTOM0] = null
@@ -53,10 +52,11 @@ func hide_body_vertices():
 	HumanizerBodyService.hide_vertices(mesh_arrays.body,human_config.equipment)
 			
 func set_targets(target_data:Dictionary):
+	
 	HumanizerTargetService.set_targets(target_data,human_config.targets,helper_vertex)
 	fit_all_meshes()
 	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex,human_config.equipment,mesh_arrays)
-	
+
 func fit_all_meshes():
 	mesh_arrays.body = HumanizerBodyService.fit_mesh_arrays(mesh_arrays.body,helper_vertex)
 	for equip_name in human_config.equipment:

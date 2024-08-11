@@ -13,3 +13,6 @@ static func generate_normals_and_tangents(import_mesh:ArrayMesh):
 	var flags = import_mesh.surface_get_format(0)
 	var new_mesh = ST.commit(null,flags)
 	return new_mesh
+
+static func bake_surfaces(mesh_arrays:Array,materials:Array):
+	pass	

@@ -802,16 +802,7 @@ func set_equipment_material(equipment:HumanAsset, texture: String) -> void:
 		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	else:
 		mesh_inst.get_surface_override_material(0).albedo_texture = load(equipment.textures[texture])
-	
-	#if equipment.in_slot(['LeftEye', 'RightEye', 'Eyes']):	
-		#var iris: HumanizerOverlay = mesh_inst.material_config.overlays[1]
-		#iris.color = eye_color
-		#mesh_inst.material_config.set_overlay(1, iris)	
-		#mesh_inst.material_config.update_material()
-	#elif equipment.in_slot(['RightEyebrow', 'LeftEyebrow', 'Eyebrows']):
-		#mesh_inst.get_surface_override_material(0).albedo_color = Color(hair_color * eyebrow_color_weight, 1) 
-	#elif equipment.in_slot(['Hair']):
-		#mesh_inst.get_surface_override_material(0).albedo_color = hair_color
+
 	notify_property_list_changed()
 	
 func _setup_overlay_material(asset: HumanAsset, existing_config: HumanizerMaterial = null) -> void:
