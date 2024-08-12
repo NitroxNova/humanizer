@@ -26,7 +26,7 @@ signal equipment_removed(equip:HumanAsset)
 @export var eyebrow_color: Color = Color.BLACK
 @export var hair_color: Color = Color.WEB_MAROON
 
-@export var body_material : HumanizerMaterial
+@export var body_material : HumanizerMaterial= HumanizerMaterial.new()
 
 func init_macros():
 	var macros = HumanizerMacroService.get_default_macros()

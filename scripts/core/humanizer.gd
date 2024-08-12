@@ -5,6 +5,7 @@ class_name Humanizer
 var human_config:HumanConfig
 var helper_vertex:PackedVector3Array = []
 var mesh_arrays : Dictionary = {}
+var materials: Dictionary = {}
 var rig: HumanizerRig 
 var skeleton_data : Dictionary = {} #bone names with parent, position and rotation data
 
@@ -13,15 +14,52 @@ func _init(_human_config = null):
 		human_config = HumanConfig.new()
 		human_config.init_macros()
 		human_config.rig = HumanizerGlobalConfig.config.default_skeleton
+		human_config.body_material = HumanizerMaterial.new()
 	else:	
 		human_config = _human_config
 	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
 	mesh_arrays.body = HumanizerBodyService.load_basis_arrays()
 	hide_body_vertices()
+	materials.body = StandardMaterial3D.new()
 	for equip in human_config.equipment.values():
 		mesh_arrays[equip.resource_name] = HumanizerEquipmentService.load_mesh_arrays(equip)
+		materials[equip.resource_name] = StandardMaterial3D.new()
+		set_equipment_material(equip,equip.texture_name)
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
+
+func set_skin_texture(texture_name: String) -> void:
+	var texture: String
+	if not HumanizerRegistry.skin_textures.has(texture_name):
+		human_config.body_material.set_base_textures(HumanizerOverlay.new())
+	else:
+		texture = HumanizerRegistry.skin_textures[texture_name]
+		var normal_texture = texture.get_base_dir() + '/' + texture_name + '_normal.' + texture.get_extension()
+		if not FileAccess.file_exists(normal_texture):
+			if human_config.body_material.overlays.size() > 0:
+				var overlay = human_config.body_material.overlays[0]
+				normal_texture = overlay.normal_texture_path
+			else:
+				normal_texture = ''
+		var overlay = {&'albedo': texture, &'color': human_config.skin_color, &'normal': normal_texture}
+		human_config.body_material.set_base_textures(HumanizerOverlay.from_dict(overlay))
+	human_config.body_material.update_standard_material_3D(materials.body)
+
+func set_equipment_material(equipment:HumanAsset, texture: String)-> void:
+	equipment.texture_name = texture
+	var material = materials[equipment.resource_name]
+	if equipment.default_overlay != null:
+		var mat_config: HumanizerMaterial = human_config.equipment.material_config
+		var overlay_dict = {&'albedo': equipment.textures[texture]}
+		if material.normal_texture != null:
+			overlay_dict[&'normal'] = material.normal_texture.resource_path
+		if material.ao_texture != null:
+			overlay_dict[&'ao'] = material.ao_texture.resource_path
+		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
+	elif texture not in equipment.textures:
+		material.albedo_texture = null
+	else:
+		material.albedo_texture = load(equipment.textures[texture])
 		
 func get_mesh(mesh_name:String):
 	var new_arrays = mesh_arrays[mesh_name].duplicate()
@@ -29,6 +67,7 @@ func get_mesh(mesh_name:String):
 	var mesh = ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays)
 	mesh = HumanizerMeshService.generate_normals_and_tangents(mesh)
+	mesh.surface_set_material(0,materials[mesh_name])
 	return mesh
 
 func add_equipment(equip:HumanAsset):
@@ -38,13 +77,16 @@ func add_equipment(equip:HumanAsset):
 	if equip.rigged:
 		HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip.resource_name], skeleton_data)
 	update_equipment_weights(equip.resource_name)
+	materials[equip.resource_name] = StandardMaterial3D.new()
+	set_equipment_material(equip,equip.texture_name)
 	
 func remove_equipment(equip:HumanAsset):
 	human_config.remove_equipment(equip)
 	mesh_arrays.erase(equip.resource_name)
 	if equip.rigged:
 		HumanizerRigService.skeleton_remove_rigged_equipment(equip, skeleton_data)
-
+	materials.erase(equip.resource_name)
+	
 func get_body_mesh():
 	return get_mesh("body")
 

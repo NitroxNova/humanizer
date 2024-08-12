@@ -639,19 +639,16 @@ func bake_surface() -> void:
 
 func _set_body_mesh(meshdata: ArrayMesh) -> void:
 	var visible = true
-	var mat_config: HumanizerMaterial = null
 	if body_mesh != null:
 		visible = body_mesh.visible
-		if body_mesh is HumanizerMeshInstance:
-			mat_config = body_mesh.material_config
 	if body_mesh == null:
 		body_mesh = MeshInstance3D.new()
 		body_mesh.name = BASE_MESH_NAME
 		_add_child_node(body_mesh)
 	body_mesh.mesh = meshdata
-	body_mesh.set_surface_override_material(0, StandardMaterial3D.new())
+	body_mesh.set_surface_override_material(0, humanizer.materials.body)
 	body_mesh.set_script(load('res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd'))
-	body_mesh.material_config = HumanizerMaterial.new() if mat_config == null else mat_config
+	body_mesh.material_config = humanizer.human_config.body_material
 	if skeleton != null:
 		body_mesh.skeleton = '../' + skeleton.name
 		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
@@ -734,27 +731,14 @@ func add_shapekey() -> void:
 	notify_property_list_changed()
 
 #### Materials ####
-func set_skin_texture(name: String) -> void:
+func set_skin_texture(texture_name: String) -> void:
 	#print('setting skin texture : ' + name)
 	if baked:
 		push_warning("Can't change skin.  Already baked")
 		notify_property_list_changed()
 		return
-	var texture: String
-	if not HumanizerRegistry.skin_textures.has(name):
-		body_mesh.material_config.set_base_textures(HumanizerOverlay.new())
-	else:
-		texture = HumanizerRegistry.skin_textures[name]
-		var normal_texture = texture.get_base_dir() + '/' + name + '_normal.' + texture.get_extension()
-		if not FileAccess.file_exists(normal_texture):
-			if body_mesh.material_config.overlays.size() > 0:
-				var overlay = body_mesh.material_config.overlays[0]
-				normal_texture = overlay.normal_texture_path
-			else:
-				normal_texture = ''
-		var overlay = {&'albedo': texture, &'color': skin_color, &'normal': normal_texture}
-		body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
-
+	humanizer.set_skin_texture(texture_name)
+	
 func set_skin_normal_texture(name: String) -> void:
 	if baked:
 		printerr('Cannot change skin textures. Alrady baked.')
@@ -786,23 +770,7 @@ func set_equipment_material(equipment:HumanAsset, texture: String) -> void:
 	if baked:
 		printerr('Cannot change materials. Already baked.')
 		return
-	equipment.texture_name = texture
-	var mesh_inst = get_node(equipment.resource_name)
-	if mesh_inst == null:
-		print(equipment.resource_name + " has no mesh instance " )
-		return
-	if equipment.default_overlay != null:
-		var mat_config: HumanizerMaterial = mesh_inst.material_config
-
-		var overlay_dict = {&'albedo': equipment.textures[texture]}
-		if mesh_inst.get_surface_override_material(0).normal_texture != null:
-			overlay_dict[&'normal'] = mesh_inst.get_surface_override_material(0).normal_texture.resource_path
-		if mesh_inst.get_surface_override_material(0).ao_texture != null:
-			overlay_dict[&'ao'] = mesh_inst.get_surface_override_material(0).ao_texture.resource_path
-		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
-	else:
-		mesh_inst.get_surface_override_material(0).albedo_texture = load(equipment.textures[texture])
-
+	humanizer.set_equipment_material(equipment,texture)
 	notify_property_list_changed()
 	
 func _setup_overlay_material(asset: HumanAsset, existing_config: HumanizerMaterial = null) -> void:

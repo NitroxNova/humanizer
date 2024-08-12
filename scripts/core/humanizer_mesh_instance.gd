@@ -21,11 +21,7 @@ func update_material() -> void:
 	if mat == null:
 		mat = StandardMaterial3D.new()
 		set_surface_override_material(0, mat)
-	mat.normal_enabled = material_config.normal_texture != null
-	mat.ao_enabled = material_config.ao_texture != null
-	mat.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, material_config.albedo_texture)
-	mat.set_texture(BaseMaterial3D.TEXTURE_NORMAL, material_config.normal_texture)
-	mat.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, material_config.ao_texture)
+	material_config.update_standard_material_3D(mat)
 	
 	#TODO editor updates should change equipment config as well
 	#if get_parent_node_3d():
