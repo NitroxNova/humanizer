@@ -1,0 +1,59 @@
+[gd_scene load_steps=5 format=3 uid="uid://dthel8j2gphl6"]
+
+[sub_resource type="GDScript" id="GDScript_1i7gn"]
+script/source = "extends Node3D
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	var config = HumanConfig.new()
+	config.init_macros()
+	config.targets['gender'] = 0
+	config.targets['age'] = 25
+	config.rig = HumanizerGlobalConfig.config.default_skeleton
+	var pants = HumanizerRegistry.clothes.SkinnyJeans
+	pants.texture_name = pants.textures.keys()[0]
+	config.add_equipment(pants)
+	var shirt = HumanizerRegistry.clothes.MakeHumanTShirt
+	shirt.texture_name = shirt.textures.keys()[0]
+	config.add_equipment(shirt)
+	var humanizer = Humanizer.new(config)
+	humanizer.set_skin_texture(\"young_caucasian_female2\")
+	var mi = MeshInstance3D.new()
+	mi.mesh = humanizer.get_body_mesh()
+	add_child(mi)
+	for equip in config.equipment.values():
+		var equip_mi = MeshInstance3D.new()
+		equip_mi.mesh = humanizer.get_mesh(equip.resource_name)
+		add_child(equip_mi)
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	pass
+"
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_u0hgw"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_k8ifg"]
+sky_material = SubResource("ProceduralSkyMaterial_u0hgw")
+
+[sub_resource type="Environment" id="Environment_7jm4v"]
+background_mode = 2
+sky = SubResource("Sky_k8ifg")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="CharacterBody3d" type="Node3D"]
+script = SubResource("GDScript_1i7gn")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_7jm4v")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.623054, 1.60784)
