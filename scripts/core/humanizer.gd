@@ -45,21 +45,22 @@ func set_skin_texture(texture_name: String) -> void:
 		human_config.body_material.set_base_textures(HumanizerOverlay.from_dict(overlay))
 	human_config.body_material.update_standard_material_3D(materials.body)
 
-func set_equipment_material(equipment:HumanAsset, texture: String)-> void:
+func set_equipment_material(equipment:HumanizerEquipment, texture: String)-> void:
+	var equip_type = equipment.get_type()
 	equipment.texture_name = texture
-	var material = materials[equipment.resource_name]
-	if equipment.default_overlay != null:
-		var mat_config: HumanizerMaterial = human_config.equipment.material_config
-		var overlay_dict = {&'albedo': equipment.textures[texture]}
+	var material = materials[equip_type.resource_name]
+	if equip_type.default_overlay != null and texture != "" and texture != null:
+		var mat_config: HumanizerMaterial = equipment.material_config
+		var overlay_dict = {&'albedo': equip_type.textures[texture]}
 		if material.normal_texture != null:
 			overlay_dict[&'normal'] = material.normal_texture.resource_path
 		if material.ao_texture != null:
 			overlay_dict[&'ao'] = material.ao_texture.resource_path
 		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
-	elif texture not in equipment.textures:
+	elif texture not in equip_type.textures:
 		material.albedo_texture = null
 	else:
-		material.albedo_texture = load(equipment.textures[texture])
+		material.albedo_texture = load(equip_type.textures[texture])
 		
 func get_mesh(mesh_name:String):
 	var new_arrays = mesh_arrays[mesh_name].duplicate()
@@ -70,22 +71,26 @@ func get_mesh(mesh_name:String):
 	mesh.surface_set_material(0,materials[mesh_name])
 	return mesh
 
-func add_equipment(equip:HumanAsset):
+func add_equipment(equip:HumanizerEquipment):
 	human_config.add_equipment(equip)
-	mesh_arrays[equip.resource_name] = HumanizerEquipmentService.load_mesh_arrays(equip)
-	fit_equipment_mesh(equip.resource_name)
-	if equip.rigged:
-		HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip.resource_name], skeleton_data)
-	update_equipment_weights(equip.resource_name)
-	materials[equip.resource_name] = StandardMaterial3D.new()
+	var equip_type = equip.get_type()
+	mesh_arrays[equip_type.resource_name] = HumanizerEquipmentService.load_mesh_arrays(equip_type)
+	fit_equipment_mesh(equip_type.resource_name)
+	if equip_type.rigged:
+		HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip_type.resource_name], skeleton_data)
+	update_equipment_weights(equip_type.resource_name)
+	materials[equip_type.resource_name] = load(equip_type.material_path)
+	if equip_type.default_overlay != null:
+		equip.material_config = HumanizerMaterial.new()
 	set_equipment_material(equip,equip.texture_name)
 	
-func remove_equipment(equip:HumanAsset):
+func remove_equipment(equip:HumanizerEquipment):
 	human_config.remove_equipment(equip)
-	mesh_arrays.erase(equip.resource_name)
-	if equip.rigged:
+	var equip_type = equip.get_type()
+	mesh_arrays.erase(equip_type.resource_name)
+	if equip_type.rigged:
 		HumanizerRigService.skeleton_remove_rigged_equipment(equip, skeleton_data)
-	materials.erase(equip.resource_name)
+	materials.erase(equip_type.resource_name)
 	
 func get_body_mesh():
 	return get_mesh("body")
@@ -94,7 +99,6 @@ func hide_body_vertices():
 	HumanizerBodyService.hide_vertices(mesh_arrays.body,human_config.equipment)
 			
 func set_targets(target_data:Dictionary):
-	
 	HumanizerTargetService.set_targets(target_data,human_config.targets,helper_vertex)
 	fit_all_meshes()
 	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex,human_config.equipment,mesh_arrays)
@@ -105,8 +109,8 @@ func fit_all_meshes():
 		fit_equipment_mesh(equip_name)
 
 func fit_equipment_mesh(equip_name:String):
-	var equip:HumanAsset = human_config.equipment[equip_name]
-	var mhclo = load(equip.mhclo_path)
+	var equip:HumanizerEquipment = human_config.equipment[equip_name]
+	var mhclo = load(equip.get_type().mhclo_path)
 	mesh_arrays[equip_name] = HumanizerEquipmentService.fit_mesh_arrays(mesh_arrays[equip_name],helper_vertex,mhclo)
 
 func set_rig(rig_name:String):
@@ -139,9 +143,8 @@ func update_bone_weights():
 		update_equipment_weights(equip_name)
 		
 func update_equipment_weights(equip_name:String):
-	var equip:HumanAsset = human_config.equipment[equip_name]
-	var mhclo = load(equip.mhclo_path)
-	HumanizerRigService.set_equipment_weights_array(equip,  mesh_arrays[equip_name], rig, skeleton_data)
+	var equip:HumanizerEquipment = human_config.equipment[equip_name]
+	HumanizerRigService.set_equipment_weights_array(equip.get_type(),  mesh_arrays[equip_name], rig, skeleton_data)
 
 func enable_root_bone_component():
 	human_config.enable_component(&'root_bone')

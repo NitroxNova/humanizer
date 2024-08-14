@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://dr1ienvprvbdq"]
+[gd_resource type="Resource" script_class="HumanizerEquipmentType" load_steps=2 format=3 uid="uid://dr1ienvprvbdq"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_gb3r4"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/equipment_type.gd" id="1_gb3r4"]
 
 [resource]
 resource_name = "SuitSlacks"
@@ -20,4 +20,3 @@ textures = {
 "male_elegantsuit01_diffuse": "res://addons/humanizer/data/assets/clothes/outfits/male_elegantsuit01/male_elegantsuit01_diffuse.png"
 }
 slots = Array[String](["LegsClothes"])
-texture_name = ""

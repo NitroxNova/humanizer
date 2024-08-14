@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://dhcx6uelkw4t"]
+[gd_resource type="Resource" script_class="HumanizerEquipmentType" load_steps=2 format=3 uid="uid://dhcx6uelkw4t"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_g8a48"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/equipment_type.gd" id="1_g8a48"]
 
 [resource]
 resource_name = "Afro01"
@@ -11,4 +11,3 @@ textures = {
 "afro_diffuse": "res://addons/humanizer/data/assets/body_parts/Hair/Afro/afro_diffuse.png"
 }
 slots = Array[String](["Hair"])
-texture_name = ""

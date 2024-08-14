@@ -9,7 +9,7 @@ var asset_option_buttons := {}
 var texture_option_buttons := {}
 var config: HumanConfig
 
-signal body_part_changed(bp: HumanAsset)
+signal body_part_changed(bp: HumanizerEquipmentType)
 signal body_slot_cleared(slot: String)
 signal material_set(slot: String, texture: String)
 
@@ -33,9 +33,7 @@ func _ready() -> void:
 		materials.item_selected.connect(_material_selected.bind(slot))
 
 		options.add_item('None')
-		if not registry.body_parts.has(slot):
-			continue
-		for asset in registry.body_parts[slot].values():
+		for asset in registry.filter_equipment({slot=slot}):
 			options.add_item(asset.resource_name)
 			
 	if config != null:
@@ -73,11 +71,11 @@ func build_grid() -> void:
 
 func fill_table(config: HumanConfig) -> void:
 	for slot in HumanizerGlobalConfig.config.body_part_slots:
-		var bp: HumanAsset = config.get_equipment_in_slot(slot)
+		var bp: HumanizerEquipment = config.get_equipment_in_slot(slot)
 		if bp != null:
 			var options = asset_option_buttons[slot] as OptionButton
 			for option in options.item_count:
-				if options.get_item_text(option) == bp.resource_name:
+				if options.get_item_text(option) == bp.get_type().resource_name:
 					options.selected = option
 					_item_selected(option, slot)
 					break
@@ -96,11 +94,11 @@ func _item_selected(index: int, slot: String):
 		body_slot_cleared.emit(slot)
 		return
 	
-	for mat in registry.body_parts[slot][name].textures:
+	for mat in registry.equipment[name].textures:
 		texture_options.add_item(mat)
 	
 	if config == null or config.get_equipment_in_slot(slot) == null or not name in config.equipment:
-		body_part_changed.emit(registry.body_parts[slot][name])
+		body_part_changed.emit(registry.equipment[name])
 		
 func _material_selected(idx: int, slot: String) -> void:
 	material_set.emit(slot, (texture_option_buttons[slot] as OptionButton).get_item_text(idx))

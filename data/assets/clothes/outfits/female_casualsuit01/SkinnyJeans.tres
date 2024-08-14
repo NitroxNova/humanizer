@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://ny6tkw62a0qh"]
+[gd_resource type="Resource" script_class="HumanizerEquipmentType" load_steps=2 format=3 uid="uid://ny6tkw62a0qh"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_cknoa"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/equipment_type.gd" id="1_cknoa"]
 
 [resource]
 resource_name = "SkinnyJeans"
@@ -11,4 +11,3 @@ textures = {
 "female_casualsuit01_diffuse": "res://addons/humanizer/data/assets/clothes/outfits/female_casualsuit01/female_casualsuit01_diffuse.png"
 }
 slots = Array[String](["LegsClothes"])
-texture_name = ""

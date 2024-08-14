@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://wevl7r30blrd"]
+[gd_resource type="Resource" script_class="HumanizerEquipmentType" load_steps=2 format=3 uid="uid://wevl7r30blrd"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_wv0yr"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/equipment_type.gd" id="1_wv0yr"]
 
 [resource]
 resource_name = "Teeth01"
@@ -11,4 +11,3 @@ textures = {
 "teeth": "res://addons/humanizer/data/assets/body_parts/Teeth/basic_teeth/teeth.png"
 }
 slots = Array[String](["Teeth"])
-texture_name = ""

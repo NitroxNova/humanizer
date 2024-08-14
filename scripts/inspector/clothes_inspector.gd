@@ -10,7 +10,7 @@ var asset_option_buttons := {}
 var material_option_buttons := {}
 var config: HumanConfig
 
-signal clothes_changed(cl: HumanAsset)
+signal clothes_changed(cl: HumanizerEquipmentType)
 signal clothes_cleared(slot: String)
 signal material_set(name: String, material_index: int)
 
@@ -33,7 +33,7 @@ func _ready() -> void:
 		materials.item_selected.connect(_material_selected.bind(slot))
 		
 		options.add_item('None')
-		for asset in HumanizerRegistry.clothes.values():
+		for asset in HumanizerRegistry.equipment.values():
 			if slot+"Clothes" in asset.slots:
 				options.add_item(asset.resource_name)
 	
@@ -79,10 +79,10 @@ func fill_table(config: HumanConfig) -> void:
 			var options = asset_option_buttons[slot] as OptionButton
 			var materials = material_option_buttons[slot] as OptionButton 
 			for item in options.item_count:
-				if clothes.resource_name == options.get_item_text(item):
+				if clothes.get_type().resource_name == options.get_item_text(item):
 					options.selected = item
 					var mat: int = 0
-					for texture in clothes.textures:
+					for texture in clothes.get_type().textures:
 						materials.add_item(texture)
 						if materials.get_item_text(mat) == clothes.texture_name:
 							materials.selected = mat
@@ -149,12 +149,12 @@ func _item_selected(index: int, slot: String):
 	for sl in slots:
 		var materials: OptionButton = material_option_buttons[sl]
 		materials.clear()
-		for mat in HumanizerRegistry.clothes[name].textures:
+		for mat in HumanizerRegistry.equipment[name].textures:
 			materials.add_item(mat.get_file().replace('.tres', ''))
 	
 	## Emit signals and set to default material
 	if config != null and not name in config.equipment:
-		var clothes: HumanAsset = HumanizerRegistry.clothes[name]
+		var clothes: HumanizerEquipmentType = HumanizerRegistry.equipment[name]
 		for sl in slots:
 			last_equipped[sl] = clothes
 		clothes_changed.emit(clothes)

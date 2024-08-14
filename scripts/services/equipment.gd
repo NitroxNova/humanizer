@@ -2,7 +2,7 @@
 extends Resource
 class_name HumanizerEquipmentService
 
-static func load_mesh_arrays(equip:HumanAsset):
+static func load_mesh_arrays(equip:HumanizerEquipmentType):
 	return load(equip.mesh_path).surface_get_arrays(0)
 
 static func fit_mesh_arrays(mesh_arrays:Array, helper_vertex_array: PackedVector3Array, mhclo: MHCLO) -> Array: 

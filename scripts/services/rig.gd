@@ -44,8 +44,9 @@ static func adjust_bone_positions(skeleton_data:Dictionary,rig:HumanizerRig,help
 	var asset_bone_positions = []
 	asset_bone_positions.resize(skeleton_data.size())
 	for equip in equipment.values():
-		if equip.rigged:
-			var mhclo : MHCLO = load(equip.mhclo_path)
+		var equip_type = equip.get_type()
+		if equip_type.rigged:
+			var mhclo : MHCLO = load(equip_type.mhclo_path)
 			for bone_config in mhclo.rigged_config:
 				var bone_id = skeleton_data.keys().find(bone_config.name)
 				if bone_id > -1:
@@ -117,7 +118,7 @@ static func set_body_weights_array(rig: HumanizerRig,body_arrays:Array):
 		body_arrays[Mesh.ARRAY_BONES].append_array(mh_bone_array[mh_id])
 		body_arrays[Mesh.ARRAY_WEIGHTS].append_array(mh_weight_array[mh_id])
 
-static func set_equipment_weights_array(equip:HumanAsset,  mesh_arrays:Array, rig:HumanizerRig, skeleton_data:Dictionary):
+static func set_equipment_weights_array(equip:HumanizerEquipmentType,  mesh_arrays:Array, rig:HumanizerRig, skeleton_data:Dictionary):
 	var bone_weights = HumanizerUtils.read_json(rig.bone_weights_json_path)
 	var bone_count = 8
 	var mhclo: MHCLO = load(equip.mhclo_path) 
@@ -160,8 +161,8 @@ static func is_retargeted(rig_name:String):
 		return true
 	return false
 	
-static func skeleton_add_rigged_equipment(equipment:HumanAsset, sf_arrays:Array,skeleton_data:Dictionary):
-	var mhclo : MHCLO = load(equipment.mhclo_path)
+static func skeleton_add_rigged_equipment(equipment:HumanizerEquipment, sf_arrays:Array,skeleton_data:Dictionary):
+	var mhclo : MHCLO = load(equipment.get_type().mhclo_path)
 	for bone_config in mhclo.rigged_config:
 		var bone_name = bone_config.name
 		if bone_name != "neutral_bone":
@@ -178,8 +179,8 @@ static func get_asset_bone_position(sf_arrays:Array,mhclo:MHCLO,bone_config:Dict
 	var bone_pos = 0.5 * (v1+v2) + bone_config.vertices.offset
 	return bone_pos
 
-static func skeleton_remove_rigged_equipment(equipment:HumanAsset,skeleton_data:Dictionary):
-	var mhclo : MHCLO = load(equipment.mhclo_path)
+static func skeleton_remove_rigged_equipment(equipment:HumanizerEquipment,skeleton_data:Dictionary):
+	var mhclo : MHCLO = load(equipment.get_type().mhclo_path)
 	for bone_config in mhclo.rigged_config:
 		var bone_name = bone_config.name
 		skeleton_data.erase(bone_name)			

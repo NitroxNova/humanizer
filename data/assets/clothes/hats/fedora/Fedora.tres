@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://cja462avihlja"]
+[gd_resource type="Resource" script_class="HumanizerEquipmentType" load_steps=2 format=3 uid="uid://cja462avihlja"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_ep5bk"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/equipment_type.gd" id="1_ep5bk"]
 
 [resource]
 resource_name = "Fedora"
@@ -11,4 +11,3 @@ textures = {
 "fedora_diffuse": "res://addons/humanizer/data/assets/clothes/hats/fedora/fedora_diffuse.png"
 }
 slots = Array[String](["HeadClothes"])
-texture_name = ""

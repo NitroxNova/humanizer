@@ -2,8 +2,8 @@
 class_name HumanConfig
 extends Resource
 
-signal equipment_added(equip:HumanAsset)
-signal equipment_removed(equip:HumanAsset)
+signal equipment_added(equip:HumanizerEquipment)
+signal equipment_removed(equip:HumanizerEquipment)
 
 ## Rig
 @export var rig: String
@@ -36,7 +36,7 @@ func init_macros():
 
 func get_equipment_in_slot(slot_name:String):
 	for equip in equipment.values():
-		if slot_name in equip.slots:
+		if slot_name in equip.get_type().slots:
 			return equip # should only be one item per slot
 
 func get_equipment_in_slots(slot_names:Array):
@@ -47,17 +47,19 @@ func get_equipment_in_slots(slot_names:Array):
 			equip_list.append(equip)
 	return equip_list
 
-func add_equipment(equip:HumanAsset) -> void:
+func add_equipment(equip:HumanizerEquipment) -> void:
 	#print("Equipping " + equip.resource_name)
-	for prev_equip in get_equipment_in_slots(equip.slots):
+	var type = equip.get_type()
+	for prev_equip in get_equipment_in_slots(type.slots):
 		remove_equipment(prev_equip)
-	equipment[equip.resource_name] = equip
+	equipment[type.resource_name] = equip
 	equipment_added.emit(equip)
 
-func remove_equipment(equip:HumanAsset):
+func remove_equipment(equip:HumanizerEquipment):
 	#print("Removing " + equip.resource_name)
-	if equip.resource_name in equipment: #make sure hasnt already been unequipped
-		equipment.erase(equip.resource_name)
+	var type = equip.get_type()
+	if type.resource_name in equipment: #make sure hasnt already been unequipped
+		equipment.erase(type.resource_name)
 		equipment_removed.emit(equip)
 
 func enable_component(c_name:StringName):

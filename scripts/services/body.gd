@@ -27,8 +27,8 @@ static func hide_vertices(mesh_arrays:Array,equipment:Dictionary):
 	if equipment.is_empty():
 		return
 	var delete_verts_mh :Dictionary = {}
-	for equip: HumanAsset in equipment.values():
-		var mhclo : MHCLO = load(equip.mhclo_path)
+	for equip: HumanizerEquipment in equipment.values():
+		var mhclo : MHCLO = load(equip.get_type().mhclo_path)
 		for entry in mhclo.delete_vertices:
 				if entry.size() == 1:
 					delete_verts_mh[entry[0]] = true

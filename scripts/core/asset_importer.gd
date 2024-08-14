@@ -7,8 +7,13 @@ extends Node
 var slot: String
 var clothing_slots := []
 var busy: bool = false
-var asset_type: HumanizerRegistry.AssetType
+var asset_type = "" #clothing or body part
 var basis: Array
+
+enum AssetType {
+	BodyPart,
+	Clothes
+}
 
 func run(clean_only: bool = false) -> void:
 	basis = HumanizerTargetService.data.basis
@@ -47,9 +52,9 @@ func _scan_recursive(path: String) -> void:
 	
 func _scan_path_for_assets(path: String) -> void:
 	if 'body_parts' in path:
-		asset_type = HumanizerRegistry.AssetType.BodyPart
+		asset_type = AssetType.BodyPart
 	elif 'clothes' in path:
-		asset_type = HumanizerRegistry.AssetType.Clothes
+		asset_type = AssetType.Clothes
 	else:
 		printerr("Couldn't infer asset type from path.")
 		return
@@ -101,7 +106,7 @@ func _generate_material(path: String, textures: Dictionary) -> void:
 	print('Generating material for ' + path.get_file())
 	var mat = StandardMaterial3D.new()
 	mat.cull_mode = BaseMaterial3D.CULL_BACK
-	if asset_type == HumanizerRegistry.AssetType.BodyPart:
+	if asset_type == AssetType.BodyPart:
 		if 'eyelash' in path.to_lower() or 'eyebrow' in path.to_lower() or 'hair' in path.to_lower():
 			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
 			mat.cull_mode = BaseMaterial3D.CULL_DISABLED
@@ -152,7 +157,7 @@ func _generate_material(path: String, textures: Dictionary) -> void:
 
 func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	# Build resource object
-	var resource := HumanAsset.new()
+	var resource := HumanizerEquipmentType.new()
 	# Mesh operations
 	data.mesh = _build_import_mesh(path, data.mhclo)
 	
@@ -164,25 +169,20 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	print('Importing asset ' + resource.resource_name)
 	#
 	resource.textures = data.textures.duplicate()
-	if data.has('overlay'):
+	if data.textures.has('overlay'):
 		resource.default_overlay = HumanizerOverlay.from_dict(data.textures.overlay)
 		resource.textures.erase('overlay')
-		HumanizerRegistry.overlays[resource.resource_name] = HumanizerOverlay.from_dict(data.overlay)
+		HumanizerRegistry.overlays[resource.resource_name] = resource.default_overlay
 	#
 	# Set slot(s)
-	if asset_type == HumanizerRegistry.AssetType.BodyPart:
+	if asset_type == AssetType.BodyPart:
 		for tag in data.mhclo.tags:
 			if tag in HumanizerGlobalConfig.config.body_part_slots:
 				resource.slots.append(tag)
 		if resource.slots[0] in ['', null]:
 			printerr('Slot not recognized.  Check your mhclo tags.')
 			return
-		if HumanizerRegistry.body_parts.has(slot):
-			if HumanizerRegistry.body_parts[slot].has(resource.resource_name):
-				HumanizerRegistry.body_parts[slot].erase(resource.resource_name)
-	elif asset_type == HumanizerRegistry.AssetType.Clothes:
-		if HumanizerRegistry.clothes.has(resource.resource_name):
-			HumanizerRegistry.clothes.erase(resource.resource_name)
+	elif asset_type == AssetType.Clothes:
 		for tag in data.mhclo.tags:
 			if tag in HumanizerGlobalConfig.config.clothing_slots:
 				resource.slots.append(tag+"Clothes")
@@ -190,30 +190,21 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 			printerr('No slots found for clothes.  Check your mhclo tags.')
 			return
 	
-
-
 	# Save resources
 	data.mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(data.mesh)
 	resource.take_over_path(path.path_join(resource.resource_name + '.tres'))
 	ResourceSaver.save(data.mhclo, resource.mhclo_path)
 	ResourceSaver.save(data.mesh, resource.mesh_path)
 	ResourceSaver.save(resource, resource.resource_path)
-	
+	#build rigged equipment
 	if data.has('rigged'):
 		var rigged_resource = resource.duplicate()
 		rigged_resource.rigged = true
 		rigged_resource.resource_name = resource.resource_name + "_Rigged"
 		ResourceSaver.save(rigged_resource, resource.resource_path.get_basename() + "_Rigged.tres")
-		if asset_type == HumanizerRegistry.AssetType.BodyPart:
-			HumanizerRegistry.add_body_part_asset(rigged_resource)
-		elif asset_type == HumanizerRegistry.AssetType.Clothes:
-			HumanizerRegistry.add_clothes_asset(rigged_resource)
-#
-	# Put main resource in registry for easy access later
-	if asset_type == HumanizerRegistry.AssetType.BodyPart:
-		HumanizerRegistry.add_body_part_asset(resource)
-	elif asset_type == HumanizerRegistry.AssetType.Clothes:
-		HumanizerRegistry.add_clothes_asset(resource)
+		HumanizerRegistry.add_equipment_type(rigged_resource)
+	#add main resource to registry
+	HumanizerRegistry.add_equipment_type(resource)
 
 func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh: 
 	# build basis from obj file

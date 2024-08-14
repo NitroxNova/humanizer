@@ -17,9 +17,9 @@ func randomize_body_parts() -> void:
 	randomize_hair()
 
 func randomize_clothes() -> void:
-	var torso = Random.choice(HumanizerRegistry.filter_clothes({'slot': 'Torso'}))
-	var legs = Random.choice(HumanizerRegistry.filter_clothes({'slot': 'Legs'}))
-	var feet = Random.choice(HumanizerRegistry.filter_clothes({'slot': 'Feet'}))
+	var torso = Random.choice(HumanizerRegistry.filter_equipment({'slot': 'Torso'}))
+	var legs = Random.choice(HumanizerRegistry.filter_equipment({'slot': 'Legs'}))
+	var feet = Random.choice(HumanizerRegistry.filter_equipment({'slot': 'Feet'}))
 	human.apply_clothes(torso)
 	human.apply_clothes(legs)
 	human.apply_clothes(feet)
@@ -33,17 +33,17 @@ func randomize_skin() -> void:
 func randomize_eyebrows() -> void:
 	## Assumes left and right eyebrow slots
 	## Assumes same number of entries for both slots
-	var eyebrow_name = Random.choice(HumanizerRegistry.body_parts[&'LeftEyebrow'].keys())
-	human.set_body_part(HumanizerRegistry.body_parts[&'LeftEyebrow'][eyebrow_name])
-	human.set_body_part(HumanizerRegistry.body_parts[&'RightEyebrow'][eyebrow_name.replace('Left', 'Right')])
+	var eyebrow_name = Random.choice(HumanizerRegistry.filter_equipment({'slot': 'LeftEyebrow'}))
+	human.set_body_part(HumanizerRegistry.equipment[eyebrow_name])
+	human.set_body_part(HumanizerRegistry.equipment[eyebrow_name.replace('Left', 'Right')])
 
 func randomize_eyes() -> void:
 	var color: Color = Color.BLACK
 	color.r += rng.randf()
 	color.g += rng.randf()
 	color.b += rng.randf()
-	human.set_body_part(Random.choice(HumanizerRegistry.body_parts[&'LeftEye']))
-	human.set_body_part(Random.choice(HumanizerRegistry.body_parts[&'RightEye']))
+	human.set_body_part(Random.choice(HumanizerRegistry.equipment[&'LeftEye']))
+	human.set_body_part(Random.choice(HumanizerRegistry.equipment[&'RightEye']))
 	if Engine.is_editor_hint():
 		## This wil update the material immediately
 		human.set_eye_color(color)
@@ -51,8 +51,8 @@ func randomize_eyes() -> void:
 		human.eye_color = color
 
 func randomize_eyelashes() -> void:
-	var left = HumanizerRegistry.body_parts[&'LeftEyelash'][&'LeftEyelash']
-	var right = HumanizerRegistry.body_parts[&'RightEyelash'][&'RightEyelash']
+	var left = HumanizerRegistry.equipment[&'LeftEyelash']
+	var right = HumanizerRegistry.equipment[&'RightEyelash']
 	human.set_body_part(left)
 	human.set_body_part(right)
 
@@ -61,7 +61,7 @@ func randomize_hair() -> void:
 	color.r += rng.randf()
 	color.g += rng.randf()
 	color.b += rng.randf()
-	human.set_body_part(Random.choice(HumanizerRegistry.body_parts[&'Hair']))
+	human.set_equipment_type(Random.choice(HumanizerRegistry.filter_equipment({'slot': 'Hair'})))
 	human.hair_color = color
 	
 func randomize_shapekeys() -> void:

@@ -1,15 +1,12 @@
 @tool
 extends Resource
-class_name HumanAsset
+class_name HumanizerEquipmentType #base equipment definition
 
 @export_dir var path: String
 @export var default_overlay: HumanizerOverlay = null
 @export var rigged: bool = false
 @export var textures: Dictionary
 @export var slots: Array[String]
-@export var texture_name: String #currently selected texture name
-@export var material_config: HumanizerMaterial
-
 
 var mesh_path: String:
 	get:

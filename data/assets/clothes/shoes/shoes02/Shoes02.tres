@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://dttulgd2g418i"]
+[gd_resource type="Resource" script_class="HumanizerEquipmentType" load_steps=2 format=3 uid="uid://dttulgd2g418i"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_5oj2j"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/equipment_type.gd" id="1_5oj2j"]
 
 [resource]
 resource_name = "Shoes02"
@@ -13,4 +13,3 @@ textures = {
 "white_diffuse": "res://addons/humanizer/data/assets/clothes/shoes/shoes02/white_diffuse.png"
 }
 slots = Array[String](["FeetClothes"])
-texture_name = ""

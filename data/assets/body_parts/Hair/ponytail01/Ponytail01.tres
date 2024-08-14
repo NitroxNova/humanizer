@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="HumanAsset" load_steps=2 format=3 uid="uid://gxo135r065g5"]
+[gd_resource type="Resource" script_class="HumanizerEquipmentType" load_steps=2 format=3 uid="uid://gxo135r065g5"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_asset.gd" id="1_f06wy"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/equipment_type.gd" id="1_f06wy"]
 
 [resource]
 resource_name = "Ponytail01"
@@ -11,4 +11,3 @@ textures = {
 "ponytail01_diffuse": "res://addons/humanizer/data/assets/body_parts/Hair/ponytail01/ponytail01_diffuse.png"
 }
 slots = Array[String](["Hair"])
-texture_name = ""
