@@ -22,8 +22,8 @@ func _init(_human_config = null):
 	hide_body_vertices()
 	materials.body = StandardMaterial3D.new()
 	for equip in human_config.equipment.values():
-		mesh_arrays[equip.resource_name] = HumanizerEquipmentService.load_mesh_arrays(equip)
-		materials[equip.resource_name] = StandardMaterial3D.new()
+		mesh_arrays[equip.type] = HumanizerEquipmentService.load_mesh_arrays(equip.get_type())
+		materials[equip.type] = StandardMaterial3D.new()
 		set_equipment_material(equip,equip.texture_name)
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
@@ -43,6 +43,7 @@ func set_skin_texture(texture_name: String) -> void:
 				normal_texture = ''
 		var overlay = {&'albedo': texture, &'color': human_config.skin_color, &'normal': normal_texture}
 		human_config.body_material.set_base_textures(HumanizerOverlay.from_dict(overlay))
+	human_config.body_material.update_material()
 	human_config.body_material.update_standard_material_3D(materials.body)
 
 func set_equipment_material(equipment:HumanizerEquipment, texture: String)-> void:
@@ -119,7 +120,7 @@ func set_rig(rig_name:String):
 	rig = HumanizerRigService.get_rig(rig_name)
 	skeleton_data = HumanizerRigService.init_skeleton_data(rig,retargeted)
 	for equip in human_config.equipment.values():
-		if equip.rigged:
+		if equip.get_type().rigged:
 			HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip.resource_name],skeleton_data)
 	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex,human_config.equipment,mesh_arrays)
 	update_bone_weights()
