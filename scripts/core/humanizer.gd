@@ -28,6 +28,40 @@ func _init(_human_config = null):
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
 
+func standard_bake_meshes():
+	var new_mesh = ArrayMesh.new()
+	var opaque = get_group_bake_arrays("opaque")
+	if not opaque.arrays.is_empty():
+		var surface = HumanizerMeshService.combine_surfaces(opaque.arrays,opaque.materials)
+		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,surface.arrays)
+		new_mesh.surface_set_material(new_mesh.get_surface_count()-1,surface.material)
+	var transparent = get_group_bake_arrays("transparent")
+	if not transparent.arrays.is_empty():
+		var surface = HumanizerMeshService.combine_surfaces(transparent.arrays,transparent.materials)
+		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,surface.arrays)
+		new_mesh.surface_set_material(new_mesh.get_surface_count()-1,surface.material)
+	return new_mesh
+		
+func get_group_bake_arrays(group_name:String): #transparent, opaque or all
+	var bake_arrays = []
+	var bake_mats = []
+	for surface_name in mesh_arrays:
+		var add_mesh = false
+		if group_name.to_lower() == "all":
+			add_mesh = true
+		elif materials[surface_name].TRANSPARENCY_DISABLED:
+			if group_name.to_lower() == "opaque":
+				add_mesh = true
+		else:
+			if group_name.to_lower() == "transparent":
+				add_mesh = true
+		if add_mesh:		
+			var new_array = mesh_arrays[surface_name]
+			new_array[Mesh.ARRAY_CUSTOM0] = null
+			bake_arrays.append(new_array)
+			bake_mats.append(materials[surface_name])
+	return {arrays=bake_arrays,materials=bake_mats}
+
 func set_skin_texture(texture_name: String) -> void:
 	var texture: String
 	if not HumanizerRegistry.skin_textures.has(texture_name):

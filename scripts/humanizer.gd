@@ -299,7 +299,7 @@ func save_human_scene() -> void:
 	if not FileAccess.file_exists(save_path.path_join('scene_' + human_name + '.tscn')):
 		ResourceSaver.save(scene, save_path.path_join('scene_' + human_name + '.tscn'))
 	print('Saved human to : ' + save_path)
-	HumanizerJobQueue.enqueue({callable=HumanizerSurfaceCombiner.compress_material,mesh=mi.mesh})
+	HumanizerJobQueue.enqueue({callable=HumanizerMeshService.compress_material,mesh=mi.mesh})
 
 func _add_child_node(node: Node) -> void:
 	add_child(node)
@@ -562,7 +562,8 @@ func bake_surface() -> void:
 		
 	if atlas_resolution == 0:
 		atlas_resolution = HumanizerGlobalConfig.config.atlas_resolution
-	var baked_surface :ArrayMesh = HumanizerSurfaceCombiner.new(_bake_meshes, atlas_resolution).run()
+	#var baked_surface :ArrayMesh = HumanizerSurfaceCombiner.new(_bake_meshes, atlas_resolution).run()
+	var baked_surface = ArrayMesh.new()
 	#cant regenerate normals and tangents after baking, because it reorders the vertices, and in some cases resizes, which makes absolutely no sense, but it then breaks the exported morph shapekeys  
 	var mi: MeshInstance3D = MeshInstance3D.new()
 	mi.mesh = baked_surface

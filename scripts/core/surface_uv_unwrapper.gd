@@ -7,7 +7,7 @@ var island_transform = [] #set elsewhere, after the row packer is done
 var island_vertex = [] #vertex ids to island id
 var island_uvs = [] # island id to array of uv coords
 
-func _init(mesh: ArrayMesh, surface_id: int, _material):
+func _init(_surface_arrays:Array, _material):
 	material = _material
 	if _material==null:
 		material = StandardMaterial3D.new()
@@ -16,7 +16,7 @@ func _init(mesh: ArrayMesh, surface_id: int, _material):
 		var new_albedo_image = Image.create(albedo_size,albedo_size,false, Image.FORMAT_RGBA8)
 		new_albedo_image.fill(material.albedo_color)
 		material.albedo_texture = ImageTexture.create_from_image(new_albedo_image)
-	surface_arrays = mesh.surface_get_arrays(surface_id)
+	surface_arrays = _surface_arrays
 
 func get_albedo_texture_size():
 	return material.albedo_texture.get_size()
@@ -100,8 +100,9 @@ func get_island_vertex():
 	island_vertex.resize(surface_arrays[Mesh.ARRAY_VERTEX].size())
 	for vertex_id in surface_arrays[Mesh.ARRAY_VERTEX].size():
 		var uv_coords = surface_arrays[Mesh.ARRAY_TEX_UV][vertex_id]
-		var island_id = uv_islands[uv_coords]
-		island_vertex[vertex_id] = island_id
+		if uv_coords in uv_islands: #otherwise the vertex does not belong to a visible face, and will be removed with the surface tool
+			var island_id = uv_islands[uv_coords]
+			island_vertex[vertex_id] = island_id
 
 func get_islands():
 	var start_time = Time.get_ticks_msec()

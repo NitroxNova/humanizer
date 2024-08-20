@@ -20,16 +20,17 @@ func _ready():
 	var humanizer = Humanizer.new(config)
 	humanizer.set_skin_texture(\"young_caucasian_female2\")
 	var mi = MeshInstance3D.new()
-	mi.mesh = humanizer.get_body_mesh()
+	mi.mesh = humanizer.standard_bake_meshes()
 	add_child(mi)
-	for equip in config.equipment.values():
-		var equip_mi = MeshInstance3D.new()
-		equip_mi.mesh = humanizer.get_mesh(equip.type)
-		add_child(equip_mi)
+	
+	## if you want seperate meshes for body and equipment, you can do :
+	#mi.mesh = humanizer.get_body_mesh()
+	#add_child(mi)
+	#for equip in config.equipment.values():
+		#var equip_mi = MeshInstance3D.new()
+		#equip_mi.mesh = humanizer.get_mesh(equip.type)
+		#add_child(equip_mi)
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
 "
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_u0hgw"]
