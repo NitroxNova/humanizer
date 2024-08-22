@@ -12,4 +12,3 @@ static func show_window(interior, closeable: bool = true, size=Vector2i(500, 500
 		window.close_requested.connect(func(): window.queue_free())
 	window.size = size
 	EditorInterface.popup_dialog_centered(window)
-

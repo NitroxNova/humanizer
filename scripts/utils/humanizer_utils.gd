@@ -24,6 +24,9 @@ static func save_json(file_path, data):
 	var file = FileAccess.open(file_path, FileAccess.WRITE)
 	file.store_line(JSON.stringify(data))
 
-
+static func set_node_owner(node:Node,owner:Node):
+	for child in node.get_children():
+		set_node_owner(child,owner)
+	node.owner=owner
 
 	

@@ -27,6 +27,30 @@ func _init(_human_config = null):
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
 
+func build_character_body():
+	var human = CharacterBody3D.new()
+	var body_mesh = MeshInstance3D.new()
+	body_mesh.mesh = standard_bake_meshes()
+	human.add_child(body_mesh)
+	var skeleton = get_skeleton()
+	human.add_child(skeleton)
+	skeleton.set_unique_name_in_owner(true)
+	body_mesh.skeleton = NodePath('../' + skeleton.name)
+	body_mesh.skin = skeleton.create_skin_from_rest_transforms()
+	var anim_player = get_animation_tree()
+	if anim_player != null:
+		human.add_child(anim_player)
+		anim_player.active=true
+	return human
+	
+func get_animation_tree():
+	if human_config.rig == 'default-RETARGETED':
+		return load("res://addons/humanizer/data/animations/face_animation_tree.tscn").instantiate()
+	elif human_config.rig.ends_with('RETARGETED'):
+		return load("res://addons/humanizer/data/animations/animation_tree.tscn").instantiate()
+	else:  # No example animator for specific rigs that aren't retargeted
+		return
+
 func standard_bake_meshes():
 	var new_mesh = ArrayMesh.new()
 	var opaque = get_group_bake_arrays("opaque")

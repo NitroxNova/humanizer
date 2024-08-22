@@ -837,11 +837,8 @@ func _reset_animator() -> void:
 	for child in get_children():
 		if child is AnimationTree or child is AnimationPlayer:
 			_delete_child_node(child)
-	if human_config.rig == 'default-RETARGETED':
-		animator = load("res://addons/humanizer/data/animations/face_animation_tree.tscn").instantiate()
-	elif human_config.rig.ends_with('RETARGETED'):
-		animator = load("res://addons/humanizer/data/animations/animation_tree.tscn").instantiate()
-	else:  # No example animator for specific rigs that aren't retargeted
+	animator = humanizer.get_animation_tree()
+	if animator == null:
 		return
 	_add_child_node(animator)
 	animator.active = true

@@ -3,14 +3,13 @@
 [sub_resource type="GDScript" id="GDScript_1i7gn"]
 script/source = "extends Node3D
 
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	var config = HumanConfig.new()
 	config.init_macros()
 	config.targets['gender'] = 0
 	config.targets['age'] = 25
-	config.eye_color = Color.ORANGE
+	config.eye_color = Color.YELLOW
 	config.hair_color = Color.PURPLE
 	config.eyebrow_color = Color(\"550055\")
 	config.rig = HumanizerGlobalConfig.config.default_skeleton
@@ -26,9 +25,9 @@ func _ready():
 	config.add_equipment(HumanizerEquipment.new(\"LeftEyelash\"))
 	var humanizer = Humanizer.new(config)
 	humanizer.set_skin_texture(\"young_caucasian_female2\")
-	var mi = MeshInstance3D.new()
-	mi.mesh = humanizer.standard_bake_meshes()
-	add_child(mi)
+	var char = humanizer.build_character_body()
+	add_child(char)
+	HumanizerUtils.set_node_owner(char,self)
 	
 	## if you want seperate meshes for body and equipment, you can do :
 	#mi.mesh = humanizer.get_body_mesh()
@@ -64,4 +63,4 @@ transform = Transform3D(0.868595, 0.429135, -0.24776, -0.241783, 0.803476, 0.544
 shadow_enabled = true
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.348, 0.525)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.933, 1.235)
