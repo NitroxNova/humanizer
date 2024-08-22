@@ -11,12 +11,8 @@ func _ready():
 	config.targets['gender'] = 0
 	config.targets['age'] = 25
 	config.rig = HumanizerGlobalConfig.config.default_skeleton
-	var pants = HumanizerEquipment.new(\"SkinnyJeans\")
-	pants.texture_name = pants.get_type().textures.keys()[0]
-	config.add_equipment(pants)
-	var shirt = HumanizerEquipment.new(\"MakeHumanTShirt\")
-	shirt.texture_name = shirt.get_type().textures.keys()[0]
-	config.add_equipment(shirt)
+	config.add_equipment(HumanizerEquipment.new(\"SkinnyJeans\"))
+	config.add_equipment(HumanizerEquipment.new(\"MakeHumanTShirt\"))
 	var humanizer = Humanizer.new(config)
 	humanizer.set_skin_texture(\"young_caucasian_female2\")
 	var mi = MeshInstance3D.new()

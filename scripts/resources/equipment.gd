@@ -6,9 +6,12 @@ class_name HumanizerEquipment
 @export var texture_name: String #currently selected texture name
 @export var material_config: HumanizerMaterial
 
-func _init(_type=type,_texture_name=texture_name,_material_config=material_config):
+func _init(_type=type,_texture_name=null,_material_config=material_config):
 	type=_type
-	texture_name = _texture_name
+	if _texture_name == null: #use first material. if a blank texture is desired, set to empty string
+		texture_name = get_type().textures.keys()[0]
+	else:
+		texture_name = _texture_name
 	material_config = _material_config
 
 func get_type():
