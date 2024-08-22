@@ -23,8 +23,7 @@ func _init(_human_config = null):
 	materials.body = StandardMaterial3D.new()
 	for equip in human_config.equipment.values():
 		mesh_arrays[equip.type] = HumanizerEquipmentService.load_mesh_arrays(equip.get_type())
-		materials[equip.type] = StandardMaterial3D.new()
-		set_equipment_material(equip,equip.texture_name)
+		init_equipment_material(equip)
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
 
@@ -49,7 +48,7 @@ func get_group_bake_arrays(group_name:String): #transparent, opaque or all
 		var add_mesh = false
 		if group_name.to_lower() == "all":
 			add_mesh = true
-		elif materials[surface_name].TRANSPARENCY_DISABLED:
+		elif materials[surface_name].transparency == BaseMaterial3D.TRANSPARENCY_DISABLED:
 			if group_name.to_lower() == "opaque":
 				add_mesh = true
 		else:
@@ -77,25 +76,39 @@ func set_skin_texture(texture_name: String) -> void:
 				normal_texture = ''
 		var overlay = {&'albedo': texture, &'color': human_config.skin_color, &'normal': normal_texture}
 		human_config.body_material.set_base_textures(HumanizerOverlay.from_dict(overlay))
-	human_config.body_material.update_material()
 	human_config.body_material.update_standard_material_3D(materials.body)
+
+func init_equipment_material(equipment:HumanizerEquipment):
+	var equip_type = equipment.get_type()
+	materials[equipment.type] = load(equip_type.material_path)
+	if equip_type.default_overlay != null and equipment.material_config == null:
+		equipment.material_config = HumanizerMaterial.new()
+		equipment.material_config.set_base_textures(HumanizerOverlay.from_material(materials[equipment.type]))
+		equipment.material_config.add_overlay(equip_type.default_overlay)
+	set_equipment_material(equipment,equipment.texture_name)
 
 func set_equipment_material(equipment:HumanizerEquipment, texture: String)-> void:
 	var equip_type = equipment.get_type()
 	equipment.texture_name = texture
-	var material = materials[equip_type.resource_name]
-	if equip_type.default_overlay != null and texture != "" and texture != null:
-		var mat_config: HumanizerMaterial = equipment.material_config
-		var overlay_dict = {&'albedo': equip_type.textures[texture]}
-		if material.normal_texture != null:
-			overlay_dict[&'normal'] = material.normal_texture.resource_path
-		if material.ao_texture != null:
-			overlay_dict[&'ao'] = material.ao_texture.resource_path
-		mat_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
+	var material = materials[equipment.type]
+	var mat_config: HumanizerMaterial = equipment.material_config
+	if mat_config != null:
+		if texture in equip_type.textures:
+			mat_config.overlays[0].albedo_texture_path = equip_type.textures[texture]
+		else:
+			mat_config.overlays[0].albedo_texture_path = ""
 	elif texture not in equip_type.textures:
 		material.albedo_texture = null
 	else:
 		material.albedo_texture = load(equip_type.textures[texture])
+	if equip_type.in_slot(["LeftEye","RightEye"]):
+		mat_config.overlays[1].color = human_config.eye_color
+	elif equip_type.in_slot(["Hair"]):
+		material.albedo_color = human_config.hair_color
+	elif equip_type.in_slot(["LeftEyebrow","RightEyebrow"]):
+		material.albedo_color = human_config.eyebrow_color
+	if mat_config != null:
+		mat_config.update_standard_material_3D(material)
 		
 func get_mesh(mesh_name:String):
 	var new_arrays = mesh_arrays[mesh_name].duplicate()
@@ -114,10 +127,7 @@ func add_equipment(equip:HumanizerEquipment):
 	if equip_type.rigged:
 		HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip_type.resource_name], skeleton_data)
 	update_equipment_weights(equip_type.resource_name)
-	materials[equip_type.resource_name] = load(equip_type.material_path)
-	if equip_type.default_overlay != null:
-		equip.material_config = HumanizerMaterial.new()
-	set_equipment_material(equip,equip.texture_name)
+	init_equipment_material(equip)
 	
 func remove_equipment(equip:HumanizerEquipment):
 	human_config.remove_equipment(equip)

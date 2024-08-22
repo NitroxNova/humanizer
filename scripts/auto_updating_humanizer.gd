@@ -31,14 +31,6 @@ func set_eye_color(color: Color) -> void:
 func add_equipment(equip: HumanizerEquipment) -> void:
 	super(equip)
 	_fit_equipment_mesh(equip)
-	var equip_node = get_node(equip.get_type().resource_name)
-	if equip_node is HumanizerMeshInstance and equip_node.material_config != null:
-		equip_node.material_config.update_material()
-
-func set_skin_texture(name: String) -> void:
-	super(name)
-	if body_mesh != null and body_mesh is HumanizerMeshInstance:
-		body_mesh.material_config.update_material()
 
 func set_skin_normal_texture(name: String) -> void:
 	super(name)

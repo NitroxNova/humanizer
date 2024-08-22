@@ -21,7 +21,7 @@ func update_material() -> void:
 	if mat == null:
 		mat = StandardMaterial3D.new()
 		set_surface_override_material(0, mat)
-	material_config.update_standard_material_3D(mat)
+	material_config.update_standard_material_3D(mat,false)
 	
 	#TODO editor updates should change equipment config as well
 	#if get_parent_node_3d():

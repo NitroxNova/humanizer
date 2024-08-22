@@ -11,7 +11,9 @@ var albedo_texture: Texture2D
 var normal_texture: Texture2D
 var ao_texture: Texture2D
 
-func update_standard_material_3D(mat:StandardMaterial3D) -> void:
+func update_standard_material_3D(mat:StandardMaterial3D,update_textures=true) -> void:
+	if update_textures:
+		update_material()
 	mat.normal_enabled = normal_texture != null
 	mat.ao_enabled = ao_texture != null
 	mat.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, albedo_texture)

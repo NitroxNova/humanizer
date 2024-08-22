@@ -10,9 +10,20 @@ func _ready():
 	config.init_macros()
 	config.targets['gender'] = 0
 	config.targets['age'] = 25
+	config.eye_color = Color.ORANGE
+	config.hair_color = Color.PURPLE
+	config.eyebrow_color = Color(\"550055\")
 	config.rig = HumanizerGlobalConfig.config.default_skeleton
 	config.add_equipment(HumanizerEquipment.new(\"SkinnyJeans\"))
 	config.add_equipment(HumanizerEquipment.new(\"MakeHumanTShirt\"))
+	config.add_equipment(HumanizerEquipment.new(\"Shoes02\"))
+	config.add_equipment(HumanizerEquipment.new(\"RightEyeball-LowPoly\"))
+	config.add_equipment(HumanizerEquipment.new(\"LeftEyeBall-LowPoly\"))
+	config.add_equipment(HumanizerEquipment.new(\"Bob02\"))
+	config.add_equipment(HumanizerEquipment.new(\"RightEyebrow-002\"))
+	config.add_equipment(HumanizerEquipment.new(\"LeftEyebrow-002\"))
+	config.add_equipment(HumanizerEquipment.new(\"RightEyelash\"))
+	config.add_equipment(HumanizerEquipment.new(\"LeftEyelash\"))
 	var humanizer = Humanizer.new(config)
 	humanizer.set_skin_texture(\"young_caucasian_female2\")
 	var mi = MeshInstance3D.new()
@@ -53,4 +64,4 @@ transform = Transform3D(0.868595, 0.429135, -0.24776, -0.241783, 0.803476, 0.544
 shadow_enabled = true
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.772795, 1.23506)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.348, 0.525)

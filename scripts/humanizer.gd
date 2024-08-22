@@ -388,12 +388,6 @@ func add_equipment(equip: HumanizerEquipment) -> void:
 	if equip_type.rigged:
 		rebuild_skeleton() #update rig with additional asset bones, and remove any from previous asset
 	_add_bone_weights(equip)
-	if equip_type.in_slot(["LeftEyebrow","RightEyebrow","Eyebrows"]):
-		eyebrow_color = eyebrow_color  ## trigger setter logic
-	elif equip_type.in_slot(["Eyes","LeftEye","RightEye"]):
-		eye_color = eye_color
-	elif equip_type.in_slot(["Hair"]):
-		hair_color = hair_color
 	
 	get_node(equip_type.resource_name).set_surface_override_material(0,humanizer.materials[equip_type.resource_name])
 	notify_property_list_changed()

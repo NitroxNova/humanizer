@@ -9,6 +9,17 @@ extends Resource
 @export var offset: Vector2i = Vector2i.ZERO
 ## TODO add normal strength
 
+static func from_material(material: StandardMaterial3D) -> HumanizerOverlay:
+	var dict = {}
+	dict.albedo = material.albedo_texture.resource_path
+	if material.albedo_color != Color.WHITE:
+		dict.color = material.albedo_color
+	if material.normal_enabled and material.normal_texture != null:
+		dict.normal = material.normal_texture.resource_path
+	if material.ao_enabled and material.ao_texture != null:
+		dict.ao = material.ao_texture.resource_path
+	return from_dict(dict)
+
 static func from_dict(data: Dictionary) -> HumanizerOverlay:
 	var overlay = HumanizerOverlay.new()
 	if data.has('offset'):
