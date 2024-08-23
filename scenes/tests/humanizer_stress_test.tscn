@@ -18,7 +18,7 @@ var pos: Vector3 = Vector3.ZERO
 
 func _ready() -> void:
 	## You have to feed in the following randomization parameters to the randomizer
-	randomizer.shapekeys = HumanizerUtils.get_shapekey_categories()
+	randomizer.shapekeys = HumanizerTargetService.get_shapekey_categories()
 	randomizer.randomization = {}
 	randomizer.categories = {}
 	randomizer.asymmetry = {}
@@ -40,7 +40,7 @@ func _process(delta) -> void:
 	elif new_human != null:
 		add_child(new_human)
 		new_human.global_position = pos
-		new_human.camera = $Camera3D
+		#new_human.camera = $Camera3D
 		
 		pos.x += 1
 		if pos.x > 15.5:
@@ -63,23 +63,19 @@ func _process(delta) -> void:
 	
 func _generate_human() -> void:
 	print('starting new human')
-	var human = Humanizer.new()
-	
-	## If the human was in the scene tree we could just set the human_config resource 
-	## and it would call load human.  Since we are not in the scene tree we have to call
-	## it directly
-	human.load_human()
+	var human_config = HumanConfig.new()
+	human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 	
 	print('randomizing')
-	randomizer.human = human
+	randomizer.human = human_config
+	#human_config.set_component_state(true, &'ragdoll')
 	randomizer.randomize_body_parts()
 	randomizer.randomize_clothes()
 	randomizer.randomize_shapekeys()
-	human.set_component_state(true, &'ragdoll')
 	
-	print('baking')
-	human.standard_bake()
-	new_human = human.save_human_scene(false).instantiate()
+	var humanizer = Humanizer.new(human_config)
+	new_human = humanizer.build_character_body()
+
 "
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_vyou0"]

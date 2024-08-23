@@ -68,3 +68,23 @@ func enable_component(c_name:StringName):
 
 func disable_component(c_name:StringName):
 	components.erase(c_name)
+
+func set_skin_texture(texture_name:String):
+	var texture: String
+	if not HumanizerRegistry.skin_textures.has(texture_name):
+		body_material.set_base_textures(HumanizerOverlay.new())
+	else:
+		texture = HumanizerRegistry.skin_textures[texture_name]
+		var normal_texture = texture.get_base_dir() + '/' + texture_name + '_normal.' + texture.get_extension()
+		if not FileAccess.file_exists(normal_texture):
+			if body_material.overlays.size() > 0:
+				var overlay = body_material.overlays[0]
+				normal_texture = overlay.normal_texture_path
+			else:
+				normal_texture = ''
+		var overlay = {&'albedo': texture, &'color': skin_color, &'normal': normal_texture}
+		body_material.set_base_textures(HumanizerOverlay.from_dict(overlay))
+
+func set_eye_color(color:Color):
+	eye_color = color
+	

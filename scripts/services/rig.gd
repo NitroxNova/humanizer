@@ -50,7 +50,7 @@ static func adjust_bone_positions(skeleton_data:Dictionary,rig:HumanizerRig,help
 			for bone_config in mhclo.rigged_config:
 				var bone_id = skeleton_data.keys().find(bone_config.name)
 				if bone_id > -1:
-					asset_bone_positions[bone_id] = get_asset_bone_position(mesh_arrays[equip.resource_name],mhclo,bone_config)				
+					asset_bone_positions[bone_id] = get_asset_bone_position(mesh_arrays[equip.type],mhclo,bone_config)				
 	
 	var skeleton_config = HumanizerUtils.read_json(rig.config_json_path)
 	var bone_id = 0

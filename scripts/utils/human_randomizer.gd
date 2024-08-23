@@ -2,13 +2,20 @@
 class_name HumanRandomizer
 extends Node
 
-@export var human: HumanizerEditorTool
+@export var human: HumanConfig
 var categories: Dictionary
 var randomization: Dictionary
 var asymmetry: Dictionary
 var shapekeys: Dictionary
 var rng := RandomNumberGenerator.new()
 
+static func get_random_equipment_for_slot(slot_name):
+	var equip_type = Random.choice(HumanizerRegistry.filter_equipment({'slot': slot_name}))
+	var texture = Random.choice(equip_type.textures.keys())
+	var equipment = HumanizerEquipment.new(equip_type.resource_name,texture)
+	
+	return equipment
+	
 func randomize_body_parts() -> void:
 	randomize_skin()
 	randomize_eyebrows()
@@ -17,15 +24,9 @@ func randomize_body_parts() -> void:
 	randomize_hair()
 
 func randomize_clothes() -> void:
-	var torso = Random.choice(HumanizerRegistry.filter_equipment({'slot': 'Torso'}))
-	var legs = Random.choice(HumanizerRegistry.filter_equipment({'slot': 'Legs'}))
-	var feet = Random.choice(HumanizerRegistry.filter_equipment({'slot': 'Feet'}))
-	human.apply_clothes(torso)
-	human.apply_clothes(legs)
-	human.apply_clothes(feet)
-	human.set_clothes_material(torso.resource_name, Random.choice(torso.textures.keys()))
-	human.set_clothes_material(legs.resource_name, Random.choice(legs.textures.keys()))
-	human.set_clothes_material(feet.resource_name, Random.choice(feet.textures.keys()))
+	human.add_equipment(get_random_equipment_for_slot("TorsoClothes"))
+	human.add_equipment(get_random_equipment_for_slot("LegsClothes"))
+	human.add_equipment(get_random_equipment_for_slot("FeetClothes"))
 
 func randomize_skin() -> void:
 	human.set_skin_texture(Random.choice(HumanizerRegistry.skin_textures.keys()))
@@ -33,35 +34,30 @@ func randomize_skin() -> void:
 func randomize_eyebrows() -> void:
 	## Assumes left and right eyebrow slots
 	## Assumes same number of entries for both slots
-	var eyebrow_name = Random.choice(HumanizerRegistry.filter_equipment({'slot': 'LeftEyebrow'}))
-	human.set_body_part(HumanizerRegistry.equipment[eyebrow_name])
-	human.set_body_part(HumanizerRegistry.equipment[eyebrow_name.replace('Left', 'Right')])
+	var left_eyebrow = get_random_equipment_for_slot("LeftEyebrow")
+	human.add_equipment(left_eyebrow )
+	var right_eyebrow_name = left_eyebrow.type.replace('Left', 'Right')
+	human.add_equipment( HumanizerEquipment.new( right_eyebrow_name,left_eyebrow.texture_name))
 
 func randomize_eyes() -> void:
 	var color: Color = Color.BLACK
 	color.r += rng.randf()
 	color.g += rng.randf()
 	color.b += rng.randf()
-	human.set_body_part(Random.choice(HumanizerRegistry.equipment[&'LeftEye']))
-	human.set_body_part(Random.choice(HumanizerRegistry.equipment[&'RightEye']))
-	if Engine.is_editor_hint():
-		## This wil update the material immediately
-		human.set_eye_color(color)
-	else:
-		human.eye_color = color
+	human.add_equipment(HumanizerEquipment.new("LeftEyeBall-LowPoly"))
+	human.add_equipment(HumanizerEquipment.new("RightEyeball-LowPoly"))
+	human.set_eye_color(color)
 
 func randomize_eyelashes() -> void:
-	var left = HumanizerRegistry.equipment[&'LeftEyelash']
-	var right = HumanizerRegistry.equipment[&'RightEyelash']
-	human.set_body_part(left)
-	human.set_body_part(right)
+	human.add_equipment(HumanizerEquipment.new("LeftEyelash"))
+	human.add_equipment(HumanizerEquipment.new("RightEyelash"))
 
 func randomize_hair() -> void:
 	var color: Color = Color.BLACK
 	color.r += rng.randf()
 	color.g += rng.randf()
 	color.b += rng.randf()
-	human.set_equipment_type(Random.choice(HumanizerRegistry.filter_equipment({'slot': 'Hair'})))
+	human.add_equipment(get_random_equipment_for_slot("Hair"))
 	human.hair_color = color
 	
 func randomize_shapekeys() -> void:
@@ -95,4 +91,4 @@ func randomize_shapekeys() -> void:
 			value = clamp(value, minval, maxval)
 			values[sk] = value
 			
-	human.set_shapekeys(values)
+	human.targets = values
