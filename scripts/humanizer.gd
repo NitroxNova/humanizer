@@ -83,16 +83,7 @@ var eye_color: Color = Color.WHITE:
 
 ## The meshes selected to be baked to a new surface
 @export var _bake_meshes: Array[MeshInstance3D]
-var bake_mesh_names: Array = []:
-	set(value):
-		bake_mesh_names = value
-		if bake_mesh_names.size() == 0:
-			return
-		_bake_meshes = []
-		for name in value:
-			var node = get_node_or_null(name)
-			if node and not node in _bake_meshes:
-				_bake_meshes.append(node)
+
 ## The new shapekeys which have been defined for this human.  These will survive the baking process.
 @export var _new_shapekeys: Dictionary = {}
 
@@ -134,6 +125,7 @@ var bake_mesh_names: Array = []:
 
 
 func _ready() -> void:
+	print("Ready")
 	body_mesh = get_node_or_null(BASE_MESH_NAME)
 	if human_config == null:
 		human_config = HumanConfig.new()
@@ -159,6 +151,7 @@ func reset_human() -> void:
 	set_component_state(true, &'main_collider')
 	if has_node('Saccades'):
 		_delete_child_by_name('Saccades')
+	_new_shapekeys = {}
 	notify_property_list_changed()
 
 func load_human() -> void:
@@ -534,10 +527,12 @@ func bake_surface() -> void:
 			return
 			
 	bake_in_progress = true
+	var bake_mesh_names = PackedStringArray()
 	for node in _bake_meshes:
+		bake_mesh_names.append(node.name)
 		if not node.transform == Transform3D.IDENTITY:
 			human_config.transforms[node.name] = Transform3D(node.transform)
-		if node is HumanizerMeshInstance:
+		if node is HumanizerMeshInstance and node.material_config != null:
 			node.material_config.update_material()
 	
 	if human_config.components.has(&'size_morphs') or human_config.components.has(&'age_morphs'):
@@ -556,8 +551,7 @@ func bake_surface() -> void:
 		
 	if atlas_resolution == 0:
 		atlas_resolution = HumanizerGlobalConfig.config.atlas_resolution
-	#var baked_surface :ArrayMesh = HumanizerSurfaceCombiner.new(_bake_meshes, atlas_resolution).run()
-	var baked_surface = ArrayMesh.new()
+	var baked_surface :ArrayMesh = humanizer.combine_surfaces_to_mesh(bake_mesh_names, ArrayMesh.new(), atlas_resolution)
 	#cant regenerate normals and tangents after baking, because it reorders the vertices, and in some cases resizes, which makes absolutely no sense, but it then breaks the exported morph shapekeys  
 	var mi: MeshInstance3D = MeshInstance3D.new()
 	mi.mesh = baked_surface
@@ -568,7 +562,7 @@ func bake_surface() -> void:
 		morph_data['bone_positions'] = {}
 		morph_data['motion_scale'] = {}
 		morph_data['collider_shape'] = {}
-		var initial_shapekeys = human_config.shapekeys.duplicate(true)
+		var initial_shapekeys = human_config.targets.duplicate(true)
 		var bs_arrays = []
 		var baked_mesh = ArrayMesh.new()
 		baked_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
@@ -644,7 +638,7 @@ func _set_body_mesh(meshdata: ArrayMesh) -> void:
 		body_mesh.name = BASE_MESH_NAME
 		_add_child_node(body_mesh)
 	body_mesh.mesh = meshdata
-	body_mesh.set_surface_override_material(0, humanizer.materials.body)
+	body_mesh.set_surface_override_material(0, humanizer.materials.Body)
 	body_mesh.set_script(load('res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd'))
 	body_mesh.material_config = humanizer.human_config.body_material
 	if skeleton != null:
@@ -720,13 +714,14 @@ func _set_shapekey_data(shapekeys: Dictionary) -> void:
 	#print(body_mesh.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size())
 	
 func add_shapekey() -> void:
+	print("Adding shapekey")
 	if new_shapekey_name in ['', null]:
 		printerr('Invalid shapekey name')
 		return
 	if _new_shapekeys.has(new_shapekey_name):
 		printerr('A new shape with this name already exists')
 		return
-	_new_shapekeys[new_shapekey_name] = human_config.shapekeys.duplicate(true)
+	_new_shapekeys[new_shapekey_name] = human_config.targets.duplicate(true)
 	notify_property_list_changed()
 
 #### Materials ####

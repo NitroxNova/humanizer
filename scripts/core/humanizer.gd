@@ -17,10 +17,10 @@ func _init(_human_config = null):
 	else:	
 		human_config = _human_config
 	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
-	mesh_arrays.body = HumanizerBodyService.load_basis_arrays()
+	mesh_arrays.Body = HumanizerBodyService.load_basis_arrays()
 	hide_body_vertices()
-	materials.body = StandardMaterial3D.new()
-	human_config.body_material.update_standard_material_3D(materials.body)
+	materials.Body = StandardMaterial3D.new()
+	human_config.body_material.update_standard_material_3D(materials.Body)
 	for equip in human_config.equipment.values():
 		mesh_arrays[equip.type] = HumanizerEquipmentService.load_mesh_arrays(equip.get_type())
 		init_equipment_material(equip)
@@ -57,40 +57,42 @@ func get_animation_tree():
 func standard_bake_meshes():
 	var new_mesh = ArrayMesh.new()
 	var opaque = get_group_bake_arrays("opaque")
-	if not opaque.arrays.is_empty():
-		var surface = HumanizerMeshService.combine_surfaces(opaque.arrays,opaque.materials)
-		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,surface.arrays)
-		new_mesh.surface_set_material(new_mesh.get_surface_count()-1,surface.material)
+	if not opaque.is_empty():
+		combine_surfaces_to_mesh(opaque,new_mesh)		
 	var transparent = get_group_bake_arrays("transparent")
-	if not transparent.arrays.is_empty():
-		var surface = HumanizerMeshService.combine_surfaces(transparent.arrays,transparent.materials)
-		new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,surface.arrays)
-		new_mesh.surface_set_material(new_mesh.get_surface_count()-1,surface.material)
+	if not transparent.is_empty():
+		combine_surfaces_to_mesh(transparent,new_mesh)	
 	return new_mesh
-		
-func get_group_bake_arrays(group_name:String): #transparent, opaque or all
+
+func combine_surfaces_to_mesh(surface_names:PackedStringArray,new_mesh:=ArrayMesh.new(),atlas_resolution:int=4096):
 	var bake_arrays = []
 	var bake_mats = []
-	for surface_name in mesh_arrays:
-		var add_mesh = false
+	for s_name in surface_names:
+		var new_array = mesh_arrays[s_name]
+		new_array[Mesh.ARRAY_CUSTOM0] = null
+		bake_arrays.append(new_array)
+		bake_mats.append(materials[s_name])
+	var surface = HumanizerMeshService.combine_surfaces(bake_arrays,bake_mats,atlas_resolution)
+	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,surface.arrays)
+	new_mesh.surface_set_material(new_mesh.get_surface_count()-1,surface.material)
+	return new_mesh
+	
+func get_group_bake_arrays(group_name:String): #transparent, opaque or all
+	var surface_names = PackedStringArray()
+	for s_name in mesh_arrays:
 		if group_name.to_lower() == "all":
-			add_mesh = true
-		elif materials[surface_name].transparency == BaseMaterial3D.TRANSPARENCY_DISABLED:
+			surface_names.append(s_name)
+		elif materials[s_name].transparency == BaseMaterial3D.TRANSPARENCY_DISABLED:
 			if group_name.to_lower() == "opaque":
-				add_mesh = true
+				surface_names.append(s_name)
 		else:
 			if group_name.to_lower() == "transparent":
-				add_mesh = true
-		if add_mesh:		
-			var new_array = mesh_arrays[surface_name]
-			new_array[Mesh.ARRAY_CUSTOM0] = null
-			bake_arrays.append(new_array)
-			bake_mats.append(materials[surface_name])
-	return {arrays=bake_arrays,materials=bake_mats}
+				surface_names.append(s_name)
+	return surface_names
 
 func set_skin_texture(texture_name: String) -> void:
 	human_config.set_skin_texture(texture_name)
-	human_config.body_material.update_standard_material_3D(materials.body)
+	human_config.body_material.update_standard_material_3D(materials.Body)
 
 func init_equipment_material(equipment:HumanizerEquipment):
 	var equip_type = equipment.get_type()
@@ -152,10 +154,10 @@ func remove_equipment(equip:HumanizerEquipment):
 	materials.erase(equip_type.resource_name)
 	
 func get_body_mesh():
-	return get_mesh("body")
+	return get_mesh("Body")
 
 func hide_body_vertices():
-	HumanizerBodyService.hide_vertices(mesh_arrays.body,human_config.equipment)
+	HumanizerBodyService.hide_vertices(mesh_arrays.Body,human_config.equipment)
 			
 func set_targets(target_data:Dictionary):
 	HumanizerTargetService.set_targets(target_data,human_config.targets,helper_vertex)
@@ -163,7 +165,7 @@ func set_targets(target_data:Dictionary):
 	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex,human_config.equipment,mesh_arrays)
 
 func fit_all_meshes():
-	mesh_arrays.body = HumanizerBodyService.fit_mesh_arrays(mesh_arrays.body,helper_vertex)
+	mesh_arrays.Body = HumanizerBodyService.fit_mesh_arrays(mesh_arrays.Body,helper_vertex)
 	for equip_name in human_config.equipment:
 		fit_equipment_mesh(equip_name)
 
@@ -199,7 +201,7 @@ func adjust_skeleton(skeleton:Skeleton3D):
 	skeleton.motion_scale = HumanizerRigService.get_motion_scale(human_config.rig,helper_vertex)
 
 func update_bone_weights():
-	HumanizerRigService.set_body_weights_array(rig,mesh_arrays.body)
+	HumanizerRigService.set_body_weights_array(rig,mesh_arrays.Body)
 	for equip_name in human_config.equipment:
 		update_equipment_weights(equip_name)
 		
