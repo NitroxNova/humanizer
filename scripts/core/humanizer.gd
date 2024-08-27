@@ -27,7 +27,7 @@ func _init(_human_config = null):
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
 
-func build_character_body():
+func get_CharacterBody3D():
 	var human = CharacterBody3D.new()
 	var body_mesh = MeshInstance3D.new()
 	body_mesh.mesh = standard_bake_meshes()
@@ -43,6 +43,7 @@ func build_character_body():
 		anim_player.active=true
 	skeleton.owner = human
 	anim_player.owner = human
+	human.add_child(get_main_collider())
 	return human
 	
 func get_animation_tree():
@@ -186,7 +187,9 @@ func set_rig(rig_name:String):
 
 func get_skeleton()->Skeleton3D:
 	#print(skeleton_data)
-	return HumanizerRigService.get_skeleton_3D(skeleton_data)
+	var skeleton = HumanizerRigService.get_skeleton_3D(skeleton_data)
+	skeleton.motion_scale = HumanizerRigService.get_motion_scale(human_config.rig,helper_vertex)
+	return skeleton
 
 func rebuild_skeleton(skeleton:Skeleton3D):
 	HumanizerRigService.rebuild_skeleton_3D(skeleton,skeleton_data)
@@ -215,6 +218,12 @@ func disable_root_bone_component():
 	if "Root" in skeleton_data and "game_engine" not in human_config.rig:
 		skeleton_data.erase("Root")
 		skeleton_data[skeleton_data.keys()[0]].erase("parent")
+		
+func get_main_collider():
+	return HumanizerColliderService.get_main_collider(helper_vertex)
+
+func adjust_main_collider(main_collider:CollisionShape3D):
+	HumanizerColliderService.adjust_main_collider(helper_vertex,main_collider)
 	
 func get_foot_offset()->float:
 	return HumanizerBodyService.get_foot_offset(helper_vertex)

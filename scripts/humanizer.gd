@@ -891,11 +891,8 @@ func _add_main_collider() -> void:
 	if has_node('MainCollider'):
 		main_collider = $MainCollider
 	else:
-		main_collider = CollisionShape3D.new()
-		main_collider.shape = CapsuleShape3D.new()
-		main_collider.name = 'MainCollider'
+		main_collider = humanizer.get_main_collider()
 		_add_child_node(main_collider)
-	_adjust_main_collider()
 
 func _add_physical_skeleton() -> void:
 	if skeleton == null:
@@ -908,13 +905,7 @@ func _add_physical_skeleton() -> void:
 	skeleton.animate_physical_bones = true
 
 func _adjust_main_collider():
-	var head_height = humanizer.get_head_height()
-	var offset = humanizer.get_foot_offset()
-	var height = head_height - offset
-	main_collider.shape.height = height
-	main_collider.position.y = height/2 + offset
-
-	main_collider.shape.radius = humanizer.get_max_width()
+	humanizer.adjust_main_collider(main_collider)
 
 func _add_saccades() -> void:
 	if human_config.rig == 'default-RETARGETED':
