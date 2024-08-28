@@ -534,14 +534,16 @@ func bake_surface() -> void:
 			human_config.transforms[node.name] = Transform3D(node.transform)
 		if node is HumanizerMeshInstance and node.material_config != null:
 			node.material_config.update_material()
-	
+
 	if human_config.components.has(&'size_morphs') or human_config.components.has(&'age_morphs'):
-		if not baked:
+		
+		if not baked or bake_in_progress:
 			if _new_shapekeys.size() > 1:
 				push_error('Age and Size morphs can not be mixed with more than 1 custom shape')
 				return
-			MeshOperations.prepare_shapekeys_for_baking(human_config, _new_shapekeys)
-			_set_shapekey_data(human_config.shapekeys) ## To get correct shapes on basis
+			
+			HumanizerMorphService.prepare_shapekeys_for_baking(human_config, _new_shapekeys)
+			_set_shapekey_data(human_config.targets.duplicate()) ## To get correct shapes on basis
 			_fit_all_meshes()
 
 	if body_mesh != null and body_mesh in _bake_meshes:
@@ -551,6 +553,7 @@ func bake_surface() -> void:
 		
 	if atlas_resolution == 0:
 		atlas_resolution = HumanizerGlobalConfig.config.atlas_resolution
+
 	var baked_surface :ArrayMesh = humanizer.combine_surfaces_to_mesh(bake_mesh_names, ArrayMesh.new(), atlas_resolution)
 	#cant regenerate normals and tangents after baking, because it reorders the vertices, and in some cases resizes, which makes absolutely no sense, but it then breaks the exported morph shapekeys  
 	var mi: MeshInstance3D = MeshInstance3D.new()
@@ -559,46 +562,7 @@ func bake_surface() -> void:
 
 	# Add new shapekeys to mesh arrays, collect metadata for skeleton/collider
 	if not _new_shapekeys.is_empty():
-		morph_data['bone_positions'] = {}
-		morph_data['motion_scale'] = {}
-		morph_data['collider_shape'] = {}
-		var initial_shapekeys = human_config.targets.duplicate(true)
-		var bs_arrays = []
-		var baked_mesh = ArrayMesh.new()
-		baked_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)
-		for shape_name in _new_shapekeys:
-			baked_mesh.add_blend_shape(shape_name)
-			var new_bs_array = []
-			new_bs_array.resize(Mesh.ARRAY_MAX)
-			new_bs_array[Mesh.ARRAY_VERTEX] = PackedVector3Array()
-			new_bs_array[Mesh.ARRAY_TANGENT] = PackedFloat32Array()
-			new_bs_array[Mesh.ARRAY_NORMAL] = PackedVector3Array()
-			_set_shapekey_data(_new_shapekeys[shape_name])
-			_adjust_skeleton()
-			_fit_all_meshes()
-			morph_data['bone_positions'][shape_name] = []
-			for bone in skeleton.get_bone_count():
-				morph_data['bone_positions'][shape_name].append(skeleton.get_bone_pose_position(bone))
-			morph_data['motion_scale'][shape_name] = skeleton.motion_scale
-			morph_data['collider_shape'][shape_name] = {&'center': main_collider.position.y, &'radius': main_collider.shape.radius, &'height': main_collider.shape.height}
-			for mesh_instance in _bake_meshes:
-				var sf_arrays = mesh_instance.mesh.surface_get_arrays(0)
-				new_bs_array[Mesh.ARRAY_VERTEX].append_array(sf_arrays[Mesh.ARRAY_VERTEX])
-				new_bs_array[Mesh.ARRAY_TANGENT].append_array(sf_arrays[Mesh.ARRAY_TANGENT])
-				new_bs_array[Mesh.ARRAY_NORMAL].append_array(sf_arrays[Mesh.ARRAY_NORMAL])
-			bs_arrays.append(new_bs_array)
-		baked_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,mi.mesh.surface_get_arrays(0),bs_arrays)
-		baked_mesh.surface_set_material(0,mi.mesh.surface_get_material(0))
-		mi.mesh = baked_mesh
-		## then need to reset mesh to base shape
-		_set_shapekey_data(initial_shapekeys)
-		_adjust_skeleton()
-		_fit_all_meshes()
-		morph_data['bone_positions']['basis'] = []
-		for bone in skeleton.get_bone_count():
-			morph_data['bone_positions']['basis'].append(skeleton.get_bone_pose_position(bone))
-		morph_data['motion_scale']['basis'] = skeleton.motion_scale
-		morph_data['collider_shape']['basis'] = {&'center': main_collider.position.y, &'radius': main_collider.shape.radius, &'height': main_collider.shape.height}
+		morph_data = HumanizerMorphService.get_morph_data(humanizer,_new_shapekeys,bake_mesh_names,mi)
 	
 	# Finalize
 	add_child(mi)

@@ -68,7 +68,7 @@ func combine_surfaces_to_mesh(surface_names:PackedStringArray,new_mesh:=ArrayMes
 	var bake_arrays = []
 	var bake_mats = []
 	for s_name in surface_names:
-		var new_array = mesh_arrays[s_name]
+		var new_array = mesh_arrays[s_name].duplicate()
 		new_array[Mesh.ARRAY_CUSTOM0] = null
 		bake_arrays.append(new_array)
 		bake_mats.append(materials[s_name])

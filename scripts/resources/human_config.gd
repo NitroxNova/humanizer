@@ -68,6 +68,9 @@ func enable_component(c_name:StringName):
 
 func disable_component(c_name:StringName):
 	components.erase(c_name)
+	
+func has_component(c_name:StringName):
+	return c_name in components
 
 func set_skin_texture(texture_name:String):
 	var texture: String
