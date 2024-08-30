@@ -5,7 +5,6 @@ extends Node3D
 ## editor tool for creating new humans
 
 const BASE_MESH_NAME: String = 'Body'
-const eyebrow_color_weight := 0.4
 var humanizer : Humanizer
 var skeleton: Skeleton3D
 var body_mesh: MeshInstance3D
@@ -35,39 +34,6 @@ var _save_path_valid: bool:
 var bake_surface_name: String
 var new_shapekey_name: String = ''
 var morph_data := {}
-
-var skin_color: Color = Color.WHITE:
-	set(value):
-		skin_color = value
-		if body_mesh == null or (body_mesh as HumanizerMeshInstance) == null:
-			return
-		if scene_loaded and body_mesh.material_config.overlays.size() == 0:
-			return
-		human_config.skin_color = skin_color
-		if body_mesh.material_config.overlays.size() > 0:
-			body_mesh.material_config.overlays[0].color = skin_color
-var hair_color: Color = Color.WHITE:
-	set(value):
-		hair_color = value
-		if human_config == null or not scene_loaded:
-			return
-		human_config.hair_color = hair_color
-		var hair_equip = human_config.get_equipment_in_slot("Hair")
-		if hair_equip != null:
-			var mesh = get_node(hair_equip.get_type().resource_name)
-			(mesh as MeshInstance3D).get_surface_override_material(0).albedo_color = hair_color 
-		eyebrow_color = Color(hair_color * eyebrow_color_weight, 1.)
-		notify_property_list_changed()
-var eyebrow_color: Color = Color.WHITE:
-	set(value):
-		eyebrow_color = value
-		if human_config == null or not scene_loaded:
-			return
-		human_config.eyebrow_color = eyebrow_color
-		var slots: Array = ['RightEyebrow', 'LeftEyebrow', 'Eyebrows']
-		for equip in human_config.get_equipment_in_slots(slots):
-			var mesh = get_node(equip.get_type().resource_name)
-			mesh.get_surface_override_material(0).albedo_color = eyebrow_color 
 
 ## The meshes selected to be baked to a new surface
 @export var _bake_meshes: Array[MeshInstance3D]
@@ -133,13 +99,13 @@ func set_human_config(config: HumanConfig) -> void:
 	human_config = config
 	
 func set_hair_color(color: Color) -> void:
-	hair_color = color
+	humanizer.set_hair_color(color)
 
 func set_eyebrow_color(color: Color) -> void:
-	eyebrow_color = color
+	humanizer.set_eyebrow_color(color)
 
 func set_skin_color(color: Color) -> void:
-	skin_color = color
+	humanizer.set_skin_color(color)
 	if body_mesh != null and body_mesh is HumanizerMeshInstance:
 		body_mesh.material_config.update_material()
 	
@@ -353,11 +319,6 @@ func _deserialize() -> void:
 		if component in [&'root_bone', &'ragdoll']:
 			continue  # These are already set in set_rig
 		set_component_state(true, component)
-	
-	## Load colors
-	skin_color = human_config.skin_color
-	hair_color = human_config.hair_color
-	eyebrow_color = human_config.eyebrow_color
 
 	## Update materials with overlays
 	body_mesh.material_config.update_material()
@@ -732,7 +693,7 @@ func set_skin_normal_texture(name: String) -> void:
 	if body_mesh.material_config.overlays.size() == 0:
 		if texture == '':
 			return
-		var overlay = {&'normal': texture, &'color': skin_color}
+		var overlay = {&'normal': texture, &'color': human_config.skin_color}
 		body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
 	else:
 		var overlay = body_mesh.material_config.overlays[0]

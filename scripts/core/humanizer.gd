@@ -90,16 +90,33 @@ func get_group_bake_arrays(group_name:String): #transparent, opaque or all
 				surface_names.append(s_name)
 	return surface_names
 
+func set_skin_color(color:Color):
+	human_config.skin_color = color
+	human_config.body_material.update_standard_material_3D(materials.Body)
+
 func set_skin_texture(texture_name: String) -> void:
 	human_config.set_skin_texture(texture_name)
 	human_config.body_material.update_standard_material_3D(materials.Body)
 
 func set_eye_color(color:Color):
-	human_config.set_eye_color(color)
+	human_config.eye_color = color
 	var slots = ["LeftEye","RightEye","Eyes"]
 	for equip in human_config.get_equipment_in_slots(slots):
 		equip.material_config.update_standard_material_3D(materials[equip.type])
-	
+
+func set_hair_color(color:Color):
+	human_config.hair_color = color
+	var hair_equip = human_config.get_equipment_in_slot("Hair")
+	if hair_equip != null:
+		materials[hair_equip.type].albedo_color = color
+	set_eyebrow_color(human_config.eyebrow_color)
+
+func set_eyebrow_color(color:Color):
+	human_config.eyebrow_color = color
+	var slots = ["LeftEyebrow","RightEyebrow","Eyebrows"]
+	for eyebrow_equip in human_config.get_equipment_in_slots(slots):
+		materials[eyebrow_equip.type].albedo_color = color
+		
 func init_equipment_material(equipment:HumanizerEquipment):
 	var equip_type = equipment.get_type()
 	materials[equipment.type] = load(equip_type.material_path)

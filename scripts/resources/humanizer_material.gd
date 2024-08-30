@@ -25,13 +25,16 @@ func update_material() -> void:
 	if overlays.size() == 0:
 		return
 	
-	for texture in TEXTURE_LAYERS:
-		var image: Image = null
+	for texture in TEXTURE_LAYERS: #albedo, normal, ambient occulsion ect..
+		var image: Image = null #the final image for this layer
 		for overlay in overlays:
 			if overlay == null:
 				continue
 			var path = overlay.get(texture + '_texture_path')
 			if path == '':
+				if image == null and texture == 'albedo':
+					image = Image.create(2^11,2^11,true,Image.FORMAT_RGBA8)
+					image.fill(overlay.color)
 				continue
 			var overlay_image = load(path).get_image()
 			overlay_image.convert(Image.FORMAT_RGBA8)
@@ -45,10 +48,6 @@ func update_material() -> void:
 				image.blend_rect(overlay_image, 
 								Rect2i(Vector2i.ZERO, overlay_image.get_size()), 
 								overlay.offset)
-				
-		## TODO what if a base texture is null but overlay is not? 
-		## Need to create default base texture to overlay onto
-
 		## Create output textures
 		if image != null:
 			image.generate_mipmaps()

@@ -17,14 +17,15 @@ func _parse_category(human, category):
 	scene.get_node('%PresetsOptionButton').human = human
 
 	## Color pickers
-	scene.get_node('%SkinColorPicker').color = human.skin_color
-	scene.get_node('%HairColorPicker').color = human.hair_color
+	scene.get_node('%SkinColorPicker').color = human.human_config.skin_color
+	scene.get_node('%HairColorPicker').color = human.human_config.hair_color
 	scene.get_node('%EyeColorPicker').color = human.human_config.eye_color
-	scene.get_node('%EyebrowColorPicker').color = human.eyebrow_color
+	scene.get_node('%EyebrowColorPicker').color = human.human_config.eyebrow_color
 	scene.get_node('%SkinColorPicker').color_changed.connect(human.set_skin_color)
-	scene.get_node('%HairColorPicker').color_changed.connect(human.set_hair_color)
 	scene.get_node('%EyeColorPicker').color_changed.connect(human.set_eye_color)
-	scene.get_node('%EyebrowColorPicker').color_changed.connect(human.set_eyebrow_color)
+	var eyebrow_color_picker = scene.get_node('%EyebrowColorPicker')
+	eyebrow_color_picker.color_changed.connect(human.set_eyebrow_color)
+	scene.get_node('%HairColorPicker').color_changed.connect(hair_color_changed.bind(human,eyebrow_color_picker))
 	
 	# Components Inspector
 	scene.get_node('%MainColliderCheckBox').button_pressed = &'main_collider' in human.human_config.components
@@ -108,3 +109,7 @@ func _parse_category(human, category):
 		scene.get_node('%ShapekeysVBoxContainer').add_child(button)
 		scene.get_node('%ShapekeysVBoxContainer').add_child(cat_container)
 		button.pressed.connect(func(): cat_container.visible = not cat_container.visible)
+
+func hair_color_changed(color:Color, human, eyebrow_color_picker):
+	human.humanizer.set_hair_color(color)
+	eyebrow_color_picker.color = human.human_config.eyebrow_color

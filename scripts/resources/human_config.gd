@@ -21,7 +21,11 @@ signal equipment_removed(equip:HumanizerEquipment)
 @export var transforms := {}
 
 ## Colors
-@export var skin_color: Color = Color.WHITE
+@export var skin_color: Color = Color.WHITE:
+	set(value):
+		skin_color = value
+		body_material.overlays[0].color = skin_color
+			
 @export var eye_color: Color = Color.SKY_BLUE:
 	set(value):
 		eye_color = value
@@ -29,10 +33,21 @@ signal equipment_removed(equip:HumanizerEquipment)
 		for equip in get_equipment_in_slots(slots):
 			equip.material_config.overlays[1].color = eye_color
 
-@export var eyebrow_color: Color = Color.BLACK
-@export var hair_color: Color = Color.WEB_MAROON
+@export var eyebrow_color: Color = Color("330000")
 
-@export var body_material : HumanizerMaterial= HumanizerMaterial.new()
+@export var hair_color: Color = Color.WEB_MAROON:
+	set(value):
+		hair_color = value
+		const eyebrow_color_weight := 0.4
+		eyebrow_color = Color(hair_color * eyebrow_color_weight, 1.)
+		notify_property_list_changed()
+
+@export var body_material : HumanizerMaterial= init_body_material()
+
+func init_body_material():
+	var mat = HumanizerMaterial.new()
+	mat.add_overlay(HumanizerOverlay.from_dict({}))
+	return mat
 
 func init_macros():
 	var macros = HumanizerMacroService.get_default_macros()
@@ -93,7 +108,3 @@ func set_skin_texture(texture_name:String):
 				normal_texture = ''
 		var overlay = {&'albedo': texture, &'color': skin_color, &'normal': normal_texture}
 		body_material.set_base_textures(HumanizerOverlay.from_dict(overlay))
-
-func set_eye_color(color:Color):
-	eye_color = color
-	
