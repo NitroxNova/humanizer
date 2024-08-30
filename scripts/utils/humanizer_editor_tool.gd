@@ -125,7 +125,6 @@ var eye_color: Color = Color.WHITE:
 
 
 func _ready() -> void:
-	print("Ready")
 	body_mesh = get_node_or_null(BASE_MESH_NAME)
 	if human_config == null:
 		human_config = HumanConfig.new()
@@ -135,6 +134,47 @@ func _ready() -> void:
 	if not baked:
 		load_human()
 	scene_loaded = true
+	
+## For use in character editor scenes where the character should be 
+## continuously updated with every change
+
+func reset():
+	load_human()
+
+func set_human_config(config: HumanConfig) -> void:
+	human_config = config
+	
+func set_hair_color(color: Color) -> void:
+	hair_color = color
+
+func set_eyebrow_color(color: Color) -> void:
+	eyebrow_color = color
+
+func set_skin_color(color: Color) -> void:
+	skin_color = color
+	if body_mesh != null and body_mesh is HumanizerMeshInstance:
+		body_mesh.material_config.update_material()
+	
+func set_eye_color(color: Color) -> void:
+	eye_color = color
+	var slots = ["LeftEye","RightEye","Eyes"]
+	for equip in human_config.get_equipment_in_slots(slots):
+		get_node(equip.get_type().resource_name).material_config.update_material()
+	
+func set_shapekeys(shapekeys: Dictionary) -> void:
+	_set_shapekey_data(shapekeys)
+	_fit_all_meshes()
+	_adjust_skeleton()
+
+	if main_collider != null:
+		_adjust_main_collider()
+	
+	## HACK shapekeys mess up mesh
+	## Face bones mess up the mesh when shapekeys applied.  This fixes it
+	if animator != null:
+		animator.active = not animator.active
+		animator.active = not animator.active
+
 
 ####  HumanConfig Resource and Scene Management ####
 func reset_human() -> void:
@@ -383,6 +423,7 @@ func add_equipment(equip: HumanizerEquipment) -> void:
 	_add_bone_weights(equip)
 	
 	get_node(equip_type.resource_name).set_surface_override_material(0,humanizer.materials[equip_type.resource_name])
+	_fit_equipment_mesh(equip)
 	notify_property_list_changed()
 	
 func remove_equipment(equip: HumanizerEquipment) -> void:
@@ -713,6 +754,8 @@ func set_skin_normal_texture(name: String) -> void:
 		var overlay = body_mesh.material_config.overlays[0]
 		overlay.normal_texture_path = texture
 		body_mesh.material_config.set_base_textures(overlay)
+	if body_mesh != null and body_mesh is HumanizerMeshInstance:
+		body_mesh.material_config.update_material()
 
 func set_equipment_texture_by_slot(slot_name:String, texture: String):
 	var equip = human_config.get_equipment_in_slot(slot_name)
@@ -774,6 +817,10 @@ func set_rig(rig_name: String) -> void:
 	if human_config.components.has(&'saccades'):
 		if rig_name != &'default-RETARGETED':
 			set_component_state(false, &'saccades')
+	
+	for equip in human_config.equipment.values():
+		_add_bone_weights(equip)
+	_adjust_skeleton()
 
 func _adjust_skeleton() -> void:
 	if skeleton == null:

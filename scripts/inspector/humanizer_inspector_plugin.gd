@@ -2,12 +2,12 @@ class_name HumanizerEditorInspectorPlugin
 extends EditorInspectorPlugin
 
 func _can_handle(human):
-	return human is AutoUpdatingHumanizer
+	return human is HumanizerEditorTool
 	
 func _parse_category(human, category):
 	if not Engine.is_editor_hint():
 		return
-	if category != 'humanizer.gd':
+	if category != 'humanizer_editor_tool.gd':
 		return
 	var scene = load("res://addons/humanizer/scenes/inspector/humanizer_inspector.tscn").instantiate()
 	add_custom_control(scene)
@@ -108,4 +108,3 @@ func _parse_category(human, category):
 		scene.get_node('%ShapekeysVBoxContainer').add_child(button)
 		scene.get_node('%ShapekeysVBoxContainer').add_child(cat_container)
 		button.pressed.connect(func(): cat_container.visible = not cat_container.visible)
-
