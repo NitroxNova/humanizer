@@ -19,7 +19,7 @@ func _parse_category(human, category):
 	## Color pickers
 	scene.get_node('%SkinColorPicker').color = human.skin_color
 	scene.get_node('%HairColorPicker').color = human.hair_color
-	scene.get_node('%EyeColorPicker').color = human.eye_color
+	scene.get_node('%EyeColorPicker').color = human.human_config.eye_color
 	scene.get_node('%EyebrowColorPicker').color = human.eyebrow_color
 	scene.get_node('%SkinColorPicker').color_changed.connect(human.set_skin_color)
 	scene.get_node('%HairColorPicker').color_changed.connect(human.set_hair_color)

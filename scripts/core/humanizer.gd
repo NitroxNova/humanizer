@@ -94,6 +94,12 @@ func set_skin_texture(texture_name: String) -> void:
 	human_config.set_skin_texture(texture_name)
 	human_config.body_material.update_standard_material_3D(materials.Body)
 
+func set_eye_color(color:Color):
+	human_config.set_eye_color(color)
+	var slots = ["LeftEye","RightEye","Eyes"]
+	for equip in human_config.get_equipment_in_slots(slots):
+		equip.material_config.update_standard_material_3D(materials[equip.type])
+	
 func init_equipment_material(equipment:HumanizerEquipment):
 	var equip_type = equipment.get_type()
 	materials[equipment.type] = load(equip_type.material_path)

@@ -22,7 +22,13 @@ signal equipment_removed(equip:HumanizerEquipment)
 
 ## Colors
 @export var skin_color: Color = Color.WHITE
-@export var eye_color: Color = Color.SKY_BLUE
+@export var eye_color: Color = Color.SKY_BLUE:
+	set(value):
+		eye_color = value
+		var slots: Array = [&'RightEye', &'LeftEye', &'Eyes']
+		for equip in get_equipment_in_slots(slots):
+			equip.material_config.overlays[1].color = eye_color
+
 @export var eyebrow_color: Color = Color.BLACK
 @export var hair_color: Color = Color.WEB_MAROON
 

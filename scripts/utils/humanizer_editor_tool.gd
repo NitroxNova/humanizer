@@ -68,18 +68,6 @@ var eyebrow_color: Color = Color.WHITE:
 		for equip in human_config.get_equipment_in_slots(slots):
 			var mesh = get_node(equip.get_type().resource_name)
 			mesh.get_surface_override_material(0).albedo_color = eyebrow_color 
-var eye_color: Color = Color.WHITE:
-	set(value):
-		eye_color = value
-		if human_config == null or not scene_loaded:
-			return
-		human_config.eye_color = eye_color
-		var slots: Array = [&'RightEye', &'LeftEye', &'Eyes']
-		for equip in human_config.get_equipment_in_slots(slots):
-			var mesh = get_node(equip.get_type().resource_name)
-			var overlay = mesh.material_config.overlays[1]
-			overlay.color = eye_color
-			mesh.material_config.set_overlay(1, overlay)
 
 ## The meshes selected to be baked to a new surface
 @export var _bake_meshes: Array[MeshInstance3D]
@@ -156,11 +144,8 @@ func set_skin_color(color: Color) -> void:
 		body_mesh.material_config.update_material()
 	
 func set_eye_color(color: Color) -> void:
-	eye_color = color
-	var slots = ["LeftEye","RightEye","Eyes"]
-	for equip in human_config.get_equipment_in_slots(slots):
-		get_node(equip.get_type().resource_name).material_config.update_material()
-	
+	humanizer.set_eye_color(color)
+
 func set_shapekeys(shapekeys: Dictionary) -> void:
 	_set_shapekey_data(shapekeys)
 	_fit_all_meshes()
@@ -372,7 +357,6 @@ func _deserialize() -> void:
 	## Load colors
 	skin_color = human_config.skin_color
 	hair_color = human_config.hair_color
-	eye_color = human_config.eye_color
 	eyebrow_color = human_config.eyebrow_color
 
 	## Update materials with overlays
