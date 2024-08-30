@@ -96,7 +96,7 @@ func has_component(c_name:StringName):
 func set_skin_texture(texture_name:String):
 	var texture: String
 	if not HumanizerRegistry.skin_textures.has(texture_name):
-		body_material.set_base_textures(HumanizerOverlay.new())
+		body_material.overlays[0].albedo_texture_path = ""
 	else:
 		texture = HumanizerRegistry.skin_textures[texture_name]
 		var normal_texture = texture.get_base_dir() + '/' + texture_name + '_normal.' + texture.get_extension()
