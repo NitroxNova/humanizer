@@ -403,62 +403,8 @@ func hide_clothes_vertices():
 	if baked:
 		push_warning("Can't alter meshes.  Already baked")
 		return
-	var delete_verts_mh := []
-	delete_verts_mh.resize(humanizer.helper_vertex.size())
-	
-	var depth_sorted_clothes := []
-	for child in get_children():
-		if not child is MeshInstance3D:
-			continue
-		var res: HumanizerEquipment = _get_asset_by_name(child.name)
-		if res != null:
-			depth_sorted_clothes.append(child)
-	
-	depth_sorted_clothes.sort_custom(_sort_clothes_by_z_depth)
-	
-	for clothes_node:MeshInstance3D in depth_sorted_clothes:
-		var res: HumanizerEquipment = _get_asset_by_name(clothes_node.name)
-		var mhclo : MHCLO = load(res.mhclo_path)
-		var cl_delete_verts_mh = []
-		cl_delete_verts_mh.resize(mhclo.vertex_data.size())
-		cl_delete_verts_mh.fill(false)
-		var cl_delete_verts_gd = []
-		cl_delete_verts_gd.resize(clothes_node.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size())
-		cl_delete_verts_gd.fill(false)
-		var any_deleted = false
-		
-		#refer to transferVertexMaskToProxy in makehuman/shared/proxy.py
-		for cl_mh_id in mhclo.vertex_data.size():
-			var v_data = mhclo.vertex_data[cl_mh_id]
-			var hidden_count = 0
-			for hu_mh_id in v_data.vertex:
-				if delete_verts_mh[hu_mh_id]:
-					hidden_count += 1
-			if float(hidden_count)/v_data.vertex.size() >= .66: #if 2/3 or more vertices are hidden
-				cl_delete_verts_mh[cl_mh_id] = true
-		for gd_id in clothes_node.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size():
-			var mh_id = clothes_node.mesh.surface_get_arrays(0)[Mesh.ARRAY_CUSTOM0][gd_id]
-			if cl_delete_verts_mh[mh_id]:
-				any_deleted = true
-				cl_delete_verts_gd[gd_id] = true
-		
-		#if any_deleted:
-			#clothes_node.mesh = MeshOperations.delete_faces(clothes_node.mesh,cl_delete_verts_gd)			
-		
-		#update delete verts to apply to all subsequent clothes
-		for entry in mhclo.delete_vertices:
-			if entry.size() == 1:
-				delete_verts_mh[entry[0]] = true
-			else:
-				for mh_id in range(entry[0], entry[1] + 1):
-					delete_verts_mh[mh_id] = true
-
-func _sort_clothes_by_z_depth(clothes_a, clothes_b): # from highest to lowest
-	var res_a: HumanizerEquipment = _get_asset_by_name(clothes_a.name)
-	var res_b: HumanizerEquipment = _get_asset_by_name(clothes_b.name)
-	if load(res_a.mhclo_path).z_depth > load(res_b.mhclo_path).z_depth:
-		return true
-	return false
+	humanizer.hide_clothes_vertices()
+	_fit_all_meshes()
 
 func unhide_body_vertices() -> void:
 	if baked:
@@ -610,8 +556,7 @@ func _fit_body_mesh() -> void:
 	#body_mesh.mesh = HumanizerBodyService.fit_mesh(body_mesh.mesh,humanizer.helper_vertex)
 
 func _fit_equipment_mesh(equipment: HumanizerEquipment) -> void:
-	var equip_type = equipment.get_type()
-	get_node(equip_type.resource_name).mesh = humanizer.get_mesh(equip_type.resource_name)
+	get_node(equipment.type).mesh = humanizer.get_mesh(equipment.type)
 
 func _combine_meshes() -> ArrayMesh:
 	var new_mesh = ImporterMesh.new()

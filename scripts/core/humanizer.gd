@@ -43,7 +43,8 @@ func get_CharacterBody3D():
 		anim_player.active=true
 	skeleton.owner = human
 	anim_player.owner = human
-	human.add_child(get_main_collider())
+	if human_config.has_component("main_collider"):
+		human.add_child(get_main_collider())
 	return human
 	
 func get_animation_tree():
@@ -181,6 +182,9 @@ func get_body_mesh():
 
 func hide_body_vertices():
 	HumanizerBodyService.hide_vertices(mesh_arrays.Body,human_config.equipment)
+
+func hide_clothes_vertices():
+	HumanizerEquipmentService.hide_vertices(human_config.equipment,mesh_arrays)
 			
 func set_targets(target_data:Dictionary):
 	HumanizerTargetService.set_targets(target_data,human_config.targets,helper_vertex)
