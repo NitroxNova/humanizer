@@ -154,9 +154,10 @@ func get_mesh(mesh_name:String):
 	var new_arrays = mesh_arrays[mesh_name].duplicate()
 	new_arrays[Mesh.ARRAY_CUSTOM0] = null
 	var mesh = ArrayMesh.new()
-	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays)
-	mesh = HumanizerMeshService.generate_normals_and_tangents(mesh)
-	mesh.surface_set_material(0,materials[mesh_name])
+	if new_arrays[Mesh.ARRAY_INDEX].size()>0:
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays)
+		mesh = HumanizerMeshService.generate_normals_and_tangents(mesh)
+		mesh.surface_set_material(0,materials[mesh_name])
 	return mesh
 
 func add_equipment(equip:HumanizerEquipment):
