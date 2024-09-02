@@ -348,27 +348,20 @@ func add_equipment(equip: HumanizerEquipment) -> void:
 	humanizer.add_equipment(equip)	
 	
 	var mesh_inst = HumanizerMeshInstance.new()
-	mesh_inst.name = equip_type.resource_name
-	mesh_inst.mesh = humanizer.get_mesh(equip_type.resource_name)
-	var sf_material :StandardMaterial3D = load(equip_type.material_path)
+	mesh_inst.name = equip.type
+	mesh_inst.mesh = humanizer.get_mesh(equip.type)
+	var sf_material :StandardMaterial3D = humanizer.materials[equip.type]
+	sf_material.resource_local_to_scene = true
 	mesh_inst.set_surface_override_material(0,sf_material)
-	_add_child_node(mesh_inst)
-	if equip_type.default_overlay != null and mesh_inst.material_config == null:
-		mesh_inst.material_config = HumanizerMaterial.new()
-		var base_overlay = HumanizerOverlay.from_dict({albedo=equip_type.textures[equip_type.textures.keys()[0]]})
-		mesh_inst.material_config.add_overlay(base_overlay)
-		mesh_inst.material_config.add_overlay(equip_type.default_overlay.duplicate(true))
-
-	mesh_inst.get_surface_override_material(0).resource_local_to_scene = true
+	mesh_inst.material_config = equip.material_config
 	if human_config.transforms.has(equip_type.resource_name):
-		equip.node.transform = Transform3D(human_config.transforms[equip.resource_name])
-		
+		mesh_inst.transform = Transform3D(human_config.transforms[equip.resource_name])
+	_add_child_node(mesh_inst)
+	
 	if equip_type.rigged:
 		rebuild_skeleton() #update rig with additional asset bones, and remove any from previous asset
-	_add_bone_weights(equip)
-	
-	get_node(equip_type.resource_name).set_surface_override_material(0,humanizer.materials[equip_type.resource_name])
-	_fit_equipment_mesh(equip)
+	mesh_inst.skeleton = '../' + skeleton.name
+	mesh_inst.skin = skeleton.create_skin_from_rest_transforms()
 	notify_property_list_changed()
 	
 func remove_equipment(equip: HumanizerEquipment) -> void:
@@ -557,7 +550,8 @@ func _fit_body_mesh() -> void:
 
 func _fit_equipment_mesh(equipment: HumanizerEquipment) -> void:
 	get_node(equipment.type).mesh = humanizer.get_mesh(equipment.type)
-
+	
+	
 func _combine_meshes() -> ArrayMesh:
 	var new_mesh = ImporterMesh.new()
 	new_mesh.set_blend_shape_mode(Mesh.BLEND_SHAPE_MODE_NORMALIZED)

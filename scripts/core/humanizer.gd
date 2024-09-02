@@ -158,6 +158,7 @@ func get_mesh(mesh_name:String):
 		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays)
 		mesh = HumanizerMeshService.generate_normals_and_tangents(mesh)
 		mesh.surface_set_material(0,materials[mesh_name])
+	##TODO mesh transform	
 	return mesh
 
 func add_equipment(equip:HumanizerEquipment):
