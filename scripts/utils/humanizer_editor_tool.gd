@@ -283,6 +283,7 @@ func save_human_scene() -> void:
 	if not FileAccess.file_exists(save_path.path_join('scene_' + human_name + '.tscn')):
 		ResourceSaver.save(scene, save_path.path_join('scene_' + human_name + '.tscn'))
 	print('Saved human to : ' + save_path)
+	HumanizerJobQueue.enqueue({callable=HumanizerMeshService.compress_material,mesh=mi.mesh})
 	
 func _add_child_node(node: Node) -> void:
 	add_child(node)
@@ -787,9 +788,7 @@ func _add_physical_skeleton() -> void:
 	if skeleton == null:
 		return
 	animator.active = false
-	skeleton.reset_bone_poses()
-	HumanizerPhysicalSkeleton.new(skeleton, humanizer.helper_vertex, _ragdoll_layers, _ragdoll_mask).run()
-	skeleton.reset_bone_poses()
+	humanizer.add_ragdoll_colliders(skeleton,_ragdoll_layers,_ragdoll_mask)
 	animator.active = true
 	skeleton.animate_physical_bones = true
 

@@ -46,6 +46,8 @@ func get_CharacterBody3D():
 	anim_player.owner = human
 	if human_config.has_component("main_collider"):
 		human.add_child(get_main_collider())
+	if human_config.has_component("ragdoll"):
+		add_ragdoll_colliders(skeleton)
 	return human
 	
 func get_animation_tree():
@@ -252,6 +254,11 @@ func get_main_collider():
 
 func adjust_main_collider(main_collider:CollisionShape3D):
 	HumanizerColliderService.adjust_main_collider(helper_vertex,main_collider)
+
+func add_ragdoll_colliders(skeleton:Skeleton3D,ragdoll_layers =HumanizerGlobalConfig.config.default_physical_bone_layers,ragdoll_mask=HumanizerGlobalConfig.config.default_physical_bone_mask):
+	skeleton.reset_bone_poses()
+	HumanizerPhysicalSkeleton.new(skeleton, helper_vertex, ragdoll_layers, ragdoll_mask).run()
+	skeleton.reset_bone_poses()
 	
 func get_foot_offset()->float:
 	return HumanizerBodyService.get_foot_offset(helper_vertex)
