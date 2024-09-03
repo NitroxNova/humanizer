@@ -29,6 +29,7 @@ func _init(_human_config = null):
 
 func get_CharacterBody3D():
 	var human = CharacterBody3D.new()
+	human.set_script(load("res://addons/humanizer/scripts/utils/human_controller.gd"))
 	var body_mesh = MeshInstance3D.new()
 	body_mesh.mesh = standard_bake_meshes()
 	human.add_child(body_mesh)
@@ -121,10 +122,6 @@ func set_eyebrow_color(color:Color):
 func init_equipment_material(equipment:HumanizerEquipment):
 	var equip_type = equipment.get_type()
 	materials[equipment.type] = load(equip_type.material_path)
-	if equip_type.default_overlay != null and equipment.material_config == null:
-		equipment.material_config = HumanizerMaterial.new()
-		equipment.material_config.set_base_textures(HumanizerOverlay.from_material(materials[equipment.type]))
-		equipment.material_config.add_overlay(equip_type.default_overlay)
 	set_equipment_material(equipment,equipment.texture_name)
 
 func set_equipment_material(equipment:HumanizerEquipment, texture: String)-> void:
@@ -141,9 +138,8 @@ func set_equipment_material(equipment:HumanizerEquipment, texture: String)-> voi
 		material.albedo_texture = null
 	else:
 		material.albedo_texture = load(equip_type.textures[texture])
-	if equip_type.in_slot(["LeftEye","RightEye"]):
-		mat_config.overlays[1].color = human_config.eye_color
-	elif equip_type.in_slot(["Hair"]):
+		
+	if equip_type.in_slot(["Hair"]):
 		material.albedo_color = human_config.hair_color
 	elif equip_type.in_slot(["LeftEyebrow","RightEyebrow"]):
 		material.albedo_color = human_config.eyebrow_color

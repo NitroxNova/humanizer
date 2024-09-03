@@ -167,6 +167,7 @@ static func blend_color(image: Image, color: Color) -> void:
 			image.set_pixel(x, y, image.get_pixel(x, y) * color)
 			
 static func compress_material(args:Dictionary):
+	print("compressing material")
 	var mesh:ArrayMesh = args.mesh
 	for surface_id in mesh.get_surface_count():
 		var material: BaseMaterial3D = mesh.surface_get_material(surface_id)

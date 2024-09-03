@@ -40,7 +40,7 @@ func _process(delta) -> void:
 	elif new_human != null:
 		add_child(new_human)
 		new_human.global_position = pos
-		#new_human.camera = $Camera3D
+		new_human.camera = $Camera3D
 		
 		pos.x += 1
 		if pos.x > 15.5:

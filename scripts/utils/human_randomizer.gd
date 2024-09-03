@@ -46,7 +46,7 @@ func randomize_eyes() -> void:
 	color.b += rng.randf()
 	human.add_equipment(HumanizerEquipment.new("LeftEyeBall-LowPoly"))
 	human.add_equipment(HumanizerEquipment.new("RightEyeball-LowPoly"))
-	human.set_eye_color(color)
+	human.eye_color = color
 
 func randomize_eyelashes() -> void:
 	human.add_equipment(HumanizerEquipment.new("LeftEyelash"))
@@ -87,6 +87,8 @@ func randomize_shapekeys() -> void:
 				else:
 					# Should be symmetric shapekey
 					value = rng.randfn(mean, 0.5 * randomization[cat])
+			if cat == 'Body':
+				value *= randf()
 			value = abs(value)
 			value = clamp(value, minval, maxval)
 			values[sk] = value

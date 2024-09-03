@@ -70,11 +70,17 @@ func get_equipment_in_slots(slot_names:Array):
 
 func add_equipment(equip:HumanizerEquipment) -> void:
 	#print("Equipping " + equip.resource_name)
-	var type = equip.get_type()
-	for prev_equip in get_equipment_in_slots(type.slots):
+	var equip_type = equip.get_type()
+	for prev_equip in get_equipment_in_slots(equip_type.slots):
 		remove_equipment(prev_equip)
-	equipment[type.resource_name] = equip
+	equipment[equip.type] = equip
 	equipment_added.emit(equip)
+	if equip_type.default_overlay != null and equip.material_config == null:
+		equip.material_config = HumanizerMaterial.new()
+		equip.material_config.set_base_textures(HumanizerOverlay.from_material(load(equip_type.material_path)))
+		equip.material_config.add_overlay(equip_type.default_overlay)
+	if equip_type.in_slot(["LeftEye","RightEye"]):
+		equip.material_config.overlays[1].color = eye_color
 
 func remove_equipment(equip:HumanizerEquipment):
 	#print("Removing " + equip.resource_name)
