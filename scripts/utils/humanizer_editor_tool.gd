@@ -283,8 +283,7 @@ func save_human_scene() -> void:
 	if not FileAccess.file_exists(save_path.path_join('scene_' + human_name + '.tscn')):
 		ResourceSaver.save(scene, save_path.path_join('scene_' + human_name + '.tscn'))
 	print('Saved human to : ' + save_path)
-	HumanizerJobQueue.enqueue({callable=HumanizerMeshService.compress_material,mesh=mi.mesh})
-
+	
 func _add_child_node(node: Node) -> void:
 	add_child(node)
 	node.owner = self

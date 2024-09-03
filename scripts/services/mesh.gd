@@ -156,7 +156,7 @@ static func combine_surfaces(mesh_arrays:Array,materials:Array,atlas_resolution:
 			new_ao_image.resize(atlas_resolution,atlas_resolution)
 		new_material.ao_enabled = true
 		new_material.ao_texture = ImageTexture.create_from_image(new_ao_image)
-		
+	
 	return {arrays=new_sf_arrays,material=new_material}
 
 static func blend_color(image: Image, color: Color) -> void:
@@ -167,21 +167,25 @@ static func blend_color(image: Image, color: Color) -> void:
 			image.set_pixel(x, y, image.get_pixel(x, y) * color)
 			
 static func compress_material(args:Dictionary):
-	print("compressing material")
+	#print("compressing material")
 	var mesh:ArrayMesh = args.mesh
 	for surface_id in mesh.get_surface_count():
 		var material: BaseMaterial3D = mesh.surface_get_material(surface_id)
-		if material.resource_path == '':
-			continue
-		
 		for texture in ['albedo', 'normal', 'ao']:
 			if not material.get(texture + '_texture') == null:
 				var image = material.get(texture + '_texture').get_image()
 				if not image.has_mipmaps():
 					image.generate_mipmaps()
 				image.compress(Image.COMPRESS_BPTC)
+				var new_texture = ImageTexture.create_from_image(image)
 				var save_path = material.get(texture + '_texture').get_path()
-				if save_path != "":
-					ResourceSaver.save(ImageTexture.create_from_image(image), save_path)
+				if save_path in ["",null]:
+					material.set(texture + '_texture',new_texture)
+				else:
+					new_texture.take_over_path(save_path)
+					ResourceSaver.save(new_texture, save_path)
 					material.set(texture + '_texture', load(save_path))
-		ResourceSaver.save(material, material.resource_path)
+		if not material.resource_path in ["",null]:
+			material.take_over_path(material.resource_path)
+			ResourceSaver.save(material, material.resource_path)
+	#print("done compressing material")
