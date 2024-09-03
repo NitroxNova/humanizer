@@ -65,7 +65,7 @@ func _generate_human() -> void:
 	print('starting new human')
 	var human_config = HumanConfig.new()
 	human_config.rig = HumanizerGlobalConfig.config.default_skeleton
-	
+	human_config.enable_component(&'ragdoll')
 	print('randomizing')
 	randomizer.human = human_config
 	#human_config.set_component_state(true, &'ragdoll')
