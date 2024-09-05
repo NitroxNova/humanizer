@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="HumanizerEquipmentType" load_steps=2 format=3 uid="uid://cvceibme7pumm"]
+[gd_resource type="Resource" script_class="HumanizerEquipmentType" load_steps=2 format=3 uid="uid://msf4xknyubai"]
 
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/equipment_type.gd" id="1_p63el"]
 

@@ -15,10 +15,13 @@ enum SECTION {header,vertices,delete_vertices}
 @export var tags := PackedStringArray()
 @export var z_depth := 0
 @export var rigged_config := []
-@export var rigged_bones := []
-@export var rigged_weights := []
-var obj_file_name: String
+#dictionary of rig names and bones/weights arrays
+@export var rigged_bones := {}
+@export var rigged_weights := {}
+@export var bones := {}
+@export var weights := {}
 
+var obj_file_name: String
 
 func parse_file(filename:String):
 	var unique_lines = {}
@@ -92,7 +95,7 @@ func parse_scale_data(line:String, index:String): #index is x, y, or z
 	scale_config[index].end = scale_data[2]
 	scale_config[index].length = scale_data[3]
 	
-func calculate_vertex_bone_weights(mh_id:int,bone_weights:Dictionary, rigged_bone_ids = []):
+func calculate_vertex_bone_weights(mh_id:int,bone_weights:Dictionary, rigged_bone_ids = [], rigged_bone_weights={}):
 	var bone_count=8
 	var bones = []
 	var weights = []
@@ -102,14 +105,16 @@ func calculate_vertex_bone_weights(mh_id:int,bone_weights:Dictionary, rigged_bon
 		weights = vtx_bone_weights.weights
 	else:
 		var remainder = 0
-		for array_id in rigged_bones[mh_id].size():
-			var rig_bone_id = rigged_bones[mh_id][array_id]
-			var bone_id = rigged_bone_ids[rig_bone_id]
-			if bone_id == -1: # the "neutral bone", where the hair connects to the head, for example
-				remainder += rigged_weights[mh_id][array_id]
-			else:
-				bones.append(bone_id)
-				weights.append(rigged_weights[mh_id][array_id])
+		for array_id in rigged_bone_weights.bones[mh_id].size():
+			if rigged_bone_weights.weights[mh_id][array_id] != 0:
+				var rig_bone_id = rigged_bone_weights.bones[mh_id][array_id]
+				var bone_id = rigged_bone_ids[rig_bone_id]
+				if bone_id == -1: # the "neutral bone", where the hair connects to the head, for example
+					remainder += rigged_bone_weights.weights[mh_id][array_id]
+				else:
+					bones.append((rig_bone_id+1)*-1) #offset by one because -0 = 0
+					weights.append(rigged_bone_weights.weights[mh_id][array_id])
+		#print(bones)
 		if remainder > 0:
 			var base_vtx_bx = _calculate_base_vertex_bone_weights(mh_id,bone_weights)		
 			for array_id in base_vtx_bx.bones.size():
@@ -171,6 +176,9 @@ func _calculate_base_vertex_bone_weights(mh_id:int,bone_weights:Dictionary):
 	var total_weight = 0
 	for weight in weights:
 		total_weight += weight
+	if total_weight == 0: ##TODO false left eyelash on mixamo rig needs further research
+		print(weights)
+		print(bones)
 	var ratio = 1/total_weight
 	for weight_id in weights.size():
 		weights[weight_id] *= ratio

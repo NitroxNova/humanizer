@@ -118,11 +118,9 @@ static func set_body_weights_array(rig: HumanizerRig,body_arrays:Array):
 		body_arrays[Mesh.ARRAY_BONES].append_array(mh_bone_array[mh_id])
 		body_arrays[Mesh.ARRAY_WEIGHTS].append_array(mh_weight_array[mh_id])
 
-static func set_equipment_weights_array(equip:HumanizerEquipmentType,  mesh_arrays:Array, rig:HumanizerRig, skeleton_data:Dictionary):
+static func set_equipment_weights_array(equip:HumanizerEquipmentType,  mesh_arrays:Array, rig:HumanizerRig, skeleton_data:Dictionary,mhclo:MHCLO,rigged_bone_weights:Dictionary={}):
 	var bone_weights = HumanizerUtils.read_json(rig.bone_weights_json_path)
 	var bone_count = 8
-	var mhclo: MHCLO = load(equip.mhclo_path) 
-	var mh2gd_index = mhclo.mh2gd_index
 	mesh_arrays[Mesh.ARRAY_BONES] = PackedInt32Array()
 	mesh_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
 	var rigged_bone_ids = []
@@ -130,9 +128,10 @@ static func set_equipment_weights_array(equip:HumanizerEquipmentType,  mesh_arra
 		for bone in mhclo.rigged_config:
 			var bone_id = skeleton_data.keys().find(bone.name) 
 			rigged_bone_ids.append(bone_id)
+		#print(rigged_bone_ids)
 	var mh_bone_weights = []
 	for mh_id in mhclo.vertex_data.size():	
-		var vertex_bone_weights = mhclo.calculate_vertex_bone_weights(mh_id,bone_weights, rigged_bone_ids)
+		var vertex_bone_weights = mhclo.calculate_vertex_bone_weights(mh_id,bone_weights, rigged_bone_ids,rigged_bone_weights)
 		mh_bone_weights.append(vertex_bone_weights)
 		#print(vertex_bone_weights)
 	for gd_id in mesh_arrays[Mesh.ARRAY_VERTEX].size():

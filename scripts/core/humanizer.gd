@@ -234,9 +234,21 @@ func update_bone_weights():
 		update_equipment_weights(equip_name)
 		
 func update_equipment_weights(equip_name:String):
-	var equip:HumanizerEquipment = human_config.equipment[equip_name]
-	HumanizerRigService.set_equipment_weights_array(equip.get_type(),  mesh_arrays[equip_name], rig, skeleton_data)
-
+	var equip_type:HumanizerEquipmentType = human_config.equipment[equip_name].get_type()
+	var mhclo = load(equip_type.mhclo_path)
+	if equip_type.rigged:
+		var bones = mhclo.rigged_bones[rig.resource_name].duplicate() #could potentially have multiple of the same mhclo open, dont want to change other arrays (due to godot resource sharing)
+		for bone_array_id in bones.size():
+			var bone_id = bones[bone_array_id]
+			if bone_id < 0:
+				bone_id = skeleton_data.keys().find( mhclo.rigged_config[(bone_id +1) *-1].name) #offset by one because -0 = 0
+				bones[bone_array_id] = bone_id
+		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = bones
+		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = mhclo.rigged_weights[rig.resource_name]
+	else:
+		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = mhclo.bones[rig.resource_name]
+		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = mhclo.weights[rig.resource_name]
+	
 func enable_root_bone_component():
 	human_config.enable_component(&'root_bone')
 	if "Root" not in skeleton_data:

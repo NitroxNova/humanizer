@@ -162,7 +162,7 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	data.mesh = _build_import_mesh(path, data.mhclo)
 	
 	if data.has('rigged'):
-		_build_bone_arrays(data)
+		_build_rigged_bone_arrays(data)
 	
 	resource.path = path
 	resource.resource_name = data.mhclo.resource_name
@@ -190,10 +190,11 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 			printerr('No slots found for clothes.  Check your mhclo tags.')
 			return
 	
+	_calculate_bone_weights(data,resource)
+	
 	# Save resources
 	data.mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(data.mesh)
 	resource.take_over_path(path.path_join(resource.resource_name + '.tres'))
-	ResourceSaver.save(data.mhclo, resource.mhclo_path)
 	ResourceSaver.save(data.mesh, resource.mesh_path)
 	ResourceSaver.save(resource, resource.resource_path)
 	#build rigged equipment
@@ -203,9 +204,32 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 		rigged_resource.resource_name = resource.resource_name + "_Rigged"
 		ResourceSaver.save(rigged_resource, resource.resource_path.get_basename() + "_Rigged.tres")
 		HumanizerRegistry.add_equipment_type(rigged_resource)
+		_calculate_bone_weights(data,rigged_resource)
+		
+	#save after adding bone/weights to mhclo
+	ResourceSaver.save(data.mhclo, resource.mhclo_path)
 	#add main resource to registry
 	HumanizerRegistry.add_equipment_type(resource)
+	
 
+func _calculate_bone_weights(data,equip_type:HumanizerEquipmentType):
+	var sf_arrays = data.mesh.surface_get_arrays(0)
+	for rig_name in HumanizerRegistry.rigs:
+		var rig : HumanizerRig = HumanizerRegistry.rigs[rig_name]
+		var skeleton_data = HumanizerRigService.init_skeleton_data(rig,false)
+		if equip_type.rigged:
+			for bone in data.mhclo.rigged_config:
+				if bone.name != "neutral_bone":
+					skeleton_data[bone.name] = {}
+			#print(skeleton_data)
+			HumanizerRigService.set_equipment_weights_array(equip_type,sf_arrays,rig,skeleton_data,data.mhclo,data.rigged_bone_weights)
+			data.mhclo.rigged_bones[rig_name] = sf_arrays[Mesh.ARRAY_BONES]
+			data.mhclo.rigged_weights[rig_name] = sf_arrays[Mesh.ARRAY_WEIGHTS]
+		else:
+			HumanizerRigService.set_equipment_weights_array(equip_type,sf_arrays,rig,skeleton_data,data.mhclo)
+			data.mhclo.bones[rig_name] = sf_arrays[Mesh.ARRAY_BONES]
+			data.mhclo.weights[rig_name] = sf_arrays[Mesh.ARRAY_WEIGHTS]
+		
 func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh: 
 	# build basis from obj file
 	var obj_path = path.path_join(mhclo.obj_file_name)
@@ -220,7 +244,7 @@ func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh:
 	
 	return mesh
 
-func _build_bone_arrays(data: Dictionary) -> void:
+func _build_rigged_bone_arrays(data: Dictionary) -> void:
 	var obj_arrays = (data.mesh as ArrayMesh).surface_get_arrays(0)
 	var glb = data.rigged
 	var gltf := GLTFDocument.new()
@@ -321,6 +345,7 @@ func _build_bone_arrays(data: Dictionary) -> void:
 		weights_override[mh_id] = glb_arrays[Mesh.ARRAY_WEIGHTS].slice(glb_id*bones_per_vtx,(glb_id+1) * bones_per_vtx)
 	
 	data.mhclo.rigged_config = bone_config
-	data.mhclo.rigged_bones = bones_override
-	data.mhclo.rigged_weights = weights_override
+	data.rigged_bone_weights = {}
+	data.rigged_bone_weights.bones = bones_override
+	data.rigged_bone_weights.weights = weights_override
 		
