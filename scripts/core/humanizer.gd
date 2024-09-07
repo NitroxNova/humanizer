@@ -20,6 +20,7 @@ func _init(_human_config = null):
 	mesh_arrays.Body = HumanizerBodyService.load_basis_arrays()
 	hide_body_vertices()
 	materials.Body = StandardMaterial3D.new()
+	materials.Body.resource_local_to_scene = true
 	human_config.body_material.update_standard_material_3D(materials.Body)
 	for equip in human_config.equipment.values():
 		mesh_arrays[equip.type] = HumanizerEquipmentService.load_mesh_arrays(equip.get_type())
@@ -27,17 +28,28 @@ func _init(_human_config = null):
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
 
-func get_CharacterBody3D():
+func get_CharacterBody3D(baked:bool):
 	var human = CharacterBody3D.new()
 	human.set_script(load("res://addons/humanizer/scripts/utils/human_controller.gd"))
-	var body_mesh = MeshInstance3D.new()
-	body_mesh.mesh = standard_bake_meshes()
-	human.add_child(body_mesh)
 	var skeleton = get_skeleton()
 	human.add_child(skeleton)
 	skeleton.set_unique_name_in_owner(true)
+	var body_mesh = MeshInstance3D.new()
+	if baked:
+		body_mesh.mesh = standard_bake_meshes()	
+	else:
+		body_mesh.mesh = ArrayMesh.new()
+		for equip_name in mesh_arrays:
+			var new_arrays = get_mesh_arrays(equip_name)
+			if not new_arrays.is_empty():
+				body_mesh.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays)
+				var surface_id = body_mesh.mesh.get_surface_count()-1
+				body_mesh.mesh.surface_set_material(surface_id,materials[equip_name])
+				body_mesh.mesh.surface_set_name(surface_id,equip_name)	
+	human.add_child(body_mesh)
 	body_mesh.skeleton = NodePath('../' + skeleton.name)
 	body_mesh.skin = skeleton.create_skin_from_rest_transforms()
+
 	var anim_player = get_animation_tree()
 	if anim_player != null:
 		human.add_child(anim_player)
@@ -124,7 +136,8 @@ func set_eyebrow_color(color:Color):
 		
 func init_equipment_material(equipment:HumanizerEquipment):
 	var equip_type = equipment.get_type()
-	materials[equipment.type] = load(equip_type.material_path)
+	materials[equipment.type] = load(equip_type.material_path).duplicate()
+	materials[equipment.type].resource_local_to_scene = true
 	set_equipment_material(equipment,equipment.texture_name)
 
 func set_equipment_material(equipment:HumanizerEquipment, texture: String)-> void:
@@ -150,16 +163,22 @@ func set_equipment_material(equipment:HumanizerEquipment, texture: String)-> voi
 		mat_config.update_standard_material_3D(material)
 		
 func get_mesh(mesh_name:String):
-	var new_arrays = mesh_arrays[mesh_name].duplicate()
-	new_arrays[Mesh.ARRAY_CUSTOM0] = null
 	var mesh = ArrayMesh.new()
-	if new_arrays[Mesh.ARRAY_INDEX].size()>0:
+	var new_arrays = get_mesh_arrays(mesh_name)
+	if not new_arrays.is_empty():
 		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays)
-		mesh = HumanizerMeshService.generate_normals_and_tangents(mesh)
 		mesh.surface_set_material(0,materials[mesh_name])
 	##TODO mesh transform	
 	return mesh
 
+func get_mesh_arrays(mesh_name:String) -> Array: # generate normals/tangents, without the cutom0
+	var new_arrays = mesh_arrays[mesh_name].duplicate()
+	new_arrays[Mesh.ARRAY_CUSTOM0] = null
+	if new_arrays[Mesh.ARRAY_INDEX].is_empty():
+		return []
+	new_arrays = HumanizerMeshService.generate_normals_and_tangents(new_arrays)
+	return new_arrays
+	
 func add_equipment(equip:HumanizerEquipment):
 	human_config.add_equipment(equip)
 	var equip_type = equip.get_type()

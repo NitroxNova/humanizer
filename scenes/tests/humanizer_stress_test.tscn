@@ -74,7 +74,7 @@ func _generate_human() -> void:
 	randomizer.randomize_shapekeys()
 	
 	var humanizer = Humanizer.new(human_config)
-	new_human = humanizer.get_CharacterBody3D()
+	new_human = humanizer.get_CharacterBody3D(false)
 "
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_vyou0"]

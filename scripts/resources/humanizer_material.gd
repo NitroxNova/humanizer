@@ -12,13 +12,22 @@ var normal_texture: Texture2D
 var ao_texture: Texture2D
 
 func update_standard_material_3D(mat:StandardMaterial3D,update_textures=true) -> void:
-	if update_textures:
-		update_material()
-	mat.normal_enabled = normal_texture != null
-	mat.ao_enabled = ao_texture != null
-	mat.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, albedo_texture)
-	mat.set_texture(BaseMaterial3D.TEXTURE_NORMAL, normal_texture)
-	mat.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, ao_texture)
+	if overlays.size() == 1:
+		mat.albedo_color = overlays[0].color
+		if not overlays[0].albedo_texture_path in ["",null]:
+			mat.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, load(overlays[0].albedo_texture_path))
+		if not overlays[0].normal_texture_path in ["",null]:
+			mat.set_texture(BaseMaterial3D.TEXTURE_NORMAL, load(overlays[0].normal_texture_path))
+		if not overlays[0].ao_texture_path in ["",null]:
+			mat.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, load(overlays[0].ao_texture_path))
+	else:
+		if update_textures:
+			update_material()
+		mat.normal_enabled = normal_texture != null
+		mat.ao_enabled = ao_texture != null
+		mat.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, albedo_texture)
+		mat.set_texture(BaseMaterial3D.TEXTURE_NORMAL, normal_texture)
+		mat.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, ao_texture)
 	
 func update_material() -> void:
 	#print("updating material")
