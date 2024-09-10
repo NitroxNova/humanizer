@@ -4,10 +4,8 @@ extends Node3D
 
 ## editor tool for creating new humans
 
-const BASE_MESH_NAME: String = 'Body'
 var humanizer : Humanizer
 var skeleton: Skeleton3D
-var body_mesh: MeshInstance3D
 var baked := false
 var bake_in_progress := false
 var scene_loaded: bool = false
@@ -79,7 +77,6 @@ var morph_data := {}
 
 
 func _ready() -> void:
-	body_mesh = get_node_or_null(BASE_MESH_NAME)
 	if human_config == null:
 		human_config = HumanConfig.new()
 	for child in get_children():
@@ -106,8 +103,8 @@ func set_eyebrow_color(color: Color) -> void:
 
 func set_skin_color(color: Color) -> void:
 	humanizer.set_skin_color(color)
-	if body_mesh != null and body_mesh is HumanizerMeshInstance:
-		body_mesh.material_config.update_material()
+	#if body_mesh != null and body_mesh is HumanizerMeshInstance:
+		#body_mesh.material_config.update_material()
 	
 func set_eye_color(color: Color) -> void:
 	humanizer.set_eye_color(color)
@@ -137,8 +134,6 @@ func reset_human() -> void:
 	for child in get_children():
 		if child is MeshInstance3D:
 			_delete_child_node(child)
-	body_mesh = null
-	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
 	set_component_state(true, &'main_collider')
 	if has_node('Saccades'):
 		_delete_child_by_name('Saccades')
@@ -321,7 +316,6 @@ func _deserialize() -> void:
 		set_component_state(true, component)
 
 	## Update materials with overlays
-	body_mesh.material_config.update_material()
 	for equip in human_config.equipment.values():
 		if equip.node is HumanizerMeshInstance:
 			if equip.node.material_config.overlays.size() > 0:
@@ -384,30 +378,12 @@ func remove_equipment_in_slot(slot: String) -> void:
 	if equip != null:
 		remove_equipment(equip)	
 
-func hide_body_vertices() -> void:
-	if baked:
-		push_warning("Can't alter meshes.  Already baked")
-		return
-	
-	humanizer.hide_body_vertices()
-	body_mesh.mesh = humanizer.get_body_mesh()
-
 func hide_clothes_vertices():
 	if baked:
 		push_warning("Can't alter meshes.  Already baked")
 		return
 	humanizer.hide_clothes_vertices()
 	_fit_all_meshes()
-
-func unhide_body_vertices() -> void:
-	if baked:
-		push_warning("Can't alter meshes.  Already baked")
-		return
-	var mat = body_mesh.get_surface_override_material(0)
-	_set_body_mesh(load("res://addons/humanizer/data/resources/base_human.res"))
-	_set_shapekey_data(human_config.shapekeys)
-	body_mesh.set_surface_override_material(0, mat)
-	set_rig(human_config.rig)
 
 func unhide_clothes_vertices() -> void:
 	if baked:
@@ -470,11 +446,6 @@ func bake_surface() -> void:
 			HumanizerMorphService.prepare_shapekeys_for_baking(human_config, _new_shapekeys)
 			_set_shapekey_data(human_config.targets.duplicate()) ## To get correct shapes on basis
 			_fit_all_meshes()
-
-	if body_mesh != null and body_mesh in _bake_meshes:
-		_bake_meshes.erase(body_mesh)
-		hide_body_vertices()
-		_bake_meshes.append(body_mesh)
 		
 	if atlas_resolution == 0:
 		atlas_resolution = HumanizerGlobalConfig.config.atlas_resolution
@@ -518,39 +489,12 @@ func bake_surface() -> void:
 	baked = true
 	bake_in_progress = false
 
-func _set_body_mesh(meshdata: ArrayMesh) -> void:
-	var visible = true
-	if body_mesh != null:
-		visible = body_mesh.visible
-	if body_mesh == null:
-		body_mesh = MeshInstance3D.new()
-		body_mesh.name = BASE_MESH_NAME
-		_add_child_node(body_mesh)
-	body_mesh.mesh = meshdata
-	body_mesh.set_surface_override_material(0, humanizer.materials.Body)
-	body_mesh.set_script(load('res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd'))
-	body_mesh.material_config = humanizer.human_config.body_material
-	if skeleton != null:
-		body_mesh.skeleton = '../' + skeleton.name
-		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
-	body_mesh.visible = visible
-
 func _fit_all_meshes() -> void:
-	_fit_body_mesh()
 	for equip in human_config.equipment.values():
 		_fit_equipment_mesh(equip)
-	
-func _fit_body_mesh() -> void:
-	# fit body mesh
-	if body_mesh == null:
-		print("body mesh is null")
-		return
-	body_mesh.mesh = humanizer.get_body_mesh()
-	#body_mesh.mesh = HumanizerBodyService.fit_mesh(body_mesh.mesh,humanizer.helper_vertex)
 
 func _fit_equipment_mesh(equipment: HumanizerEquipment) -> void:
 	get_node(equipment.type).mesh = humanizer.get_mesh(equipment.type)
-	
 	
 func _combine_meshes() -> ArrayMesh:
 	var new_mesh = ImporterMesh.new()
@@ -629,17 +573,17 @@ func set_skin_normal_texture(name: String) -> void:
 		return
 	#print('setting skin normal texture')
 	var texture: String = '' if name == 'None' else HumanizerRegistry.skin_normals[name]
-	if body_mesh.material_config.overlays.size() == 0:
-		if texture == '':
-			return
-		var overlay = {&'normal': texture, &'color': human_config.skin_color}
-		body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
-	else:
-		var overlay = body_mesh.material_config.overlays[0]
-		overlay.normal_texture_path = texture
-		body_mesh.material_config.set_base_textures(overlay)
-	if body_mesh != null and body_mesh is HumanizerMeshInstance:
-		body_mesh.material_config.update_material()
+	#if body_mesh.material_config.overlays.size() == 0:
+		#if texture == '':
+			#return
+		#var overlay = {&'normal': texture, &'color': human_config.skin_color}
+		#body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
+	#else:
+		#var overlay = body_mesh.material_config.overlays[0]
+		#overlay.normal_texture_path = texture
+		#body_mesh.material_config.set_base_textures(overlay)
+	#if body_mesh != null and body_mesh is HumanizerMeshInstance:
+		#body_mesh.material_config.update_material()
 
 func set_equipment_texture_by_slot(slot_name:String, texture: String):
 	var equip = human_config.get_equipment_in_slot(slot_name)
@@ -690,9 +634,6 @@ func set_rig(rig_name: String) -> void:
 	humanizer.set_rig(rig_name)
 	skeleton = humanizer.get_skeleton()
 	_add_child_node(skeleton)
-	body_mesh.mesh = humanizer.get_body_mesh()
-	body_mesh.skeleton = '../' + skeleton.name
-	body_mesh.skin = skeleton.create_skin_from_rest_transforms()
 	_reset_animator()
 #
 	if human_config.components.has(&'ragdoll'):

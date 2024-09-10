@@ -222,11 +222,13 @@ func _calculate_bone_weights(data,equip_type:HumanizerEquipmentType):
 				if bone.name != "neutral_bone":
 					skeleton_data[bone.name] = {}
 			#print(skeleton_data)
-			HumanizerRigService.set_equipment_weights_array(equip_type,sf_arrays,rig,skeleton_data,data.mhclo,data.rigged_bone_weights)
+			#HumanizerRigService.set_equipment_weights_array(equip_type,sf_arrays,rig,skeleton_data,data.mhclo,data.rigged_bone_weights)
+			HumanizerEquipmentService.interpolate_weights(equip_type,data.mhclo,rig,skeleton_data,sf_arrays)
 			data.mhclo.rigged_bones[rig_name] = sf_arrays[Mesh.ARRAY_BONES]
 			data.mhclo.rigged_weights[rig_name] = sf_arrays[Mesh.ARRAY_WEIGHTS]
 		else:
-			HumanizerRigService.set_equipment_weights_array(equip_type,sf_arrays,rig,skeleton_data,data.mhclo)
+			#HumanizerRigService.set_equipment_weights_array(equip_type,sf_arrays,rig,skeleton_data,data.mhclo)
+			HumanizerEquipmentService.interpolate_weights(equip_type,data.mhclo,rig,skeleton_data,sf_arrays)
 			data.mhclo.bones[rig_name] = sf_arrays[Mesh.ARRAY_BONES]
 			data.mhclo.weights[rig_name] = sf_arrays[Mesh.ARRAY_WEIGHTS]
 		

@@ -93,52 +93,6 @@ static func init_skeleton_data(rig: HumanizerRig,retargeted:bool)->Dictionary:
 	
 	return skeleton_data
 
-static func set_body_weights_array(rig: HumanizerRig,body_arrays:Array):
-	#print("HumanizerRigService - set body weights array")
-	var weights = HumanizerUtils.read_json(rig.bone_weights_json_path)
-	var mh_bone_array = weights.bones
-	var mh_weight_array = weights.weights
-	# Normalize
-	for mh_id in mh_bone_array.size():
-		var array = mh_weight_array[mh_id]
-		var multiplier : float = 0
-		for weight in array:
-			multiplier += weight
-		multiplier = 1 / multiplier
-		for i in array.size():
-			array[i] *= multiplier
-		mh_weight_array[mh_id] = array
-		mh_bone_array[mh_id].resize(8)
-		mh_weight_array[mh_id].resize(8)
-	# Convert to godot vertex format
-	body_arrays[Mesh.ARRAY_BONES] = PackedInt32Array()
-	body_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
-	for gd_id in body_arrays[Mesh.ARRAY_VERTEX].size():
-		var mh_id = body_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-		body_arrays[Mesh.ARRAY_BONES].append_array(mh_bone_array[mh_id])
-		body_arrays[Mesh.ARRAY_WEIGHTS].append_array(mh_weight_array[mh_id])
-
-static func set_equipment_weights_array(equip:HumanizerEquipmentType,  mesh_arrays:Array, rig:HumanizerRig, skeleton_data:Dictionary,mhclo:MHCLO,rigged_bone_weights:Dictionary={}):
-	var bone_weights = HumanizerUtils.read_json(rig.bone_weights_json_path)
-	var bone_count = 8
-	mesh_arrays[Mesh.ARRAY_BONES] = PackedInt32Array()
-	mesh_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
-	var rigged_bone_ids = []
-	if equip.rigged:
-		for bone in mhclo.rigged_config:
-			var bone_id = skeleton_data.keys().find(bone.name) 
-			rigged_bone_ids.append(bone_id)
-		#print(rigged_bone_ids)
-	var mh_bone_weights = []
-	for mh_id in mhclo.vertex_data.size():	
-		var vertex_bone_weights = mhclo.calculate_vertex_bone_weights(mh_id,bone_weights, rigged_bone_ids,rigged_bone_weights)
-		mh_bone_weights.append(vertex_bone_weights)
-		#print(vertex_bone_weights)
-	for gd_id in mesh_arrays[Mesh.ARRAY_VERTEX].size():
-		var mh_id = mesh_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
-		mesh_arrays[Mesh.ARRAY_BONES].append_array(mh_bone_weights[mh_id].bones)
-		mesh_arrays[Mesh.ARRAY_WEIGHTS].append_array(mh_bone_weights[mh_id].weights)		
-
 static func get_motion_scale(rig_name:String, helper_vertex:PackedVector3Array):
 	var base_motion_scale = _get_base_motion_scale(rig_name)
 	var hips_height = HumanizerBodyService.get_hips_height(helper_vertex)

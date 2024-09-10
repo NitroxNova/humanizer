@@ -14,14 +14,10 @@ func _init(_human_config = null):
 		human_config = HumanConfig.new()
 		human_config.init_macros()
 		human_config.rig = HumanizerGlobalConfig.config.default_skeleton
+		human_config.add_equipment(HumanizerEquipment.new("default"))
 	else:	
 		human_config = _human_config
 	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
-	mesh_arrays.Body = HumanizerBodyService.load_basis_arrays()
-	hide_body_vertices()
-	materials.Body = StandardMaterial3D.new()
-	materials.Body.resource_local_to_scene = true
-	human_config.body_material.update_standard_material_3D(materials.Body)
 	for equip in human_config.equipment.values():
 		mesh_arrays[equip.type] = HumanizerEquipmentService.load_mesh_arrays(equip.get_type())
 		init_equipment_material(equip)
@@ -200,9 +196,6 @@ func remove_equipment(equip:HumanizerEquipment):
 func get_body_mesh():
 	return get_mesh("Body")
 
-func hide_body_vertices():
-	HumanizerBodyService.hide_vertices(mesh_arrays.Body,human_config.equipment)
-
 func hide_clothes_vertices():
 	HumanizerEquipmentService.hide_vertices(human_config.equipment,mesh_arrays)
 			
@@ -212,7 +205,6 @@ func set_targets(target_data:Dictionary):
 	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex,human_config.equipment,mesh_arrays)
 
 func fit_all_meshes():
-	mesh_arrays.Body = HumanizerBodyService.fit_mesh_arrays(mesh_arrays.Body,helper_vertex)
 	for equip_name in human_config.equipment:
 		fit_equipment_mesh(equip_name)
 
@@ -248,7 +240,6 @@ func adjust_skeleton(skeleton:Skeleton3D):
 	skeleton.motion_scale = HumanizerRigService.get_motion_scale(human_config.rig,helper_vertex)
 
 func update_bone_weights():
-	HumanizerRigService.set_body_weights_array(rig,mesh_arrays.Body)
 	for equip_name in human_config.equipment:
 		update_equipment_weights(equip_name)
 		

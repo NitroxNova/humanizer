@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HumanizerEquipmentType" load_steps=2 format=3 uid="uid://cb7m8c00l4lg5"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/equipment_type.gd" id="1_in4di"]
+
+[resource]
+resource_name = "skeleton"
+script = ExtResource("1_in4di")
+path = "res://addons/humanizer/data/assets/body_parts/Body/Skeleton"
+rigged = false
+textures = {
+"Diffuse": "res://addons/humanizer/data/assets/body_parts/Body/Skeleton/Diffuse.png"
+}
+slots = Array[String](["Body"])

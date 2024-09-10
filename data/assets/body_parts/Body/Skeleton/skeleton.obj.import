@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cy2it2fo78ni7"
+path="res://.godot/imported/skeleton.obj-881e16c2431cc7db89866740e63534cf.mesh"
+
+[deps]
+
+files=["res://.godot/imported/skeleton.obj-881e16c2431cc7db89866740e63534cf.mesh"]
+
+source_file="res://addons/humanizer/data/assets/body_parts/Body/Skeleton/skeleton.obj"
+dest_files=["res://.godot/imported/skeleton.obj-881e16c2431cc7db89866740e63534cf.mesh", "res://.godot/imported/skeleton.obj-881e16c2431cc7db89866740e63534cf.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

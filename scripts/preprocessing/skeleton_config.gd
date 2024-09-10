@@ -50,9 +50,12 @@ func run():
 			HumanizerUtils.save_json(rig.config_json_path, rig_config)
 			
 			# Get bone weights for clothes
-			var data := {}
-			data.bones = []
-			data.weights = []
+			var out_data := []
+			out_data.resize(HumanizerTargetService.data.basis.size())
+			for i in out_data.size():
+				out_data[i] = []
+			var bone_names := []
+			
 			var skeleton_weights:Dictionary = HumanizerUtils.read_json(dir.path_join("weights."+name+".json")).weights
 			for in_name:String in skeleton_weights.keys():
 				var out_name = in_name.replace(":","_")
@@ -60,36 +63,20 @@ func run():
 					skeleton_weights[out_name] = skeleton_weights[in_name]
 					skeleton_weights.erase(in_name)
 			for bone_name in skeleton_weights:
-				var bone_id = skeleton.find_bone(bone_name)
-				if bone_id == -1:
-					if bone_name.begins_with('toe'):
-						if bone_name.ends_with('.L'): # default rig, example: toe4-1.R
-							bone_id = skeleton.find_bone("toe1-1.L")
-						elif bone_name.ends_with('.R'):
-							bone_id = skeleton.find_bone("toe1-1.R")
-						else:
-							printerr("Unhandled bone " + bone_name)
-						
-				for vertex_weight_pair in skeleton_weights[bone_name]:
-					var mh_id = vertex_weight_pair[0]
-					var weight = vertex_weight_pair[1]
-					if data.bones.size() <= mh_id:
-						data.bones.resize(mh_id+1)
-						data.weights.resize(mh_id+1)
-					if data.bones[mh_id] == null:
-						data.bones[mh_id] = []
-						data.weights[mh_id] = []
-					
-					#dont want duplicate bone ids from toes
-					if bone_id in data.bones[mh_id]:
-						var existing_id =  data.bones[mh_id].find(bone_id)
-						data.weights[mh_id][existing_id] += weight
-					else:
-						data.bones[mh_id].append(bone_id)
-						data.weights[mh_id].append(weight)
-						
-			# do not normalize here, otherwise the clothes wont work correctly
+				bone_names.append(bone_name)
+				var bone_id = bone_names.size()-1
+				for id_weight_pair in skeleton_weights[bone_name]:
+					out_data[id_weight_pair[0]].append([bone_id,id_weight_pair[1]])
+			
+			#normalize
+			for bw_array in out_data:
+				var weight_sum = 0
+				for bw_pair in bw_array:
+					weight_sum += bw_pair[1]
+				for bw_pair in bw_array:
+					bw_pair[1] /= weight_sum
+			
 			rig.bone_weights_json_path = dir.path_join('bone_weights.json')
-			HumanizerUtils.save_json(rig.bone_weights_json_path, data)
+			HumanizerUtils.save_json(rig.bone_weights_json_path, {names=bone_names,weights=out_data})
 			print('Finished creating skeleton config')
 	

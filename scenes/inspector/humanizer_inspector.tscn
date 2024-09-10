@@ -1,7 +1,6 @@
-[gd_scene load_steps=8 format=3 uid="uid://bjevkufa7lstr"]
+[gd_scene load_steps=7 format=3 uid="uid://bjevkufa7lstr"]
 
 [ext_resource type="Theme" uid="uid://ckdypew3dhoqq" path="res://addons/humanizer/data/resources/humanizer_inspector_theme.tres" id="1_i577l"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/inspector/skins_options.gd" id="1_teqt2"]
 [ext_resource type="PackedScene" uid="uid://btqkb1j3i8dm2" path="res://addons/humanizer/scenes/inspector/body_parts_inspector_container.tscn" id="2_cyqhb"]
 [ext_resource type="PackedScene" uid="uid://bjun3ufto0k57" path="res://addons/humanizer/scenes/inspector/clothes_inspector_container.tscn" id="3_tceog"]
 
@@ -124,10 +123,9 @@ text = "Presets : "
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-item_count = 1
 selected = 0
+item_count = 1
 popup/item_0/text = "Select to Load"
-popup/item_0/id = 0
 script = SubResource("GDScript_s6oci")
 
 [node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
@@ -239,27 +237,6 @@ size_flags_horizontal = 3
 tooltip_text = "Fit skeleton bones to current mesh"
 text = "Adjust  Skeleton"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Skin:"
-horizontal_alignment = 1
-
-[node name="SkinOptionsButton" type="OptionButton" parent="VBoxContainer/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
-tooltip_text = "Skin texture selector"
-item_count = 1
-selected = 0
-popup/item_0/text = "None"
-popup/item_0/id = 0
-script = ExtResource("1_teqt2")
-
 [node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
@@ -275,28 +252,16 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 3.0
 tooltip_text = "Skin texture selector"
-item_count = 1
 selected = 0
+item_count = 4
 popup/item_0/text = "None"
-popup/item_0/id = 0
+popup/item_1/text = "skin_male_african_middleage_NRM"
+popup/item_1/id = 1
+popup/item_2/text = "Aksel_Skin_NRM"
+popup/item_2/id = 2
+popup/item_3/text = "orkMeshNORMAL"
+popup/item_3/id = 3
 script = SubResource("GDScript_crbyj")
-
-[node name="HideVerticesButtons" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="HideBodyVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-tooltip_text = "Remove vertices which should be occluded by clothes from the body mesh so they don't clip through the clothes"
-text = "Hide Body Vertices"
-
-[node name="UnHideBodyVerticesButton" type="Button" parent="VBoxContainer/HideVerticesButtons"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-tooltip_text = "Restore all vertices to the body mesh"
-text = "Restore Body Vertices"
 
 [node name="HideVerticesButtons3" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2

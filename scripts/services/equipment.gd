@@ -77,4 +77,80 @@ static func hide_faces(surface_arrays:Array,delete_verts:Array):
 	
 	surface_arrays[Mesh.ARRAY_INDEX] = keep_faces
 
+#scripts/mpfb/services/clothesservice.py
+static func interpolate_weights(equip_type:HumanizerEquipmentType, mhclo:MHCLO, rig:HumanizerRig,skeleton_data:Dictionary,mesh_arrays:Array):
+	#"""Try to copy rigging weights from the base mesh to the clothes mesh, hopefully #making the clothes fit the provided rig."""
+	# Create an empty outline with placeholders arrays that will contain lists of
+	# vertices + weights per vertex group
+	var clothes_weights = []
+	for i in mhclo.vertex_data.size():
+		clothes_weights.append([])
+		
+	var bone_weights = HumanizerUtils.read_json(rig.bone_weights_json_path)
 	
+	# Build cross reference dicts to easily map between a vertex group index and # a vertex group name
+	var group_index = []
+	for bone_name in bone_weights.names:
+		var new_bone_id = skeleton_data.keys().find(bone_name)
+		if new_bone_id == -1:
+			if bone_name.begins_with('toe'):
+				if bone_name.ends_with('.L'): # default rig, example: toe4-1.R
+					new_bone_id = skeleton_data.keys().find("toe1-1.L")
+				elif bone_name.ends_with('.R'):
+					new_bone_id = skeleton_data.keys().find("toe1-1.R")
+				else:
+					printerr("Unhandled bone " + bone_name)
+		group_index.append(new_bone_id)
+	for bone_name in bone_weights.names:
+		var new_id = skeleton_data.keys().find(bone_name)
+		group_index.append(new_id)		
+	# We will now iterate over the vertices in the clothes. The idea is to then
+	for vert_id in mhclo.vertex_data.size():
+		var vert_groups = {}
+		for match_vert in mhclo.vertex_data[vert_id].vertex.size():
+			# Which human vert is the clothes vert tied to?
+			var human_vert = mhclo.vertex_data[vert_id].vertex[match_vert]
+			# .. and by how much?
+			var assigned_weight = 1 #if its a single vertex
+			if "weight" in mhclo.vertex_data[vert_id]:
+				assigned_weight = mhclo.vertex_data[vert_id].weight[match_vert]
+			for bone_weight_pair in bone_weights.weights[human_vert]:
+				var idx = bone_weight_pair[0]
+				var skeleton_bone_id = group_index[idx] #these can be different, ie no toes on standard rig
+				if not skeleton_bone_id == -1:
+					if not skeleton_bone_id in vert_groups:
+						vert_groups[skeleton_bone_id] = 0
+					vert_groups[skeleton_bone_id] += assigned_weight * bone_weight_pair[1]
+		# Iterate over all found vertex groups for the current clothes vertex
+		# and calculcate the average weight for each group
+		var mhclo_weight_sum = 0
+		if "weight" in mhclo.vertex_data[vert_id]:
+			for vert_weight in mhclo.vertex_data[vert_id].weight:
+				mhclo_weight_sum += vert_weight
+		else:
+			mhclo_weight_sum = 1*mhclo.vertex_data[vert_id].vertex.size()
+		for skeleton_bone_id in vert_groups:
+			var average_weight = vert_groups[skeleton_bone_id] / mhclo_weight_sum
+			# If the caculated average weight is below 0.001 we will ignore it. This
+			# makes the interpolation much faster later on
+			if average_weight > 0.001:
+				clothes_weights[vert_id].append([skeleton_bone_id, average_weight])
+		if clothes_weights[vert_id].is_empty():
+			printerr("empty weights" + str(vert_groups))
+	
+	for bw_array in clothes_weights:
+		var weight_sum = 0
+		for bw_pair in bw_array:
+			weight_sum += bw_pair[1]
+		for bw_pair in bw_array:
+			bw_pair[1] /= weight_sum
+		while bw_array.size() < 8:
+			bw_array.append([0,0])
+	
+	mesh_arrays[Mesh.ARRAY_BONES] = PackedInt32Array()
+	mesh_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
+	for gd_id in mesh_arrays[Mesh.ARRAY_VERTEX].size():
+		var mh_id = mesh_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+		for bw_pair in clothes_weights[mh_id]:
+			mesh_arrays[Mesh.ARRAY_BONES].append(bw_pair[0])
+			mesh_arrays[Mesh.ARRAY_WEIGHTS].append(bw_pair[1])

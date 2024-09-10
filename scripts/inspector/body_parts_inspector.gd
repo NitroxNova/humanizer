@@ -94,6 +94,7 @@ func _item_selected(index: int, slot: String):
 		body_slot_cleared.emit(slot)
 		return
 	
+	texture_options.add_item("")
 	for mat in registry.equipment[name].textures:
 		texture_options.add_item(mat)
 	

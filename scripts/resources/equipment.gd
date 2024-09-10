@@ -8,8 +8,8 @@ class_name HumanizerEquipment
 
 func _init(_type=type,_texture_name=null,_material_config=material_config):
 	type=_type
-	if _texture_name == null: #use first material. if a blank texture is desired, set to empty string
-		texture_name = get_type().textures.keys()[0]
+	if _texture_name == null: #use random material. if a blank texture is desired, set to "" empty string
+		texture_name = Random.choice(get_type().textures.keys())  
 	else:
 		texture_name = _texture_name
 	material_config = _material_config

@@ -60,8 +60,6 @@ func _parse_category(human, category):
 
 	## Assets
 	scene.get_node('%RigOptionButton').human = human
-	scene.get_node('%HideBodyVerticesButton').pressed.connect(human.hide_body_vertices)
-	scene.get_node('%UnHideBodyVerticesButton').pressed.connect(human.unhide_body_vertices)
 	scene.get_node('%HideClothesVerticesButton').pressed.connect(human.hide_clothes_vertices)
 	scene.get_node('%UnHideClothesVerticesButton').pressed.connect(human.unhide_clothes_vertices)
 	
@@ -84,9 +82,6 @@ func _parse_category(human, category):
 	cl_container.config = human.human_config
 
 	# Skin controls
-	var skin_options = scene.get_node('%SkinOptionsButton')
-	skin_options.skin_selected.connect(human.set_skin_texture)
-	skin_options.config = human.human_config
 	var skin_normal_options = scene.get_node('%SkinNormalOptionsButton')
 	skin_normal_options.skin_selected.connect(human.set_skin_normal_texture)
 	skin_normal_options.config = human.human_config
