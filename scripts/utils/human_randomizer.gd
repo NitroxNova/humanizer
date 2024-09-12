@@ -17,6 +17,7 @@ static func get_random_equipment_for_slot(slot_name):
 	return equipment
 	
 func randomize_body_parts() -> void:
+	human.add_equipment(get_random_equipment_for_slot("Body"))
 	randomize_skin()
 	randomize_eyebrows()
 	randomize_eyelashes()

@@ -14,7 +14,7 @@ func _init(_human_config = null):
 		human_config = HumanConfig.new()
 		human_config.init_macros()
 		human_config.rig = HumanizerGlobalConfig.config.default_skeleton
-		human_config.add_equipment(HumanizerEquipment.new("default"))
+		human_config.add_equipment(HumanizerEquipment.new("DefaultBody"))
 	else:	
 		human_config = _human_config
 	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
@@ -25,6 +25,7 @@ func _init(_human_config = null):
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
 
 func get_CharacterBody3D(baked:bool):
+	hide_clothes_vertices()
 	var human = CharacterBody3D.new()
 	human.set_script(load("res://addons/humanizer/scripts/utils/human_controller.gd"))
 	var skeleton = get_skeleton()

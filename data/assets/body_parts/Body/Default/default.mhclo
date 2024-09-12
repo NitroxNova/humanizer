@@ -4,7 +4,7 @@
 basemesh hm08
 
 # Basic info:
-name default
+name DefaultBody
 uuid 6c53e499-c4d8-4a20-82cc-ee89c30cebcf
 obj_file default.obj
 

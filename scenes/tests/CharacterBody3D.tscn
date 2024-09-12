@@ -15,6 +15,7 @@ func _ready():
 	config.eyebrow_color = Color(\"550055\")
 	config.rig = HumanizerGlobalConfig.config.default_skeleton
 	config.set_skin_texture(\"young_caucasian_female2\")
+	config.add_equipment(HumanizerEquipment.new(\"DefaultBody\"))
 	config.add_equipment(HumanizerEquipment.new(\"SkinnyJeans\"))
 	config.add_equipment(HumanizerEquipment.new(\"MakeHumanTShirt\"))
 	config.add_equipment(HumanizerEquipment.new(\"Shoes02\"))
@@ -26,17 +27,9 @@ func _ready():
 	config.add_equipment(HumanizerEquipment.new(\"RightEyelash\"))
 	config.add_equipment(HumanizerEquipment.new(\"LeftEyelash\"))
 	var humanizer = Humanizer.new(config)
-	var char = humanizer.get_CharacterBody3D(false)
+	var char = humanizer.get_CharacterBody3D(false) ## can bake character here by setting argument to true
 	add_child(char)
 	HumanizerUtils.set_node_owner(char,self)
-	
-	## if you want seperate meshes for body and equipment, you can do :
-	#mi.mesh = humanizer.get_body_mesh()
-	#add_child(mi)
-	#for equip in config.equipment.values():
-		#var equip_mi = MeshInstance3D.new()
-		#equip_mi.mesh = humanizer.get_mesh(equip.type)
-		#add_child(equip_mi)
 "
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_u0hgw"]

@@ -1,10 +1,10 @@
-[gd_resource type="Resource" script_class="HumanizerEquipmentType" load_steps=2 format=3 uid="uid://cndfisptu4nji"]
+[gd_resource type="Resource" script_class="HumanizerEquipmentType" load_steps=2 format=3 uid="uid://spymvsvso6xp"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/equipment_type.gd" id="1_2bl0o"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/equipment_type.gd" id="1_bby26"]
 
 [resource]
-resource_name = "default"
-script = ExtResource("1_2bl0o")
+resource_name = "DefaultBody"
+script = ExtResource("1_bby26")
 path = "res://addons/humanizer/data/assets/body_parts/Body/Default"
 rigged = false
 textures = {
