@@ -27,11 +27,11 @@ func _ready() -> void:
 
 		slider.step = 0.01
 		slider.value = 0
-		if human.humanizer.human_config != null :
+		if human.human_config != null :
 			if name.begins_with('Macro') or name.begins_with('Race') or key in ['cupsize', 'firmness']:
-				slider.value = human.humanizer.human_config.targets[key]
-			elif human.humanizer.human_config.targets.has(key):
-				slider.value = human.humanizer.human_config.targets[key]
+				slider.value = human.human_config.targets[key]
+			elif human.human_config.targets.has(key):
+				slider.value = human.human_config.targets[key]
 
 		slider.custom_minimum_size = Vector2i(150, 10)
 		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL

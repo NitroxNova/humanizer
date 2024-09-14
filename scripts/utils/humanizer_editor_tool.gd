@@ -103,8 +103,6 @@ func set_eyebrow_color(color: Color) -> void:
 
 func set_skin_color(color: Color) -> void:
 	humanizer.set_skin_color(color)
-	#if body_mesh != null and body_mesh is HumanizerMeshInstance:
-		#body_mesh.material_config.update_material()
 	
 func set_eye_color(color: Color) -> void:
 	humanizer.set_eye_color(color)
@@ -146,7 +144,6 @@ func load_human() -> void:
 	baked = false
 	reset_human()
 	_deserialize()
-
 	notify_property_list_changed()
 
 func create_human_branch() -> Node3D:
@@ -304,11 +301,11 @@ func _get_asset_by_name(mesh_name: String) -> HumanizerEquipment:
 func _deserialize() -> void:
 	## set rig
 	set_rig(human_config.rig)
-
+#
 	## Load Assets
 	for equip: HumanizerEquipment in human_config.equipment.values():
 		add_equipment(equip)
-		
+		#
 	## Load components
 	for component in human_config.components:
 		if component in [&'root_bone', &'ragdoll']:
@@ -317,12 +314,10 @@ func _deserialize() -> void:
 
 	## Update materials with overlays
 	for equip in human_config.equipment.values():
-		if equip.node is HumanizerMeshInstance:
-			if equip.node.material_config.overlays.size() > 0:
-				equip.node.material_config.update_material()
-	## Finalize
-	_adjust_skeleton()
-	_fit_all_meshes()
+		var node = get_node(equip.type)
+		if node is HumanizerMeshInstance and node.material_config != null:
+			if node.material_config.overlays.size() > 0:
+				node.material_config.update_material()
 
 #### Mesh Management ####
 func add_equipment_type(equip_type:HumanizerEquipmentType)->void:
@@ -635,16 +630,13 @@ func set_rig(rig_name: String) -> void:
 	skeleton = humanizer.get_skeleton()
 	_add_child_node(skeleton)
 	_reset_animator()
-#
+
 	if human_config.components.has(&'ragdoll'):
-		set_component_state(false, &'ragdoll')
 		set_component_state(true, &'ragdoll')
 	if human_config.components.has(&'saccades'):
 		if rig_name != &'default-RETARGETED':
 			set_component_state(false, &'saccades')
-	
-	for equip in human_config.equipment.values():
-		_add_bone_weights(equip)
+			
 	_adjust_skeleton()
 
 func _adjust_skeleton() -> void:
@@ -659,8 +651,8 @@ func _adjust_skeleton() -> void:
 		
 func _add_bone_weights(asset: HumanizerEquipment) -> void:
 	var equip_type = asset.get_type()
-	var mi: MeshInstance3D = get_node(equip_type.resource_name)
-	mi.mesh = humanizer.get_mesh(equip_type.resource_name)
+	var mi: MeshInstance3D = get_node(asset.type)
+	mi.mesh = humanizer.get_mesh(asset.type)
 	mi.skeleton = &'../' + skeleton.name
 	mi.skin = skeleton.create_skin_from_rest_transforms()
 
