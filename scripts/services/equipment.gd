@@ -154,3 +154,43 @@ static func interpolate_weights(equip_type:HumanizerEquipmentType, mhclo:MHCLO, 
 		for bw_pair in clothes_weights[mh_id]:
 			mesh_arrays[Mesh.ARRAY_BONES].append(bw_pair[0])
 			mesh_arrays[Mesh.ARRAY_WEIGHTS].append(bw_pair[1])
+
+static func interpolate_rigged_weights(mhclo:MHCLO, rigged_bone_weights:Dictionary,skeleton_data:Dictionary,sf_arrays:Array,rig_name:String):
+	var base_bone_weights = {}
+	base_bone_weights.bones = mhclo.bones[rig_name]
+	base_bone_weights.weights = mhclo.weights[rig_name]
+	sf_arrays[Mesh.ARRAY_BONES] = PackedInt32Array()
+	sf_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
+	for gd_id in sf_arrays[Mesh.ARRAY_VERTEX].size():
+		var mh_id = sf_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+		var mh_bones = []
+		var mh_weights = []
+		var remainder = 0
+		for array_id in rigged_bone_weights.bones[mh_id].size():
+			if rigged_bone_weights.weights[mh_id][array_id] != 0:
+				var rig_bone_id = rigged_bone_weights.bones[mh_id][array_id]
+				var bone_name = mhclo.rigged_config[rig_bone_id].name
+				var bone_id = skeleton_data.keys().find(bone_name)
+				if bone_id == -1: # the "neutral bone", where the hair connects to the head, for example
+					remainder += rigged_bone_weights.weights[mh_id][array_id]
+				else:
+					mh_bones.append((rig_bone_id+1)*-1) #offset by one because -0 = 0
+					mh_weights.append(rigged_bone_weights.weights[mh_id][array_id])
+		if remainder > 0:
+			for array_id in range(gd_id*8,(gd_id+1)*8):
+				if base_bone_weights.weights[array_id] > 0:
+					mh_bones.append(base_bone_weights.bones[array_id])
+					#assuming rigged weights are already normalized
+					mh_weights.append(base_bone_weights.weights[array_id] * remainder)
+		while mh_bones.size() < 8:
+			mh_bones.append(0)
+			mh_weights.append(0)
+		while mh_bones.size() > 8:
+			var lowest_id = 0
+			for w in mh_weights.size():
+				if mh_weights[w] < mh_weights[lowest_id]:
+					lowest_id = w
+			mh_bones.remove_at(lowest_id)
+			mh_weights.remove_at(lowest_id)
+		sf_arrays[Mesh.ARRAY_BONES].append_array(mh_bones)
+		sf_arrays[Mesh.ARRAY_WEIGHTS].append_array(mh_weights)
