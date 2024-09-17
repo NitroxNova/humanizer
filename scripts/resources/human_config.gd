@@ -24,7 +24,9 @@ signal equipment_removed(equip:HumanizerEquipment)
 @export var skin_color: Color = Color.WHITE:
 	set(value):
 		skin_color = value
-		body_material.overlays[0].color = skin_color
+		var equip : HumanizerEquipment = get_equipment_in_slot("Body")
+		if equip != null:
+			equip.material_config.overlays[0].color = skin_color
 			
 @export var eye_color: Color = Color.SKY_BLUE:
 	set(value):
@@ -41,13 +43,6 @@ signal equipment_removed(equip:HumanizerEquipment)
 		const eyebrow_color_weight := 0.4
 		eyebrow_color = Color(hair_color * eyebrow_color_weight, 1.)
 		notify_property_list_changed()
-
-@export var body_material : HumanizerMaterial= init_body_material()
-
-func init_body_material():
-	var mat = HumanizerMaterial.new()
-	mat.add_overlay(HumanizerOverlay.from_dict({}))
-	return mat
 
 func init_macros():
 	var macros = HumanizerMacroService.get_default_macros()
@@ -81,7 +76,11 @@ func add_equipment(equip:HumanizerEquipment) -> void:
 		equip.material_config.add_overlay(equip_type.default_overlay)
 	if equip_type.in_slot(["LeftEye","RightEye"]):
 		equip.material_config.overlays[1].color = eye_color
-
+	elif equip_type.in_slot(["Body"]):
+		equip.material_config = HumanizerMaterial.new()
+		equip.material_config.set_base_textures(HumanizerOverlay.from_material(load(equip_type.material_path)))
+		equip.material_config.overlays[0].color = skin_color
+		
 func remove_equipment(equip:HumanizerEquipment):
 	#print("Removing " + equip.resource_name)
 	var type = equip.get_type()
@@ -98,19 +97,3 @@ func disable_component(c_name:StringName):
 	
 func has_component(c_name:StringName):
 	return c_name in components
-
-func set_skin_texture(texture_name:String):
-	var texture: String
-	if not HumanizerRegistry.skin_textures.has(texture_name):
-		body_material.overlays[0].albedo_texture_path = ""
-	else:
-		texture = HumanizerRegistry.skin_textures[texture_name]
-		var normal_texture = texture.get_base_dir() + '/' + texture_name + '_normal.' + texture.get_extension()
-		if not FileAccess.file_exists(normal_texture):
-			if body_material.overlays.size() > 0:
-				var overlay = body_material.overlays[0]
-				normal_texture = overlay.normal_texture_path
-			else:
-				normal_texture = ''
-		var overlay = {&'albedo': texture, &'color': skin_color, &'normal': normal_texture}
-		body_material.set_base_textures(HumanizerOverlay.from_dict(overlay))

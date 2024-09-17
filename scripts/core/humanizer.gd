@@ -106,11 +106,8 @@ func get_group_bake_arrays(group_name:String): #transparent, opaque or all
 
 func set_skin_color(color:Color):
 	human_config.skin_color = color
-	human_config.body_material.update_standard_material_3D(materials.Body)
-
-func set_skin_texture(texture_name: String) -> void:
-	human_config.set_skin_texture(texture_name)
-	human_config.body_material.update_standard_material_3D(materials.Body)
+	var body = human_config.get_equipment_in_slot("Body")
+	body.material_config.update_standard_material_3D(materials[body.type])
 
 func set_eye_color(color:Color):
 	human_config.eye_color = color

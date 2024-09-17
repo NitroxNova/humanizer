@@ -3,7 +3,6 @@ class_name HumanizerRegistry
 extends Node
 
 static var equipment := {}
-static var skin_textures := {}
 static var skin_normals := {}
 static var overlays := {}
 static var rigs := {}
@@ -58,22 +57,13 @@ static func _get_rigs() -> void:
 static func _get_skin_textures() -> void:
 	## load texture paths
 	overlays['skin'] = {}
-	skin_textures = {}
 	for path in HumanizerGlobalConfig.config.asset_import_paths:
 		for dir in OSPath.get_dirs(path.path_join('skins')):
 			if dir.get_file() == '_overlays':
 				for file in OSPath.get_files(dir):
 					overlays['skin'][file.get_basename()] = file
 			else:
-				var filename: String
-				for file in OSPath.get_files(dir):
-					if file.get_extension() in ['png']:
-						filename = file.get_file().get_basename()
-						if 'diffuse' in filename.to_lower():
-							filename = filename.replace('_diffuse', '')
-						if filename.ends_with('_normal'):
-							continue
-						skin_textures[filename] = file
+				continue
 		for fl in OSPath.get_files(path.path_join('skin_normals')):
 			if fl.get_extension() in ['png', 'jpg']:
 				skin_normals[fl.get_file().get_basename()] = fl

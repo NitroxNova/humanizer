@@ -18,7 +18,6 @@ static func get_random_equipment_for_slot(slot_name):
 	
 func randomize_body_parts() -> void:
 	human.add_equipment(get_random_equipment_for_slot("Body"))
-	randomize_skin()
 	randomize_eyebrows()
 	randomize_eyelashes()
 	randomize_eyes()
@@ -28,9 +27,6 @@ func randomize_clothes() -> void:
 	human.add_equipment(get_random_equipment_for_slot("TorsoClothes"))
 	human.add_equipment(get_random_equipment_for_slot("LegsClothes"))
 	human.add_equipment(get_random_equipment_for_slot("FeetClothes"))
-
-func randomize_skin() -> void:
-	human.set_skin_texture(Random.choice(HumanizerRegistry.skin_textures.keys()))
 
 func randomize_eyebrows() -> void:
 	## Assumes left and right eyebrow slots
