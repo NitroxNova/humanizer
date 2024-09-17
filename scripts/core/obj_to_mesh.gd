@@ -25,6 +25,7 @@ func run() -> Dictionary:
 	new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,sf_arrays,[],{},flags)
 	
 	var data = {}
+	data.sf_arrays = sf_arrays
 	data.mesh = new_mesh
 	data.mh2gd_index = mh2gd_index
 	return data

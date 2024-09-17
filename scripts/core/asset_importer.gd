@@ -195,7 +195,6 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	# Save resources
 	data.mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(data.mesh)
 	resource.take_over_path(path.path_join(resource.resource_name + '.tres'))
-	ResourceSaver.save(data.mesh, resource.mesh_path)
 	ResourceSaver.save(resource, resource.resource_path)
 	#build rigged equipment
 	if data.has('rigged'):
@@ -237,12 +236,9 @@ func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh:
 	var obj_mesh := ObjToMesh.new(obj_path).run()
 	var mesh = obj_mesh.mesh
 	mhclo.mh2gd_index = obj_mesh.mh2gd_index
-	
-	#= obj_data.mh2gd_index
-	var vertex = mhclo.vertex_data
-	var delete_vertex = mhclo.delete_vertices
-	var scale_config = mhclo.scale_config
-	
+	mhclo.uv_array = obj_mesh.sf_arrays[Mesh.ARRAY_TEX_UV]
+	mhclo.index_array = obj_mesh.sf_arrays[Mesh.ARRAY_INDEX]
+	mhclo.custom0_array = obj_mesh.sf_arrays[Mesh.ARRAY_CUSTOM0]
 	return mesh
 
 func _build_rigged_bone_arrays(data: Dictionary) -> void:

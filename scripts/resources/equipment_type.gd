@@ -8,9 +8,6 @@ class_name HumanizerEquipmentType #base equipment definition
 @export var textures: Dictionary
 @export var slots: Array[String]
 
-var mesh_path: String:
-	get:
-		return path.path_join(resource_name.replace("_Rigged","") + '_mesh.res')
 var mhclo_path: String:
 	get:
 		return path.path_join(resource_name.replace("_Rigged","") + '_mhclo.res')
