@@ -8,6 +8,7 @@ script = ExtResource("1_4r1u7")
 path = "res://addons/humanizer/data/assets/body_parts/Hair/ponytail01"
 rigged = true
 textures = {
-"ponytail01_diffuse": "res://addons/humanizer/data/assets/body_parts/Hair/ponytail01/ponytail01_diffuse.png"
+"ponytail01_diffuse": "res://addons/humanizer/data/assets/body_parts/Hair/ponytail01/ponytail01_diffuse.png",
+"ponytail01_platinum": "res://addons/humanizer/data/assets/body_parts/Hair/ponytail01/ponytail01_platinum.png"
 }
 slots = Array[String](["Hair"])

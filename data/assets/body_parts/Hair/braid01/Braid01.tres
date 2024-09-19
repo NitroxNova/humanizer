@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="HumanizerEquipmentType" load_steps=2 format=3 uid="uid://bhux867vura6q"]
+[gd_resource type="Resource" script_class="HumanizerEquipmentType" load_steps=2 format=3 uid="uid://ccbu1q18wleg2"]
 
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/equipment_type.gd" id="1_84bi2"]
 
@@ -8,7 +8,7 @@ script = ExtResource("1_84bi2")
 path = "res://addons/humanizer/data/assets/body_parts/Hair/braid01"
 rigged = false
 textures = {
-"braid01_braid01_diffuse": "res://addons/humanizer/data/assets/body_parts/Hair/braid01/braid01_braid01_diffuse.png",
-"braid01_diffuse": "res://addons/humanizer/data/assets/body_parts/Hair/braid01/braid01_diffuse.png"
+"braid01_diffuse": "res://addons/humanizer/data/assets/body_parts/Hair/braid01/braid01_diffuse.png",
+"braid01_diffuse_gray": "res://addons/humanizer/data/assets/body_parts/Hair/braid01/braid01_diffuse_gray.png"
 }
 slots = Array[String](["Hair"])

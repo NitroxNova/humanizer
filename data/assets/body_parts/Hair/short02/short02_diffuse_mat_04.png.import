@@ -2,19 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cdp0ypdp1y5cd"
-path="res://.godot/imported/long01_long01_diffuse.png-57be6e355ddfd810440196688a8ffa6c.ctex"
+uid="uid://csekfvb43y5e7"
+path="res://.godot/imported/short02_diffuse_mat_04.png-83d901afa0eb1a3f9a233a97f2afac4b.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "e74ec614a8fcd3e92f0c81d19c0c18d6"
 }
 
 [deps]
 
-source_file="res://addons/humanizer/data/assets/body_parts/Hair/long01/long01_long01_diffuse.png"
-dest_files=["res://.godot/imported/long01_long01_diffuse.png-57be6e355ddfd810440196688a8ffa6c.ctex"]
+source_file="res://addons/humanizer/data/assets/body_parts/Hair/short02/short02_diffuse_mat_04.png"
+dest_files=["res://.godot/imported/short02_diffuse_mat_04.png-83d901afa0eb1a3f9a233a97f2afac4b.ctex"]
 
 [params]
 

@@ -2,19 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dsv1i4jpslin4"
-path="res://.godot/imported/braid01_braid01_diffuse.png-e374dc4a84bae4f7170e42a0301dee70.ctex"
+uid="uid://k2gprc3oeksa"
+path="res://.godot/imported/ponytail01_platinum.png-27ea5ea92a68e0c1bd8342e3b3483f22.ctex"
 metadata={
 "vram_texture": false
-}
-generator_parameters={
-"md5": "d3140b8f11fefc5e3871ffe148109291"
 }
 
 [deps]
 
-source_file="res://addons/humanizer/data/assets/body_parts/Hair/braid01/braid01_braid01_diffuse.png"
-dest_files=["res://.godot/imported/braid01_braid01_diffuse.png-e374dc4a84bae4f7170e42a0301dee70.ctex"]
+source_file="res://addons/humanizer/data/assets/body_parts/Hair/ponytail01/ponytail01_platinum.png"
+dest_files=["res://.godot/imported/ponytail01_platinum.png-27ea5ea92a68e0c1bd8342e3b3483f22.ctex"]
 
 [params]
 
