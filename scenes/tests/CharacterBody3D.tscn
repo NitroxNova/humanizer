@@ -1,8 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://dthel8j2gphl6"]
 
 [sub_resource type="GDScript" id="GDScript_1i7gn"]
-script/source = "@tool
-extends Node3D
+script/source = "extends Node3D
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -14,8 +13,7 @@ func _ready():
 	config.hair_color = Color.PURPLE
 	config.eyebrow_color = Color(\"550055\")
 	config.rig = HumanizerGlobalConfig.config.default_skeleton
-	config.set_skin_texture(\"young_caucasian_female2\")
-	config.add_equipment(HumanizerEquipment.new(\"DefaultBody\"))
+	config.add_equipment(HumanizerEquipment.new(\"DefaultBody\",\"young_caucasian_female2_diffuse\"))
 	config.add_equipment(HumanizerEquipment.new(\"SkinnyJeans\"))
 	config.add_equipment(HumanizerEquipment.new(\"MakeHumanTShirt\"))
 	config.add_equipment(HumanizerEquipment.new(\"Shoes02\"))
