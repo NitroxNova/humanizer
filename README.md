@@ -17,7 +17,7 @@ base clothing and body part assets from MakeHuman
 INSTALLATION:  
 download zip file from https://github.com/NitroxNova/humanizer/releases/tag/v1.2.0-beta and extract into your addons folder (make sure its named lowercase 'humanizer')  
 features and installation - https://www.youtube.com/watch?v=HcscAIpmVgE  
-to work on the current repo version you cannot 'download zip' from the '<> code' dropdown, the resources will be corrupted. Use the /git clone or /git submodule commands instead  
+Unchecking the "Covert Text Resources to Binary" setting in Project settings (check the advanced button)>editor>export makes export possible - https://github.com/NitroxNova/humanizer/issues/31  
   
 optional (but higly recommended):  
 jolt engine - https://godotengine.org/asset-library/asset/1918   
