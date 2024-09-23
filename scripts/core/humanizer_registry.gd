@@ -47,10 +47,10 @@ static func _get_rigs() -> void:
 					rigs[name].config_json_path = file
 				elif file.get_file() == 'bone_weights.json':
 					rigs[name].bone_weights_json_path = file
-				elif file.get_extension() == 'tscn' and file.get_file().begins_with('general'):
-					rigs[name].skeleton_retargeted_path = file
-				elif file.get_extension() == 'tscn':
-					rigs[name].skeleton_path = file
+				elif (file.get_extension() == 'tscn' or file.ends_with(".tscn.remap")) and file.get_file().begins_with('general'):
+					rigs[name].skeleton_retargeted_path = file.trim_suffix('.remap')
+				elif file.get_extension() == 'tscn' or file.ends_with(".tscn.remap"):
+					rigs[name].skeleton_path  = file.trim_suffix('.remap')
 				elif file.get_extension() == 'res':
 					rigs[name].rigged_mesh_path = file
 
