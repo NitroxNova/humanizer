@@ -194,14 +194,14 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	
 	# Save resources
 	data.mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(data.mesh)
-	resource.take_over_path(path.path_join(resource.resource_name + '.tres'))
+	resource.take_over_path(path.path_join(resource.resource_name + '.res'))
 	ResourceSaver.save(resource, resource.resource_path)
 	#build rigged equipment
 	if data.has('rigged'):
 		var rigged_resource = resource.duplicate()
 		rigged_resource.rigged = true
 		rigged_resource.resource_name = resource.resource_name + "_Rigged"
-		ResourceSaver.save(rigged_resource, resource.resource_path.get_basename() + "_Rigged.tres")
+		ResourceSaver.save(rigged_resource, resource.resource_path.get_basename() + "_Rigged.res")
 		HumanizerRegistry.add_equipment_type(rigged_resource)
 		_calculate_bone_weights(data,rigged_resource)
 		
