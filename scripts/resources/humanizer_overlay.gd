@@ -7,7 +7,7 @@ extends Resource
 @export_file var ao_texture_path: String
 @export var color := Color.WHITE
 @export var offset: Vector2i = Vector2i.ZERO
-## TODO add normal strength
+@export var normal_strength : float = 1.0 
 
 static func from_material(material: StandardMaterial3D) -> HumanizerOverlay:
 	var dict = {}

@@ -561,24 +561,20 @@ func set_skin_texture(texture_name: String) -> void:
 		return
 	humanizer.set_skin_texture(texture_name)
 	
-func set_skin_normal_texture(name: String) -> void:
+func set_skin_normal_texture(texture_name: String) -> void:
 	if baked:
 		printerr('Cannot change skin textures. Alrady baked.')
 		notify_property_list_changed()
 		return
 	#print('setting skin normal texture')
-	var texture: String = '' if name == 'None' else HumanizerRegistry.skin_normals[name]
-	#if body_mesh.material_config.overlays.size() == 0:
-		#if texture == '':
-			#return
-		#var overlay = {&'normal': texture, &'color': human_config.skin_color}
-		#body_mesh.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay))
-	#else:
-		#var overlay = body_mesh.material_config.overlays[0]
-		#overlay.normal_texture_path = texture
-		#body_mesh.material_config.set_base_textures(overlay)
-	#if body_mesh != null and body_mesh is HumanizerMeshInstance:
-		#body_mesh.material_config.update_material()
+	var body_equip = human_config.get_equipment_in_slot("Body")
+	var texture_path = ''
+	if texture_name != "None":
+		texture_path = HumanizerRegistry.skin_normals[texture_name]
+	if body_equip != null:
+		body_equip.material_config.overlays[0].normal_texture_path = texture_path
+		body_equip.material_config.overlays[0].normal_strength = .2
+	body_equip.material_config.update_standard_material_3D(humanizer.materials[body_equip.type])
 
 func set_equipment_texture_by_slot(slot_name:String, texture: String):
 	var equip = human_config.get_equipment_in_slot(slot_name)

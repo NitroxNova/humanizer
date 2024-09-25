@@ -16,7 +16,12 @@ func update_standard_material_3D(mat:StandardMaterial3D,update_textures=true) ->
 		mat.albedo_color = overlays[0].color
 		if not overlays[0].albedo_texture_path in ["",null]:
 			mat.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, load(overlays[0].albedo_texture_path))
-		if not overlays[0].normal_texture_path in ["",null]:
+		if overlays[0].normal_texture_path in ["",null]:
+			mat.normal_enabled = false
+			mat.set_texture(BaseMaterial3D.TEXTURE_NORMAL,null)
+		else:
+			mat.normal_enabled = true
+			mat.normal_scale = overlays[0].normal_strength
 			mat.set_texture(BaseMaterial3D.TEXTURE_NORMAL, load(overlays[0].normal_texture_path))
 		if not overlays[0].ao_texture_path in ["",null]:
 			mat.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, load(overlays[0].ao_texture_path))
