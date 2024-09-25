@@ -85,7 +85,7 @@ func randomize_shapekeys() -> void:
 					# Should be symmetric shapekey
 					value = rng.randfn(mean, 0.5 * randomization[cat])
 			if cat == 'Body':
-				value *= randf()
+				value **= 4
 			value = abs(value)
 			value = clamp(value, minval, maxval)
 			values[sk] = value
