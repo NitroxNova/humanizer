@@ -34,7 +34,7 @@
 - [Rigged Assets Tutorial](https://www.youtube.com/watch?v=NMK_w39wKi0)
 - [Materials and Overlays Tutorial](https://www.youtube.com/watch?v=LnubU2OzvQA)
 - [Adding Custom Shapekey Targets](https://www.youtube.com/watch?v=scM3nRpdX20)
-- [Stress Testing & Implications](https://www.youtube.com/watch?v=dtIaeQt59hs)
+- [Stress Testing & Implications](https://youtu.be/g8RZiBSZXB8)
 - [Global Config Settings](https://www.youtube.com/watch?v=nAn8TILgigM)
 - [In-game Example Menu](https://github.com/NitroxNova/Humanizer_Example)
 
