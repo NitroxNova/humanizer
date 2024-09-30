@@ -1,11 +1,97 @@
-[gd_resource type="Resource" script_class="HumanConfig" load_steps=2 format=3 uid="uid://bshtjbk61l7e6"]
+[gd_resource type="Resource" script_class="HumanConfig" load_steps=16 format=3 uid="uid://bshtjbk61l7e6"]
 
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/human_config.gd" id="1_7ljlv"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_overlay.gd" id="1_jc67m"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_material.gd" id="2_a74vh"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/equipment.gd" id="3_fyshw"]
+
+[sub_resource type="Resource" id="Resource_r7i3r"]
+resource_name = "middleage_african_male"
+script = ExtResource("1_jc67m")
+albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Body/Default/old_asian_male/old_asian_male_diffuse2.png"
+normal_texture_path = ""
+ao_texture_path = ""
+color = Color(1, 1, 1, 1)
+offset = Vector2i(0, 0)
+normal_strength = 1.0
+
+[sub_resource type="Resource" id="Resource_vu4lm"]
+resource_local_to_scene = true
+script = ExtResource("2_a74vh")
+overlays = Array[ExtResource("1_jc67m")]([SubResource("Resource_r7i3r")])
+
+[sub_resource type="Resource" id="Resource_no4fi"]
+script = ExtResource("3_fyshw")
+type = "DefaultBody"
+texture_name = "old_asian_male_diffuse2"
+material_config = SubResource("Resource_vu4lm")
+
+[sub_resource type="Resource" id="Resource_xq0p7"]
+resource_name = "eyeball"
+script = ExtResource("1_jc67m")
+albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/eyeball_albedo.png"
+normal_texture_path = ""
+ao_texture_path = ""
+color = Color(1, 1, 1, 1)
+offset = Vector2i(0, 0)
+normal_strength = 1.0
+
+[sub_resource type="Resource" id="Resource_ekkbc"]
+resource_name = "overlay_iris"
+script = ExtResource("1_jc67m")
+albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/overlay_iris_albedo.png"
+normal_texture_path = ""
+ao_texture_path = ""
+color = Color(0.433594, 0.266232, 0.0880737, 1)
+offset = Vector2i(0, 0)
+normal_strength = 1.0
+
+[sub_resource type="Resource" id="Resource_n4dl8"]
+resource_local_to_scene = true
+script = ExtResource("2_a74vh")
+overlays = Array[ExtResource("1_jc67m")]([SubResource("Resource_xq0p7"), SubResource("Resource_ekkbc")])
+
+[sub_resource type="Resource" id="Resource_q8rd5"]
+script = ExtResource("3_fyshw")
+type = "LeftEyeBall-LowPoly"
+texture_name = "eyeball_albedo"
+material_config = SubResource("Resource_n4dl8")
+
+[sub_resource type="Resource" id="Resource_txglb"]
+resource_name = "eyeball"
+script = ExtResource("1_jc67m")
+albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/eyeball_albedo.png"
+normal_texture_path = ""
+ao_texture_path = ""
+color = Color(1, 1, 1, 1)
+offset = Vector2i(0, 0)
+normal_strength = 1.0
+
+[sub_resource type="Resource" id="Resource_nto0t"]
+resource_name = "overlay_iris"
+script = ExtResource("1_jc67m")
+albedo_texture_path = "res://addons/humanizer/data/assets/body_parts/Eyes/Eyeballs/overlay_iris_albedo.png"
+normal_texture_path = ""
+ao_texture_path = ""
+color = Color(0.433594, 0.266232, 0.0880737, 1)
+offset = Vector2i(0, 0)
+normal_strength = 1.0
+
+[sub_resource type="Resource" id="Resource_muthh"]
+resource_local_to_scene = true
+script = ExtResource("2_a74vh")
+overlays = Array[ExtResource("1_jc67m")]([SubResource("Resource_txglb"), SubResource("Resource_nto0t")])
+
+[sub_resource type="Resource" id="Resource_t5csa"]
+script = ExtResource("3_fyshw")
+type = "RightEyeball-LowPoly"
+texture_name = "eyeball_albedo"
+material_config = SubResource("Resource_muthh")
 
 [resource]
 script = ExtResource("1_7ljlv")
 rig = "game_engine-RETARGETED"
-shapekeys = {
+targets = {
 "african": 0.333,
 "african-female-baby": 0,
 "african-female-child": 0,
@@ -603,13 +689,13 @@ shapekeys = {
 "weight": 0.0
 }
 components = [&"main_collider", &"lod"]
-body_parts = {}
-body_part_materials = {
-"skin": "old_asian_male2"
+equipment = {
+"DefaultBody": SubResource("Resource_no4fi"),
+"LeftEyeBall-LowPoly": SubResource("Resource_q8rd5"),
+"RightEyeball-LowPoly": SubResource("Resource_t5csa")
 }
-clothes = []
-clothes_materials = {}
+transforms = {}
 skin_color = Color(1, 1, 1, 1)
-eye_color = Color(0.529412, 0.807843, 0.921569, 1)
+eye_color = Color(0.433594, 0.266232, 0.0880737, 1)
 eyebrow_color = Color(0.200784, 0, 0, 1)
 hair_color = Color(0.501961, 0, 0, 1)
