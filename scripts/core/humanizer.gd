@@ -198,6 +198,9 @@ func get_body_mesh():
 
 func hide_clothes_vertices():
 	HumanizerEquipmentService.hide_vertices(human_config.equipment,mesh_arrays)
+
+func show_clothes_vertices():
+	HumanizerEquipmentService.show_vertices(human_config.equipment,mesh_arrays)
 			
 func set_targets(target_data:Dictionary):
 	HumanizerTargetService.set_targets(target_data,human_config.targets,helper_vertex)

@@ -29,6 +29,12 @@ static func _sort_by_z_depth(clothes_a: HumanizerEquipment, clothes_b: Humanizer
 		return true
 	return false
 
+static func show_vertices(equip_list:Dictionary,mesh_arrays:Dictionary):
+	for equip:HumanizerEquipment in equip_list.values():
+		var equip_type :HumanizerEquipmentType = equip.get_type()
+		var mhclo = load(equip_type.mhclo_path)
+		mesh_arrays[equip.type][Mesh.ARRAY_INDEX] = mhclo.index_array.duplicate()
+
 static func hide_vertices(equip_list:Dictionary,mesh_arrays:Dictionary):
 	var delete_verts_mh := []
 	delete_verts_mh.resize(HumanizerTargetService.data.basis.size())

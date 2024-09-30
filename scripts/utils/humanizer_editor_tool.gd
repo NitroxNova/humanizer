@@ -384,9 +384,8 @@ func unhide_clothes_vertices() -> void:
 	if baked:
 		push_warning("Can't alter meshes.  Already baked")
 		return
-	for equip:HumanizerEquipment in human_config.equipment.values():
-		equip.node.mesh = load(equip.get_mesh_path())
-		_add_bone_weights(equip)
+	humanizer.show_clothes_vertices()
+	_fit_all_meshes()
 
 func set_bake_meshes(subset: String) -> void:
 	_bake_meshes = []
