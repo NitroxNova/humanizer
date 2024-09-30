@@ -44,9 +44,9 @@ var morph_data := {}
 @export var human_config: HumanConfig:
 	set(value):
 		human_config = value
-		#if scene_loaded and human_config != null:
-			#load_human()
-			#notify_property_list_changed()
+		if scene_loaded and human_config != null:
+			load_human()
+			notify_property_list_changed()
 
 @export_group('Node Overrides')
 ## The root node type for baked humans
@@ -77,8 +77,6 @@ var morph_data := {}
 
 
 func _ready() -> void:
-	if human_config == null:
-		human_config = HumanConfig.new()
 	for child in get_children():
 		if child.name.begins_with('Baked-'):
 			baked = true
@@ -90,8 +88,14 @@ func _ready() -> void:
 ## continuously updated with every change
 
 func reset():
-	load_human()
-
+	var new_config = HumanConfig.new()
+	new_config.init_macros()
+	new_config.rig = HumanizerGlobalConfig.config.default_skeleton
+	new_config.add_equipment(HumanizerEquipment.new("DefaultBody"))
+	new_config.add_equipment(HumanizerEquipment.new("RightEyeball-LowPoly"))
+	new_config.add_equipment(HumanizerEquipment.new("LeftEyeBall-LowPoly"))
+	human_config = new_config
+	
 func set_human_config(config: HumanConfig) -> void:
 	human_config = config
 	
@@ -123,12 +127,12 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 
 
 ####  HumanConfig Resource and Scene Management ####
-func reset_human() -> void:
+func reset_scene() -> void:
 	if has_node('MorphDriver'):
 		_delete_child_node($MorphDriver)
 	baked = false
-	humanizer = Humanizer.new()
-	human_config = humanizer.human_config
+	if human_config.rig == '':
+		human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 	for child in get_children():
 		if child is MeshInstance3D:
 			_delete_child_node(child)
@@ -139,10 +143,9 @@ func reset_human() -> void:
 	notify_property_list_changed()
 
 func load_human() -> void:
-	if human_config.rig == '':
-		human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 	baked = false
-	reset_human()
+	humanizer = Humanizer.new(human_config)
+	reset_scene()
 	_deserialize()
 	notify_property_list_changed()
 
