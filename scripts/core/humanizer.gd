@@ -34,17 +34,11 @@ func get_CharacterBody3D(baked:bool):
 	human.add_child(skeleton)
 	skeleton.set_unique_name_in_owner(true)
 	var body_mesh = MeshInstance3D.new()
+	body_mesh.name = "BodyMesh"
 	if baked:
 		body_mesh.mesh = standard_bake_meshes()	
 	else:
-		body_mesh.mesh = ArrayMesh.new()
-		for equip_name in mesh_arrays:
-			var new_arrays = get_mesh_arrays(equip_name)
-			if not new_arrays.is_empty():
-				body_mesh.mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays)
-				var surface_id = body_mesh.mesh.get_surface_count()-1
-				body_mesh.mesh.surface_set_material(surface_id,materials[equip_name])
-				body_mesh.mesh.surface_set_name(surface_id,equip_name)	
+		body_mesh.mesh = get_combined_meshes()
 	human.add_child(body_mesh)
 	body_mesh.skeleton = NodePath('../' + skeleton.name)
 	body_mesh.skin = skeleton.create_skin_from_rest_transforms()
@@ -60,6 +54,17 @@ func get_CharacterBody3D(baked:bool):
 	if human_config.has_component("ragdoll"):
 		add_ragdoll_colliders(skeleton)
 	return human
+
+func get_combined_meshes() -> ArrayMesh:
+	var new_mesh = ArrayMesh.new()
+	for equip_name in mesh_arrays:
+		var new_arrays = get_mesh_arrays(equip_name)
+		if not new_arrays.is_empty():
+			new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays)
+			var surface_id = new_mesh.get_surface_count()-1
+			new_mesh.surface_set_material(surface_id,materials[equip_name])
+			new_mesh.surface_set_name(surface_id,equip_name)	
+	return new_mesh
 	
 func get_animation_tree():
 	if human_config.rig == 'default-RETARGETED':

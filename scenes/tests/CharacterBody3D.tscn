@@ -1,9 +1,14 @@
-[gd_scene load_steps=5 format=3 uid="uid://dthel8j2gphl6"]
+[gd_scene load_steps=6 format=3 uid="uid://dthel8j2gphl6"]
+
+[ext_resource type="Script" path="res://addons/humanizer/scripts/utils/camera_controls.gd" id="1_pu1mm"]
 
 [sub_resource type="GDScript" id="GDScript_1i7gn"]
 script/source = "extends Node3D
 
-# Called when the node enters the scene tree for the first time.
+var humanizer : Humanizer
+var shirt = HumanizerEquipment.new(\"MakeHumanTShirt\")
+var body_mesh_inst : MeshInstance3D
+
 func _ready():
 	var config = HumanConfig.new()
 	config.init_macros()
@@ -15,7 +20,7 @@ func _ready():
 	config.rig = HumanizerGlobalConfig.config.default_skeleton
 	config.add_equipment(HumanizerEquipment.new(\"DefaultBody\",\"young_caucasian_female2_diffuse\"))
 	config.add_equipment(HumanizerEquipment.new(\"SkinnyJeans\"))
-	config.add_equipment(HumanizerEquipment.new(\"MakeHumanTShirt\"))
+	config.add_equipment(shirt)
 	config.add_equipment(HumanizerEquipment.new(\"Shoes02\"))
 	config.add_equipment(HumanizerEquipment.new(\"RightEyeball-LowPoly\"))
 	config.add_equipment(HumanizerEquipment.new(\"LeftEyeBall-LowPoly\"))
@@ -24,10 +29,22 @@ func _ready():
 	config.add_equipment(HumanizerEquipment.new(\"LeftEyebrow-002\"))
 	config.add_equipment(HumanizerEquipment.new(\"RightEyelash\"))
 	config.add_equipment(HumanizerEquipment.new(\"LeftEyelash\"))
-	var humanizer = Humanizer.new(config)
+	humanizer = Humanizer.new(config)
 	var char = humanizer.get_CharacterBody3D(false) ## can bake character here by setting argument to true
 	add_child(char)
 	HumanizerUtils.set_node_owner(char,self)
+	char.camera = $Camera3D
+	body_mesh_inst = char.get_node(\"BodyMesh\")
+
+func _process(delta: float) -> void:
+	if Input.is_action_just_pressed(&'ui_accept'):
+		if humanizer.human_config.get_equipment_in_slot(\"TorsoClothes\") == null:
+			humanizer.add_equipment(shirt)
+		else:
+			humanizer.remove_equipment(shirt)
+		humanizer.show_clothes_vertices()
+		humanizer.hide_clothes_vertices()
+		body_mesh_inst.mesh = humanizer.get_combined_meshes()
 "
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_u0hgw"]
@@ -55,3 +72,9 @@ shadow_enabled = true
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.933, 1.235)
+script = ExtResource("1_pu1mm")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0587964, 0)
+use_collision = true
+size = Vector3(1, 0.1, 1)
