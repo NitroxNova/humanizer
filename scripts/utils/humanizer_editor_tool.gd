@@ -248,35 +248,17 @@ func create_human_branch() -> Node3D:
 	return root_node
 
 func save_human_scene() -> void:
+	if FileAccess.file_exists(save_path.path_join('scene_' + human_name + '.tscn')):
+		printerr(" Human already exists at " + save_path)
+		return
 	var scene_root_node = create_human_branch()
 	var mi: MeshInstance3D = scene_root_node.get_node('Avatar')
 	var scene = PackedScene.new()
 	scene.pack(scene_root_node)
 	DirAccess.make_dir_recursive_absolute(save_path)
-	
-	for surface in mi.mesh.get_surface_count():
-		var mat = mi.mesh.surface_get_material(surface)
-		var surf_name: String = mi.mesh.surface_get_name(surface)
-		if mat.albedo_texture != null:
-			var path := save_path.path_join('texture_albedo_' + surf_name + '.res')
-			mat.albedo_texture.take_over_path(path)
-		if mat.normal_texture != null:
-			var path := save_path.path_join('texture_normal_' + surf_name + '.res')
-			mat.normal_texture.take_over_path(path)
-		if mat.ao_texture != null:
-			var path := save_path.path_join('texture_ao_' + surf_name + '.res')
-			mat.ao_texture.take_over_path(path)
-		var path := save_path.path_join('material_' + surf_name + '.tres')
-		ResourceSaver.save(mat, path)
-		mat.take_over_path(path)
-		
-	var path := save_path.path_join('mesh.tres')
-	ResourceSaver.save(mi.mesh, path)
-	mi.mesh.take_over_path(path)
-	path = save_path.path_join('config_' + human_name + '.res')
-	ResourceSaver.save(human_config, save_path.path_join('config_' + human_name + '.res'))
-	if not FileAccess.file_exists(save_path.path_join('scene_' + human_name + '.tscn')):
-		ResourceSaver.save(scene, save_path.path_join('scene_' + human_name + '.tscn'))
+	var config_path = save_path.path_join('config_' + human_name + '.res')
+	ResourceSaver.save(human_config, config_path)
+	ResourceSaver.save(scene, save_path.path_join('scene_' + human_name + '.tscn'))
 	print('Saved human to : ' + save_path)
 	HumanizerJobQueue.enqueue({callable=HumanizerMeshService.compress_material,mesh=mi.mesh})
 	
@@ -502,9 +484,9 @@ func _combine_meshes() -> ArrayMesh:
 			continue
 		var material: BaseMaterial3D
 		if child.get_surface_override_material(0) != null:
-			material = child.get_surface_override_material(0).duplicate(true)
+			material = child.get_surface_override_material(0)
 		else:
-			material = child.mesh.surface_get_material(0).duplicate(true)
+			material = child.mesh.surface_get_material(0)
 		var surface_arrays = child.mesh.surface_get_arrays(0)
 		if child.transform != Transform3D.IDENTITY and not child.name.begins_with('Baked-'):
 			human_config.transforms[child.name] = Transform3D(child.transform)

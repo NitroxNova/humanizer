@@ -34,7 +34,7 @@ func get_CharacterBody3D(baked:bool):
 	human.add_child(skeleton)
 	skeleton.set_unique_name_in_owner(true)
 	var body_mesh = MeshInstance3D.new()
-	body_mesh.name = "BodyMesh"
+	body_mesh.name = "Avatar"
 	if baked:
 		body_mesh.mesh = standard_bake_meshes()	
 	else:
