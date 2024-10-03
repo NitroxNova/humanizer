@@ -36,7 +36,7 @@ func update_standard_material_3D(mat:StandardMaterial3D,update_textures=true) ->
 	
 func update_material() -> void:
 	#print("updating material")
-	if overlays.size() == 0:
+	if overlays.size() in [0,1]:
 		return
 	
 	for texture in TEXTURE_LAYERS: #albedo, normal, ambient occulsion ect..
