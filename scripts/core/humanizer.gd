@@ -161,6 +161,7 @@ func set_equipment_material(equipment:HumanizerEquipment, texture: String)-> voi
 	elif equip_type.in_slot(["LeftEyebrow","RightEyebrow"]):
 		material.albedo_color = human_config.eyebrow_color
 	if mat_config != null:
+		await RenderingServer.frame_post_draw
 		mat_config.update_standard_material_3D(material)
 		
 func get_mesh(mesh_name:String):

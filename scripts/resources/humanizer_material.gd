@@ -29,7 +29,7 @@ func update_standard_material_3D(mat:StandardMaterial3D,update_textures=true) ->
 			mat.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, load(overlays[0].ao_texture_path))
 	else:
 		if update_textures:
-			update_material()
+			await update_material()
 		mat.normal_enabled = normal_texture != null
 		mat.ao_enabled = ao_texture != null
 		mat.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, albedo_texture)
@@ -46,7 +46,8 @@ func update_material() -> void:
 		
 		image_vp.size = texture_size
 		image_vp.transparent_bg = true
-		image_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
+		Engine.get_main_loop().get_root().add_child.call_deferred(image_vp)
+	
 
 		for overlay in overlays:
 			if overlay == null:
@@ -70,21 +71,14 @@ func update_material() -> void:
 		if image_vp.get_child_count() == 0:
 			set(texture + '_texture',null)
 		else:
-			image_vp.ready.connect(_on_texture_viewport_ready.bind(image_vp,texture))
-			Engine.get_main_loop().get_root().add_child(image_vp)
-			
-func _on_texture_viewport_ready(viewport:Viewport,texture:String):
-	await RenderingServer.frame_post_draw
-	var image = viewport.get_texture().get_image()
-	image.generate_mipmaps()
-	set(texture + '_texture', ImageTexture.create_from_image(image))
-	on_material_updated.emit()
-	viewport.queue_free()
-	
-func _blend_color(image: Image, color: Color) -> void:
-	for x in image.get_width():
-		for y in image.get_height():
-			image.set_pixel(x, y, image.get_pixel(x, y) * color)
+			image_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
+			await RenderingServer.frame_post_draw	
+			var image = image_vp.get_texture().get_image()
+			image.generate_mipmaps()
+			set(texture + '_texture', ImageTexture.create_from_image(image))
+		image_vp.queue_free()
+		on_material_updated.emit()
+
 
 func set_base_textures(overlay: HumanizerOverlay) -> void:
 	if overlays.size() == 0:
