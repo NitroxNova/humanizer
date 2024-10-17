@@ -61,6 +61,7 @@ func update_material() -> void:
 				continue
 			var im_texture = load(path)
 			var im_tex_rect = TextureRect.new()
+			im_tex_rect.position = overlay.offset
 			im_tex_rect.texture = im_texture
 			image_vp.add_child(im_tex_rect)
 
