@@ -1,43 +1,28 @@
-[gd_scene load_steps=8 format=3 uid="uid://dsrnmyw7n7drw"]
+[gd_scene load_steps=6 format=3 uid="uid://dsrnmyw7n7drw"]
 
-[ext_resource type="PackedScene" uid="uid://csan8bknfmodc" path="res://addons/humanizer/data/animations/animation_tree.tscn" id="2_24gy7"]
+[ext_resource type="Resource" path="res://humanizer_global_config.res" id="2_0va21"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/core/humanizer_global_config.gd" id="2_vm4hu"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_config.gd" id="3_21hmb"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/core/job_queue.gd" id="3_56c55"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/core/humanizer_registry.gd" id="57_651fh"]
 
 [sub_resource type="GDScript" id="GDScript_yaxf4"]
 script/source = "@tool
 extends Node
-"
 
-[sub_resource type="Resource" id="Resource_6mbi6"]
-script = ExtResource("3_21hmb")
-asset_import_paths = Array[String](["res://addons/humanizer/data/assets/"])
-human_export_path = "res://data/humans/"
-default_characterbody_script = "res://addons/humanizer/scripts/utils/human_controller.gd"
-default_rigidbody_script = ""
-default_staticbody_script = ""
-default_area_script = ""
-body_part_slots = Array[String](["Body", "RightEye", "LeftEye", "RightEyebrow", "LeftEyebrow", "RightEyelash", "LeftEyelash", "Hair", "Tongue", "Teeth"])
-clothing_slots = Array[String](["Head", "Eyes", "Mouth", "Hands", "Arms", "Torso", "Legs", "Feet"])
-default_skeleton = "game_engine-RETARGETED"
-default_animation_tree = ExtResource("2_24gy7")
-default_baked_root_node = "CharacterBody3D"
-default_character_physics_layers = 2
-default_character_physics_mask = 3
-default_staticbody_physics_layers = 1
-default_physical_bone_layers = 4
-default_physical_bone_mask = 5
-default_character_render_layers = 1
-atlas_resolution = 2048
+func _ready() -> void:
+	#print(\"humanizer global init\")
+	var config_path = \"res://humanizer_global_config.res\"
+	if not FileAccess.file_exists(config_path):
+		var config = HumanizerConfig.new()
+		ResourceSaver.save(config,config_path)
+"
 
 [node name="HumanizerGlobal" type="Node"]
 script = SubResource("GDScript_yaxf4")
 
 [node name="HumanizerConfig" type="Node" parent="."]
 script = ExtResource("2_vm4hu")
-_config = SubResource("Resource_6mbi6")
+_config = ExtResource("2_0va21")
 
 [node name="HumanizerRegistry" type="Node" parent="."]
 script = ExtResource("57_651fh")
