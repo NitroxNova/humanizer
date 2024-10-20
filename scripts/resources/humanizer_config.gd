@@ -19,6 +19,7 @@ extends Resource
 @export_group('Slot Definitions')
 ## Body Part Slot Definitions
 @export var body_part_slots: Array[String] = [
+	'Body',
 	'RightEye',
 	'LeftEye',
 	'RightEyebrow',
