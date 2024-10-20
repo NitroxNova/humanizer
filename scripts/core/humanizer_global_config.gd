@@ -18,4 +18,3 @@ func _init() -> void:
 	## Just using this to have a static variable which is also exported.
 	if Instance == null:
 		Instance = self
-

@@ -45,7 +45,13 @@ signal equipment_removed(equip:HumanizerEquipment)
 		notify_property_list_changed()
 
 func init_macros():
-	var macros = HumanizerMacroService.get_default_macros()
+	var default_macros = HumanizerMacroService.get_default_macros()
+	var macros = {}
+	for m in default_macros:
+		if m in targets:
+			macros[m] = targets[m]
+		else:
+			macros[m] = default_macros[m]
 	var new_targets = HumanizerMacroService.get_macro_target_combos(macros)
 	targets.merge(new_targets.targets,true)
 	targets.merge(macros,true)
