@@ -161,8 +161,13 @@ func set_equipment_material(equipment:HumanizerEquipment, texture: String)-> voi
 	elif equip_type.in_slot(["LeftEyebrow","RightEyebrow"]):
 		material.albedo_color = human_config.eyebrow_color
 	if mat_config != null:
-		await RenderingServer.frame_post_draw
 		mat_config.update_standard_material_3D(material)
+
+func update_materials(): # not normally needed, use this if generated humans arent updating textures properly (was an issue in the stress test - has something to do with threads)
+	for equip in human_config.equipment.values():
+		if equip.material_config != null:
+			await RenderingServer.frame_post_draw	
+			equip.material_config.update_standard_material_3D(materials[equip.type])
 		
 func get_mesh(mesh_name:String):
 	var mesh = ArrayMesh.new()
