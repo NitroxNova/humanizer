@@ -73,7 +73,8 @@ func _generate_human() -> void:
 	randomizer.randomize_clothes()
 	randomizer.randomize_shapekeys()
 	human_config.init_macros()
-	var humanizer = Humanizer.new(human_config)
+	var humanizer = Humanizer.new(human_config) 
+	humanizer.update_materials()
 	new_human = humanizer.get_CharacterBody3D(false)
 "
 
