@@ -11,9 +11,9 @@ var body_mesh_inst : MeshInstance3D
 
 func _ready():
 	var config = HumanConfig.new()
+	config.targets['gender'] = 0.0
+	config.targets['age'] = .25
 	config.init_macros()
-	config.targets['gender'] = 0
-	config.targets['age'] = 25
 	config.eye_color = Color.YELLOW
 	config.hair_color = Color.PURPLE
 	config.eyebrow_color = Color(\"550055\")
