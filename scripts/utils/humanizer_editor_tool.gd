@@ -88,6 +88,7 @@ func _ready() -> void:
 ## continuously updated with every change
 
 func reset():
+	#print("reseting")
 	var new_config = HumanConfig.new()
 	new_config.init_macros()
 	new_config.rig = HumanizerGlobalConfig.config.default_skeleton
@@ -128,23 +129,28 @@ func set_shapekeys(shapekeys: Dictionary) -> void:
 
 ####  HumanConfig Resource and Scene Management ####
 func reset_scene() -> void:
+	#print("resetting scene")
 	if has_node('MorphDriver'):
 		_delete_child_node($MorphDriver)
 	baked = false
-	if human_config.rig == '':
-		human_config.rig = HumanizerGlobalConfig.config.default_skeleton
+	#if human_config.rig == '':
+		#human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 	for child in get_children():
-		if child is MeshInstance3D:
+		if child is MeshInstance3D or child is Skeleton3D:
 			_delete_child_node(child)
-	set_component_state(true, &'main_collider')
+	#set_component_state(true, &'main_collider')
 	if has_node('Saccades'):
 		_delete_child_by_name('Saccades')
 	_new_shapekeys = {}
 	notify_property_list_changed()
 
 func load_human() -> void:
+	#print("loading human")
 	baked = false
-	humanizer = Humanizer.new(human_config)
+	var new_humanizer = await Humanizer.new(human_config)
+	#humanizer.done_processing.connect(config_done_processing)
+	await Signal(new_humanizer,"done_initializing")
+	humanizer = new_humanizer
 	reset_scene()
 	_deserialize()
 	notify_property_list_changed()
@@ -285,42 +291,31 @@ func _get_asset_by_name(mesh_name: String) -> HumanizerEquipment:
 
 func _deserialize() -> void:
 	## set rig
-	set_rig(human_config.rig)
-#
+	init_rig()
+
 	## Load Assets
 	for equip: HumanizerEquipment in human_config.equipment.values():
-		add_equipment(equip)
-		#
-	## Load components
-	for component in human_config.components:
-		if component in [&'root_bone', &'ragdoll']:
-			continue  # These are already set in set_rig
-		set_component_state(true, component)
+		init_equipment(equip)
 
-	## Update materials with overlays
-	for equip in human_config.equipment.values():
-		var node = get_node(equip.type)
-		if node is HumanizerMeshInstance and node.material_config != null:
-			if node.material_config.overlays.size() > 0:
-				node.material_config.update_material()
+	### Load components
+	#for component in human_config.components:
+		#if component in [&'root_bone', &'ragdoll']:
+			#continue  # These are already set in set_rig
+		#set_component_state(true, component)
+	pass
 
 #### Mesh Management ####
 func add_equipment_type(equip_type:HumanizerEquipmentType)->void:
 	var equip := HumanizerEquipment.new(equip_type.resource_name)
-	equip.texture_name = Random.choice(equip_type.textures.keys())
 	add_equipment(equip)
 
-func add_equipment(equip: HumanizerEquipment) -> void:
+func init_equipment(equip: HumanizerEquipment) -> void:
 	if baked:
 		push_warning("Can't change equipment.  Already baked")
 		notify_property_list_changed()
 		return
 	
 	var equip_type = equip.get_type()
-	for prev_equip in human_config.get_equipment_in_slots(equip_type.slots):
-		remove_equipment(prev_equip)
-	humanizer.add_equipment(equip)	
-	
 	var mesh_inst = HumanizerMeshInstance.new()
 	mesh_inst.name = equip.type
 	mesh_inst.mesh = humanizer.get_mesh(equip.type)
@@ -337,6 +332,20 @@ func add_equipment(equip: HumanizerEquipment) -> void:
 	mesh_inst.skeleton = '../' + skeleton.name
 	mesh_inst.skin = skeleton.create_skin_from_rest_transforms()
 	notify_property_list_changed()
+
+func add_equipment(equip: HumanizerEquipment) -> void:
+	if baked:
+		push_warning("Can't change equipment.  Already baked")
+		notify_property_list_changed()
+		return
+	
+	var equip_type = equip.get_type()
+	for prev_equip in human_config.get_equipment_in_slots(equip_type.slots):
+		remove_equipment(prev_equip)
+	await humanizer.add_equipment(equip)	
+	init_equipment(equip)
+	
+	
 	
 func remove_equipment(equip: HumanizerEquipment) -> void:
 	if baked:
@@ -537,13 +546,6 @@ func add_shapekey() -> void:
 	notify_property_list_changed()
 
 #### Materials ####
-func set_skin_texture(texture_name: String) -> void:
-	#print('setting skin texture : ' + name)
-	if baked:
-		push_warning("Can't change skin.  Already baked")
-		notify_property_list_changed()
-		return
-	humanizer.set_skin_texture(texture_name)
 	
 func set_skin_normal_texture(texture_name: String) -> void:
 	if baked:
@@ -570,11 +572,12 @@ func set_equipment_texture_by_name(equip_name:String, texture:String):
 		var equip = human_config.equipment[equip_name]
 		set_equipment_material(equip,texture)
 
-func set_equipment_material(equipment:HumanizerEquipment, texture: String) -> void:
+func set_equipment_material(equip:HumanizerEquipment, texture: String) -> void:
 	if baked:
 		printerr('Cannot change materials. Already baked.')
 		return
-	humanizer.set_equipment_material(equipment,texture)
+	humanizer.set_equipment_material(equip,texture)
+	get_node(equip.type).set_surface_override_material(0,humanizer.materials[equip.type])
 	notify_property_list_changed()
 	
 func _setup_overlay_material(asset: HumanizerEquipmentType, existing_config: HumanizerMaterial = null) -> void:
@@ -593,6 +596,17 @@ func _setup_overlay_material(asset: HumanizerEquipmentType, existing_config: Hum
 	mi.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
 	mi.material_config.add_overlay(asset.default_overlay.duplicate(true))
 
+func init_rig() -> void:
+	skeleton = humanizer.get_skeleton()
+	_add_child_node(skeleton)
+	_reset_animator()
+	
+	if human_config.components.has(&'ragdoll'):
+		set_component_state(true, &'ragdoll')
+	if human_config.components.has(&'saccades'):
+		if human_config.rig != &'default-RETARGETED':
+			set_component_state(false, &'saccades')
+
 #### Animation ####
 func set_rig(rig_name: String) -> void:
 	if baked:
@@ -607,17 +621,9 @@ func set_rig(rig_name: String) -> void:
 		return
 		
 	humanizer.set_rig(rig_name)
-	skeleton = humanizer.get_skeleton()
-	_add_child_node(skeleton)
-	_reset_animator()
-
-	if human_config.components.has(&'ragdoll'):
-		set_component_state(true, &'ragdoll')
-	if human_config.components.has(&'saccades'):
-		if rig_name != &'default-RETARGETED':
-			set_component_state(false, &'saccades')
+	init_rig()
 			
-	_adjust_skeleton()
+	#_adjust_skeleton()
 
 func _adjust_skeleton() -> void:
 	if skeleton == null:

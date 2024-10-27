@@ -50,6 +50,7 @@ static func hide_vertices(equip_list:Dictionary,mesh_arrays:Dictionary):
 		cl_delete_verts_mh.resize(mhclo.vertex_data.size())
 		cl_delete_verts_mh.fill(false)
 		var cl_delete_verts_gd = []
+		#print(mesh_arrays[equip.type])
 		cl_delete_verts_gd.resize(mesh_arrays[equip.type][Mesh.ARRAY_VERTEX].size())
 		cl_delete_verts_gd.fill(false)
 		var any_deleted = false

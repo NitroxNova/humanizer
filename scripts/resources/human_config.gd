@@ -35,13 +35,20 @@ signal equipment_removed(equip:HumanizerEquipment)
 		for equip in get_equipment_in_slots(slots):
 			equip.material_config.overlays[1].color = eye_color
 
-@export var eyebrow_color: Color = Color("330000")
+@export var eyebrow_color: Color = Color("330000"):
+	set(value):
+		var slots: Array = [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows']
+		for equip in get_equipment_in_slots(slots):
+			equip.material_config.overlays[0].color = eyebrow_color
 
 @export var hair_color: Color = Color.WEB_MAROON:
 	set(value):
 		hair_color = value
 		const eyebrow_color_weight := 0.4
 		eyebrow_color = Color(hair_color * eyebrow_color_weight, 1.)
+		var equip : HumanizerEquipment = get_equipment_in_slot("Hair")
+		if equip != null:
+			equip.material_config.overlays[0].color = hair_color
 		notify_property_list_changed()
 
 func init_macros():
@@ -75,17 +82,17 @@ func add_equipment(equip:HumanizerEquipment) -> void:
 	for prev_equip in get_equipment_in_slots(equip_type.slots):
 		remove_equipment(prev_equip)
 	equipment[equip.type] = equip
-	equipment_added.emit(equip)
-	if equip_type.default_overlay != null and equip.material_config == null:
-		equip.material_config = HumanizerMaterial.new()
-		equip.material_config.set_base_textures(HumanizerOverlay.from_material(load(equip_type.material_path)))
-		equip.material_config.add_overlay(equip_type.default_overlay)
-	if equip_type.in_slot(["LeftEye","RightEye"]):
+	
+	if equip_type.in_slot(["LeftEye","RightEye","Eyes"]):
 		equip.material_config.overlays[1].color = eye_color
 	elif equip_type.in_slot(["Body"]):
-		equip.material_config = HumanizerMaterial.new()
-		equip.material_config.set_base_textures(HumanizerOverlay.from_material(load(equip_type.material_path)))
 		equip.material_config.overlays[0].color = skin_color
+	elif equip_type.in_slot(["Hair"]):
+		equip.material_config.overlays[0].color = hair_color
+	elif equip_type.in_slot(["LeftEyebrow","RightEyebrow","Eyebrows"]):
+		equip.material_config.overlays[0].color = eyebrow_color
+	
+	equipment_added.emit(equip)
 		
 func remove_equipment(equip:HumanizerEquipment):
 	#print("Removing " + equip.resource_name)

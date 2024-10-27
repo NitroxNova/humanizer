@@ -59,10 +59,11 @@ func _scan_path_for_assets(path: String) -> void:
 		printerr("Couldn't infer asset type from path.")
 		return
 		
-	var textures := {}
+	var materials := {}
 	var obj_data = null
 	var contents = OSPath.get_contents(path)
 	var asset_data := {}
+	var overlay = {}
 	
 	for file_name in OSPath.get_files(path):
 		if file_name.get_extension() == "mhclo":
@@ -83,77 +84,82 @@ func _scan_path_for_assets(path: String) -> void:
 		
 	# Get textures
 	for file_name in contents.files:
+		if file_name.get_extension() == "mhmat":
+			var new_mat = HumanizerMaterialService.mhmat_to_material(file_name)
+			var mat_path = file_name.get_base_dir().path_join( new_mat.resource_name + '_material.res')
+			ResourceSaver.save(new_mat, mat_path)
+			materials[new_mat.resource_name] = mat_path
 		if file_name.get_extension() in ["png"]:
 			# Eyes come with two textures for coloring iris, base and overlay
 			if 'overlay' in file_name.get_file():
-				textures['overlay'] = {'albedo': file_name}
-			elif file_name.get_basename().ends_with('normal'):
-				textures['normal'] = file_name
-			elif file_name.get_basename().ends_with('ao'):
-				textures['ao'] = file_name
-			else:
-				textures[file_name.get_file().get_basename()] = file_name
-	_generate_material(path, textures)
+				overlay = {'albedo': file_name}
+			#elif file_name.get_basename().ends_with('normal'):
+				#textures['normal'] = file_name
+			#elif file_name.get_basename().ends_with('ao'):
+				#textures['ao'] = file_name
+			#else:
+				#textures[file_name.get_file().get_basename()] = file_name
+	#_generate_material(path, textures)
 	
 	for asset in asset_data.values():
-		asset.textures = textures
+		asset.materials = materials
+		if not overlay.is_empty():
+			asset.overlay = overlay
 		_import_asset(path, asset, false)
-		#if asset.mhclo.tags.has('Hair') and asset.mhclo.tags.has('Long'):
-		#	_import_asset(path, asset, true)
 
-func _generate_material(path: String, textures: Dictionary) -> void:
-	# Create material
-	print('Generating material for ' + path.get_file())
-	var mat = StandardMaterial3D.new()
-	mat.cull_mode = BaseMaterial3D.CULL_BACK
-	if asset_type == AssetType.BodyPart:
-		if 'eyelash' in path.to_lower() or 'eyebrow' in path.to_lower() or 'hair' in path.to_lower():
-			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
-			mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-			mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
-			mat.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT_WRAP
-	
-	if textures.size() > 0:
-		var albedo := ''
-		var normal := ''
-		var ao := ''
-		for t in textures:
-			if t == 'normal':
-				normal = textures[t]
-			elif t == 'ao':
-				ao = textures[t]
-			elif albedo == '' and t != 'overlay': # Get first albedo as default
-				albedo = textures[t]
-
-		# Create normal map from albedo as bump map for eyebrows
-		if 'eyebrow' in path.to_lower() and normal == '':
-			print('Generating normal')
-			var normal_texture = load(albedo) as Texture2D
-			normal_texture = normal_texture.get_image()
-			normal_texture.bump_map_to_normal_map()
-			normal_texture = ImageTexture.create_from_image(normal_texture)
-			normal = albedo.replace('.png', '_normal.png')
-			ResourceSaver.save(normal_texture, normal)
-		
-		# Set material textures
-		if albedo != '':
-			mat.albedo_texture = load(albedo)
-		if normal != '':
-			mat.normal_enabled = true
-			mat.normal_texture = load(normal)
-		if ao != '':
-			mat.ao_enabled = true
-			mat.ao_texture = load(ao)
-	
-	# For the list of textures in the asset resource we only keep albedo textures
-	# Normal/AO maps should not change I think
-	if textures.has('normal'):
-		textures.erase("normal")
-	if textures.has('ao'):
-		textures.erase('ao')
-		
-	var mat_path = path.path_join(path.get_file() + '_material.res')
-	ResourceSaver.save(mat, mat_path)
+#func _generate_material(path: String, textures: Dictionary) -> void:
+	## Create material
+	#print('Generating material for ' + path.get_file())
+	#var mat = StandardMaterial3D.new()
+	#mat.cull_mode = BaseMaterial3D.CULL_BACK
+	#if asset_type == AssetType.BodyPart:
+		#if 'eyelash' in path.to_lower() or 'eyebrow' in path.to_lower() or 'hair' in path.to_lower():
+			#mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
+			#mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+			#mat.specular_mode = BaseMaterial3D.SPECULAR_DISABLED
+			#mat.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT_WRAP
+	#
+	#if textures.size() > 0:
+		#var albedo := ''
+		#var normal := ''
+		#var ao := ''
+		#for t in textures:
+			#if t == 'normal':
+				#normal = textures[t]
+			#elif t == 'ao':
+				#ao = textures[t]
+			#elif albedo == '' and t != 'overlay': # Get first albedo as default
+				#albedo = textures[t]
+#
+		## Create normal map from albedo as bump map for eyebrows
+		#if 'eyebrow' in path.to_lower() and normal == '':
+			#print('Generating normal')
+			#var normal_texture = load(albedo) as Texture2D
+			#normal_texture = normal_texture.get_image()
+			#normal_texture.bump_map_to_normal_map()
+			#normal_texture = ImageTexture.create_from_image(normal_texture)
+			#normal = albedo.replace('.png', '_normal.png')
+			#ResourceSaver.save(normal_texture, normal)
+		#
+		## Set material textures
+		#if albedo != '':
+			#mat.albedo_texture = load(albedo)
+		#if normal != '':
+			#mat.normal_enabled = true
+			#mat.normal_texture = load(normal)
+		#if ao != '':
+			#mat.ao_enabled = true
+			#mat.ao_texture = load(ao)
+	#
+	## For the list of textures in the asset resource we only keep albedo textures
+	## Normal/AO maps should not change I think
+	#if textures.has('normal'):
+		#textures.erase("normal")
+	#if textures.has('ao'):
+		#textures.erase('ao')
+		#
+	#var mat_path = path.path_join(path.get_file() + '_material.res')
+	#ResourceSaver.save(mat, mat_path)
 
 func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	# Build resource object
@@ -168,10 +174,10 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	resource.resource_name = data.mhclo.resource_name
 	print('Importing asset ' + resource.resource_name)
 	#
-	resource.textures = data.textures.duplicate()
-	if data.textures.has('overlay'):
-		resource.default_overlay = HumanizerOverlay.from_dict(data.textures.overlay)
-		resource.textures.erase('overlay')
+	resource.textures = data.materials
+	if data.has('overlay'):
+		resource.default_overlay = HumanizerOverlay.from_dict(data.overlay)
+		#resource.textures.erase('overlay')
 		HumanizerRegistry.overlays[resource.resource_name] = resource.default_overlay
 	#
 	# Set slot(s)

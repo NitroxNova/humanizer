@@ -14,11 +14,11 @@ func _ready():
 	config.targets['gender'] = 0.0
 	config.targets['age'] = .25
 	config.init_macros()
-	config.eye_color = Color.YELLOW
+	config.eye_color = Color.GREEN
 	config.hair_color = Color.PURPLE
 	config.eyebrow_color = Color(\"550055\")
 	config.rig = HumanizerGlobalConfig.config.default_skeleton
-	config.add_equipment(HumanizerEquipment.new(\"DefaultBody\",\"young_caucasian_female2_diffuse\"))
+	config.add_equipment(HumanizerEquipment.new(\"DefaultBody\",\"young_caucasian_female2\"))
 	config.add_equipment(HumanizerEquipment.new(\"SkinnyJeans\"))
 	config.add_equipment(shirt)
 	config.add_equipment(HumanizerEquipment.new(\"Shoes02\"))
@@ -29,7 +29,12 @@ func _ready():
 	config.add_equipment(HumanizerEquipment.new(\"LeftEyebrow-002\"))
 	config.add_equipment(HumanizerEquipment.new(\"RightEyelash\"))
 	config.add_equipment(HumanizerEquipment.new(\"LeftEyelash\"))
-	humanizer = Humanizer.new(config)
+	humanizer = await Humanizer.new(config)
+	await Signal(humanizer,\"done_initializing\")
+	on_materials_ready()
+	#humanizer.done_processing.connect(on_materials_ready)
+
+func on_materials_ready():
 	var char = humanizer.get_CharacterBody3D(false) ## can bake character here by setting argument to true
 	add_child(char)
 	HumanizerUtils.set_node_owner(char,self)

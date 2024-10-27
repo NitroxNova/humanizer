@@ -11,7 +11,8 @@ extends Resource
 
 static func from_material(material: StandardMaterial3D) -> HumanizerOverlay:
 	var dict = {}
-	dict.albedo = material.albedo_texture.resource_path
+	if material.albedo_texture != null:
+		dict.albedo = material.albedo_texture.resource_path
 	if material.albedo_color != Color.WHITE:
 		dict.color = material.albedo_color
 	if material.normal_enabled and material.normal_texture != null:

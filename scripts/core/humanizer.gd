@@ -8,6 +8,8 @@ var mesh_arrays : Dictionary = {}
 var materials: Dictionary = {}
 var rig: HumanizerRig 
 var skeleton_data : Dictionary = {} #bone names with parent, position and rotation data
+#var threads : Array[Thread] = []
+signal done_initializing
 
 func _init(_human_config = null):
 	if _human_config == null:
@@ -22,11 +24,32 @@ func _init(_human_config = null):
 	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
 	for equip in human_config.equipment.values():
 		mesh_arrays[equip.type] = HumanizerEquipmentService.load_mesh_arrays(equip.get_type())
-		init_equipment_material(equip)
+		#var material_thread = new_thread()
+		#material_thread.start(Callable(init_equipment_material).bind(equip))
+		#call_deferred("thread_cleanup",material_thread)
+		await init_equipment_material(equip)
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
+	done_initializing.emit()
+
+##TODO figure out why making threads for the materials causes it to freeze (only in the editor, works fine in game)
+#func new_thread():
+	#var thread = Thread.new()
+	#threads.append(thread)
+	#return thread
+#
+#func thread_cleanup(thread:Thread):
+	#print("thread cleanup")
+	#await thread.wait_to_finish()
+	#print("thread finished")
+	#threads.erase(thread)
+	#if threads.size() == 0:
+		#print("done processing")
+		#done_processing.emit()
+	
 
 func get_CharacterBody3D(baked:bool):
+	#print("getting character 3D")
 	hide_clothes_vertices()
 	var human = CharacterBody3D.new()
 	human.set_script(load("res://addons/humanizer/scripts/utils/human_controller.gd"))
@@ -62,6 +85,7 @@ func get_combined_meshes() -> ArrayMesh:
 		if not new_arrays.is_empty():
 			new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays)
 			var surface_id = new_mesh.get_surface_count()-1
+			#print(materials[equip_name])
 			new_mesh.surface_set_material(surface_id,materials[equip_name])
 			new_mesh.surface_set_name(surface_id,equip_name)	
 	return new_mesh
@@ -134,36 +158,23 @@ func set_eyebrow_color(color:Color):
 	var slots = ["LeftEyebrow","RightEyebrow","Eyebrows"]
 	for eyebrow_equip in human_config.get_equipment_in_slots(slots):
 		materials[eyebrow_equip.type].albedo_color = color
-		
-func init_equipment_material(equipment:HumanizerEquipment):
-	var equip_type = equipment.get_type()
-	materials[equipment.type] = load(equip_type.material_path).duplicate()
-	materials[equipment.type].resource_local_to_scene = true
-	set_equipment_material(equipment,equipment.texture_name)
 
-func set_equipment_material(equipment:HumanizerEquipment, texture: String)-> void:
-	var equip_type = equipment.get_type()
-	equipment.texture_name = texture
-	var material = materials[equipment.type]
-	var mat_config: HumanizerMaterial = equipment.material_config
-	if mat_config != null:
-		if texture in equip_type.textures:
-			mat_config.overlays[0].albedo_texture_path = equip_type.textures[texture]
-		else:
-			mat_config.overlays[0].albedo_texture_path = ""
-	elif texture not in equip_type.textures:
-		material.albedo_texture = null
+func init_equipment_material(equip:HumanizerEquipment): #called from thread
+	#print("initializing equipment")
+	var equip_type = equip.get_type()
+	var material : StandardMaterial3D
+	if equip.texture_name in equip_type.textures:
+		material = load(equip_type.textures[equip.texture_name]).duplicate()
 	else:
-		material.albedo_texture = load(equip_type.textures[texture])
-		
-	if equip_type.in_slot(["Hair"]):
-		material.albedo_color = human_config.hair_color
-	elif equip_type.in_slot(["LeftEyebrow","RightEyebrow"]):
-		material.albedo_color = human_config.eyebrow_color
-	if mat_config != null:
-		mat_config.update_standard_material_3D(material)
+		material = StandardMaterial3D.new()
+	material = await equip.material_config.update_standard_material_3D(material)
+	materials[equip.type] = material
 
-func update_materials(): # not normally needed, use this if generated humans arent updating textures properly (was an issue in the stress test - has something to do with threads)
+func set_equipment_material(equip:HumanizerEquipment, material_name: String)-> void:
+	equip.set_material(material_name)	
+	await init_equipment_material(equip)
+
+func force_update_materials(): # not normally needed, use this if generated humans arent updating textures properly (was an issue in the stress test - has something to do with threads)
 	for equip in human_config.equipment.values():
 		if equip.material_config != null:
 			await RenderingServer.frame_post_draw	
@@ -194,8 +205,8 @@ func add_equipment(equip:HumanizerEquipment):
 	if equip_type.rigged:
 		HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip_type.resource_name], skeleton_data)
 	update_equipment_weights(equip_type.resource_name)
-	init_equipment_material(equip)
-	
+	await init_equipment_material(equip)
+
 func remove_equipment(equip:HumanizerEquipment):
 	human_config.remove_equipment(equip)
 	var equip_type = equip.get_type()

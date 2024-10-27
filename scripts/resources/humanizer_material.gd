@@ -11,7 +11,7 @@ var albedo_texture: Texture2D
 var normal_texture: Texture2D
 var ao_texture: Texture2D
 
-func update_standard_material_3D(mat:StandardMaterial3D,update_textures=true) -> void:
+func update_standard_material_3D(mat:StandardMaterial3D,update_textures=true) -> StandardMaterial3D:
 	if overlays.size() == 1:
 		mat.albedo_color = overlays[0].color
 		if not overlays[0].albedo_texture_path in ["",null]:
@@ -35,6 +35,8 @@ func update_standard_material_3D(mat:StandardMaterial3D,update_textures=true) ->
 		mat.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, albedo_texture)
 		mat.set_texture(BaseMaterial3D.TEXTURE_NORMAL, normal_texture)
 		mat.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, ao_texture)
+		#print(mat)
+	return mat
 	
 func update_material() -> void:
 	if overlays.size() <= 1:
@@ -73,7 +75,9 @@ func update_material() -> void:
 			set(texture + '_texture',null)
 		else:
 			image_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
-			await RenderingServer.frame_post_draw	
+			#if not image_vp.is_node_ready():
+				#await Signal(image_vp,"ready")
+			await RenderingServer.frame_post_draw
 			var image = image_vp.get_texture().get_image()
 			image.generate_mipmaps()
 			set(texture + '_texture', ImageTexture.create_from_image(image))

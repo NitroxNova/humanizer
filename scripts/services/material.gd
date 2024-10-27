@@ -1,0 +1,44 @@
+extends Resource
+class_name HumanizerMaterialService
+
+static func mhmat_to_material(path:String)->StandardMaterial3D:
+	var material = StandardMaterial3D.new()
+	var file = FileAccess.open(path,FileAccess.READ)
+	while file.get_position() < file.get_length():
+		var line :String = file.get_line()
+		if line.begins_with("name "):
+			material.resource_name = line.split(" ",false,1)[1]
+		elif line.begins_with("diffuseColor "):
+			var color_f = line.split_floats(" ",false)
+			var color = Color(color_f[1],color_f[2],color_f[3])
+			material.albedo_color = color
+		elif line.begins_with("shininess "):
+			material.roughness = 1-(line.split_floats(" ",false)[1]*.5) 
+		elif line.begins_with("transparent "):
+			if line.split(" ")[1] == "True":
+				material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
+		elif line.begins_with("backfaceCull "):
+			if line.split(" ")[1] == "False":
+				material.cull_mode = BaseMaterial3D.CULL_DISABLED
+		elif line.begins_with("diffuseTexture "):
+			var diffuse_path = line.split(" ")[1].strip_edges()
+			diffuse_path = path.get_base_dir().path_join(diffuse_path)
+			material.albedo_texture = load(diffuse_path)
+		elif line.begins_with("normalmapTexture "):
+			var diffuse_path = line.split(" ")[1].strip_edges()
+			diffuse_path = path.get_base_dir().path_join(diffuse_path)
+			material.normal_texture = load(diffuse_path)
+			material.normal_enabled = true
+		elif line.begins_with("aomapTexture "):
+			var ao_path = line.split(" ")[1].strip_edges()
+			ao_path = path.get_base_dir().path_join(ao_path)
+			material.ao_texture = load(ao_path)
+			material.normal_enabled = true
+		elif line.begins_with("normalmapIntensity "):
+			material.normal_scale = line.split_floats(" ",false,)[1]
+		elif line.begins_with("aomapIntensity "):
+			material.normal_scale = line.split_floats(" ",false,)[1]
+		elif line.begins_with("shaderConfig "):
+			pass
+	return material
+	
