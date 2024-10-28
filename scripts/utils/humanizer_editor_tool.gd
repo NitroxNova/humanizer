@@ -622,8 +622,7 @@ func set_rig(rig_name: String) -> void:
 		
 	humanizer.set_rig(rig_name)
 	init_rig()
-			
-	#_adjust_skeleton()
+	update_bone_weights()
 
 func _adjust_skeleton() -> void:
 	if skeleton == null:
@@ -631,9 +630,16 @@ func _adjust_skeleton() -> void:
 	skeleton.reset_bone_poses()
 	humanizer.adjust_skeleton(skeleton)	
 	skeleton.reset_bone_poses()
+	update_skeleton_skins()
+	
+func update_skeleton_skins():
 	for child in get_children():
 		if child is MeshInstance3D:
 			child.skin = skeleton.create_skin_from_rest_transforms()
+
+func update_bone_weights():
+	for equip in human_config.equipment.values():
+		_add_bone_weights(equip)	
 		
 func _add_bone_weights(asset: HumanizerEquipment) -> void:
 	var equip_type = asset.get_type()
