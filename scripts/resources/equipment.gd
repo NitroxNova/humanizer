@@ -36,6 +36,7 @@ func set_material(material_name:String):
 		material = load(equip_type.textures[material_name])
 	else:
 		material = StandardMaterial3D.new()
+	material_config.base_material_path = equip_type.textures[material_name]
 	material_config.overlays[0] = HumanizerOverlay.from_material(material)
 	texture_name = material_name
 		

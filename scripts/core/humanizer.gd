@@ -11,7 +11,11 @@ var skeleton_data : Dictionary = {} #bone names with parent, position and rotati
 #var threads : Array[Thread] = []
 signal done_initializing
 
-func _init(_human_config = null):
+func load_config(_human_config):
+	materials = {}
+	mesh_arrays = {}
+	skeleton_data = {}
+	rig = null
 	if _human_config == null:
 		human_config = HumanConfig.new()
 		human_config.init_macros()
@@ -27,10 +31,15 @@ func _init(_human_config = null):
 		#var material_thread = new_thread()
 		#material_thread.start(Callable(init_equipment_material).bind(equip))
 		#call_deferred("thread_cleanup",material_thread)
-		await init_equipment_material(equip)
+		init_equipment_material(equip)
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
-	done_initializing.emit()
+
+
+func check_if_done_initializing():
+	if human_config.equipment.size() == materials.size():
+		print("done initializing")
+		done_initializing.emit()
 
 ##TODO figure out why making threads for the materials causes it to freeze (only in the editor, works fine in game)
 #func new_thread():
@@ -49,7 +58,6 @@ func _init(_human_config = null):
 	
 
 func get_CharacterBody3D(baked:bool):
-	#print("getting character 3D")
 	hide_clothes_vertices()
 	var human = CharacterBody3D.new()
 	human.set_script(load("res://addons/humanizer/scripts/utils/human_controller.gd"))
@@ -79,15 +87,15 @@ func get_CharacterBody3D(baked:bool):
 	return human
 
 func get_combined_meshes() -> ArrayMesh:
+	#print("getting combined meshes")
 	var new_mesh = ArrayMesh.new()
 	for equip_name in mesh_arrays:
 		var new_arrays = get_mesh_arrays(equip_name)
 		if not new_arrays.is_empty():
 			new_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,new_arrays)
 			var surface_id = new_mesh.get_surface_count()-1
-			#print(materials[equip_name])
 			new_mesh.surface_set_material(surface_id,materials[equip_name])
-			new_mesh.surface_set_name(surface_id,equip_name)	
+			new_mesh.surface_set_name(surface_id,equip_name)
 	return new_mesh
 	
 func get_animation_tree():
@@ -167,8 +175,9 @@ func init_equipment_material(equip:HumanizerEquipment): #called from thread
 		material = load(equip_type.textures[equip.texture_name]).duplicate()
 	else:
 		material = StandardMaterial3D.new()
-	material = await equip.material_config.update_standard_material_3D(material)
+	material = await equip.material_config.generate_material_3D()
 	materials[equip.type] = material
+	check_if_done_initializing()
 
 func set_equipment_material(equip:HumanizerEquipment, material_name: String)-> void:
 	equip.set_material(material_name)	
@@ -190,6 +199,7 @@ func get_mesh(mesh_name:String):
 	return mesh
 
 func get_mesh_arrays(mesh_name:String) -> Array: # generate normals/tangents, without the cutom0
+	#print("getting mesh arrays")
 	var new_arrays = mesh_arrays[mesh_name].duplicate()
 	new_arrays[Mesh.ARRAY_CUSTOM0] = null
 	if new_arrays[Mesh.ARRAY_INDEX].is_empty():

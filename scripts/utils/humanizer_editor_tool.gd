@@ -4,7 +4,7 @@ extends Node3D
 
 ## editor tool for creating new humans
 
-var humanizer : Humanizer
+var humanizer := Humanizer.new()
 var skeleton: Skeleton3D
 var baked := false
 var bake_in_progress := false
@@ -74,7 +74,6 @@ var morph_data := {}
 @export_flags_3d_physics var _ragdoll_layers = HumanizerGlobalConfig.config.default_physical_bone_layers
 ## The physics layers the physical bones collide with
 @export_flags_3d_physics var _ragdoll_mask = HumanizerGlobalConfig.config.default_physical_bone_mask
-
 
 func _ready() -> void:
 	for child in get_children():
@@ -147,10 +146,10 @@ func reset_scene() -> void:
 func load_human() -> void:
 	#print("loading human")
 	baked = false
-	var new_humanizer = await Humanizer.new(human_config)
-	#humanizer.done_processing.connect(config_done_processing)
-	await Signal(new_humanizer,"done_initializing")
-	humanizer = new_humanizer
+	humanizer.done_initializing.connect(_humanizer_done_initializing,4) #only call once so it doesnt update everytime a material changes
+	humanizer.load_config(human_config)
+	
+func _humanizer_done_initializing():
 	reset_scene()
 	_deserialize()
 	notify_property_list_changed()
@@ -158,7 +157,6 @@ func load_human() -> void:
 func create_human_branch() -> Node3D:
 	#_adjust_skeleton()
 	var new_mesh = _combine_meshes()
-
 	var root_node: Node
 	var script: String
 	if _baked_root_node == 'StaticBody3D':
@@ -334,6 +332,7 @@ func init_equipment(equip: HumanizerEquipment) -> void:
 	notify_property_list_changed()
 
 func add_equipment(equip: HumanizerEquipment) -> void:
+	#print("Adding equipment")
 	if baked:
 		push_warning("Can't change equipment.  Already baked")
 		notify_property_list_changed()
@@ -345,9 +344,8 @@ func add_equipment(equip: HumanizerEquipment) -> void:
 	await humanizer.add_equipment(equip)	
 	init_equipment(equip)
 	
-	
-	
 func remove_equipment(equip: HumanizerEquipment) -> void:
+	#print("removing equipment")
 	if baked:
 		push_warning("Can't change equipment.  Already baked")
 		notify_property_list_changed()
@@ -580,22 +578,6 @@ func set_equipment_material(equip:HumanizerEquipment, texture: String) -> void:
 	get_node(equip.type).set_surface_override_material(0,humanizer.materials[equip.type])
 	notify_property_list_changed()
 	
-func _setup_overlay_material(asset: HumanizerEquipmentType, existing_config: HumanizerMaterial = null) -> void:
-	var mi: MeshInstance3D = get_node(asset.resource_name)
-	mi.set_script(load("res://addons/humanizer/scripts/core/humanizer_mesh_instance.gd"))
-	if existing_config != null:
-		mi.material_config = existing_config
-		return
-	mi.material_config = HumanizerMaterial.new()
-	var overlay_dict = {'albedo': asset.textures.values()[0]}
-	if mi.get_surface_override_material(0).normal_texture != null:
-		overlay_dict['normal'] = mi.get_surface_override_material(0).normal_texture.resource_path
-	if mi.get_surface_override_material(0).ao_texture != null:
-		overlay_dict['ao'] = mi.get_surface_override_material(0).ao_texture.resource_path
-	var overlay = HumanizerOverlay.from_dict(overlay_dict)
-	mi.material_config.set_base_textures(HumanizerOverlay.from_dict(overlay_dict))
-	mi.material_config.add_overlay(asset.default_overlay.duplicate(true))
-
 func init_rig() -> void:
 	skeleton = humanizer.get_skeleton()
 	_add_child_node(skeleton)

@@ -7,48 +7,50 @@ signal on_material_updated
 const TEXTURE_LAYERS = ['albedo', 'normal', 'ao']
 
 @export var overlays: Array[HumanizerOverlay] = []
-var albedo_texture: Texture2D
-var normal_texture: Texture2D
-var ao_texture: Texture2D
+@export var base_material_path: String
 
-func update_standard_material_3D(mat:StandardMaterial3D,update_textures=true) -> StandardMaterial3D:
-	if overlays.size() == 1:
-		mat.albedo_color = overlays[0].color
+func generate_material_3D() -> StandardMaterial3D:
+	var material = StandardMaterial3D.new()
+	if FileAccess.file_exists(base_material_path):
+		material = load(base_material_path).duplicate() #dont want to overwrite base material values
+
+	if overlays.size() == 0:
+		pass
+	elif overlays.size() == 1:
+		material.albedo_color = overlays[0].color
 		if not overlays[0].albedo_texture_path in ["",null]:
-			mat.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, load(overlays[0].albedo_texture_path))
+			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, load(overlays[0].albedo_texture_path))
 		else:
-			mat.set_texture(BaseMaterial3D.TEXTURE_ALBEDO,null)
+			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO,null)
 		if overlays[0].normal_texture_path in ["",null]:
-			mat.normal_enabled = false
-			mat.set_texture(BaseMaterial3D.TEXTURE_NORMAL,null)
+			material.normal_enabled = false
+			material.set_texture(BaseMaterial3D.TEXTURE_NORMAL,null)
 		else:
-			mat.normal_enabled = true
-			mat.normal_scale = overlays[0].normal_strength
-			mat.set_texture(BaseMaterial3D.TEXTURE_NORMAL, load(overlays[0].normal_texture_path))
+			material.normal_enabled = true
+			material.normal_scale = overlays[0].normal_strength
+			material.set_texture(BaseMaterial3D.TEXTURE_NORMAL, load(overlays[0].normal_texture_path))
 		if not overlays[0].ao_texture_path in ["",null]:
-			mat.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, load(overlays[0].ao_texture_path))
+			material.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, load(overlays[0].ao_texture_path))
 	else:
-		if update_textures:
-			await update_material()
-		mat.normal_enabled = normal_texture != null
-		mat.ao_enabled = ao_texture != null
-		mat.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, albedo_texture)
-		mat.set_texture(BaseMaterial3D.TEXTURE_NORMAL, normal_texture)
-		mat.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, ao_texture)
-		#print(mat)
-	return mat
+		#print("more than 1 overlay")
+		var textures = await _update_material()
+		material.normal_enabled = textures.normal != null
+		material.ao_enabled = textures.ao != null
+		material.albedo_texture = textures.albedo
+		material.normal_texture = textures.normal
+		material.ao_texture = textures.ao
+	return material
 	
-func update_material() -> void:
+func _update_material() -> Dictionary:
+	var textures : Dictionary = {}
 	if overlays.size() <= 1:
-		return
-	
+		return textures
 	for texture in TEXTURE_LAYERS: #albedo, normal, ambient occulsion ect..
 		var texture_size = load(overlays[0].albedo_texture_path).get_size()
 		var image_vp = SubViewport.new()
 		
 		image_vp.size = texture_size
 		image_vp.transparent_bg = true
-		Engine.get_main_loop().get_root().add_child.call_deferred(image_vp)
 	
 
 		for overlay in overlays:
@@ -65,24 +67,27 @@ func update_material() -> void:
 			var im_tex_rect = TextureRect.new()
 			im_tex_rect.position = overlay.offset
 			im_tex_rect.texture = im_texture
+			#image_vp.call_deferred("add_child",im_tex_rect)
 			image_vp.add_child(im_tex_rect)
-
 			if texture == 'albedo':
 				#blend color with overlay texture and then copy to base image
 				im_tex_rect.modulate = overlay.color
 		
 		if image_vp.get_child_count() == 0:
-			set(texture + '_texture',null)
+			textures[texture] = null
 		else:
+			
+			Engine.get_main_loop().get_root().add_child.call_deferred(image_vp)
 			image_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
-			#if not image_vp.is_node_ready():
-				#await Signal(image_vp,"ready")
+			if not image_vp.is_inside_tree():
+				await Signal(image_vp,"tree_entered")
+			#await Signal(RenderingServer, "frame_post_draw")
 			await RenderingServer.frame_post_draw
 			var image = image_vp.get_texture().get_image()
 			image.generate_mipmaps()
-			set(texture + '_texture', ImageTexture.create_from_image(image))
+			textures[texture] = ImageTexture.create_from_image(image)
 		image_vp.queue_free()
-		on_material_updated.emit()
+	return textures
 
 
 func set_base_textures(overlay: HumanizerOverlay) -> void:
