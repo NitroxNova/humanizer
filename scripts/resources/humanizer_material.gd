@@ -46,7 +46,9 @@ func _update_material() -> Dictionary:
 	if overlays.size() <= 1:
 		return textures
 	for texture in TEXTURE_LAYERS: #albedo, normal, ambient occulsion ect..
-		var texture_size = load(overlays[0].albedo_texture_path).get_size()
+		var texture_size = Vector2(2**11,2**11)
+		if overlays[0].albedo_texture_path != "":
+			texture_size = load(overlays[0].albedo_texture_path).get_size()
 		var image_vp = SubViewport.new()
 		
 		image_vp.size = texture_size

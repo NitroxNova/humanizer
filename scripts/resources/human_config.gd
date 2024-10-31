@@ -37,6 +37,7 @@ signal equipment_removed(equip:HumanizerEquipment)
 
 @export var eyebrow_color: Color = Color("330000"):
 	set(value):
+		eyebrow_color = value
 		var slots: Array = [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows']
 		for equip in get_equipment_in_slots(slots):
 			equip.material_config.overlays[0].color = eyebrow_color

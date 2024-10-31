@@ -76,6 +76,7 @@ var morph_data := {}
 @export_flags_3d_physics var _ragdoll_mask = HumanizerGlobalConfig.config.default_physical_bone_mask
 
 func _ready() -> void:
+	humanizer.material_updated.connect(on_material_updated)
 	for child in get_children():
 		if child.name.begins_with('Baked-'):
 			baked = true
@@ -85,6 +86,10 @@ func _ready() -> void:
 	
 ## For use in character editor scenes where the character should be 
 ## continuously updated with every change
+
+func on_material_updated(equip):
+	#print("material updated " + equip.type)
+	get_node(equip.type).set_surface_override_material(0,humanizer.materials[equip.type])
 
 func reset():
 	#print("reseting")

@@ -10,6 +10,7 @@ var rig: HumanizerRig
 var skeleton_data : Dictionary = {} #bone names with parent, position and rotation data
 #var threads : Array[Thread] = []
 signal done_initializing
+signal material_updated
 
 func load_config(_human_config):
 	materials = {}
@@ -38,7 +39,7 @@ func load_config(_human_config):
 
 func check_if_done_initializing():
 	if human_config.equipment.size() == materials.size():
-		print("done initializing")
+		#print("done initializing")
 		done_initializing.emit()
 
 ##TODO figure out why making threads for the materials causes it to freeze (only in the editor, works fine in game)
@@ -146,14 +147,16 @@ func get_group_bake_arrays(group_name:String): #transparent, opaque or all
 func set_skin_color(color:Color):
 	human_config.skin_color = color
 	var body = human_config.get_equipment_in_slot("Body")
-	body.material_config.update_standard_material_3D(materials[body.type])
-
+	materials[body.type] = await body.material_config.generate_material_3D()
+	material_updated.emit(body)
+	
 func set_eye_color(color:Color):
 	human_config.eye_color = color
 	var slots = ["LeftEye","RightEye","Eyes"]
 	for equip in human_config.get_equipment_in_slots(slots):
-		equip.material_config.update_standard_material_3D(materials[equip.type])
-
+		materials[equip.type] = await equip.material_config.generate_material_3D()
+		material_updated.emit(equip)
+		
 func set_hair_color(color:Color):
 	human_config.hair_color = color
 	var hair_equip = human_config.get_equipment_in_slot("Hair")
@@ -166,6 +169,7 @@ func set_eyebrow_color(color:Color):
 	var slots = ["LeftEyebrow","RightEyebrow","Eyebrows"]
 	for eyebrow_equip in human_config.get_equipment_in_slots(slots):
 		materials[eyebrow_equip.type].albedo_color = color
+		material_updated.emit(eyebrow_equip)
 
 func init_equipment_material(equip:HumanizerEquipment): #called from thread
 	#print("initializing equipment")
@@ -177,6 +181,7 @@ func init_equipment_material(equip:HumanizerEquipment): #called from thread
 		material = StandardMaterial3D.new()
 	material = await equip.material_config.generate_material_3D()
 	materials[equip.type] = material
+	material_updated.emit(equip)
 	check_if_done_initializing()
 
 func set_equipment_material(equip:HumanizerEquipment, material_name: String)-> void:
