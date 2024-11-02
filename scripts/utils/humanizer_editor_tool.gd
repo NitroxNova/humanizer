@@ -89,7 +89,8 @@ func _ready() -> void:
 
 func on_material_updated(equip):
 	#print("material updated " + equip.type)
-	get_node(equip.type).set_surface_override_material(0,humanizer.materials[equip.type])
+	if has_node(equip.type): #otherwise it will load with the correct texture
+		get_node(equip.type).set_surface_override_material(0,humanizer.materials[equip.type])
 
 func reset():
 	#print("reseting")

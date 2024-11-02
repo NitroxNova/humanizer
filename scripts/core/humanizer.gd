@@ -174,18 +174,12 @@ func set_eyebrow_color(color:Color):
 func init_equipment_material(equip:HumanizerEquipment): #called from thread
 	#print("initializing equipment")
 	var equip_type = equip.get_type()
-	var material : StandardMaterial3D
-	if equip.texture_name in equip_type.textures:
-		material = load(equip_type.textures[equip.texture_name]).duplicate()
-	else:
-		material = StandardMaterial3D.new()
-	material = await equip.material_config.generate_material_3D()
-	materials[equip.type] = material
+	materials[equip.type] = await equip.material_config.generate_material_3D()
 	material_updated.emit(equip)
 	check_if_done_initializing()
 
 func set_equipment_material(equip:HumanizerEquipment, material_name: String)-> void:
-	equip.set_material(material_name)	
+	human_config.set_equipment_material(equip,material_name)	
 	await init_equipment_material(equip)
 
 func force_update_materials(): # not normally needed, use this if generated humans arent updating textures properly (was an issue in the stress test - has something to do with threads)
