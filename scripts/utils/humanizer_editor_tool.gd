@@ -152,10 +152,7 @@ func reset_scene() -> void:
 func load_human() -> void:
 	#print("loading human")
 	baked = false
-	humanizer.done_initializing.connect(_humanizer_done_initializing,4) #only call once so it doesnt update everytime a material changes
-	humanizer.load_config(human_config)
-	
-func _humanizer_done_initializing():
+	await humanizer.load_config(human_config)
 	reset_scene()
 	_deserialize()
 	notify_property_list_changed()

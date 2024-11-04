@@ -7,7 +7,7 @@ signal on_material_updated
 const TEXTURE_LAYERS = ['albedo', 'normal', 'ao']
 
 @export var overlays: Array[HumanizerOverlay] = []
-@export var base_material_path: String
+@export_file var base_material_path: String
 
 func generate_material_3D() -> StandardMaterial3D:
 	var material = StandardMaterial3D.new()

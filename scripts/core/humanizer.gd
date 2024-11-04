@@ -8,8 +8,6 @@ var mesh_arrays : Dictionary = {}
 var materials: Dictionary = {}
 var rig: HumanizerRig 
 var skeleton_data : Dictionary = {} #bone names with parent, position and rotation data
-#var threads : Array[Thread] = []
-signal done_initializing
 signal material_updated
 
 func load_config(_human_config):
@@ -29,34 +27,9 @@ func load_config(_human_config):
 	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
 	for equip in human_config.equipment.values():
 		mesh_arrays[equip.type] = HumanizerEquipmentService.load_mesh_arrays(equip.get_type())
-		#var material_thread = new_thread()
-		#material_thread.start(Callable(init_equipment_material).bind(equip))
-		#call_deferred("thread_cleanup",material_thread)
-		init_equipment_material(equip)
+		await init_equipment_material(equip)
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
-
-
-func check_if_done_initializing():
-	if human_config.equipment.size() == materials.size():
-		#print("done initializing")
-		done_initializing.emit()
-
-##TODO figure out why making threads for the materials causes it to freeze (only in the editor, works fine in game)
-#func new_thread():
-	#var thread = Thread.new()
-	#threads.append(thread)
-	#return thread
-#
-#func thread_cleanup(thread:Thread):
-	#print("thread cleanup")
-	#await thread.wait_to_finish()
-	#print("thread finished")
-	#threads.erase(thread)
-	#if threads.size() == 0:
-		#print("done processing")
-		#done_processing.emit()
-	
 
 func get_CharacterBody3D(baked:bool):
 	hide_clothes_vertices()
@@ -176,7 +149,6 @@ func init_equipment_material(equip:HumanizerEquipment): #called from thread
 	var equip_type = equip.get_type()
 	materials[equip.type] = await equip.material_config.generate_material_3D()
 	material_updated.emit(equip)
-	check_if_done_initializing()
 
 func set_equipment_material(equip:HumanizerEquipment, material_name: String)-> void:
 	human_config.set_equipment_material(equip,material_name)	

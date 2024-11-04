@@ -35,7 +35,7 @@ func thread_cleanup():
 	for thread in threads:
 		if thread.is_started() and not thread.is_alive():
 			var character3d = thread.wait_to_finish()
-			print(character3d)
+			#print(character3d)
 			add_child(character3d)
 			character3d.global_position = pos
 			character3d.camera = $Camera3D
@@ -69,35 +69,6 @@ func _process(delta) -> void:
 		var thread = new_thread()
 		thread.start(_generate_human.bind(thread))
 	
-		#
-	#if thread.is_alive() or done_generating == false:
-		#return
-	#elif new_human != null:
-		#print(\"adding human\")
-		#add_child(new_human)
-		#new_human.global_position = pos
-		#new_human.camera = $Camera3D
-		#
-		#pos.x += 1
-		#if pos.x > 15.5:
-			#pos.z += 1
-			#pos.x = 0
-		#n_humans += 1
-		#$UI/humans.text = str(n_humans)
-		#print(\"New human took \" + str((Time.get_ticks_msec() - t0) / 1000) + ' seconds')
-		#new_human = null
-		#
-	#if fps < 55:
-		#return
-	#
-	#if thread.is_started():
-		#thread.wait_to_finish()
-	#
-	#if generating and new_human == null:
-		#done_generating = false
-		#t0 = Time.get_ticks_msec()
-		#thread.start(_generate_human)
-	
 func _generate_human(thread:Thread):
 	print('starting new human')
 	var human_config = HumanConfig.new()
@@ -110,29 +81,10 @@ func _generate_human(thread:Thread):
 	randomizer.randomize_clothes()
 	randomizer.randomize_shapekeys()
 	human_config.init_macros()
-	#human_config.rig = HumanizerGlobalConfig.config.default_skeleton
-	#human_config.add_equipment(HumanizerEquipment.new(\"DefaultBody\"))
-	#human_config.add_equipment(HumanizerEquipment.new(\"RightEyeball-LowPoly\"))
-	#human_config.add_equipment(HumanizerEquipment.new(\"LeftEyeBall-LowPoly\"))
-	var second_thread = Thread.new()
 	var humanizer = Humanizer.new()
-	#humanizers.append(humanizer)
-	#return humanizer
-	#humanizer.done_initializing.connect(human_done_initializing.bind(humanizer)) 
 	humanizer.load_config(human_config)
-	#await Signal(humanizer,\"done_initializing\")
-
-#func human_done_initializing(humanizer):
-	print(\"human done initializing\")
-	#await RenderingServer.frame_post_draw
 	var new_human = humanizer.get_CharacterBody3D(false)
-	
 	return new_human
-	#humanizers.erase(humanizer)
-	#print(\"adding child\")
-	#print(new_human)
-	#add_child.call_deferred(new_human)
-	#thread_cleanup.call_deferred(thread)
 "
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_vyou0"]

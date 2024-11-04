@@ -65,7 +65,8 @@ func init_macros():
 func _handle_color_overrides(equip:HumanizerEquipment):
 	var equip_type = equip.get_type()
 	if equip_type.in_slot(["LeftEye","RightEye","Eyes"]):
-		equip.material_config.overlays[1].color = eye_color
+		if equip.material_config.overlays.size() > 1:
+			equip.material_config.overlays[1].color = eye_color
 	elif equip_type.in_slot(["Body"]):
 		equip.material_config.overlays[0].color = skin_color
 	elif equip_type.in_slot(["Hair"]):

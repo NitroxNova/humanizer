@@ -29,11 +29,7 @@ func _ready():
 	config.add_equipment(HumanizerEquipment.new(\"LeftEyebrow-002\"))
 	config.add_equipment(HumanizerEquipment.new(\"RightEyelash\"))
 	config.add_equipment(HumanizerEquipment.new(\"LeftEyelash\"))
-	humanizer.done_initializing.connect(on_materials_ready,4)
-	humanizer.load_config(config)
-
-func on_materials_ready():
-	print(\"humanizer done loading\")
+	await humanizer.load_config(config)
 	var char = humanizer.get_CharacterBody3D(false) ## can bake character here by setting argument to true
 	add_child(char)
 	HumanizerUtils.set_node_owner(char,self)
