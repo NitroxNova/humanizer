@@ -29,6 +29,15 @@ static func mhmat_to_material(path:String)->StandardMaterial3D:
 			diffuse_path = path.get_base_dir().path_join(diffuse_path)
 			material.normal_texture = load(diffuse_path)
 			material.normal_enabled = true
+		elif line.begins_with("bumpTexture "):
+			var bump_path = line.split(" ")[1].strip_edges()
+			bump_path = path.get_base_dir().path_join(bump_path)
+			var normal_texture : Image = load(bump_path).get_image()
+			normal_texture.bump_map_to_normal_map()
+			bump_path = bump_path.replace('.png', '_normal.png')
+			normal_texture.save_png( bump_path)
+			material.normal_texture = load(bump_path)
+			material.normal_enabled = true
 		elif line.begins_with("aomapTexture "):
 			var ao_path = line.split(" ")[1].strip_edges()
 			ao_path = path.get_base_dir().path_join(ao_path)
