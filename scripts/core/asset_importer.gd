@@ -36,6 +36,8 @@ func run(clean_only: bool = false) -> void:
 				_clean_recursive(dir)
 				if not clean_only:
 					_scan_recursive(dir)
+	print("Reloading Registry")
+	HumanizerRegistry.load_all()
 	print('Done')
 	
 func _clean_recursive(path: String) -> void:
