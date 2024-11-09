@@ -1,6 +1,8 @@
 @tool
 class_name ClothesInspector
-extends MarginContainer
+extends ScrollContainer
+
+@export var category = ""
 
 static var visible_setting := false
 
@@ -19,7 +21,7 @@ func _ready() -> void:
 	visibility_changed.connect(_set_visibility)
 	build_grid()
 	await get_tree().process_frame
-	for slot in HumanizerGlobalConfig.config.clothing_slots:
+	for slot in HumanizerGlobalConfig.config.get(category+"_slots"):
 		asset_option_buttons[slot] = get_node('%' + slot + 'OptionButton')
 		material_option_buttons[slot] = get_node('%' + slot + 'TextureOptionButton')
 		
@@ -34,7 +36,9 @@ func _ready() -> void:
 		
 		options.add_item('None')
 		for asset in HumanizerRegistry.equipment.values():
-			if slot+"Clothes" in asset.slots:
+			if category=="clothing" and slot+"Clothes" in asset.slots:
+				options.add_item(asset.resource_name)
+			elif slot in asset.slots:
 				options.add_item(asset.resource_name)
 	
 	if config != null:
@@ -45,8 +49,10 @@ func _set_visibility() -> void:
 	visible_setting = visible
 
 func build_grid() -> void:
-	var grid = get_node('%GridContainer')
-	for slot in HumanizerGlobalConfig.config.clothing_slots:
+	var grid = find_child('GridContainer')
+	for child in grid.get_children():
+		grid.remove_child(child)
+	for slot in HumanizerGlobalConfig.config.get(category+"_slots"):
 		var label = Label.new()
 		label.text = slot
 		grid.add_child(label)
@@ -72,8 +78,12 @@ func build_grid() -> void:
 		child.owner = self
 		
 func fill_table(config: HumanConfig) -> void:
-	for slot in HumanizerGlobalConfig.config.clothing_slots:
-		var clothes_slot = slot+"Clothes"
+	for slot in HumanizerGlobalConfig.config.get(category+"_slots"):
+		var clothes_slot
+		if category == "clothing":
+			clothes_slot = slot+"Clothes"
+		else:
+			clothes_slot = slot
 		var clothes = config.get_equipment_in_slot(clothes_slot)
 		if clothes != null:
 			var options = asset_option_buttons[slot] as OptionButton

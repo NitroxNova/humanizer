@@ -64,12 +64,15 @@ func _parse_category(human, category):
 	scene.get_node('%UnHideClothesVerticesButton').pressed.connect(human.unhide_clothes_vertices)
 	
 	# BodyParts inspector
-	var bp_container = scene.get_node('%BodyPartsContainer') as BodyPartsInspector
+	var bp_container = scene.get_node('%BodyPartsContainer') as ClothesInspector
 	scene.get_node('%BodyPartsButton').pressed.connect(func(): bp_container.visible = not bp_container.visible)
 	bp_container.visible = bp_container.visible_setting
-	bp_container.body_part_changed.connect(func(bp): human.add_equipment_type(bp))
-	bp_container.body_slot_cleared.connect(func(slot): human.remove_equipment_in_slot(slot))
-	bp_container.material_set.connect(func(slot, idx): human.set_equipment_texture_by_slot(slot, idx))
+	bp_container.clothes_changed.connect(func(cl): human.add_equipment_type(cl))
+	bp_container.clothes_cleared.connect(func(sl): human.remove_equipment_in_slot(sl))
+	bp_container.material_set.connect(func(cl, idx): human.set_equipment_texture_by_name(cl, idx))
+	
+	
+	
 	bp_container.config = human.human_config
 
 	# Clothes inspector

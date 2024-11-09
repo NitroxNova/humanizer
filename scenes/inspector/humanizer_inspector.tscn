@@ -1,8 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://bjevkufa7lstr"]
+[gd_scene load_steps=6 format=3 uid="uid://bjevkufa7lstr"]
 
 [ext_resource type="Theme" uid="uid://ckdypew3dhoqq" path="res://addons/humanizer/data/resources/humanizer_inspector_theme.tres" id="1_i577l"]
-[ext_resource type="PackedScene" uid="uid://btqkb1j3i8dm2" path="res://addons/humanizer/scenes/inspector/body_parts_inspector_container.tscn" id="2_cyqhb"]
-[ext_resource type="PackedScene" uid="uid://bjun3ufto0k57" path="res://addons/humanizer/scenes/inspector/clothes_inspector_container.tscn" id="3_tceog"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/inspector/clothes_inspector.gd" id="3_wse4b"]
 
 [sub_resource type="GDScript" id="GDScript_s6oci"]
 script/source = "@tool
@@ -257,11 +256,11 @@ tooltip_text = "Skin texture selector"
 selected = 0
 item_count = 4
 popup/item_0/text = "None"
-popup/item_1/text = "skin_male_african_middleage_NRM"
+popup/item_1/text = "orkMeshNORMAL"
 popup/item_1/id = 1
-popup/item_2/text = "Aksel_Skin_NRM"
+popup/item_2/text = "skin_male_african_middleage_NRM"
 popup/item_2/id = 2
-popup/item_3/text = "orkMeshNORMAL"
+popup/item_3/text = "Aksel_Skin_NRM"
 popup/item_3/id = 3
 script = SubResource("GDScript_crbyj")
 
@@ -288,10 +287,23 @@ layout_mode = 2
 tooltip_text = "Click to open body parts options"
 text = "Body Parts"
 
-[node name="BodyPartsContainer" parent="VBoxContainer" instance=ExtResource("2_cyqhb")]
+[node name="BodyPartsContainer" type="ScrollContainer" parent="VBoxContainer"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+vertical_scroll_mode = 0
+script = ExtResource("3_wse4b")
+category = "body_part"
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/BodyPartsContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/BodyPartsContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/BodyPartsContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+columns = 7
 
 [node name="ClothesButton" type="Button" parent="VBoxContainer"]
 unique_name_in_owner = true
@@ -299,10 +311,23 @@ layout_mode = 2
 tooltip_text = "Click to open clothes options"
 text = "Clothes"
 
-[node name="ClothesContainer" parent="VBoxContainer" instance=ExtResource("3_tceog")]
+[node name="ClothesContainer" type="ScrollContainer" parent="VBoxContainer"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+vertical_scroll_mode = 0
+script = ExtResource("3_wse4b")
+category = "clothing"
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/ClothesContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/ClothesContainer/PanelContainer"]
+layout_mode = 2
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer/ClothesContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+columns = 7
 
 [node name="HideVerticesButtons2" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
