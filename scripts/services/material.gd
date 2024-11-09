@@ -25,9 +25,9 @@ static func mhmat_to_material(path:String)->StandardMaterial3D:
 			diffuse_path = path.get_base_dir().path_join(diffuse_path)
 			material.albedo_texture = load(diffuse_path)
 		elif line.begins_with("normalmapTexture "):
-			var diffuse_path = line.split(" ")[1].strip_edges()
-			diffuse_path = path.get_base_dir().path_join(diffuse_path)
-			material.normal_texture = load(diffuse_path)
+			var normal_path = line.split(" ")[1].strip_edges()
+			normal_path = path.get_base_dir().path_join(normal_path)
+			material.normal_texture = load(normal_path)
 			material.normal_enabled = true
 		elif line.begins_with("bumpTexture "):
 			var bump_path = line.split(" ")[1].strip_edges()
@@ -42,11 +42,17 @@ static func mhmat_to_material(path:String)->StandardMaterial3D:
 			var ao_path = line.split(" ")[1].strip_edges()
 			ao_path = path.get_base_dir().path_join(ao_path)
 			material.ao_texture = load(ao_path)
-			material.normal_enabled = true
+			material.ao_enabled = true
+		elif line.begins_with("specularTexture "):
+			var spec_path = line.split(" ")[1].strip_edges()
+			spec_path = path.get_base_dir().path_join(spec_path)
+			material.metallic = 1
+			material.metallic_texture = load(spec_path)
+			printerr("specular texture not supported by Godot, using as metallic texture instead. You can manually create materials by adding them to the assets/materials/%asset_name% folder")
 		elif line.begins_with("normalmapIntensity "):
 			material.normal_scale = line.split_floats(" ",false,)[1]
 		elif line.begins_with("aomapIntensity "):
-			material.normal_scale = line.split_floats(" ",false,)[1]
+			material.ao_light_affect = line.split_floats(" ",false,)[1]
 		elif line.begins_with("shaderConfig "):
 			pass
 	return material
