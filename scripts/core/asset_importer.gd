@@ -4,24 +4,18 @@ extends Node
 
 @export_dir var _asset_path = ''
 
-var slot: String
-var clothing_slots := []
 var busy: bool = false
-var asset_type = "" #clothing or body part
 var basis: Array
-
-enum AssetType {
-	BodyPart,
-	Clothes
-}
 
 func run(clean_only: bool = false) -> void:
 	basis = HumanizerTargetService.data.basis
 	if _asset_path != '':  # User operating from scene
-		for fl in OSPath.get_files(_asset_path):
-			if fl.get_extension() in ['res', 'tscn', 'tres']:
-				DirAccess.remove_absolute(fl)
-		_scan_path_for_assets(_asset_path)
+		pass
+		#dont really want to delete resources, just save over them..
+		#for fl in OSPath.get_files(_asset_path):
+			#if fl.get_extension() in ['res', 'tscn', 'tres']:
+				#DirAccess.remove_absolute(fl)
+		#_scan_path_for_assets(_asset_path)
 	else:                  # Bulk import task
 		if not clean_only:
 			print('Bulk asset import')
@@ -29,11 +23,11 @@ func run(clean_only: bool = false) -> void:
 			print('Purging assets')
 		for path in HumanizerGlobalConfig.config.asset_import_paths:
 			for dir in OSPath.get_dirs(path.path_join('body_parts')):
-				_clean_recursive(dir)
+				#_clean_recursive(dir)
 				if not clean_only:
 					_scan_recursive(dir)
 			for dir in OSPath.get_dirs(path.path_join('clothes')):
-				_clean_recursive(dir)
+				#_clean_recursive(dir)
 				if not clean_only:
 					_scan_recursive(dir)
 	print("Reloading Registry")
@@ -53,14 +47,6 @@ func _scan_recursive(path: String) -> void:
 	_scan_path_for_assets(path)
 	
 func _scan_path_for_assets(path: String) -> void:
-	if 'body_parts' in path:
-		asset_type = AssetType.BodyPart
-	elif 'clothes' in path:
-		asset_type = AssetType.Clothes
-	else:
-		printerr("Couldn't infer asset type from path.")
-		return
-		
 	var materials := {}
 	var obj_data = null
 	var contents = OSPath.get_contents(path)
@@ -112,31 +98,23 @@ func _import_asset(path: String, data: Dictionary, softbody: bool = false):
 	
 	resource.path = path
 	resource.resource_name = data.mhclo.resource_name
+	var save_path = path.path_join(resource.resource_name + '.res')
 	print('Importing asset ' + resource.resource_name)
-	#
+	
+	#keep custom slots
+	if FileAccess.file_exists(save_path):
+		var old_config = load(save_path) as HumanizerEquipmentType
+		resource.slots = old_config.slots
+	if resource.slots == []:
+		printerr("Warning - " + resource.resource_name + " has no equipment slots, you can manually add them to the resource file.")
+	
 	resource.textures = data.materials
 
-	# Set slot(s)
-	if asset_type == AssetType.BodyPart:
-		for tag in data.mhclo.tags:
-			if tag in HumanizerGlobalConfig.config.body_part_slots:
-				resource.slots.append(tag)
-		if resource.slots[0] in ['', null]:
-			printerr('Slot not recognized.  Check your mhclo tags.')
-			return
-	elif asset_type == AssetType.Clothes:
-		for tag in data.mhclo.tags:
-			if tag in HumanizerGlobalConfig.config.clothing_slots:
-				resource.slots.append(tag+"Clothes")
-		if resource.slots.size() == 0:
-			printerr('No slots found for clothes.  Check your mhclo tags.')
-			return
-	
 	_calculate_bone_weights(data,resource)
 	
 	# Save resources
 	data.mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(data.mesh)
-	resource.take_over_path(path.path_join(resource.resource_name + '.res'))
+	resource.take_over_path(save_path)
 	ResourceSaver.save(resource, resource.resource_path)
 	#build rigged equipment
 	if data.has('rigged'):
