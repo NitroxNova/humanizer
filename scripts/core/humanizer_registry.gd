@@ -86,9 +86,7 @@ static func _get_skin_textures() -> void:
 static func _load_equipment() -> void:
 	equipment={}
 	for path in HumanizerGlobalConfig.config.asset_import_paths:
-		for dir in OSPath.get_dirs(path.path_join('body_parts')):
-			_scan_dir(dir)
-		for dir in OSPath.get_dirs(path.path_join('clothes')):
+		for dir in OSPath.get_dirs(path.path_join('equipment')):
 			_scan_dir(dir)
 
 static func _scan_dir(path: String) -> void:
