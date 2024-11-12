@@ -62,7 +62,7 @@ func _add_tool_submenu() -> void:
 	preprocessing_popup.add_item('Generate Base Meshes', menu_ids.generate_base_mesh)
 	preprocessing_popup.add_item('Read ShapeKey files', menu_ids.read_shapekeys)
 	preprocessing_popup.add_item('Set Up Skeleton Configs', menu_ids.rig_config)
-	preprocessing_popup.add_item('Import Images as Uncompressed', menu_ids.image_import_settings)
+	preprocessing_popup.add_item('Import Images as Uncompressed (Optional)', menu_ids.image_import_settings)
 	
 	popup_menu.add_child(preprocessing_popup)
 	popup_menu.add_submenu_item('Preprocessing Tasks', 'preprocessing_popup')
@@ -128,7 +128,7 @@ func _image_import_settings() -> void:
 	HumanizerImageImportSettings.new().run()
 
 func _import_assets() -> void:
-	HumanizerAssetImporter.new().run(false)
+	HumanizerEquipmentImportService.import_all()
 	
 func _purge_assets() -> void:
 	HumanizerAssetImporter.new().run(true)
