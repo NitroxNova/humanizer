@@ -6,6 +6,10 @@
 - [GitHub - makehumancommunity/mpfb2](https://github.com/makehumancommunity/mpfb2)
 - [GitHub - makehumancommunity/makehuman](https://github.com/makehumancommunity/makehuman)
 
+## RESOURCES:
+ - [Humanizer Wiki](https://github.com/NitroxNova/humanizer/wiki)
+ - [Humanizer Discord](https://discord.gg/sQWar92A)
+
 ## FEATURES:
 
 - Fully customizable character weight/height/gender/race/age
