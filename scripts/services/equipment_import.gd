@@ -15,10 +15,7 @@ static func import_all() -> void:
 		#else:
 			#print('Purging assets')
 	for path in HumanizerGlobalConfig.config.asset_import_paths:
-		for dir in OSPath.get_dirs(path.path_join('body_parts')):
-			#_clean_recursive(dir)
-			_scan_recursive(dir)
-		for dir in OSPath.get_dirs(path.path_join('clothes')):
+		for dir in OSPath.get_dirs(path.path_join('equipment')):
 			#_clean_recursive(dir)
 			_scan_recursive(dir)
 	print("Reloading Registry")
