@@ -1,0 +1,22 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cv2732dnqqdj6"
+path="res://.godot/imported/long01.obj-e9085c214a47df9649d5f6be78352202.mesh"
+
+[deps]
+
+files=["res://.godot/imported/long01.obj-e9085c214a47df9649d5f6be78352202.mesh"]
+
+source_file="res://addons/humanizer/data/assets/equipment/hair/long01/long01.obj"
+dest_files=["res://.godot/imported/long01.obj-e9085c214a47df9649d5f6be78352202.mesh", "res://.godot/imported/long01.obj-e9085c214a47df9649d5f6be78352202.mesh"]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+optimize_mesh=true
+force_disable_mesh_compression=false

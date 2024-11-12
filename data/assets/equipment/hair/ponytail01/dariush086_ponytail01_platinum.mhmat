@@ -1,0 +1,47 @@
+# This is a material file for MakeHuman 
+#
+# Creat By : DariushJafari
+#
+# For more information, see homepage at http://www.makehuman.org
+#
+# This file is licensed AGPLv3
+name Platinum
+tag MakeHuman™
+ambientColor 0.11 0.11 0.11
+diffuseColor 1.0 1.0 1.0
+specularColor 0.0470588235294 0.0470588235294 0.0470588235294
+shininess 0.96
+emissiveColor 0.0 0.0 0.0
+opacity 1.0
+translucency 0.0
+
+shadeless False
+wireframe False
+transparent True
+alphaToCoverage True
+backfaceCull False
+depthless False
+
+castShadows True
+
+receiveShadows True
+
+diffuseTexture ponytail01_platinum.png
+
+sssEnabled True
+sssRScale 5.0
+sssGScale 2.5
+sssBScale 1.0
+
+shader shaders/glsl/litsphere
+
+shaderParam litsphereTexture litspheres/lit_hair.png
+
+shaderConfig ambientOcclusion True
+shaderConfig normal False
+shaderConfig bump True
+shaderConfig displacement False
+shaderConfig vertexColors True
+shaderConfig spec True
+shaderConfig transparency True
+shaderConfig diffuse True

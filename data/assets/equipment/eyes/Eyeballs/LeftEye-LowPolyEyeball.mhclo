@@ -1,0 +1,72 @@
+# This is a clothes file for MakeHuman Community, exported by MakeClothes 2
+#
+# author: unknown
+# license: CC0
+#
+# description: no description
+#
+basemesh hm08
+
+# Basic info:
+name LeftEyeBall-LowPoly
+tag LeftEye
+obj_file LeftEye-LowPolyEyeball.obj
+material LeftEye-LowPolyEyeball.mhmat
+
+uuid 43c47a8f-3d02-4d22-8fa5-c3d037f433fd
+x_scale 14618 14645 1
+y_scale 14636 14663 1
+z_scale 14650 14658 0.0032
+max_pole 4
+z_depth 20
+
+# Vertex info:
+verts 0
+14666
+14665
+14664
+14663
+14662
+14661
+14657
+14656
+14655
+14654
+14653
+14652
+14648
+14647
+14646
+14645
+14644
+14643
+14639
+14638
+14637
+14636
+14635
+14634
+14630
+14629
+14628
+14627
+14626
+14625
+14621
+14620
+14619
+14618
+14617
+14616
+14612
+14611
+14610
+14609
+14608
+14607
+14603
+14602
+14601
+14600
+14599
+14598

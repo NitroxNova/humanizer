@@ -1,0 +1,23 @@
+# MakeHuman Material definition
+
+name Gray
+
+// Color shading attributes
+diffuseColor  1 1 1
+specularColor  0 0 0
+shininess 1
+opacity 0
+
+// Textures and properties
+diffuseTexture long01_diffuse_gray.png
+
+// Shader programme
+shader data/shaders/glsl/phong
+
+// Configure built-in shader defines
+shaderConfig diffuse true
+shaderConfig bump false
+shaderConfig normal  false
+shaderConfig displacement  false
+shaderConfig spec  false
+shaderConfig vertexColors false

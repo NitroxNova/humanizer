@@ -1,0 +1,40 @@
+# This is a material file for MakeHuman
+#
+# This asset was explicitly released as CC0 in september 2020. The license
+# text for CC0 can be found in the root of this repository.
+#
+# The copyright holders at the point of the release to CC0 were:
+#
+# Copyright (C) 2020 Data Collection AB, https://www.datacollection.se
+# Copyright (C) 2020 Joel Palmius
+# Copyright (C) 2020 Jonas Hauquier
+#
+# The primary legal contact for MakeHuman is Data Collection AB.
+#
+# For more information, see homepage at http://www.makehumancommunity.org
+
+name Brown
+tag MakeHuman™
+ambientColor 0.105882352941 0.105882352941 0.105882352941
+diffuseColor 1.0 1.0 1.0
+specularColor 0.278431372549 0.278431372549 0.278431372549
+shininess 0.4
+emissiveColor 0.0 0.0 0.0
+opacity 1.0
+translucency 0.0
+
+diffuseTexture brown_diffuse.png
+normalmapTexture shoes01_normal.png
+normalmapIntensity 1.0
+
+shaderParam AdditiveShading 0.5
+shaderParam litsphereTexture data/litspheres/lit_refl_sharp.png
+
+
+shader data/shaders/glsl/litsphere
+shaderConfig diffuse True
+shaderConfig normal True
+shaderConfig bump True
+shaderConfig spec True
+shaderConfig vertexColors True
+shaderConfig displacement False
