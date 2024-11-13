@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://dsrnmyw7n7drw"]
+[gd_scene load_steps=11 format=3 uid="uid://dsrnmyw7n7drw"]
 
 [ext_resource type="PackedScene" uid="uid://csan8bknfmodc" path="res://addons/humanizer/data/animations/animation_tree.tscn" id="2_hdl0y"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/core/humanizer_global_config.gd" id="2_vm4hu"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/core/job_queue.gd" id="3_56c55"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/slot_category.gd" id="3_ge6bv"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_config.gd" id="3_k24ro"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/core/humanizer_registry.gd" id="57_651fh"]
 
@@ -11,7 +12,19 @@ script/source = "@tool
 extends Node
 "
 
-[sub_resource type="Resource" id="Resource_jj7a8"]
+[sub_resource type="Resource" id="Resource_fkdqw"]
+script = ExtResource("3_ge6bv")
+category = "Body Parts"
+suffix = ""
+slots = PackedStringArray("Body", "RightEye", "LeftEye", "RightEyebrow", "LeftEyebrow", "RightEyelash", "LeftEyelash", "Hair", "Tongue", "Teeth")
+
+[sub_resource type="Resource" id="Resource_s24bi"]
+script = ExtResource("3_ge6bv")
+category = "Clothing"
+suffix = "Clothes"
+slots = PackedStringArray("Head", "Eyes", "Mouth", "Hands", "Arms", "Torso", "Legs", "Feet")
+
+[sub_resource type="Resource" id="Resource_q42lf"]
 script = ExtResource("3_k24ro")
 asset_import_paths = Array[String](["res://addons/humanizer/data/assets/"])
 human_export_path = "res://data/humans/"
@@ -19,6 +32,7 @@ default_characterbody_script = "res://addons/humanizer/scripts/utils/human_contr
 default_rigidbody_script = ""
 default_staticbody_script = ""
 default_area_script = ""
+equipment = Array[ExtResource("3_ge6bv")]([SubResource("Resource_fkdqw"), SubResource("Resource_s24bi")])
 body_part_slots = Array[String](["Body", "RightEye", "LeftEye", "RightEyebrow", "LeftEyebrow", "RightEyelash", "LeftEyelash", "Hair", "Tongue", "Teeth"])
 clothing_slots = Array[String](["Head", "Eyes", "Mouth", "Hands", "Arms", "Torso", "Legs", "Feet"])
 default_skeleton = "game_engine-RETARGETED"
@@ -37,7 +51,7 @@ script = SubResource("GDScript_yaxf4")
 
 [node name="HumanizerConfig" type="Node" parent="."]
 script = ExtResource("2_vm4hu")
-_config = SubResource("Resource_jj7a8")
+_config = SubResource("Resource_q42lf")
 
 [node name="HumanizerRegistry" type="Node" parent="."]
 script = ExtResource("57_651fh")

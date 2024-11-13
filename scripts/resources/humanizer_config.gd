@@ -17,6 +17,10 @@ extends Resource
 @export_file var default_area_script: String
 
 @export_group('Slot Definitions')
+@export var equipment: Array[HumanizerSlotCategory] = [
+	HumanizerSlotCategory.new("Body Parts","", PackedStringArray( ['Body', 'RightEye', 'LeftEye', 'RightEyebrow', 'LeftEyebrow', 'RightEyelash', 'LeftEyelash', 'Hair', 'Tongue', 'Teeth',])),
+	HumanizerSlotCategory.new("Clothing","Clothes",PackedStringArray(['Head','Eyes','Mouth','Hands','Arms','Torso','Legs','Feet',])),
+]
 ## Body Part Slot Definitions
 @export var body_part_slots: Array[String] = [
 	'Body',
