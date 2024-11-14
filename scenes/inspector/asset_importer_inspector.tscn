@@ -10,8 +10,23 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_xtlgx")
 
-[node name="ImportButton" type="Button" parent="."]
+[node name="ImportOptions" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="AssetName" type="TextEdit" parent="ImportOptions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 35)
+layout_mode = 2
+placeholder_text = "Asset Name"
+
+[node name="SlotsContainer" type="VBoxContainer" parent="ImportOptions"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ImportButton" type="Button" parent="ImportOptions"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 text = "Import Asset"
+
+[node name="FileDialog" type="FileDialog" parent="."]
