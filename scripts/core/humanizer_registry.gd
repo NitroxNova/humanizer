@@ -15,6 +15,7 @@ static func load_all() -> void:
 	_load_equipment()
 	_get_skin_textures()
 	_get_materials()
+	print("done loading registry")
 	
 static func _get_materials():
 	for folder in HumanizerGlobalConfig.config.asset_import_paths:
@@ -22,13 +23,12 @@ static func _get_materials():
 		for dir in OSPath.get_dirs(materials_path):
 			var equip_type = dir.get_file()
 			for mat_file in OSPath.get_files(dir):
-				var mat_res = load(mat_file)
-				equipment[equip_type].textures[mat_res.resource_name] = mat_file
-				if mat_file.get_file().get_basename() == "default":
-					equipment[equip_type].default_material = mat_res.resource_name
-				if mat_res is HumanizerMaterial:
-					pass
-	
+				if mat_file.get_extension() == "res":
+					var mat_res = load(mat_file)
+					if mat_res is HumanizerMaterial or mat_res is StandardMaterial3D:
+						equipment[equip_type].textures[mat_res.resource_name] = mat_file
+						if mat_file.get_file().get_basename() == "default":
+							equipment[equip_type].default_material = mat_res.resource_name
 
 static func add_equipment_type(equip:HumanizerEquipmentType):
 	#print('Registering equipment ' + equip.resource_name)
