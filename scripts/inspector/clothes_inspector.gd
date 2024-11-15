@@ -2,7 +2,7 @@
 class_name ClothesInspector
 extends ScrollContainer
 
-@export var category = ""
+@export var category : int
 
 static var visible_setting := false
 
@@ -21,7 +21,7 @@ func _ready() -> void:
 	visibility_changed.connect(_set_visibility)
 	build_grid()
 	await get_tree().process_frame
-	for slot in HumanizerGlobalConfig.config.get(category+"_slots"):
+	for slot in HumanizerGlobalConfig.config.equipment[category].get_slots():
 		asset_option_buttons[slot] = get_node('%' + slot + 'OptionButton')
 		material_option_buttons[slot] = get_node('%' + slot + 'TextureOptionButton')
 		
@@ -36,9 +36,7 @@ func _ready() -> void:
 		
 		options.add_item('None')
 		for asset in HumanizerRegistry.equipment.values():
-			if category=="clothing" and slot+"Clothes" in asset.slots:
-				options.add_item(asset.resource_name)
-			elif slot in asset.slots:
+			if slot in asset.slots:
 				options.add_item(asset.resource_name)
 	
 	if config != null:
@@ -52,9 +50,10 @@ func build_grid() -> void:
 	var grid = find_child('GridContainer')
 	for child in grid.get_children():
 		grid.remove_child(child)
-	for slot in HumanizerGlobalConfig.config.get(category+"_slots"):
+	for slot_label in HumanizerGlobalConfig.config.equipment[category].slots:
+		var slot = slot_label + HumanizerGlobalConfig.config.equipment[category].suffix
 		var label = Label.new()
-		label.text = slot
+		label.text = slot_label
 		grid.add_child(label)
 		grid.add_child(VSeparator.new())
 		label = Label.new()
@@ -78,13 +77,8 @@ func build_grid() -> void:
 		child.owner = self
 		
 func fill_table(config: HumanConfig) -> void:
-	for slot in HumanizerGlobalConfig.config.get(category+"_slots"):
-		var clothes_slot
-		if category == "clothing":
-			clothes_slot = slot+"Clothes"
-		else:
-			clothes_slot = slot
-		var clothes = config.get_equipment_in_slot(clothes_slot)
+	for slot in HumanizerGlobalConfig.config.equipment[category].get_slots():
+		var clothes = config.get_equipment_in_slot(slot)
 		if clothes != null:
 			var options = asset_option_buttons[slot] as OptionButton
 			var materials = material_option_buttons[slot] as OptionButton 

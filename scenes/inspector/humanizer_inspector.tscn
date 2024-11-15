@@ -293,7 +293,7 @@ visible = false
 layout_mode = 2
 vertical_scroll_mode = 0
 script = ExtResource("3_wse4b")
-category = "body_part"
+category = "0"
 
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/BodyPartsContainer"]
 layout_mode = 2
@@ -317,7 +317,7 @@ visible = false
 layout_mode = 2
 vertical_scroll_mode = 0
 script = ExtResource("3_wse4b")
-category = "clothing"
+category = "1"
 
 [node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/ClothesContainer"]
 layout_mode = 2
