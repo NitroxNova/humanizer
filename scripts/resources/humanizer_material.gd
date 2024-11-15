@@ -9,6 +9,16 @@ const TEXTURE_LAYERS = ['albedo', 'normal', 'ao']
 @export var overlays: Array[HumanizerOverlay] = []
 @export_file var base_material_path: String
 
+func duplicate(subresources=false):
+	if not subresources:
+		return super(subresources)
+	else:
+		var dupe = HumanizerMaterial.new()
+		dupe.base_material_path = base_material_path
+		for overlay in overlays:
+			dupe.overlays.append(overlay.duplicate(true))	
+		return dupe
+
 func generate_material_3D() -> StandardMaterial3D:
 	var material = StandardMaterial3D.new()
 	if FileAccess.file_exists(base_material_path):

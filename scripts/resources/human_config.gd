@@ -74,7 +74,7 @@ func _handle_color_overrides(equip:HumanizerEquipment):
 	elif equip_type.in_slot(["LeftEyebrow","RightEyebrow","Eyebrows"]):
 		equip.material_config.overlays[0].color = eyebrow_color
 
-func set_equipment_material(equip,material):
+func set_equipment_material(equip:HumanizerEquipment,material):
 	equip.set_material(material)
 	_handle_color_overrides(equip)
 
