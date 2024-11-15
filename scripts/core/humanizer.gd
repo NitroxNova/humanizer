@@ -154,11 +154,16 @@ func set_equipment_material(equip:HumanizerEquipment, material_name: String)-> v
 	human_config.set_equipment_material(equip,material_name)	
 	await init_equipment_material(equip)
 
-func force_update_materials(): # not normally needed, use this if generated humans arent updating textures properly (was an issue in the stress test - has something to do with threads)
-	for equip in human_config.equipment.values():
-		if equip.material_config != null:
-			await RenderingServer.frame_post_draw	
-			equip.material_config.update_standard_material_3D(materials[equip.type])
+func update_material(equip_type:String): #from the material config
+	var equip = human_config.equipment[equip_type]
+	materials[equip.type] = await equip.material_config.generate_material_3D()
+	material_updated.emit(equip)
+	
+#func force_update_materials(): # not normally needed, use this if generated humans arent updating textures properly (was an issue in the stress test - has something to do with threads)
+	#for equip in human_config.equipment.values():
+		#if equip.material_config != null:
+			#await RenderingServer.frame_post_draw	
+			#equip.material_config.update_standard_material_3D(materials[equip.type])
 		
 func get_mesh(mesh_name:String):
 	var mesh = ArrayMesh.new()

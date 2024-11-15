@@ -92,8 +92,10 @@ func _ready() -> void:
 func on_material_updated(equip):
 	#print("material updated " + equip.type)
 	if has_node(equip.type): #otherwise it will load with the correct texture
-		get_node(equip.type).set_surface_override_material(0,humanizer.materials[equip.type])
-
+		var equip_node : HumanizerMeshInstance = get_node(equip.type)
+		equip_node.set_surface_override_material(0,humanizer.materials[equip.type])
+		equip_node.material_config = equip.material_config
+		
 func reset():
 	#print("reseting")
 	var new_config = HumanConfig.new()
@@ -313,6 +315,9 @@ func add_equipment_type(equip_type:HumanizerEquipmentType)->void:
 	var equip := HumanizerEquipment.new(equip_type.resource_name)
 	add_equipment(equip)
 
+func trigger_material_update(equip_type:String):
+	humanizer.update_material(equip_type)
+
 func init_equipment(equip: HumanizerEquipment) -> void:
 	if baked:
 		push_warning("Can't change equipment.  Already baked")
@@ -321,6 +326,7 @@ func init_equipment(equip: HumanizerEquipment) -> void:
 	
 	var equip_type = equip.get_type()
 	var mesh_inst = HumanizerMeshInstance.new()
+	mesh_inst.trigger_material_update.connect(humanizer.update_material)
 	mesh_inst.name = equip.type
 	mesh_inst.mesh = humanizer.get_mesh(equip.type)
 	var sf_material :StandardMaterial3D = humanizer.materials[equip.type]
