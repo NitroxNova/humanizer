@@ -1,26 +1,80 @@
 extends Resource
 class_name HumanizerEquipmentImportService
 
-static func import_all() -> void:
-	#if _asset_path != '':  # User operating from scene
-		#pass
-		##dont really want to delete resources, just save over them..
-		##for fl in OSPath.get_files(_asset_path):
-			##if fl.get_extension() in ['res', 'tscn', 'tres']:
-				##DirAccess.remove_absolute(fl)
-		##_scan_path_for_assets(_asset_path)
-	#else:                  # Bulk import task
-		#if not clean_only:
-			#print('Bulk asset import')
-		#else:
-			#print('Purging assets')
-	for path in HumanizerGlobalConfig.config.asset_import_paths:
-		for dir in OSPath.get_dirs(path.path_join('equipment')):
-			#_clean_recursive(dir)
-			_scan_recursive(dir)
-	print("Reloading Registry")
-	HumanizerRegistry.load_all()
-	print('Done')
+static func import(json_path:String,import_materials:=true):
+	#load settings
+	var settings = HumanizerUtils.read_json(json_path)
+	var folder = json_path.get_base_dir()
+	#load mhclo
+	var mhclo := MHCLO.new()
+	mhclo.parse_file(settings.mhclo)
+	print('Importing asset ' + mhclo.resource_name)
+	# Build resource object
+	var resource := HumanizerEquipmentType.new()
+	# Mesh operations
+	_build_import_mesh(folder, mhclo)
+	
+	#if settings.has('rigged'):
+		#_build_rigged_bone_arrays(mhclo)
+	
+	resource.path = folder
+	resource.resource_name = mhclo.resource_name
+	var save_path = folder.path_join(resource.resource_name + '.res')
+	
+	#keep custom slots
+	if FileAccess.file_exists(save_path):
+		resource.slots.clear()
+		for slot in settings.slots:
+			resource.slots.append(slot)
+	if resource.slots.is_empty():
+		printerr("Warning - " + resource.resource_name + " has no equipment slots, you can manually add them to the resource file.")
+	
+	#resource.textures = data.materials
+
+	_calculate_bone_weights(mhclo,resource)
+	
+	# Save resources
+	#data.mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(data.mesh)
+	resource.take_over_path(save_path)
+	ResourceSaver.save(resource, resource.resource_path)
+	#build rigged equipment
+	#if settings.has('rigged'):
+		#var rigged_resource = resource.duplicate()
+		#rigged_resource.rigged = true
+		#rigged_resource.resource_name = resource.resource_name + "_Rigged"
+		#ResourceSaver.save(rigged_resource, resource.resource_path.get_basename() + "_Rigged.res")
+		#HumanizerRegistry.add_equipment_type(rigged_resource)
+		#_calculate_bone_weights(data,rigged_resource)
+		
+	#save after adding bone/weights to mhclo
+	mhclo.take_over_path(resource.mhclo_path)
+	ResourceSaver.save(mhclo, mhclo.resource_path)
+	#add main resource to registry
+	HumanizerRegistry.add_equipment_type(resource)	
+
+static func import_all():
+	print("TODO rewrite import all")
+
+#static func import_all() -> void:
+	##if _asset_path != '':  # User operating from scene
+		##pass
+		###dont really want to delete resources, just save over them..
+		###for fl in OSPath.get_files(_asset_path):
+			###if fl.get_extension() in ['res', 'tscn', 'tres']:
+				###DirAccess.remove_absolute(fl)
+		###_scan_path_for_assets(_asset_path)
+	##else:                  # Bulk import task
+		##if not clean_only:
+			##print('Bulk asset import')
+		##else:
+			##print('Purging assets')
+	#for path in HumanizerGlobalConfig.config.asset_import_paths:
+		#for dir in OSPath.get_dirs(path.path_join('equipment')):
+			##_clean_recursive(dir)
+			#_scan_recursive(dir)
+	#print("Reloading Registry")
+	#HumanizerRegistry.load_all()
+	#print('Done')
 	
 func _clean_recursive(path: String) -> void:
 	for dir in OSPath.get_dirs(path):
@@ -29,113 +83,110 @@ func _clean_recursive(path: String) -> void:
 		if fl.get_extension() in ['res', 'tscn', 'tres']:
 			DirAccess.remove_absolute(fl)
 	
-static func _scan_recursive(path: String) -> void:
-	for dir in OSPath.get_dirs(path):
-		_scan_recursive(dir)
-	_scan_path_for_assets(path)
+#static func _scan_recursive(path: String) -> void:
+	#for dir in OSPath.get_dirs(path):
+		#_scan_recursive(dir)
+	#_scan_path_for_assets(path)
+	#
+##static func _scan_path_for_assets(path: String) -> void:
+	##var materials := {}
+	##var obj_data = null
+	##var contents = OSPath.get_contents(path)
+	##var asset_data := {}
+	###var overlay = {}
+	##
+	##for file_name in OSPath.get_files(path):
+		##if file_name.get_extension() == "mhclo":
+			##var fl = file_name.get_file().get_basename()
+			##var _mhclo := MHCLO.new()
+			##_mhclo.parse_file(file_name)
+			##asset_data[fl] = {}
+			##asset_data[fl]['mhclo'] = _mhclo
+			##var rigged: String = path.path_join(asset_data[fl]['mhclo'].obj_file_name.get_basename() + '.glb')
+			##if FileAccess.file_exists(rigged):
+				##asset_data[fl]['rigged'] = rigged
+	##
+	##if asset_data.size() == 0:
+		##return
+	##
+	##for dir in contents.dirs:
+		##contents.files.append_array(OSPath.get_files(dir))
+		##
+	### Get textures
+	##for file_name in contents.files:
+		##if file_name.get_extension() == "mhmat":
+			##var new_mat = HumanizerMaterialService.mhmat_to_material(file_name)
+			##var mat_path = file_name.get_base_dir().path_join( new_mat.resource_name + '_material.res')
+			##ResourceSaver.save(new_mat, mat_path)
+			##materials[new_mat.resource_name] = mat_path
+##
+	##
+	##for asset in asset_data.values():
+		##asset.materials = materials
+		###if not overlay.is_empty():
+			###asset.overlay = overlay
+		##_import_asset(path, asset, false)
+##
+##
+###static func _import_asset(path: String, data: Dictionary, softbody: bool = false):
+	#### Build resource object
+	###var resource := HumanizerEquipmentType.new()
+	#### Mesh operations
+	###data.mesh = _build_import_mesh(path, data.mhclo)
+	###
+	###if data.has('rigged'):
+		###_build_rigged_bone_arrays(data)
+	###
+	###resource.path = path
+	###resource.resource_name = data.mhclo.resource_name
+	###var save_path = path.path_join(resource.resource_name + '.res')
+	###print('Importing asset ' + resource.resource_name)
+	###
+	####keep custom slots
+	###if FileAccess.file_exists(save_path):
+		###var old_config = load(save_path) as HumanizerEquipmentType
+		###resource.slots = old_config.slots
+	###if resource.slots == []:
+		###printerr("Warning - " + resource.resource_name + " has no equipment slots, you can manually add them to the resource file.")
+	###
+	###resource.textures = data.materials
+###
+	###_calculate_bone_weights(data,resource)
+	###
+	#### Save resources
+	###data.mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(data.mesh)
+	###resource.take_over_path(save_path)
+	###ResourceSaver.save(resource, resource.resource_path)
+	####build rigged equipment
+	###if data.has('rigged'):
+		###var rigged_resource = resource.duplicate()
+		###rigged_resource.rigged = true
+		###rigged_resource.resource_name = resource.resource_name + "_Rigged"
+		###ResourceSaver.save(rigged_resource, resource.resource_path.get_basename() + "_Rigged.res")
+		###HumanizerRegistry.add_equipment_type(rigged_resource)
+		###_calculate_bone_weights(data,rigged_resource)
+		###
+	####save after adding bone/weights to mhclo
+	###ResourceSaver.save(data.mhclo, resource.mhclo_path)
+	####add main resource to registry
+	###HumanizerRegistry.add_equipment_type(resource)
 	
-static func _scan_path_for_assets(path: String) -> void:
-	var materials := {}
-	var obj_data = null
-	var contents = OSPath.get_contents(path)
-	var asset_data := {}
-	#var overlay = {}
-	
-	for file_name in OSPath.get_files(path):
-		if file_name.get_extension() == "mhclo":
-			var fl = file_name.get_file().get_basename()
-			var _mhclo := MHCLO.new()
-			_mhclo.parse_file(file_name)
-			asset_data[fl] = {}
-			asset_data[fl]['mhclo'] = _mhclo
-			var rigged: String = path.path_join(asset_data[fl]['mhclo'].obj_file_name.get_basename() + '.glb')
-			if FileAccess.file_exists(rigged):
-				asset_data[fl]['rigged'] = rigged
-	
-	if asset_data.size() == 0:
-		return
-	
-	for dir in contents.dirs:
-		contents.files.append_array(OSPath.get_files(dir))
-		
-	# Get textures
-	for file_name in contents.files:
-		if file_name.get_extension() == "mhmat":
-			var new_mat = HumanizerMaterialService.mhmat_to_material(file_name)
-			var mat_path = file_name.get_base_dir().path_join( new_mat.resource_name + '_material.res')
-			ResourceSaver.save(new_mat, mat_path)
-			materials[new_mat.resource_name] = mat_path
 
-	
-	for asset in asset_data.values():
-		asset.materials = materials
-		#if not overlay.is_empty():
-			#asset.overlay = overlay
-		_import_asset(path, asset, false)
-
-
-static func _import_asset(path: String, data: Dictionary, softbody: bool = false):
-	# Build resource object
-	var resource := HumanizerEquipmentType.new()
-	# Mesh operations
-	data.mesh = _build_import_mesh(path, data.mhclo)
-	
-	if data.has('rigged'):
-		_build_rigged_bone_arrays(data)
-	
-	resource.path = path
-	resource.resource_name = data.mhclo.resource_name
-	var save_path = path.path_join(resource.resource_name + '.res')
-	print('Importing asset ' + resource.resource_name)
-	
-	#keep custom slots
-	if FileAccess.file_exists(save_path):
-		var old_config = load(save_path) as HumanizerEquipmentType
-		resource.slots = old_config.slots
-	if resource.slots == []:
-		printerr("Warning - " + resource.resource_name + " has no equipment slots, you can manually add them to the resource file.")
-	
-	resource.textures = data.materials
-
-	_calculate_bone_weights(data,resource)
-	
-	# Save resources
-	data.mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(data.mesh)
-	resource.take_over_path(save_path)
-	ResourceSaver.save(resource, resource.resource_path)
-	#build rigged equipment
-	if data.has('rigged'):
-		var rigged_resource = resource.duplicate()
-		rigged_resource.rigged = true
-		rigged_resource.resource_name = resource.resource_name + "_Rigged"
-		ResourceSaver.save(rigged_resource, resource.resource_path.get_basename() + "_Rigged.res")
-		HumanizerRegistry.add_equipment_type(rigged_resource)
-		_calculate_bone_weights(data,rigged_resource)
-		
-	#save after adding bone/weights to mhclo
-	ResourceSaver.save(data.mhclo, resource.mhclo_path)
-	#add main resource to registry
-	HumanizerRegistry.add_equipment_type(resource)
-	
-
-static func _calculate_bone_weights(data,equip_type:HumanizerEquipmentType):
-	var sf_arrays = data.mesh.surface_get_arrays(0)
+static func _calculate_bone_weights(mhclo:MHCLO,equip_type:HumanizerEquipmentType):
+	var sf_arrays = []
+	sf_arrays.resize(Mesh.ARRAY_MAX)
 	for rig_name in HumanizerRegistry.rigs:
 		var rig : HumanizerRig = HumanizerRegistry.rigs[rig_name]
 		var skeleton_data = HumanizerRigService.init_skeleton_data(rig,false)
 		if equip_type.rigged:
-			for bone in data.mhclo.rigged_config:
+			for bone in mhclo.rigged_config:
 				if bone.name != "neutral_bone":
 					skeleton_data[bone.name] = {}
-			HumanizerEquipmentService.interpolate_rigged_weights(data.mhclo,data.rigged_bone_weights,skeleton_data,sf_arrays,rig_name)
-			#HumanizerEquipmentService.interpolate_weights(equip_type,data.mhclo,rig,skeleton_data,sf_arrays)
-			data.mhclo.rigged_bones[rig_name] = sf_arrays[Mesh.ARRAY_BONES]
-			data.mhclo.rigged_weights[rig_name] = sf_arrays[Mesh.ARRAY_WEIGHTS]
+			#HumanizerEquipmentService.interpolate_rigged_weights(data.mhclo,data.rigged_bone_weights,skeleton_data,sf_arrays,rig_name)
+			#data.mhclo.rigged_bones[rig_name] = sf_arrays[Mesh.ARRAY_BONES]
+			#data.mhclo.rigged_weights[rig_name] = sf_arrays[Mesh.ARRAY_WEIGHTS]
 		else:
-			#HumanizerRigService.set_equipment_weights_array(equip_type,sf_arrays,rig,skeleton_data,data.mhclo)
-			HumanizerEquipmentService.interpolate_weights(equip_type,data.mhclo,rig,skeleton_data,sf_arrays)
-			data.mhclo.bones[rig_name] = sf_arrays[Mesh.ARRAY_BONES]
-			data.mhclo.weights[rig_name] = sf_arrays[Mesh.ARRAY_WEIGHTS]
+			HumanizerEquipmentService.interpolate_weights(equip_type,mhclo,rig,skeleton_data,sf_arrays)
 		
 static func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh: 
 	# build basis from obj file

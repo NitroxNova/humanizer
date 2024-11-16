@@ -162,14 +162,13 @@ static func interpolate_weights(equip_type:HumanizerEquipmentType, mhclo:MHCLO, 
 			bw_pair[1] /= weight_sum
 		while bw_array.size() < 8:
 			bw_array.append([0,0])
-	
-	mesh_arrays[Mesh.ARRAY_BONES] = PackedInt32Array()
-	mesh_arrays[Mesh.ARRAY_WEIGHTS] = PackedFloat32Array()
-	for gd_id in mesh_arrays[Mesh.ARRAY_VERTEX].size():
-		var mh_id = mesh_arrays[Mesh.ARRAY_CUSTOM0][gd_id]
+			
+	mhclo.bones[rig.resource_name] = PackedInt32Array()
+	mhclo.weights[rig.resource_name] = PackedFloat32Array()
+	for mh_id in mhclo.custom0_array:
 		for bw_pair in clothes_weights[mh_id]:
-			mesh_arrays[Mesh.ARRAY_BONES].append(bw_pair[0])
-			mesh_arrays[Mesh.ARRAY_WEIGHTS].append(bw_pair[1])
+			mhclo.bones[rig.resource_name].append(bw_pair[0])
+			mhclo.weights[rig.resource_name].append(bw_pair[1])
 
 static func interpolate_rigged_weights(mhclo:MHCLO, rigged_bone_weights:Dictionary,skeleton_data:Dictionary,sf_arrays:Array,rig_name:String):
 	var base_bone_weights = {}
