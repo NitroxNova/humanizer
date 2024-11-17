@@ -239,7 +239,7 @@ func create_human_branch() -> Node3D:
 		root_node.collision_layer = _staticbody_layers
 		#await get_tree().create_timer(1).timeout
 
-	if human_config.components.has(&'main_collider') and not root_node is StaticBody3D:
+	if human_config.components.has(&'main_collider') and main_collider != null and not root_node is StaticBody3D:
 		var coll = main_collider.duplicate(true)
 		root_node.add_child(coll)
 		coll.owner = root_node
