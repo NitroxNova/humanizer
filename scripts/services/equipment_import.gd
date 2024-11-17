@@ -5,6 +5,8 @@ static func import(json_path:String,import_materials:=true):
 	#load settings
 	var settings = HumanizerUtils.read_json(json_path)
 	var folder = json_path.get_base_dir()
+	#generate material files
+	HumanizerMaterialService.import_materials(folder)
 	#load mhclo
 	var mhclo := MHCLO.new()
 	mhclo.parse_file(settings.mhclo)
@@ -19,6 +21,7 @@ static func import(json_path:String,import_materials:=true):
 	
 	resource.path = folder
 	resource.resource_name = mhclo.resource_name
+	resource.textures = HumanizerMaterialService.search_for_generated_materials(folder)
 	var save_path = folder.path_join(resource.resource_name + '.res')
 	
 	#keep custom slots
@@ -51,6 +54,9 @@ static func import(json_path:String,import_materials:=true):
 	ResourceSaver.save(mhclo, mhclo.resource_path)
 	#add main resource to registry
 	HumanizerRegistry.add_equipment_type(resource)	
+
+
+		
 
 static func import_all():
 	print("TODO rewrite import all")

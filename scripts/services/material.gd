@@ -1,6 +1,28 @@
 extends Resource
 class_name HumanizerMaterialService
 
+static func import_materials(folder:String):
+	for subfolder in OSPath.get_dirs(folder):
+		import_materials(subfolder)
+	for file_name in OSPath.get_files(folder):
+		if file_name.get_extension() == "mhmat":
+			var new_mat = HumanizerMaterialService.mhmat_to_material(file_name)
+			var mat_path = file_name.get_base_dir().path_join( new_mat.resource_name + '_material.res')
+			new_mat.take_over_path(mat_path)
+			ResourceSaver.save(new_mat, mat_path)
+
+static func search_for_generated_materials(folder:String)->Dictionary:
+	var materials = {}
+	for subfolder in OSPath.get_dirs(folder):
+		materials.merge(search_for_generated_materials(subfolder))	
+	# top folder should override if conflicts
+	for file_name in OSPath.get_files(folder):
+		if file_name.get_extension() == "res":
+			var mat_res = load(file_name)
+			if mat_res is StandardMaterial3D:
+				materials[mat_res.resource_name] = file_name
+	return materials
+
 static func mhmat_to_material(path:String)->StandardMaterial3D:
 	var material = StandardMaterial3D.new()
 	var file = FileAccess.open(path,FileAccess.READ)
