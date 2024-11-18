@@ -156,7 +156,7 @@ func reset_scene() -> void:
 func load_human() -> void:
 	#print("loading human")
 	baked = false
-	await humanizer.load_config_async(human_config)
+	humanizer.load_config_async(human_config)
 	reset_scene()
 	_deserialize()
 	notify_property_list_changed()
@@ -237,7 +237,6 @@ func create_human_branch() -> Node3D:
 		new_coll.owner = root_node
 		new_coll.name = 'CollisionShape3D'
 		root_node.collision_layer = _staticbody_layers
-		#await get_tree().create_timer(1).timeout
 
 	if human_config.components.has(&'main_collider') and main_collider != null and not root_node is StaticBody3D:
 		var coll = main_collider.duplicate(true)
@@ -353,7 +352,7 @@ func add_equipment(equip: HumanizerEquipment) -> void:
 	var equip_type = equip.get_type()
 	for prev_equip in human_config.get_equipment_in_slots(equip_type.slots):
 		remove_equipment(prev_equip)
-	await humanizer.add_equipment(equip)	
+	humanizer.add_equipment(equip)	
 	init_equipment(equip)
 	
 func remove_equipment(equip: HumanizerEquipment) -> void:
