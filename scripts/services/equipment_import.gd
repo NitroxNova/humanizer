@@ -56,9 +56,19 @@ static func import(json_path:String,import_materials:=true):
 	#add main resource to registry
 	HumanizerRegistry.add_equipment_type(resource)	
 
-
-		
-
+static func search_for_rigged_glb(path:String)->String:
+	var folder = path
+	if FileAccess.file_exists(path): #is a file, get base directory
+		folder = path.get_base_dir()
+	for fl in OSPath.get_files(folder):
+		if fl.get_extension() == "glb":
+			return fl
+	for subfolder in OSPath.get_dirs(folder):
+		var fl = search_for_rigged_glb(subfolder)
+		if not fl == "":
+			return fl
+	return ""
+	
 static func import_all():
 	print("TODO rewrite import all")
 
