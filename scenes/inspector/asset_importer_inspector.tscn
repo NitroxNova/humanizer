@@ -13,11 +13,11 @@ theme = ExtResource("1_xtlgx")
 [node name="ImportOptions" type="VBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="AssetName" type="TextEdit" parent="ImportOptions"]
+[node name="DisplayName" type="TextEdit" parent="ImportOptions"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
-placeholder_text = "Asset Name"
+placeholder_text = "Display Name"
 
 [node name="SlotsContainer" type="VBoxContainer" parent="ImportOptions"]
 unique_name_in_owner = true

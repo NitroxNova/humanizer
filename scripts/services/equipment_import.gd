@@ -5,8 +5,9 @@ static func import(json_path:String,import_materials:=true):
 	#load settings
 	var settings = HumanizerUtils.read_json(json_path)
 	var folder = json_path.get_base_dir()
-	#generate material files
-	HumanizerMaterialService.import_materials(folder)
+	if import_materials:
+		#generate material files
+		HumanizerMaterialService.import_materials(folder)
 	#load mhclo
 	var mhclo := MHCLO.new()
 	mhclo.parse_file(settings.mhclo)
@@ -24,11 +25,11 @@ static func import(json_path:String,import_materials:=true):
 	resource.textures = HumanizerMaterialService.search_for_generated_materials(folder)
 	var save_path = folder.path_join(resource.resource_name + '.res')
 	
-	#keep custom slots
-	if FileAccess.file_exists(save_path):
-		resource.slots.clear()
-		for slot in settings.slots:
-			resource.slots.append(slot)
+	resource.display_name = settings.display_name
+	
+	resource.slots.clear()
+	for slot in settings.slots:
+		resource.slots.append(slot)
 	if resource.slots.is_empty():
 		printerr("Warning - " + resource.resource_name + " has no equipment slots, you can manually add them to the resource file.")
 	

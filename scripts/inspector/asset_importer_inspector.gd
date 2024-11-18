@@ -38,6 +38,7 @@ func _parse_category(_importer, category):
 
 	
 func fill_options():
+	#print("fill options")
 	reset_checkboxes()
 	var json_path = get_import_settings_path()
 	if FileAccess.file_exists(json_path):
@@ -45,6 +46,7 @@ func fill_options():
 		var settings = HumanizerUtils.read_json(json_path)
 		for slot in settings.slots:
 			slot_boxes[slot].button_pressed = true
+		inspector.get_node('%DisplayName').text = settings.display_name
 	else:
 		#print("loading resource")
 		#try new resource naming convention first
@@ -54,8 +56,9 @@ func fill_options():
 			var mhclo := MHCLO.new()
 			mhclo.parse_file(importer.asset_path)
 			res_path = importer.asset_path.get_base_dir()
-			res_path = res_path.path_join(mhclo.resource_name + ".res")
-			print(res_path)
+			res_path = res_path.path_join(mhclo.display_name + ".res")
+			inspector.get_node('%DisplayName').text = mhclo.display_name
+		#print(res_path)
 		var equip_res : HumanizerEquipmentType = load(res_path)
 		for slot in equip_res.slots:
 			slot_boxes[slot].button_pressed = true
@@ -74,6 +77,10 @@ func import_asset():
 			slot_list.append(slot_name)
 	import_settings.slots = slot_list
 	import_settings.mhclo = importer.asset_path
+	import_settings.display_name = inspector.get_node('%DisplayName').text 
+	if import_settings.display_name.strip_edges() == "":
+		var string_id = import_settings.mhclo.get_basename().get_file()
+		printerr("No display name set, using string ID " + string_id) 
 	var save_file = get_import_settings_path()
 	HumanizerUtils.save_json(save_file,import_settings)
 	HumanizerEquipmentImportService.import(save_file)
