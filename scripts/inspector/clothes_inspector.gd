@@ -81,7 +81,7 @@ func build_grid() -> void:
 		child.owner = self
 		
 func fill_table(config: HumanConfig) -> void:
-	print("filling table")
+	#print("filling table")
 	for slot in HumanizerGlobalConfig.config.equipment[category].get_slots():
 		var clothes = config.get_equipment_in_slot(slot)
 		if clothes != null:
@@ -168,7 +168,7 @@ func _item_selected(index: int, slot: String):
 		var clothes: HumanizerEquipmentType = HumanizerRegistry.equipment[string_id]
 		for sl in slots:
 			last_equipped[sl] = clothes
-		print("clothes changed " + string_id)
+		#print("clothes changed " + string_id)
 		clothes_changed.emit(clothes)
 		var textures = material_option_buttons[slot]
 		material_set.emit(name, textures.get_item_text(textures.selected))
