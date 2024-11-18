@@ -156,7 +156,7 @@ func reset_scene() -> void:
 func load_human() -> void:
 	#print("loading human")
 	baked = false
-	await humanizer.load_config(human_config)
+	await humanizer.load_config_async(human_config)
 	reset_scene()
 	_deserialize()
 	notify_property_list_changed()
