@@ -61,7 +61,8 @@ func generate_random_human(callback: Callable):
 		randomizer.randomize_shapekeys()
 
 		var humanizer: Humanizer = Humanizer.new()
-		humanizer.load_config_async(human_config)
+		await humanizer.load_config_async(human_config)
 		var character = humanizer.get_CharacterBody3D(false)
 		callback.call_deferred(character)
 	);
+

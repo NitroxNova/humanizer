@@ -31,7 +31,7 @@ func load_config_async(_human_config):
 	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
 	for equip in human_config.equipment.values():
 		mesh_arrays[equip.type] = HumanizerEquipmentService.load_mesh_arrays(equip.get_type())
-		init_equipment_material(equip)
+		await init_equipment_material(equip)
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
 
@@ -151,16 +151,16 @@ func set_eyebrow_color(color:Color):
 func init_equipment_material(equip:HumanizerEquipment): #called from thread
 	#print("initializing equipment")
 	var equip_type = equip.get_type()
-	materials[equip.type] = equip.material_config.generate_material_3D()
+	materials[equip.type] = await equip.material_config.generate_material_3D()
 	material_updated.emit(equip)
 
 func set_equipment_material(equip:HumanizerEquipment, material_name: String)-> void:
 	human_config.set_equipment_material(equip,material_name)	
-	init_equipment_material(equip)
+	await init_equipment_material(equip)
 
 func update_material(equip_type:String): #from the material config
 	var equip = human_config.equipment[equip_type]
-	materials[equip.type] = equip.material_config.generate_material_3D()
+	materials[equip.type] = await equip.material_config.generate_material_3D()
 	material_updated.emit(equip)
 	
 #func force_update_materials(): # not normally needed, use this if generated humans arent updating textures properly (was an issue in the stress test - has something to do with threads)
@@ -195,7 +195,7 @@ func add_equipment(equip:HumanizerEquipment):
 	if equip_type.rigged:
 		HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip_type.resource_name], skeleton_data)
 	update_equipment_weights(equip_type.resource_name)
-	init_equipment_material(equip)
+	await init_equipment_material(equip)
 
 func remove_equipment(equip:HumanizerEquipment):
 	human_config.remove_equipment(equip)

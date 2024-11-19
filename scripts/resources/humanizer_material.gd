@@ -43,7 +43,7 @@ func generate_material_3D() -> StandardMaterial3D:
 			material.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, load(overlays[0].ao_texture_path))
 	else:
 		#print("more than 1 overlay")
-		var textures = _update_material()
+		var textures = await _update_material()
 		material.normal_enabled = textures.normal != null
 		material.ao_enabled = textures.ao != null
 		material.albedo_texture = textures.albedo
@@ -90,10 +90,10 @@ func _update_material() -> Dictionary:
 		else:
 			Engine.get_main_loop().get_root().add_child.call_deferred(image_vp)
 			image_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
-			# if not image_vp.is_inside_tree():
-			# 	await Signal(image_vp,"tree_entered")
-			#await Signal(RenderingServer, "frame_post_draw")
-			# await RenderingServer.frame_post_draw
+			if not image_vp.is_inside_tree():
+				await Signal(image_vp,"tree_entered")
+			await Signal(RenderingServer, "frame_post_draw")
+			await RenderingServer.frame_post_draw
 			var image = image_vp.get_texture().get_image()
 			image.generate_mipmaps()
 			textures[texture] = ImageTexture.create_from_image(image)

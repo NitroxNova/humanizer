@@ -574,18 +574,18 @@ func set_skin_normal_texture(texture_name: String) -> void:
 func set_equipment_texture_by_slot(slot_name:String, texture: String):
 	var equip = human_config.get_equipment_in_slot(slot_name)
 	if equip != null:
-		set_equipment_material(equip,texture)
+		await set_equipment_material(equip,texture)
 
 func set_equipment_texture_by_name(equip_name:String, texture:String):
 	if equip_name in human_config.equipment:
 		var equip = human_config.equipment[equip_name]
-		set_equipment_material(equip,texture)
+		await set_equipment_material(equip,texture)
 
 func set_equipment_material(equip:HumanizerEquipment, texture: String) -> void:
 	if baked:
 		printerr('Cannot change materials. Already baked.')
 		return
-	humanizer.set_equipment_material(equip,texture)
+	await humanizer.set_equipment_material(equip,texture)
 	get_node(equip.type).set_surface_override_material(0,humanizer.materials[equip.type])
 	notify_property_list_changed()
 	
