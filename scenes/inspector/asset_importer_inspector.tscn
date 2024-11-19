@@ -49,6 +49,26 @@ text = "Select Rigged GLB File"
 unique_name_in_owner = true
 layout_mode = 2
 
+[node name="AddBone" type="HBoxContainer" parent="ImportOptions"]
+layout_mode = 2
+
+[node name="SkeletonOptions" type="OptionButton" parent="ImportOptions/AddBone"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="BoneOptions" type="OptionButton" parent="ImportOptions/AddBone"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="AddBoneButton" type="Button" parent="ImportOptions/AddBone"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Add Attachment Bone"
+
+[node name="BoneList" type="VBoxContainer" parent="ImportOptions"]
+unique_name_in_owner = true
+layout_mode = 2
+
 [node name="ImportButton" type="Button" parent="ImportOptions"]
 unique_name_in_owner = true
 layout_mode = 2

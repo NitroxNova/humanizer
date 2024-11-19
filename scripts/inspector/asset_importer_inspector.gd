@@ -28,19 +28,61 @@ func _parse_category(_importer, category):
 			checkbox.text = slot
 			container.add_child(checkbox)
 			slot_boxes[slot+slots_cat.suffix] = checkbox
-		if not inspector.get_node('%MHCLO_FileLoader').file_selected.is_connected(fill_options):
-			inspector.get_node('%MHCLO_FileLoader').file_selected.connect(fill_options)
-		
 		inspector.get_node('%SlotsContainer').add_child(container)
-		#print(slots_cat.category)
-		
-	#fill_options()
-	inspector.get_node('%ImportButton').pressed.connect(import_asset)
+	
+	if not inspector.get_node('%MHCLO_FileLoader').file_selected.is_connected(fill_options):
+		inspector.get_node('%MHCLO_FileLoader').file_selected.connect(fill_options)
+	inspector.get_node('%MHCLO_FileLoader').current_dir = HumanizerGlobalConfig.config.asset_import_paths[-1].path_join("equipment")
+	
 
 	
+	inspector.get_node('%SkeletonOptions').add_item(" -- Select Skeleton --")
+	var rigs = HumanizerRegistry.rigs
+	for rig in rigs:
+		if rigs[rig].skeleton_retargeted_path != '':
+			inspector.get_node('%SkeletonOptions').add_item(rig + '-RETARGETED')
+		if rigs[rig].skeleton_path != '':
+			inspector.get_node('%SkeletonOptions').add_item(rig)
+	inspector.get_node('%SkeletonOptions').item_selected.connect(fill_bone_options)		
+	#fill_options()
+	
+	inspector.get_node('%AddBoneButton').pressed.connect(_add_bone_pressed)
+	inspector.get_node('%ImportButton').pressed.connect(import_asset)
+
+func _add_bone_pressed():
+	var hbox = HBoxContainer.new()
+	var label = Label.new()
+	label.name = "Label"
+	var selected = inspector.get_node('%BoneOptions').get_selected()
+	label.text = inspector.get_node('%BoneOptions').get_item_text(selected)
+	hbox.add_child(label)
+	var button = Button.new()
+	button.text = " Remove "
+	button.size_flags_horizontal = Control.SIZE_SHRINK_END + Control.SIZE_EXPAND
+	button.pressed.connect(_remove_bone_pressed.bind(hbox))
+	hbox.add_child(button)
+	inspector.get_node('%BoneList').add_child(hbox)
+
+func _remove_bone_pressed(node:Control):
+	inspector.get_node('%BoneList').remove_child(node)
+
+func fill_bone_options(idx:int):
+	inspector.get_node('%BoneOptions').clear()
+	if idx == 0: #  -- select skeleton -- 
+		return
+		
+	var rig_name = inspector.get_node('%SkeletonOptions').get_item_text(idx)
+	var retargeted: bool = rig_name.ends_with('-RETARGETED')
+	var rig = HumanizerRigService.get_rig(rig_name)
+	var skeleton_data = HumanizerRigService.init_skeleton_data(rig,retargeted)
+	for bone_name in skeleton_data:
+		inspector.get_node('%BoneOptions').add_item(bone_name)
+
 func fill_options(path:String=""):
 	#print("fill options")
 	reset_checkboxes()
+	inspector.get_node('%GLB_Label').text = ""
+	inspector.get_node('%LoadRiggedGLB').current_dir = inspector.get_node('%MHCLO_Label').text.get_base_dir()
 	var json_path = get_import_settings_path()
 	if FileAccess.file_exists(json_path):
 		#print("loading json")
@@ -86,6 +128,10 @@ func import_asset():
 		var string_id = import_settings.mhclo.get_basename().get_file()
 		printerr("No display name set, using string ID " + string_id) 
 	import_settings.rigged_glb = inspector.get_node('%GLB_Label').text
+	import_settings.attach_bones = []
+	for hbox in inspector.get_node('%BoneList').get_children():
+		var label = hbox.get_node("Label")
+		import_settings.attach_bones.append(label.text)
 	var save_file = get_import_settings_path()
 	HumanizerUtils.save_json(save_file,import_settings)
 	HumanizerEquipmentImportService.import(save_file)
