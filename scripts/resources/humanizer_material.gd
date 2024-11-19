@@ -43,12 +43,14 @@ func generate_material_3D() -> StandardMaterial3D:
 			material.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, load(overlays[0].ao_texture_path))
 	else:
 		#print("more than 1 overlay")
-		var textures = await _update_material()
-		material.normal_enabled = textures.normal != null
-		material.ao_enabled = textures.ao != null
-		material.albedo_texture = textures.albedo
-		material.normal_texture = textures.normal
-		material.ao_texture = textures.ao
+		(func():
+			var textures = await _update_material()
+			material.normal_enabled = textures.normal != null
+			material.ao_enabled = textures.ao != null
+			material.albedo_texture = textures.albedo
+			material.normal_texture = textures.normal
+			material.ao_texture = textures.ao
+		).call_deferred()
 	return material
 	
 func _update_material() -> Dictionary:
