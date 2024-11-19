@@ -38,7 +38,7 @@ func load_config_async(_human_config):
 func get_CharacterBody3D(baked:bool):
 	hide_clothes_vertices()
 	var human = CharacterBody3D.new()
-	human.set_script(load("res://addons/humanizer/scripts/utils/human_controller.gd"))
+	human.set_script(HumanizerAPI.load_resource("res://addons/humanizer/scripts/utils/human_controller.gd"))
 	var skeleton = get_skeleton()
 	human.add_child(skeleton)
 	skeleton.set_unique_name_in_owner(true)
@@ -78,9 +78,9 @@ func get_combined_meshes() -> ArrayMesh:
 	
 func get_animation_tree():
 	if human_config.rig == 'default-RETARGETED':
-		return load("res://addons/humanizer/data/animations/face_animation_tree.tscn").instantiate()
+		return HumanizerAPI.load_resource("res://addons/humanizer/data/animations/face_animation_tree.tscn").instantiate()
 	elif human_config.rig.ends_with('RETARGETED'):
-		return load("res://addons/humanizer/data/animations/animation_tree.tscn").instantiate()
+		return HumanizerAPI.load_resource("res://addons/humanizer/data/animations/animation_tree.tscn").instantiate()
 	else:  # No example animator for specific rigs that aren't retargeted
 		return
 
@@ -219,7 +219,7 @@ func fit_all_meshes():
 
 func fit_equipment_mesh(equip_name:String):
 	var equip:HumanizerEquipment = human_config.equipment[equip_name]
-	var mhclo = load(equip.get_type().mhclo_path)
+	var mhclo = HumanizerAPI.load_resource(equip.get_type().mhclo_path)
 	mesh_arrays[equip_name] = HumanizerEquipmentService.fit_mesh_arrays(mesh_arrays[equip_name],helper_vertex,mhclo)
 
 func set_rig(rig_name:String):
@@ -254,7 +254,7 @@ func update_bone_weights():
 		
 func update_equipment_weights(equip_name:String):
 	var equip_type:HumanizerEquipmentType = human_config.equipment[equip_name].get_type()
-	var mhclo = load(equip_type.mhclo_path)
+	var mhclo = HumanizerAPI.load_resource(equip_type.mhclo_path)
 	if equip_type.rigged:
 		var bones = mhclo.rigged_bones[rig.resource_name].duplicate() #could potentially have multiple of the same mhclo open, dont want to change other arrays (due to godot resource sharing)
 		for bone_array_id in bones.size():

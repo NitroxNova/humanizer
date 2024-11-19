@@ -182,7 +182,7 @@ static func compress_material(args:Dictionary):
 				else:
 					new_texture.take_over_path(save_path)
 					ResourceSaver.save(new_texture, save_path)
-					material.set(texture + '_texture', load(save_path))
+					material.set(texture + '_texture', HumanizerAPI.load_resource(save_path))
 		if not material.resource_path in ["",null]:
 			material.take_over_path(material.resource_path)
 			ResourceSaver.save(material, material.resource_path)

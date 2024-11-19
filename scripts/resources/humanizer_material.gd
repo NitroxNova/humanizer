@@ -22,14 +22,14 @@ func duplicate(subresources=false):
 func generate_material_3D() -> StandardMaterial3D:
 	var material = StandardMaterial3D.new()
 	if FileAccess.file_exists(base_material_path):
-		material = load(base_material_path).duplicate() #dont want to overwrite base material values
+		material = HumanizerAPI.load_resource(base_material_path).duplicate() #dont want to overwrite base material values
 
 	if overlays.size() == 0:
 		pass
 	elif overlays.size() == 1:
 		material.albedo_color = overlays[0].color
 		if not overlays[0].albedo_texture_path in ["",null]:
-			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, load(overlays[0].albedo_texture_path))
+			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, HumanizerAPI.load_resource(overlays[0].albedo_texture_path))
 		else:
 			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO,null)
 		if overlays[0].normal_texture_path in ["",null]:
@@ -38,9 +38,9 @@ func generate_material_3D() -> StandardMaterial3D:
 		else:
 			material.normal_enabled = true
 			material.normal_scale = overlays[0].normal_strength
-			material.set_texture(BaseMaterial3D.TEXTURE_NORMAL, load(overlays[0].normal_texture_path))
+			material.set_texture(BaseMaterial3D.TEXTURE_NORMAL, HumanizerAPI.load_resource(overlays[0].normal_texture_path))
 		if not overlays[0].ao_texture_path in ["",null]:
-			material.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, load(overlays[0].ao_texture_path))
+			material.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, HumanizerAPI.load_resource(overlays[0].ao_texture_path))
 	else:
 		# awaiting outside the main thread will switch to the main thread if the signal awaited is emitted by the main thread
 		(func():
@@ -60,7 +60,7 @@ func _update_material() -> Dictionary:
 	for texture in TEXTURE_LAYERS: #albedo, normal, ambient occulsion ect..
 		var texture_size = Vector2(2**11,2**11)
 		if overlays[0].albedo_texture_path != "":
-			texture_size = load(overlays[0].albedo_texture_path).get_size()
+			texture_size = HumanizerAPI.load_resource(overlays[0].albedo_texture_path).get_size()
 		var image_vp = SubViewport.new()
 		
 		image_vp.size = texture_size
@@ -77,7 +77,7 @@ func _update_material() -> Dictionary:
 					im_col_rect.color = overlay.color
 					image_vp.add_child(im_col_rect)
 				continue
-			var im_texture = load(path)
+			var im_texture = HumanizerAPI.load_resource(path)
 			var im_tex_rect = TextureRect.new()
 			im_tex_rect.position = overlay.offset
 			im_tex_rect.texture = im_texture

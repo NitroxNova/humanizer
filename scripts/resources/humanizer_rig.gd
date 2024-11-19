@@ -10,10 +10,10 @@ class_name HumanizerRig
 @export var rigged_mesh_path: String
 
 func load_skeleton() -> Skeleton3D:
-	return load(skeleton_path).instantiate()
+	return HumanizerAPI.load_resource(skeleton_path).instantiate()
 
 func load_retargeted_skeleton() -> Skeleton3D:
-	return load(skeleton_retargeted_path).instantiate()
+	return HumanizerAPI.load_resource(skeleton_retargeted_path).instantiate()
 
 func load_bone_weights() -> Dictionary:
 	var weights: Dictionary = HumanizerUtils.read_json(mh_weights_path).weights

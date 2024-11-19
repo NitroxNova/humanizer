@@ -21,7 +21,7 @@ func set_options():
 	
 func _load_preset(idx) -> void:
 	print('loading HumanConfig preset : ' + get_item_metadata(idx))
-	human.human_config = load(get_item_metadata(idx))
+	human.human_config = HumanizerAPI.load_resource(get_item_metadata(idx))
 "
 
 [sub_resource type="GDScript" id="GDScript_5ptqy"]

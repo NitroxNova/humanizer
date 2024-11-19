@@ -13,7 +13,7 @@ func _parse_category(_importer, category):
 	if category != 'asset_importer.gd':
 		return
 	importer = _importer
-	inspector = load("res://addons/humanizer/scenes/inspector/asset_importer_inspector.tscn").instantiate()
+	inspector = HumanizerAPI.load_resource("res://addons/humanizer/scenes/inspector/asset_importer_inspector.tscn").instantiate()
 	add_custom_control(inspector)
 	
 	slot_boxes = {}
@@ -56,7 +56,7 @@ func fill_options():
 			res_path = importer.asset_path.get_base_dir()
 			res_path = res_path.path_join(mhclo.resource_name + ".res")
 			print(res_path)
-		var equip_res : HumanizerEquipmentType = load(res_path)
+		var equip_res : HumanizerEquipmentType = HumanizerAPI.load_resource(res_path)
 		for slot in equip_res.slots:
 			slot_boxes[slot].button_pressed = true
 

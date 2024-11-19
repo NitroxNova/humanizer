@@ -182,9 +182,9 @@ func create_human_branch() -> Node3D:
 
 	root_node.name = human_name
 	if _character_script not in ['', null]:
-		root_node.set_script(load(_character_script))
+		root_node.set_script(HumanizerAPI.load_resource(_character_script))
 	elif script != '':
-		root_node.set_script(load(script))
+		root_node.set_script(HumanizerAPI.load_resource(script))
 		
 	root_node.collision_layer = _character_layers
 	root_node.collision_mask = _character_mask
@@ -243,7 +243,7 @@ func create_human_branch() -> Node3D:
 		root_node.add_child(coll)
 		coll.owner = root_node
 	if human_config.components.has(&'saccades'):
-		var saccades : Node = load("res://addons/humanizer/scenes/subscenes/saccades.tscn").instantiate()
+		var saccades : Node = HumanizerAPI.load_resource("res://addons/humanizer/scenes/subscenes/saccades.tscn").instantiate()
 		root_node.add_child(saccades)
 		saccades.owner = root_node
 	if has_node('MorphDriver'):
@@ -470,7 +470,7 @@ func bake_surface() -> void:
 	if _new_shapekeys.size() > 0 :
 		var morph_driver : Node
 		if not has_node('MorphDriver'):
-			morph_driver = load("res://addons/humanizer/scenes/subscenes/morph_driver.tscn").instantiate()
+			morph_driver = HumanizerAPI.load_resource("res://addons/humanizer/scenes/subscenes/morph_driver.tscn").instantiate()
 			morph_driver.meshes = [mi]
 			morph_driver.skeleton = skeleton
 			morph_driver.bone_positions = morph_data.bone_positions
@@ -655,7 +655,7 @@ func _reset_animator() -> void:
 		reset_face_pose()
 
 func reset_face_pose() -> void:
-	var face_poses: AnimationLibrary = load("res://addons/humanizer/data/animations/face_poses.glb")
+	var face_poses: AnimationLibrary = HumanizerAPI.load_resource("res://addons/humanizer/data/animations/face_poses.glb")
 	for clip: String in face_poses.get_animation_list():
 		animator.set("parameters/" + clip + "/add_amount", 0.)
 
@@ -720,7 +720,7 @@ func _add_saccades() -> void:
 			saccades.human = self
 			saccades.enabled = true
 			return
-		saccades = load("res://addons/humanizer/scenes/subscenes/saccades.tscn").instantiate()
+		saccades = HumanizerAPI.load_resource("res://addons/humanizer/scenes/subscenes/saccades.tscn").instantiate()
 		saccades.skeleton = skeleton
 		_add_child_node(saccades)
 		move_child(saccades, 0)

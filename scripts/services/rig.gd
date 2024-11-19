@@ -46,7 +46,7 @@ static func adjust_bone_positions(skeleton_data:Dictionary,rig:HumanizerRig,help
 	for equip in equipment.values():
 		var equip_type = equip.get_type()
 		if equip_type.rigged:
-			var mhclo : MHCLO = load(equip_type.mhclo_path)
+			var mhclo : MHCLO = HumanizerAPI.load_resource(equip_type.mhclo_path)
 			for bone_config in mhclo.rigged_config:
 				var bone_id = skeleton_data.keys().find(bone_config.name)
 				if bone_id > -1:
@@ -115,7 +115,7 @@ static func is_retargeted(rig_name:String):
 	return false
 	
 static func skeleton_add_rigged_equipment(equipment:HumanizerEquipment, sf_arrays:Array,skeleton_data:Dictionary):
-	var mhclo : MHCLO = load(equipment.get_type().mhclo_path)
+	var mhclo : MHCLO = HumanizerAPI.load_resource(equipment.get_type().mhclo_path)
 	for bone_config in mhclo.rigged_config:
 		var bone_name = bone_config.name
 		if bone_name != "neutral_bone":
@@ -133,7 +133,7 @@ static func get_asset_bone_position(sf_arrays:Array,mhclo:MHCLO,bone_config:Dict
 	return bone_pos
 
 static func skeleton_remove_rigged_equipment(equipment:HumanizerEquipment,skeleton_data:Dictionary):
-	var mhclo : MHCLO = load(equipment.get_type().mhclo_path)
+	var mhclo : MHCLO = HumanizerAPI.load_resource(equipment.get_type().mhclo_path)
 	for bone_config in mhclo.rigged_config:
 		var bone_name = bone_config.name
 		skeleton_data.erase(bone_name)			
