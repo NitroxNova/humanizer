@@ -42,7 +42,7 @@ func generate_material_3D() -> StandardMaterial3D:
 		if not overlays[0].ao_texture_path in ["",null]:
 			material.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, load(overlays[0].ao_texture_path))
 	else:
-		#print("more than 1 overlay")
+		# awaiting outside the main thread will switch to the main thread if the signal awaited is emitted by the main thread
 		(func():
 			var textures = await _update_material()
 			material.normal_enabled = textures.normal != null
