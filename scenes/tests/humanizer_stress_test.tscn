@@ -82,7 +82,7 @@ func _generate_human(thread:Thread):
 	randomizer.randomize_shapekeys()
 	human_config.init_macros()
 	var humanizer = Humanizer.new()
-	humanizer.load_config(human_config)
+	humanizer.load_config_async(human_config)
 	var new_human = humanizer.get_CharacterBody3D(false)
 	return new_human
 "

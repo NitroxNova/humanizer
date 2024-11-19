@@ -10,7 +10,8 @@ var rig: HumanizerRig
 var skeleton_data : Dictionary = {} #bone names with parent, position and rotation data
 signal material_updated
 
-func load_config(_human_config):
+# this function must be awaited
+func load_config_async(_human_config):
 	materials = {}
 	mesh_arrays = {}
 	skeleton_data = {}
