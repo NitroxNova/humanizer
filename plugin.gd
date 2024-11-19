@@ -30,7 +30,6 @@ var thread := Thread.new()
 
 func _enter_tree():
 	# Load global config singleton
-	# add_autoload_singleton('HumanizerAPI', "res://addons/humanizer/scripts/core/HumanizerAPI.gd")
 	add_autoload_singleton('HumanizerGlobal', "res://addons/humanizer/scenes/humanizer_global.tscn")
 	# Add editor inspector plugins
 	add_inspector_plugin(humanizer_inspector)

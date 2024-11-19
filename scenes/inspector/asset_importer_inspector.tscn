@@ -13,13 +13,39 @@ theme = ExtResource("1_xtlgx")
 [node name="ImportOptions" type="VBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="AssetName" type="TextEdit" parent="ImportOptions"]
+[node name="MHCLO_Button" type="Button" parent="ImportOptions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Select MHCLO file"
+
+[node name="MHCLO_Label" type="Label" parent="ImportOptions"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ImportOptions"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ImportOptions/HBoxContainer"]
+layout_mode = 2
+text = "Display Name "
+
+[node name="DisplayName" type="TextEdit" parent="ImportOptions/HBoxContainer"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 35)
 layout_mode = 2
-placeholder_text = "Asset Name"
+size_flags_horizontal = 3
+placeholder_text = "Display Name"
 
 [node name="SlotsContainer" type="VBoxContainer" parent="ImportOptions"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="GLB_Button" type="Button" parent="ImportOptions"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Select Rigged GLB File"
+
+[node name="GLB_Label" type="Label" parent="ImportOptions"]
 unique_name_in_owner = true
 layout_mode = 2
 
@@ -27,6 +53,26 @@ layout_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-text = "Import Asset"
+text = "---------- Import Asset ----------"
 
-[node name="FileDialog" type="FileDialog" parent="."]
+[node name="MHCLO_FileLoader" type="FileDialog" parent="."]
+unique_name_in_owner = true
+auto_translate_mode = 1
+title = "Open a File"
+size = Vector2i(275, 196)
+ok_button_text = "Open"
+file_mode = 0
+filters = PackedStringArray("*.mhclo")
+
+[node name="LoadRiggedGLB" type="FileDialog" parent="."]
+unique_name_in_owner = true
+title = "Open a File"
+size = Vector2i(275, 196)
+ok_button_text = "Open"
+file_mode = 0
+filters = PackedStringArray("*.glb")
+
+[connection signal="pressed" from="ImportOptions/MHCLO_Button" to="MHCLO_FileLoader" method="popup_centered_ratio"]
+[connection signal="pressed" from="ImportOptions/GLB_Button" to="LoadRiggedGLB" method="popup_centered_ratio"]
+[connection signal="file_selected" from="MHCLO_FileLoader" to="ImportOptions/MHCLO_Label" method="set_text"]
+[connection signal="file_selected" from="LoadRiggedGLB" to="ImportOptions/GLB_Label" method="set_text"]

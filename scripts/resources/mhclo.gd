@@ -25,8 +25,11 @@ enum SECTION {header,vertices,delete_vertices}
 @export var custom0_array := PackedFloat32Array()
 
 var obj_file_name: String
+var display_name : String
 
 func parse_file(filename:String):
+	resource_name = filename.get_basename().get_file()
+	#print(resource_name)
 	var unique_lines = {}
 	var file = FileAccess.open(filename,FileAccess.READ)
 	var current_section = SECTION.header
@@ -37,8 +40,10 @@ func parse_file(filename:String):
 				current_section = SECTION.vertices
 			elif line.begins_with("obj_file "):
 				obj_file_name = line.get_slice(" ",1)
-			elif line.begins_with("name"):
-				resource_name = line.get_slice(' ', 1).strip_edges()
+			elif line.begins_with("name "):
+				#use substring instead of split so there can be additional spaces in name
+				display_name = line.substr(5).strip_edges()
+				#print(display_name)
 			elif line.begins_with("tag "):
 				tags.append(line.substr(4).strip_edges()) 
 			elif line.begins_with("x_scale "):

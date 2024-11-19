@@ -2,6 +2,7 @@
 extends Resource
 class_name HumanizerEquipmentType #base equipment definition
 
+@export var display_name : String
 @export_dir var path: String
 @export var default_material: String
 @export var rigged: bool = false
