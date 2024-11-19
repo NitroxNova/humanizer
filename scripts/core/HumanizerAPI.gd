@@ -1,18 +1,28 @@
 extends Node
 class_name HumanizerAPI
 
+## todo
+## release threads when quit is requested or sigkill
+## document usage as a node
+## generate from config easier
+## 
+
+@export var thread_count = 1
 var task_semaphore: Semaphore = Semaphore.new()
 var task_mutex: Mutex = Mutex.new()
 var tasks: Array[Callable] = []
 var threads: Array[Thread] = []
 static var resource_mutex: Mutex = Mutex.new()
+static var resources = {}
 
 func setup():
     if not threads.is_empty(): return
-    for i in range(0, 4):
+    for i in range(0, thread_count):
         var thread = Thread.new()
         threads.append(thread)
         thread.start(_worker_thread)
+
+    HumanizerLogger.debug("Setup thread pool with " + str(thread_count) + " threads")
 
 func add_thread_task(callable: Callable):
     task_mutex.lock()
@@ -21,14 +31,21 @@ func add_thread_task(callable: Callable):
     task_semaphore.post()
 
 static func load_resource(path) -> Resource:
-    # if OS.get_thread_caller_id() == OS.get_main_thread_id():
-    #     printerr("main thread load_res")
-    #     print_stack()
-    if resource_mutex == null: # idk anymore
-        return load(path)
-    resource_mutex.lock()
-    var resource = load(path)
-    resource_mutex.unlock()
+    if resources == null:
+        resources = {}
+
+    var resource: Resource
+    if resources.has(path):
+        resource = resources[path]
+    else:
+        resource = load(path)
+        if resource_mutex == null:
+            resource_mutex = Mutex.new() # need a mutex for this mutex =]
+        resource_mutex.lock()
+        resources[path] = resource
+        resource_mutex.unlock()
+
+        HumanizerLogger.debug("Resource loaded: " + path)
     return resource
 
 func _worker_thread():
@@ -49,44 +66,45 @@ func _exit_tree() -> void:
         thread.wait_to_finish()
         threads.erase(thread)
 
-# todo: generate from config
-# bugs: race conditions on resource loading
 func generate_random_human(callback: Callable):
     setup()
     add_thread_task(func():
-        var start = Time.get_ticks_msec()
-        var randomizer = HumanRandomizer.new()
-        randomizer.shapekeys = HumanizerTargetService.get_shapekey_categories()
-        randomizer.randomization = {}
-        randomizer.categories = {}
-        randomizer.asymmetry = {}
+        HumanizerLogger.debug("### Generating Human ###")
+        HumanizerLogger.profile("generate_random_human", func():
+            var human_config: HumanConfig = HumanConfig.new()
+            human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 
-        for cat in randomizer.shapekeys:
-            randomizer.randomization[cat] = 0.5
-            randomizer.asymmetry[cat] = 0.1 
-            randomizer.categories[cat] = true
+            var randomizer = HumanRandomizer.new()
+            randomizer.shapekeys = HumanizerTargetService.get_shapekey_categories()
+            randomizer.randomization = {}
+            randomizer.categories = {}
+            randomizer.asymmetry = {}
 
-        var timer = Time.get_ticks_msec()
+            for cat in randomizer.shapekeys:
+                randomizer.randomization[cat] = 0.5
+                randomizer.asymmetry[cat] = 0.1 
+                randomizer.categories[cat] = true
+            randomizer.human = human_config
 
-        var human_config: HumanConfig = HumanConfig.new()
-        human_config.rig = HumanizerGlobalConfig.config.default_skeleton
-        human_config.init_macros()
+            HumanizerLogger.profile("randomize", func():
+                randomizer.randomize_body_parts()
+                randomizer.randomize_clothes()
+                randomizer.randomize_shapekeys()
+            )
 
-        randomizer.human = human_config
-        randomizer.randomize_body_parts()
-        randomizer.randomize_clothes()
-        randomizer.randomize_shapekeys()
+            human_config.init_macros()
+            var humanizer: Humanizer = Humanizer.new()
 
-        var humanizer: Humanizer = Humanizer.new()
-        humanizer.load_config_async(human_config)
-        print("took " + str(Time.get_ticks_msec() - timer) + "ms to load config")
+            HumanizerLogger.profile("load human config", func():
+                humanizer.load_config_async(human_config)
+            )
 
-        timer = Time.get_ticks_msec()
-        var character = humanizer.get_CharacterBody3D(false)
-        print("took " + str(Time.get_ticks_msec() - timer) + "ms to get character body 3d")
+            var character = HumanizerLogger.profile("load human config", func():
+                return humanizer.get_CharacterBody3D(false) # there are race conditions in this function
+            )
 
-        if OS.get_thread_caller_id() == OS.get_main_thread_id():
-            printerr("main thread is building a humanizer character!")
-        callback.call_deferred(character)
-        print("Generated human in " + str(Time.get_ticks_msec() - start) + "ms")
+            if OS.get_thread_caller_id() == OS.get_main_thread_id():
+                printerr("main thread is building a humanizer character!")
+            callback.call_deferred(character)
+        )
     );

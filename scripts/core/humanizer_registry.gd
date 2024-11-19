@@ -11,11 +11,12 @@ func _init() -> void:
 	load_all()
 
 static func load_all() -> void:
-	_get_rigs()
-	_load_equipment()
-	_get_skin_textures()
-	_get_materials()
-	print("done loading registry")
+	HumanizerLogger.profile("HumanizerRegistry", func():
+		_get_rigs()
+		_load_equipment()
+		_get_skin_textures()
+		_get_materials()
+	)
 	
 static func _get_materials():
 	for folder in HumanizerGlobalConfig.config.asset_import_paths:

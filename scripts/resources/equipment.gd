@@ -52,4 +52,4 @@ func set_material(material_name:String):
 func get_type():
 	if type in HumanizerRegistry.equipment:
 		return HumanizerRegistry.equipment[type]
-	printerr("Unkown equipment type: " + type)
+	printerr("Unknown equipment type: " + type)

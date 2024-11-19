@@ -15,6 +15,7 @@ static func load_from_config():
 
 # this function must be awaited
 func load_config_async(_human_config):
+	var timer
 	materials = {}
 	mesh_arrays = {}
 	skeleton_data = {}
@@ -28,10 +29,17 @@ func load_config_async(_human_config):
 		human_config.add_equipment(HumanizerEquipment.new("LeftEyeBall-LowPoly"))
 	else:	
 		human_config = _human_config
-	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
-	for equip in human_config.equipment.values():
-		mesh_arrays[equip.type] = HumanizerEquipmentService.load_mesh_arrays(equip.get_type())
-		init_equipment_material(equip)
+
+	HumanizerLogger.profile("init_helper_vertex", func():
+		helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
+	)
+
+	HumanizerLogger.profile("load equipment", func():
+		for equip in human_config.equipment.values():
+			mesh_arrays[equip.type] = HumanizerEquipmentService.load_mesh_arrays(equip.get_type())
+			init_equipment_material(equip)
+	)
+
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
 

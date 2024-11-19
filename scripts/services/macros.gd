@@ -111,6 +111,10 @@ static func get_combination_values(combo_name:String,data:Dictionary):
 		elif macro_name == "race":
 			next_shapes = data.race.duplicate()
 		else:
+			if not macro_name in data:
+				printerr("no macro data for name '" + macro_name + "'")
+				printerr(str(data))
+				print_stack()
 			var curr_macro = data[macro_name]
 			for shape_name in combo_shapekeys:
 				for offset_counter in curr_macro.offset.size():
