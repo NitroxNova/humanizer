@@ -124,14 +124,14 @@ func get_group_bake_arrays(group_name:String): #transparent, opaque or all
 func set_skin_color(color:Color):
 	human_config.skin_color = color
 	var body = human_config.get_equipment_in_slot("Body")
-	materials[body.type] = await body.material_config.generate_material_3D()
+	materials[body.type] = body.material_config.generate_material_3D()
 	material_updated.emit(body)
 	
 func set_eye_color(color:Color):
 	human_config.eye_color = color
 	var slots = ["LeftEye","RightEye","Eyes"]
 	for equip in human_config.get_equipment_in_slots(slots):
-		materials[equip.type] = await equip.material_config.generate_material_3D()
+		materials[equip.type] = equip.material_config.generate_material_3D()
 		material_updated.emit(equip)
 		
 func set_hair_color(color:Color):
@@ -160,7 +160,7 @@ func set_equipment_material(equip:HumanizerEquipment, material_name: String)-> v
 
 func update_material(equip_type:String): #from the material config
 	var equip = human_config.equipment[equip_type]
-	materials[equip.type] = await equip.material_config.generate_material_3D()
+	materials[equip.type] = equip.material_config.generate_material_3D()
 	material_updated.emit(equip)
 	
 #func force_update_materials(): # not normally needed, use this if generated humans arent updating textures properly (was an issue in the stress test - has something to do with threads)

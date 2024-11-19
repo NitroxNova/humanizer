@@ -1,25 +1,35 @@
 extends Node
 
+var task_semaphore: Semaphore = Semaphore.new()
+var task_mutex: Mutex = Mutex.new()
+var tasks: Array[Callable] = []
 var threads: Array[Thread] = []
-var randomizer: HumanRandomizer = null
 
 func create_thread(callable: Callable):
-	var thread = Thread.new()
-	threads.push_back(thread)
-	thread.start(callable)
+	task_mutex.lock()
+	tasks.push_back(callable)
+	task_mutex.unlock()
+	task_semaphore.post()
 
 func _ready() -> void:
-	for i in range(0, 6):
-		threads.append(Thread.new())
+	for i in range(0, OS.get_processor_count()):
+		var thread = Thread.new()
+		threads.append(thread)
+		thread.start(_worker_thread)
 
-func _process(delta: float) -> void:
-	var remove_threads = []
-	for thread in threads:
-		if thread.is_started() and not thread.is_alive():
-			remove_threads.append(thread)
-	for thread in remove_threads:
-		thread.wait_to_finish()
-		threads.erase(thread)
+func _worker_thread():
+	while true:
+		task_semaphore.wait()
+		task_mutex.lock()
+		if len(tasks) > 0:
+			var task = tasks[0]
+			tasks.erase(task)
+			task_mutex.unlock()
+			task.call()
+			continue
+		else:
+			task_mutex.unlock()
+		
 
 func _exit_tree() -> void:
 	for thread in threads:
@@ -27,16 +37,15 @@ func _exit_tree() -> void:
 		threads.erase(thread)
 
 # todo: generate from config
-# bugs: they're eyeless
+# bugs: they're eyeless, race conditions on resource loading?, 
 func generate_random_human(callback: Callable):
 	create_thread(func():
-		var start = Time.get_ticks_msec()
-		if randomizer == null:
-			randomizer = HumanRandomizer.new()
+		var randomizer = HumanRandomizer.new()
 		randomizer.shapekeys = HumanizerTargetService.get_shapekey_categories()
 		randomizer.randomization = {}
 		randomizer.categories = {}
 		randomizer.asymmetry = {}
+
 		for cat in randomizer.shapekeys:
 			randomizer.randomization[cat] = 0.5
 			randomizer.asymmetry[cat] = 0.1 
@@ -50,10 +59,9 @@ func generate_random_human(callback: Callable):
 		randomizer.randomize_body_parts()
 		randomizer.randomize_clothes()
 		randomizer.randomize_shapekeys()
-		var humanizer: Humanizer = Humanizer.new()
 
+		var humanizer: Humanizer = Humanizer.new()
 		humanizer.load_config_async(human_config)
 		var character = humanizer.get_CharacterBody3D(false)
 		callback.call_deferred(character)
-		print("Created human in " + str(round(Time.get_ticks_msec() - start)) + "ms")
-	)
+	);

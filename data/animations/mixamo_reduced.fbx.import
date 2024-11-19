@@ -4,12 +4,11 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://pn0gtfoeerfb"
-path="res://.godot/imported/mixamo_reduced.fbx-799d6ad60fb1236097e6a6b045b3670c.scn"
+valid=false
 
 [deps]
 
 source_file="res://addons/humanizer/data/animations/mixamo_reduced.fbx"
-dest_files=["res://.godot/imported/mixamo_reduced.fbx-799d6ad60fb1236097e6a6b045b3670c.scn"]
 
 [params]
 
