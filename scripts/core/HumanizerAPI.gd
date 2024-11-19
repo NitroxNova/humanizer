@@ -7,11 +7,12 @@ class_name HumanizerAPI
 ## generate from config easier
 ## 
 
-@export var thread_count = 1
+var thread_count = 1
 var task_semaphore: Semaphore = Semaphore.new()
 var task_mutex: Mutex = Mutex.new()
 var tasks: Array[Callable] = []
 var threads: Array[Thread] = []
+var thread_exit = false
 static var resource_mutex: Mutex = Mutex.new()
 static var resources = {}
 
@@ -52,6 +53,8 @@ func _worker_thread():
     while true:
         task_semaphore.wait()
         task_mutex.lock()
+        if thread_exit:
+            break
         if len(tasks) > 0:
             var task = tasks[0]
             tasks.remove_at(0)
@@ -61,8 +64,13 @@ func _worker_thread():
         else:
             task_mutex.unlock()
 
-func _exit_tree() -> void:
-    for thread in threads: # todo cleanup not running probably
+func humanizer_cleanup() -> void:
+    print("run")
+    task_mutex.lock()
+    thread_exit = true
+    task_mutex.unlock()
+    for thread in threads:
+        task_semaphore.post()
         thread.wait_to_finish()
         threads.erase(thread)
 
