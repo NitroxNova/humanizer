@@ -1,7 +1,7 @@
 class_name HumanizerLogger
 
 enum LogLevel { INFO, DEBUG }
-static var log_level = LogLevel.DEBUG
+static var log_level = LogLevel.INFO
 static var log_file: FileAccess = FileAccess.open("user://humanizer.log", FileAccess.READ_WRITE)
 
 static func _log(category: String, string: String):

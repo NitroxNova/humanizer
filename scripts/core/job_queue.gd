@@ -45,22 +45,23 @@ static func exit():
 	job_mutex.unlock()
 
 	HumanizerResourceService.exit()
-	HumanizerLogger.info("job_queue has successfully shut down.")
+	HumanizerLogger.debug("job_queue has successfully shut down.")
 
 static func add_job(callable: Callable):
-	# if thread_exit:
-	# 	return
-	# start()
-	# job_mutex.lock()
-	# jobs.push_back(callable)
-	# job_mutex.unlock()
-	# job_semaphore.post()
-	callable.call()
+	if thread_exit:
+		return
+
+	start()
+	job_mutex.lock()
+	jobs.push_back(callable)
+	job_mutex.unlock()
+	job_semaphore.post()
+	# callable.call()
 
 static func add_job_main_thread(callable: Callable):
 	if thread_exit:
-		print("add_job_main_thread thread_exit")
 		return
+
 	start()
 	(func():
 		if Engine.get_main_loop().get_root() == null: # why do i have to do this?

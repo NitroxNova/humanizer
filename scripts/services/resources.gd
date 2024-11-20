@@ -4,7 +4,6 @@ class_name HumanizerResourceService
 static var resource_mutex: Mutex = null
 static var resources = null
 static var exited = false
-static var empty = Resource.new()
 
 static func start():
     if resources == null:
@@ -16,11 +15,12 @@ static func exit():
     exited = true
     resources.clear()
     resource_mutex.unlock()
-    HumanizerLogger.info("Cleaned up resource service.")
+    HumanizerLogger.debug("Cleaned up resources.")
 
 static func load_resource(path) -> Resource:
     if exited:
-        return empty
+        assert(false, "This should not happen.")
+
     start()
     var resource: Resource
     if resources.has(path):
