@@ -26,7 +26,7 @@ static func generate_random_human(callback: Callable):
             HumanizerLogger.profile("generate_random_human randomize", func():
                 randomizer.randomize_body_parts()
                 randomizer.randomize_clothes()
-                #randomizer.randomize_shapekeys()
+                randomizer.randomize_shapekeys()
             )
 
             human_config.init_macros()
