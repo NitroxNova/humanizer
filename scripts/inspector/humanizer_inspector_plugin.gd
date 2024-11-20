@@ -9,7 +9,7 @@ func _parse_category(human, category):
 		return
 	if category != 'humanizer_editor_tool.gd':
 		return
-	var scene = HumanizerResourceService.load_resource("res://addons/humanizer/scenes/inspector/humanizer_inspector.tscn").instantiate()
+	var scene = load("res://addons/humanizer/scenes/inspector/humanizer_inspector.tscn").instantiate()
 	add_custom_control(scene)
 	
 	# Header Section

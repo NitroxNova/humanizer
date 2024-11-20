@@ -54,6 +54,7 @@ func build_grid() -> void:
 	var grid = find_child('GridContainer')
 	for child in grid.get_children():
 		grid.remove_child(child)
+		child.queue_free()
 	for slot_label in HumanizerGlobalConfig.config.equipment[category].slots:
 		var slot = slot_label + HumanizerGlobalConfig.config.equipment[category].suffix
 		var label = Label.new()

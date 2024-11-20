@@ -1,13 +1,6 @@
-extends Node
-class_name HumanizerAPI
+class_name HumanizerDebugUtils
 
-## todo
-## release threads when quit is requested or sigkill
-## document usage as a node
-## generate from config easier
-## 
-
-func generate_random_human(callback: Callable):
+static func generate_random_human(callback: Callable):
     HumanizerJobQueue.add_job(func():
         HumanizerLogger.debug("### Generating Human ###")
         HumanizerLogger.profile("generate_random_human", func():
@@ -45,6 +38,6 @@ func generate_random_human(callback: Callable):
 
             if OS.get_thread_caller_id() == OS.get_main_thread_id():
                 printerr("main thread is building a humanizer character!")
-            callback.call_deferred(character)
+            HumanizerJobQueue.add_job_main_thread(callback.bind(character))
         )
     );
