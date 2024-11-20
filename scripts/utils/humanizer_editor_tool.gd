@@ -430,10 +430,10 @@ func bake_surface() -> void:
 		bake_mesh_names.append(node.name)
 		if not node.transform == Transform3D.IDENTITY:
 			human_config.transforms[node.name] = Transform3D(node.transform)
-		if node is HumanizerMeshInstance:
-			var mesh_instance := node as HumanizerMeshInstance
-			if mesh_instance.material_config != null:
-				mesh_instance.material_config.update_material()
+		# if node is HumanizerMeshInstance:
+		# 	var mesh_instance := node as HumanizerMeshInstance
+		# 	if mesh_instance.material_config != null:
+		# 		mesh_instance.material_config.update_material()
 
 	if human_config.components.has(&'size_morphs') or human_config.components.has(&'age_morphs'):
 		
