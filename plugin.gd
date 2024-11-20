@@ -48,7 +48,6 @@ func _exit_tree():
 	remove_inspector_plugin(asset_import_inspector)
 	remove_inspector_plugin(human_randomizer_inspector)
 	remove_inspector_plugin(humanizer_material_inspector)
-	# remove_autoload_singleton('HumanizerAPI')
 	remove_autoload_singleton('HumanizerGlobal')
 	if thread.is_started():
 		thread.wait_to_finish()
