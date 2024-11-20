@@ -8,9 +8,9 @@ static func init_helper_vertex(target_data = null) -> PackedVector3Array:
 	var timer = Time.get_ticks_msec()
 
 	var helper_vertex = data.basis.duplicate()
-	if target_data != null: # why would it be?
-		HumanizerLogger.profile("set_targets_raw " + str(len(target_data)) + " " + str(len(helper_vertex)), func():
-			set_targets_raw(target_data, helper_vertex) # took 578ms to set_targets_raw 703 19158
+	if target_data != null:
+		HumanizerLogger.profile("init_helper_vertex " + str(len(target_data)) + " " + str(len(helper_vertex)), func():
+			set_targets_raw(target_data, helper_vertex) # took 578ms to init_helper_vertex 703 19158
 		)
 
 	return helper_vertex

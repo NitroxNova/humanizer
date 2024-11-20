@@ -27,9 +27,7 @@ func load_config_async(_human_config):
 	else:	
 		human_config = _human_config
 
-	HumanizerLogger.profile("init_helper_vertex", func():
-		helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
-	)
+	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
 
 	HumanizerLogger.profile("load equipment", func():
 		for equip in human_config.equipment.values():
