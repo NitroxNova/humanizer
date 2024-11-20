@@ -105,7 +105,6 @@ static func normalize_race_values(macros:Dictionary):
 static func get_combination_values(combo_name:String,data:Dictionary):
 	var next_shapes = {}
 	var combo_shapekeys = {""=1} # shapekey name / value pairs
-	print("combo_name " + combo_name)
 	for macro_name in macro_combos[combo_name]:
 		if macro_name == "universal":
 			next_shapes = {"universal"=1}
