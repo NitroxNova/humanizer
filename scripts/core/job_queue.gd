@@ -1,7 +1,9 @@
 extends Node
 class_name HumanizerJobQueue
 
-static var thread_count := 1
+# todo export thread count to plugin project settings
+static var thread_count := 1 #max(1, OS.get_processor_count() / 4)
+
 static var threads: Array[Thread] = []
 static var thread_exit = false
 static var job_semaphore: Semaphore = Semaphore.new()
