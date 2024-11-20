@@ -26,7 +26,7 @@ func create_animation_resource():
 	var anim_lib = AnimationLibrary.new()
 	for file_name in OSPath.get_files(input_folder):
 		if file_name.get_extension() == "fbx":
-			var curr_lib : AnimationLibrary = HumanizerAPI.load_resource(file_name)
+			var curr_lib : AnimationLibrary = HumanizerResourceService.load_resource(file_name)
 			var loop = false
 			if file_name.get_file().get_basename().to_lower().ends_with("-loop"):
 				loop = true

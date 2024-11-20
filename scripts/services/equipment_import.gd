@@ -161,7 +161,7 @@ func _clean_recursive(path: String) -> void:
 	###
 	####keep custom slots
 	###if FileAccess.file_exists(save_path):
-		###var old_config = HumanizerAPI.load_resource(save_path) as HumanizerEquipmentType
+		###var old_config = HumanizerResourceService.load_resource(save_path) as HumanizerEquipmentType
 		###resource.slots = old_config.slots
 	###if resource.slots == []:
 		###printerr("Warning - " + resource.resource_name + " has no equipment slots, you can manually add them to the resource file.")

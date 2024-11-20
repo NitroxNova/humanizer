@@ -14,7 +14,7 @@ func _parse_category(_importer, category):
 		#print("Category: " + category + " , is not asset_importer.gd")
 		return
 	importer = _importer
-	inspector = HumanizerAPI.load_resource("res://addons/humanizer/scenes/inspector/asset_importer_inspector.tscn").instantiate()
+	inspector = HumanizerResourceService.load_resource("res://addons/humanizer/scenes/inspector/asset_importer_inspector.tscn").instantiate()
 	add_custom_control(inspector)
 	slot_boxes = {}
 	for slots_cat:HumanizerSlotCategory in HumanizerGlobalConfig.config.equipment:
@@ -60,7 +60,7 @@ func fill_options(path:String=""):
 			res_path = inspector.get_node('%MHCLO_Label').text.get_base_dir()
 			res_path = res_path.path_join(mhclo.display_name + ".res")
 			inspector.get_node('%DisplayName').text = mhclo.display_name
-		var equip_res : HumanizerEquipmentType = HumanizerAPI.load_resource(res_path)
+		var equip_res : HumanizerEquipmentType = HumanizerResourceService.load_resource(res_path)
 		for slot in equip_res.slots:
 			slot_boxes[slot].button_pressed = true
 	if inspector.get_node('%GLB_Label').text == "":

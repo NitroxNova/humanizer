@@ -35,7 +35,7 @@ func set_material(material_name:String):
 	var mat_path = ""
 	if material_name in equip_type.textures:
 		mat_path = equip_type.textures[material_name]
-		material = HumanizerAPI.load_resource(mat_path)
+		material = HumanizerResourceService.load_resource(mat_path)
 	else:
 		material = StandardMaterial3D.new()
 		mat_path = ""

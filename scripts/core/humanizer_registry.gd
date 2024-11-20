@@ -25,7 +25,7 @@ static func _get_materials():
 			var equip_type = dir.get_file()
 			for mat_file in OSPath.get_files(dir):
 				if mat_file.get_extension() == "res":
-					var mat_res = HumanizerAPI.load_resource(mat_file)
+					var mat_res = HumanizerResourceService.load_resource(mat_file)
 					if mat_res is HumanizerMaterial or mat_res is StandardMaterial3D:
 						equipment[equip_type].textures[mat_res.resource_name] = mat_file
 						if mat_file.get_file().get_basename() == "default":
@@ -100,4 +100,4 @@ static func _scan_dir(path: String) -> void:
 		var suffix: String = file.get_file().rsplit('.', true, 1)[0].split('_')[-1]
 		if suffix in ['material', 'mhclo', 'mesh']:
 			continue
-		add_equipment_type(HumanizerAPI.load_resource(file))
+		add_equipment_type(HumanizerResourceService.load_resource(file))

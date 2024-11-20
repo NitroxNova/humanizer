@@ -22,6 +22,6 @@ func _init() -> void:
 func _ready():
 	var config_path = "res://humanizer_global_config.res"
 	if FileAccess.file_exists(config_path):
-		_config = HumanizerAPI.load_resource(config_path)
+		_config = HumanizerResourceService.load_resource(config_path)
 	if _config == null:
 		_config = HumanizerConfig.new()

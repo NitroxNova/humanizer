@@ -9,7 +9,7 @@ func _parse_category(human, category):
 		return
 	if category != 'humanizer_editor_tool.gd':
 		return
-	var scene = HumanizerAPI.load_resource("res://addons/humanizer/scenes/inspector/humanizer_inspector.tscn").instantiate()
+	var scene = HumanizerResourceService.load_resource("res://addons/humanizer/scenes/inspector/humanizer_inspector.tscn").instantiate()
 	add_custom_control(scene)
 	
 	# Header Section
@@ -91,7 +91,7 @@ func _parse_category(human, category):
 	
 	# Add shapekey categories and sliders
 	var sliders = HumanizerTargetService.get_shapekey_categories()
-	var cat_scene = HumanizerAPI.load_resource("res://addons/humanizer/scenes/inspector/slider_category_inspector.tscn")
+	var cat_scene = HumanizerResourceService.load_resource("res://addons/humanizer/scenes/inspector/slider_category_inspector.tscn")
 	for cat in sliders:
 		if sliders[cat].size() == 0:
 			continue
