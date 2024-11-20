@@ -8,6 +8,8 @@ static var job_semaphore: Semaphore = Semaphore.new()
 static var job_mutex: Mutex = Mutex.new()
 static var jobs: Array[Callable] = []
 
+static var debug_run_on_main = false
+
 static func start():
 	if thread_exit:
 		return
@@ -45,18 +47,22 @@ static func exit():
 	job_mutex.unlock()
 
 	HumanizerResourceService.exit()
-	HumanizerLogger.debug("job_queue has successfully shut down.")
+	HumanizerTargetService.exit()
+	HumanizerLogger.debug("job_queue shutdown")
 
 static func add_job(callable: Callable):
 	if thread_exit:
 		return
 
 	start()
+
+	if debug_run_on_main:
+		callable.call()
+		return
 	job_mutex.lock()
 	jobs.push_back(callable)
 	job_mutex.unlock()
 	job_semaphore.post()
-	# callable.call()
 
 static func add_job_main_thread(callable: Callable):
 	if thread_exit:

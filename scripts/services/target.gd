@@ -2,16 +2,25 @@
 extends Resource
 class_name HumanizerTargetService
 
+static var cache = {}
 static var data: HumanizerTargetData = load("res://addons/humanizer/data/resources/target_data.res")
 
-static func init_helper_vertex(target_data = null) -> PackedVector3Array:
-	var timer = Time.get_ticks_msec()
+static func exit():
+	# todo mutex
+	cache.clear()
+	HumanizerLogger.debug("target service shutdown")
 
+static func init_helper_vertex(target_data = null) -> PackedVector3Array:
 	var helper_vertex = data.basis.duplicate()
-	if target_data != null:
-		HumanizerLogger.profile("init_helper_vertex " + str(len(target_data)) + " " + str(len(helper_vertex)), func():
+
+	HumanizerLogger.profile("init_helper_vertex", func():
+		if target_data != null:
+			var hash = hash([data.basis, target_data])
+			if cache.has(hash):
+				return cache[hash]
 			set_targets_raw(target_data, helper_vertex) # took 578ms to init_helper_vertex 703 19158
-		)
+			cache[hash] = helper_vertex
+	)
 
 	return helper_vertex
 

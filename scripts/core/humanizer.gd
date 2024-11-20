@@ -38,37 +38,44 @@ func load_config_async(_human_config):
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
 
+# there are race conditions in this function (i think)
 func get_CharacterBody3D(baked:bool):
-	hide_clothes_vertices()
 	var human = CharacterBody3D.new()
-	human.set_script(HumanizerResourceService.load_resource("res://addons/humanizer/scripts/utils/human_controller.gd"))
-	var skeleton = get_skeleton()
-	human.add_child(skeleton)
-	skeleton.set_unique_name_in_owner(true)
-	var body_mesh = MeshInstance3D.new()
-	body_mesh.name = "Avatar"
-	if baked:
-		body_mesh.mesh = standard_bake_meshes()	
-	else:
-		body_mesh.mesh = get_combined_meshes()
-	human.add_child(body_mesh)
-	body_mesh.skeleton = NodePath('../' + skeleton.name)
-	body_mesh.skin = skeleton.create_skin_from_rest_transforms()
 
-	var anim_player = get_animation_tree()
-	if anim_player != null:
-		human.add_child(anim_player)
-		anim_player.active=true
-	skeleton.owner = human
-	anim_player.owner = human
-	if human_config.has_component("main_collider"):
-		human.add_child(get_main_collider())
-	if human_config.has_component("ragdoll"):
-		add_ragdoll_colliders(skeleton)
+	HumanizerLogger.profile("humanizer.get_CharacterBody3D", func():
+		hide_clothes_vertices()
+		
+		human.set_script(HumanizerResourceService.load_resource("res://addons/humanizer/scripts/utils/human_controller.gd"))
+		var skeleton = get_skeleton()
+		human.add_child(skeleton)
+		skeleton.set_unique_name_in_owner(true)
+		var body_mesh = MeshInstance3D.new()
+		body_mesh.name = "Avatar"
+		if baked:
+			body_mesh.mesh = standard_bake_meshes()
+		else:
+			HumanizerLogger.profile("humanizer.get_CharacterBody3D.get_combined_meshes", func():
+				body_mesh.mesh = get_combined_meshes()
+			)
+		human.add_child(body_mesh)
+		body_mesh.skeleton = NodePath('../' + skeleton.name)
+		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
+
+		var anim_player = get_animation_tree()
+		if anim_player != null:
+			human.add_child(anim_player)
+			anim_player.active=true
+		skeleton.owner = human
+		anim_player.owner = human
+		if human_config.has_component("main_collider"):
+			human.add_child(get_main_collider())
+		if human_config.has_component("ragdoll"):
+			add_ragdoll_colliders(skeleton)
+	)
+
 	return human
 
 func get_combined_meshes() -> ArrayMesh:
-	#print("getting combined meshes")
 	var new_mesh = ArrayMesh.new()
 	for equip_name in mesh_arrays:
 		var new_arrays = get_mesh_arrays(equip_name)

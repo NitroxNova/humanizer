@@ -15,7 +15,7 @@ static func exit():
     exited = true
     resources.clear()
     resource_mutex.unlock()
-    HumanizerLogger.debug("Cleaned up resources.")
+    HumanizerLogger.debug("resource service shutdown")
 
 static func load_resource(path) -> Resource:
     if exited:
