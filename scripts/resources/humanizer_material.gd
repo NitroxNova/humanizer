@@ -43,14 +43,14 @@ func generate_material_3D() -> StandardMaterial3D:
 			material.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, HumanizerAPI.load_resource(overlays[0].ao_texture_path))
 	else:
 		# awaiting outside the main thread will switch to the main thread if the signal awaited is emitted by the main thread
-		(func():
+		HumanizerJobQueue.add_job_main_thread(func():
 			var textures = await _update_material()
 			material.normal_enabled = textures.normal != null
 			material.ao_enabled = textures.ao != null
 			material.albedo_texture = textures.albedo
 			material.normal_texture = textures.normal
 			material.ao_texture = textures.ao
-		).call_deferred()
+		)
 	return material
 	
 func _update_material() -> Dictionary:

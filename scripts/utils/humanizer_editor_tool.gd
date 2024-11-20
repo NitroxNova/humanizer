@@ -271,7 +271,7 @@ func save_human_scene() -> void:
 	ResourceSaver.save(human_config, config_path)
 	ResourceSaver.save(scene, save_path.path_join('scene_' + human_name + '.tscn'))
 	print('Saved human to : ' + save_path)
-	HumanizerJobQueue.enqueue({callable=HumanizerMeshService.compress_material,mesh=mi.mesh})
+	HumanizerJobQueue.add_job(HumanizerMeshService.compress_material.bind(mi.mesh))
 	
 func _add_child_node(node: Node) -> void:
 	add_child(node)
@@ -430,8 +430,10 @@ func bake_surface() -> void:
 		bake_mesh_names.append(node.name)
 		if not node.transform == Transform3D.IDENTITY:
 			human_config.transforms[node.name] = Transform3D(node.transform)
-		if node is HumanizerMeshInstance and node.material_config != null:
-			node.material_config.update_material()
+		if node is HumanizerMeshInstance:
+			var mesh_instance := node as HumanizerMeshInstance
+			if mesh_instance.material_config != null:
+				mesh_instance.material_config.update_material()
 
 	if human_config.components.has(&'size_morphs') or human_config.components.has(&'age_morphs'):
 		

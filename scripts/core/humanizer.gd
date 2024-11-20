@@ -100,7 +100,7 @@ func standard_bake_meshes():
 	var transparent = get_group_bake_arrays("transparent")
 	if not transparent.is_empty():
 		combine_surfaces_to_mesh(transparent,new_mesh)	
-	HumanizerJobQueue.enqueue({callable=HumanizerMeshService.compress_material,mesh=new_mesh})
+	HumanizerJobQueue.add_job(HumanizerMeshService.compress_material.bind(new_mesh))
 	return new_mesh
 
 func combine_surfaces_to_mesh(surface_names:PackedStringArray,new_mesh:=ArrayMesh.new(),atlas_resolution:int=HumanizerGlobalConfig.config.atlas_resolution):
