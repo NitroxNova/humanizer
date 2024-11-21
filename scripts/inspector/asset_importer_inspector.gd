@@ -50,11 +50,14 @@ func _parse_category(_importer, category):
 	inspector.get_node('%ImportButton').pressed.connect(import_asset)
 
 func _add_bone_pressed():
+	var selected = inspector.get_node('%BoneOptions').get_selected()
+	add_attach_bone(inspector.get_node('%BoneOptions').get_item_text(selected))
+
+func add_attach_bone(text):
 	var hbox = HBoxContainer.new()
 	var label = Label.new()
 	label.name = "Label"
-	var selected = inspector.get_node('%BoneOptions').get_selected()
-	label.text = inspector.get_node('%BoneOptions').get_item_text(selected)
+	label.text = text
 	hbox.add_child(label)
 	var button = Button.new()
 	button.text = " Remove "
@@ -81,6 +84,8 @@ func fill_bone_options(idx:int):
 func fill_options(path:String=""):
 	#print("fill options")
 	reset_checkboxes()
+	for child in inspector.get_node('%BoneList').get_children():
+		inspector.get_node('%BoneList').remove_child(child)
 	inspector.get_node('%GLB_Label').text = ""
 	inspector.get_node('%LoadRiggedGLB').current_dir = inspector.get_node('%MHCLO_Label').text.get_base_dir()
 	var json_path = get_import_settings_path()
@@ -91,6 +96,8 @@ func fill_options(path:String=""):
 			slot_boxes[slot].button_pressed = true
 		inspector.get_node('%DisplayName').text = settings.display_name
 		inspector.get_node('%GLB_Label').text = settings.rigged_glb
+		for bone in settings.attach_bones:
+			add_attach_bone(bone)
 	else:
 		#print("loading resource")
 		#try new resource naming convention first
@@ -135,6 +142,7 @@ func import_asset():
 	var save_file = get_import_settings_path()
 	HumanizerUtils.save_json(save_file,import_settings)
 	HumanizerEquipmentImportService.import(save_file)
+	HumanizerRegistry.load_all()
 	
 func get_import_settings_path()->String:
 	var save_file = inspector.get_node('%MHCLO_Label').text.get_basename()

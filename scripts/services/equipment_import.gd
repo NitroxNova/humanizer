@@ -16,10 +16,7 @@ static func import(json_path:String,import_materials:=true):
 	var resource := HumanizerEquipmentType.new()
 	# Mesh operations
 	_build_import_mesh(folder, mhclo)
-	
-	#if settings.has('rigged'):
-		#_build_rigged_bone_arrays(mhclo)
-	
+		
 	resource.path = folder
 	resource.resource_name = mhclo.resource_name
 	resource.textures = HumanizerMaterialService.search_for_generated_materials(folder)
@@ -33,22 +30,19 @@ static func import(json_path:String,import_materials:=true):
 	if resource.slots.is_empty():
 		printerr("Warning - " + resource.resource_name + " has no equipment slots, you can manually add them to the resource file.")
 	
-	#resource.textures = data.materials
-
-	_calculate_bone_weights(mhclo,resource)
+	_calculate_bone_weights(mhclo,settings)
 	
-	# Save resources
-	#data.mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(data.mesh)
 	resource.take_over_path(save_path)
 	ResourceSaver.save(resource, resource.resource_path)
 	#build rigged equipment
-	#if settings.has('rigged'):
-		#var rigged_resource = resource.duplicate()
-		#rigged_resource.rigged = true
-		#rigged_resource.resource_name = resource.resource_name + "_Rigged"
-		#ResourceSaver.save(rigged_resource, resource.resource_path.get_basename() + "_Rigged.res")
-		#HumanizerRegistry.add_equipment_type(rigged_resource)
-		#_calculate_bone_weights(data,rigged_resource)
+	if settings.rigged_glb != "":
+		var rigged_resource = resource.duplicate()
+		rigged_resource.rigged = true
+		rigged_resource.resource_name = resource.resource_name + "_Rigged"
+		var rigged_fl = resource.resource_path.get_basename() + "_Rigged.res"
+		rigged_resource.take_over_path(rigged_fl)
+		ResourceSaver.save(rigged_resource, rigged_fl)
+		HumanizerRegistry.add_equipment_type(rigged_resource)
 		
 	#save after adding bone/weights to mhclo
 	mhclo.take_over_path(resource.mhclo_path)
@@ -136,75 +130,21 @@ func _clean_recursive(path: String) -> void:
 			##var mat_path = file_name.get_base_dir().path_join( new_mat.resource_name + '_material.res')
 			##ResourceSaver.save(new_mat, mat_path)
 			##materials[new_mat.resource_name] = mat_path
-##
-	##
-	##for asset in asset_data.values():
-		##asset.materials = materials
-		###if not overlay.is_empty():
-			###asset.overlay = overlay
-		##_import_asset(path, asset, false)
-##
-##
-###static func _import_asset(path: String, data: Dictionary, softbody: bool = false):
-	#### Build resource object
-	###var resource := HumanizerEquipmentType.new()
-	#### Mesh operations
-	###data.mesh = _build_import_mesh(path, data.mhclo)
-	###
-	###if data.has('rigged'):
-		###_build_rigged_bone_arrays(data)
-	###
-	###resource.path = path
-	###resource.resource_name = data.mhclo.resource_name
-	###var save_path = path.path_join(resource.resource_name + '.res')
-	###print('Importing asset ' + resource.resource_name)
-	###
-	####keep custom slots
-	###if FileAccess.file_exists(save_path):
-		###var old_config = load(save_path) as HumanizerEquipmentType
-		###resource.slots = old_config.slots
-	###if resource.slots == []:
-		###printerr("Warning - " + resource.resource_name + " has no equipment slots, you can manually add them to the resource file.")
-	###
-	###resource.textures = data.materials
-###
-	###_calculate_bone_weights(data,resource)
-	###
-	#### Save resources
-	###data.mhclo.mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(data.mesh)
-	###resource.take_over_path(save_path)
-	###ResourceSaver.save(resource, resource.resource_path)
-	####build rigged equipment
-	###if data.has('rigged'):
-		###var rigged_resource = resource.duplicate()
-		###rigged_resource.rigged = true
-		###rigged_resource.resource_name = resource.resource_name + "_Rigged"
-		###ResourceSaver.save(rigged_resource, resource.resource_path.get_basename() + "_Rigged.res")
-		###HumanizerRegistry.add_equipment_type(rigged_resource)
-		###_calculate_bone_weights(data,rigged_resource)
-		###
-	####save after adding bone/weights to mhclo
-	###ResourceSaver.save(data.mhclo, resource.mhclo_path)
-	####add main resource to registry
-	###HumanizerRegistry.add_equipment_type(resource)
-	
 
-static func _calculate_bone_weights(mhclo:MHCLO,equip_type:HumanizerEquipmentType):
-	var sf_arrays = []
-	sf_arrays.resize(Mesh.ARRAY_MAX)
+static func _calculate_bone_weights(mhclo:MHCLO,import_settings:Dictionary):
+	var rigged_bone_weights
+	if import_settings.rigged_glb != "":
+		rigged_bone_weights = _build_rigged_bone_arrays(mhclo,import_settings.rigged_glb)
 	for rig_name in HumanizerRegistry.rigs:
 		var rig : HumanizerRig = HumanizerRegistry.rigs[rig_name]
 		var skeleton_data = HumanizerRigService.init_skeleton_data(rig,false)
-		if equip_type.rigged:
+		HumanizerEquipmentService.interpolate_weights( mhclo,rig,skeleton_data)
+		if import_settings.rigged_glb != "":
 			for bone in mhclo.rigged_config:
 				if bone.name != "neutral_bone":
 					skeleton_data[bone.name] = {}
-			#HumanizerEquipmentService.interpolate_rigged_weights(data.mhclo,data.rigged_bone_weights,skeleton_data,sf_arrays,rig_name)
-			#data.mhclo.rigged_bones[rig_name] = sf_arrays[Mesh.ARRAY_BONES]
-			#data.mhclo.rigged_weights[rig_name] = sf_arrays[Mesh.ARRAY_WEIGHTS]
-		else:
-			HumanizerEquipmentService.interpolate_weights(equip_type,mhclo,rig,skeleton_data,sf_arrays)
-		
+			HumanizerEquipmentService.interpolate_rigged_weights(mhclo,rigged_bone_weights,skeleton_data,rig_name)
+			
 static func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh: 
 	# build basis from obj file
 	var obj_path = path.path_join(mhclo.obj_file_name)
@@ -216,23 +156,19 @@ static func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh:
 	mhclo.custom0_array = obj_mesh.sf_arrays[Mesh.ARRAY_CUSTOM0]
 	return mesh
 
-static func _build_rigged_bone_arrays(data: Dictionary) -> void:
-	var obj_arrays = (data.mesh as ArrayMesh).surface_get_arrays(0)
-	var glb = data.rigged
+static func _build_rigged_bone_arrays(mhclo:MHCLO,glb:String) -> Dictionary:
 	var gltf := GLTFDocument.new()
 	var state := GLTFState.new()
 	var error = gltf.append_from_file(glb, state)
 	if error != OK:
 		push_error('Failed to load glb : ' + glb)
-		return
+		return {}
 	var root = gltf.generate_scene(state)
 	var skeleton:Skeleton3D = root.get_child(0).get_child(0)
 	var glb_arrays = (skeleton.get_child(0) as ImporterMeshInstance3D).mesh.get_surface_arrays(0)
 	
-	#var glb_to_obj_idx := {}
-	#var tol := 1e-4
 	var mh_to_glb_idx = []
-	mh_to_glb_idx.resize(data.mhclo.mh2gd_index.size())
+	mh_to_glb_idx.resize(mhclo.mh2gd_index.size())
 	
 	var max_id = roundi(1 / glb_arrays[Mesh.ARRAY_TEX_UV2][0].y) 
 	for glb_id in glb_arrays[Mesh.ARRAY_TEX_UV2].size():
@@ -306,9 +242,9 @@ static func _build_rigged_bone_arrays(data: Dictionary) -> void:
 		# 0.5 * (v1 + v2) + offset
 	
 	var weights_override = []
-	weights_override.resize(data.mhclo.mh2gd_index.size())
+	weights_override.resize(mhclo.mh2gd_index.size())
 	var bones_override = []
-	bones_override.resize(data.mhclo.mh2gd_index.size())
+	bones_override.resize(mhclo.mh2gd_index.size())
 	var bones_per_vtx = glb_arrays[Mesh.ARRAY_BONES].size()/glb_arrays[Mesh.ARRAY_VERTEX].size()
 
 	for mh_id in mh_to_glb_idx.size():
@@ -316,7 +252,8 @@ static func _build_rigged_bone_arrays(data: Dictionary) -> void:
 		bones_override[mh_id] = glb_arrays[Mesh.ARRAY_BONES].slice(glb_id*bones_per_vtx,(glb_id+1) * bones_per_vtx)
 		weights_override[mh_id] = glb_arrays[Mesh.ARRAY_WEIGHTS].slice(glb_id*bones_per_vtx,(glb_id+1) * bones_per_vtx)
 	
-	data.mhclo.rigged_config = bone_config
-	data.rigged_bone_weights = {}
-	data.rigged_bone_weights.bones = bones_override
-	data.rigged_bone_weights.weights = weights_override
+	mhclo.rigged_config = bone_config
+	var rigged_bone_weights = {}
+	rigged_bone_weights.bones = bones_override
+	rigged_bone_weights.weights = weights_override
+	return rigged_bone_weights
