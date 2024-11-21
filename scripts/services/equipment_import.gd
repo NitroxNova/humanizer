@@ -38,6 +38,7 @@ static func import(json_path:String,import_materials:=true):
 	if settings.rigged_glb != "":
 		var rigged_resource = resource.duplicate()
 		rigged_resource.rigged = true
+		rigged_resource.display_name = resource.display_name + " (Rigged)"
 		rigged_resource.resource_name = resource.resource_name + "_Rigged"
 		var rigged_fl = resource.resource_path.get_basename() + "_Rigged.res"
 		rigged_resource.take_over_path(rigged_fl)
@@ -50,17 +51,53 @@ static func import(json_path:String,import_materials:=true):
 	#add main resource to registry
 	HumanizerRegistry.add_equipment_type(resource)	
 
-static func search_for_rigged_glb(path:String)->String:
-	var folder = path
-	if FileAccess.file_exists(path): #is a file, get base directory
-		folder = path.get_base_dir()
-	for fl in OSPath.get_files(folder):
-		if fl.get_extension() == "glb":
-			return fl
-	for subfolder in OSPath.get_dirs(folder):
-		var fl = search_for_rigged_glb(subfolder)
-		if not fl == "":
-			return fl
+static func get_import_settings_path(mhclo_path)->String:
+	var json_path = mhclo_path.get_basename()
+	json_path += ".import_settings.json"
+	#print(save_file)
+	return json_path
+
+static func get_equipment_resource_path(mhclo_path)->String:
+	var res_path = mhclo_path.get_basename()
+	res_path += ".res"
+	return res_path
+
+static func load_import_settings(mhclo_path:String):
+	var json_path = get_import_settings_path(mhclo_path)
+	var settings := {}
+	if FileAccess.file_exists(json_path):
+		#print("loading json") 
+		#if you already know the json path just use this line 
+		settings = HumanizerUtils.read_json(json_path)
+	else:
+		settings.mhclo_path = mhclo_path
+		var mhclo := MHCLO.new()
+		mhclo.parse_file(mhclo_path)
+		#print("loading resource")
+		#try new resource naming convention first
+		var res_path = get_equipment_resource_path(mhclo_path)
+		if not FileAccess.file_exists(res_path):
+			#old naming convention has to be loaded from mhclo
+			res_path = mhclo_path.get_base_dir()
+			res_path = res_path.path_join(mhclo.display_name + ".res")
+		#print(res_path)
+		var equip_res : HumanizerEquipmentType = load(res_path)
+		settings.slots = []
+		for slot in equip_res.slots:
+			settings.slots.append(slot)
+		settings.display_name = mhclo.display_name
+		settings.rigged_glb = search_for_rigged_glb(mhclo_path)
+		settings.attach_bones = []
+		for tag in mhclo.tags:
+			if tag.begins_with("bone_name "):
+				settings.attach_bones.append(tag.split(" ")[1])
+	return settings
+	
+static func search_for_rigged_glb(mhclo_path:String)->String:
+	var glb_path = mhclo_path.get_basename() + ".glb"
+	#print(glb_path)
+	if FileAccess.file_exists(glb_path):
+		return glb_path
 	return ""
 	
 static func import_all():

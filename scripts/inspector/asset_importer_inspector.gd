@@ -2,7 +2,7 @@ class_name AssetImporterInspectorPlugin
 extends EditorInspectorPlugin
 
 var slot_boxes = {}
-var inspector
+var inspector:Control
 var importer
 
 func _can_handle(node):
@@ -33,8 +33,6 @@ func _parse_category(_importer, category):
 	if not inspector.get_node('%MHCLO_FileLoader').file_selected.is_connected(fill_options):
 		inspector.get_node('%MHCLO_FileLoader').file_selected.connect(fill_options)
 	inspector.get_node('%MHCLO_FileLoader').current_dir = HumanizerGlobalConfig.config.asset_import_paths[-1].path_join("equipment")
-	
-
 	
 	inspector.get_node('%SkeletonOptions').add_item(" -- Select Skeleton --")
 	var rigs = HumanizerRegistry.rigs
@@ -83,42 +81,27 @@ func fill_bone_options(idx:int):
 
 func fill_options(path:String=""):
 	#print("fill options")
-	reset_checkboxes()
-	for child in inspector.get_node('%BoneList').get_children():
-		inspector.get_node('%BoneList').remove_child(child)
-	inspector.get_node('%GLB_Label').text = ""
-	inspector.get_node('%LoadRiggedGLB').current_dir = inspector.get_node('%MHCLO_Label').text.get_base_dir()
-	var json_path = get_import_settings_path()
-	if FileAccess.file_exists(json_path):
-		#print("loading json")
-		var settings = HumanizerUtils.read_json(json_path)
-		for slot in settings.slots:
-			slot_boxes[slot].button_pressed = true
-		inspector.get_node('%DisplayName').text = settings.display_name
-		inspector.get_node('%GLB_Label').text = settings.rigged_glb
-		for bone in settings.attach_bones:
-			add_attach_bone(bone)
-	else:
-		#print("loading resource")
-		#try new resource naming convention first
-		var res_path = get_equipment_resource_path()
-		if not FileAccess.file_exists(res_path):
-			#old naming convention has to be loaded from mhclo
-			var mhclo := MHCLO.new()
-			mhclo.parse_file(inspector.get_node('%MHCLO_Label').text)
-			res_path = inspector.get_node('%MHCLO_Label').text.get_base_dir()
-			res_path = res_path.path_join(mhclo.display_name + ".res")
-			inspector.get_node('%DisplayName').text = mhclo.display_name
-		#print(res_path)
-		var equip_res : HumanizerEquipmentType = load(res_path)
-		for slot in equip_res.slots:
-			slot_boxes[slot].button_pressed = true
-	if inspector.get_node('%GLB_Label').text == "":
-		inspector.get_node('%GLB_Label').text = HumanizerEquipmentImportService.search_for_rigged_glb(inspector.get_node('%MHCLO_Label').text)
-		
-func reset_checkboxes():
 	for box in slot_boxes.values():
-		box.button_pressed = false		
+		box.button_pressed = false
+	var mhclo_path = get_mhclo_path()
+	for child in inspector.get_node('%BoneList').get_children():
+		child.get_parent().remove_child(child)
+		child.queue_free()
+	inspector.get_node('%GLB_Label').text = ""
+	inspector.get_node('%LoadRiggedGLB').current_dir = mhclo_path.get_base_dir()
+	var settings = HumanizerEquipmentImportService.load_import_settings(mhclo_path)
+	for slot in settings.slots:
+		slot_boxes[slot].button_pressed = true
+	inspector.get_node('%DisplayName').text = settings.display_name
+	inspector.get_node('%GLB_Label').text = settings.rigged_glb
+	for bone in settings.attach_bones:
+		add_attach_bone(bone)
+	inspector.get_node('%DisplayName').text = settings.display_name
+	if inspector.get_node('%GLB_Label').text == "":
+		inspector.get_node('%GLB_Label').text = HumanizerEquipmentImportService.search_for_rigged_glb(mhclo_path)	
+		
+func get_mhclo_path():
+	return inspector.get_node('%MHCLO_Label').text
 
 func import_asset():
 	#print("importing asset")
@@ -139,19 +122,8 @@ func import_asset():
 	for hbox in inspector.get_node('%BoneList').get_children():
 		var label = hbox.get_node("Label")
 		import_settings.attach_bones.append(label.text)
-	var save_file = get_import_settings_path()
+	var save_file = HumanizerEquipmentImportService.get_import_settings_path(get_mhclo_path())
 	HumanizerUtils.save_json(save_file,import_settings)
 	HumanizerEquipmentImportService.import(save_file)
 	HumanizerRegistry.load_all()
-	
-func get_import_settings_path()->String:
-	var save_file = inspector.get_node('%MHCLO_Label').text.get_basename()
-	save_file += ".import_settings.json"
-	#print(save_file)
-	return save_file
-
-func get_equipment_resource_path()->String:
-	var res_path = inspector.get_node('%MHCLO_Label').text.get_basename()
-	res_path += ".res"
-	return res_path
 	
