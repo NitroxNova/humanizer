@@ -66,6 +66,7 @@ static func add_job(callable: Callable):
 	job_mutex.unlock()
 	job_semaphore.post()
 
+# todo fix crash on exit, main thread jobs are being queued holding references to characterbody3d, on thread_exit we ignore the jobs leading to orphaned nodes
 static func add_job_main_thread(callable: Callable):
 	if thread_exit:
 		return
