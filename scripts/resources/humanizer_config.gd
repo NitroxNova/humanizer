@@ -18,8 +18,13 @@ extends Resource
 
 @export_group('Slot Definitions')
 @export var equipment: Array[HumanizerSlotCategory] = [
-	HumanizerSlotCategory.new("Body Parts","", PackedStringArray( ['Body', 'RightEye', 'LeftEye', 'RightEyebrow', 'LeftEyebrow', 'RightEyelash', 'LeftEyelash', 'Hair', 'Tongue', 'Teeth',])),
-	HumanizerSlotCategory.new("Clothing","Clothes",PackedStringArray(['Head','Eyes','Mouth','Hands','Arms','Torso','Legs','Feet',])),
+	HumanizerSlotCategory.new("Body Parts","", 
+		PackedStringArray( ['Body', 'RightEye', 'LeftEye', 'RightEyebrow', 'LeftEyebrow', 'RightEyelash', 'LeftEyelash', 'Hair', 'Tongue', 'Teeth',]), 
+		Array([HumanizerFolderOverride.new("hair",["Hair"]),HumanizerFolderOverride.new("eyes",["LeftEye","RightEye"],true)], TYPE_OBJECT, "Resource", HumanizerFolderOverride)),
+	HumanizerSlotCategory.new("Clothing","Clothes",
+		PackedStringArray(['Head','Eyes','Mouth','Hands','Arms','Torso','Legs','Feet',]), 
+		Array([HumanizerFolderOverride.new("hats",["Head"]),HumanizerFolderOverride.new("shoes",["Feet"])], TYPE_OBJECT, "Resource", HumanizerFolderOverride)),
+	
 ]
 ## Body Part Slot Definitions
 @export var body_part_slots: Array[String] = [
