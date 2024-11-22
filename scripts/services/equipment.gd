@@ -162,6 +162,12 @@ static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig,skeleton_data:Dic
 			bw_pair[1] /= weight_sum
 		while bw_array.size() < 8:
 			bw_array.append([0,0])
+		while bw_array.size() > 8:
+			var lowest = bw_array[0]
+			for bw_pair in bw_array:
+				if bw_pair[1] < lowest[1]:
+					lowest = bw_pair
+			bw_array.erase(lowest)
 			
 	mhclo.bones[rig.resource_name] = PackedInt32Array()
 	mhclo.weights[rig.resource_name] = PackedFloat32Array()
