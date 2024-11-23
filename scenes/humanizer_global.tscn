@@ -1,10 +1,11 @@
-[gd_scene load_steps=11 format=3 uid="uid://dsrnmyw7n7drw"]
+[gd_scene load_steps=18 format=3 uid="uid://dsrnmyw7n7drw"]
 
 [ext_resource type="PackedScene" uid="uid://csan8bknfmodc" path="res://addons/humanizer/data/animations/animation_tree.tscn" id="2_hdl0y"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/core/humanizer_global_config.gd" id="2_vm4hu"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/core/job_queue.gd" id="3_56c55"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/slot_category.gd" id="3_ge6bv"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_config.gd" id="3_k24ro"]
+[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/folder_override.gd" id="4_nipot"]
 [ext_resource type="Script" path="res://addons/humanizer/scripts/core/humanizer_registry.gd" id="57_651fh"]
 
 [sub_resource type="GDScript" id="GDScript_yaxf4"]
@@ -12,19 +13,57 @@ script/source = "@tool
 extends Node
 "
 
-[sub_resource type="Resource" id="Resource_fkdqw"]
+[sub_resource type="Resource" id="Resource_h5chv"]
+script = ExtResource("4_nipot")
+folder_name = "hair"
+slots = PackedStringArray("Hair")
+left_right = false
+
+[sub_resource type="Resource" id="Resource_uakle"]
+script = ExtResource("4_nipot")
+folder_name = "eyes"
+slots = PackedStringArray("LeftEye", "RightEye")
+left_right = true
+
+[sub_resource type="Resource" id="Resource_vmkmf"]
+script = ExtResource("4_nipot")
+folder_name = "eyebrows"
+slots = PackedStringArray("LeftEyebrow", "RightEyebrow")
+left_right = true
+
+[sub_resource type="Resource" id="Resource_uwijd"]
+script = ExtResource("4_nipot")
+folder_name = "eyelashes"
+slots = PackedStringArray("LeftEyelash", "RightEyelash")
+left_right = true
+
+[sub_resource type="Resource" id="Resource_76gff"]
 script = ExtResource("3_ge6bv")
 category = "Body Parts"
 suffix = ""
 slots = PackedStringArray("Body", "RightEye", "LeftEye", "RightEyebrow", "LeftEyebrow", "RightEyelash", "LeftEyelash", "Hair", "Tongue", "Teeth")
+folder_overrides = Array[ExtResource("4_nipot")]([SubResource("Resource_h5chv"), SubResource("Resource_uakle"), SubResource("Resource_vmkmf"), SubResource("Resource_uwijd")])
 
-[sub_resource type="Resource" id="Resource_s24bi"]
+[sub_resource type="Resource" id="Resource_iuuos"]
+script = ExtResource("4_nipot")
+folder_name = "hats"
+slots = PackedStringArray("Head")
+left_right = false
+
+[sub_resource type="Resource" id="Resource_qrrha"]
+script = ExtResource("4_nipot")
+folder_name = "shoes"
+slots = PackedStringArray("Feet")
+left_right = false
+
+[sub_resource type="Resource" id="Resource_8rryg"]
 script = ExtResource("3_ge6bv")
 category = "Clothing"
 suffix = "Clothes"
 slots = PackedStringArray("Head", "Eyes", "Mouth", "Hands", "Arms", "Torso", "Legs", "Feet")
+folder_overrides = Array[ExtResource("4_nipot")]([SubResource("Resource_iuuos"), SubResource("Resource_qrrha")])
 
-[sub_resource type="Resource" id="Resource_q42lf"]
+[sub_resource type="Resource" id="Resource_eyivk"]
 script = ExtResource("3_k24ro")
 asset_import_paths = Array[String](["res://addons/humanizer/data/assets/"])
 human_export_path = "res://data/humans/"
@@ -32,7 +71,7 @@ default_characterbody_script = "res://addons/humanizer/scripts/utils/human_contr
 default_rigidbody_script = ""
 default_staticbody_script = ""
 default_area_script = ""
-equipment = Array[ExtResource("3_ge6bv")]([SubResource("Resource_fkdqw"), SubResource("Resource_s24bi")])
+equipment = Array[ExtResource("3_ge6bv")]([SubResource("Resource_76gff"), SubResource("Resource_8rryg")])
 body_part_slots = Array[String](["Body", "RightEye", "LeftEye", "RightEyebrow", "LeftEyebrow", "RightEyelash", "LeftEyelash", "Hair", "Tongue", "Teeth"])
 clothing_slots = Array[String](["Head", "Eyes", "Mouth", "Hands", "Arms", "Torso", "Legs", "Feet"])
 default_skeleton = "game_engine-RETARGETED"
@@ -51,7 +90,7 @@ script = SubResource("GDScript_yaxf4")
 
 [node name="HumanizerConfig" type="Node" parent="."]
 script = ExtResource("2_vm4hu")
-_config = SubResource("Resource_q42lf")
+_config = SubResource("Resource_eyivk")
 
 [node name="HumanizerRegistry" type="Node" parent="."]
 script = ExtResource("57_651fh")

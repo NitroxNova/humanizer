@@ -71,6 +71,8 @@ static func load_import_settings(mhclo_path:String):
 		settings = HumanizerUtils.read_json(json_path)
 	else:
 		settings.mhclo_path = mhclo_path
+		settings.slots = []
+		settings.attach_bones = []
 		var mhclo := MHCLO.new()
 		mhclo.parse_file(mhclo_path)
 		#print("loading resource")
@@ -81,16 +83,24 @@ static func load_import_settings(mhclo_path:String):
 			res_path = mhclo_path.get_base_dir()
 			res_path = res_path.path_join(mhclo.display_name + ".res")
 		#print(res_path)
-		var equip_res : HumanizerEquipmentType = load(res_path)
-		settings.slots = []
-		for slot in equip_res.slots:
-			settings.slots.append(slot)
+		if FileAccess.file_exists(res_path):
+			var equip_res : HumanizerEquipmentType = load(res_path)
+			for slot in equip_res.slots:
+				settings.slots.append(slot)
+			
 		settings.display_name = mhclo.display_name
 		settings.rigged_glb = search_for_rigged_glb(mhclo_path)
-		settings.attach_bones = []
 		for tag in mhclo.tags:
 			if tag.begins_with("bone_name "):
 				settings.attach_bones.append(tag.split(" ")[1])
+				
+	#override the slots from the folder - so if config changes they all update
+	var slots_ovr = HumanizerGlobalConfig.config.get_folder_override_slots(mhclo_path)
+	#print(slots_ovr)
+	if not slots_ovr.is_empty():
+		settings.slots = []
+		settings.slots.append_array(slots_ovr)
+		
 	return settings
 	
 static func search_for_rigged_glb(mhclo_path:String)->String:
