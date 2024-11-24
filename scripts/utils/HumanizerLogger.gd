@@ -2,7 +2,6 @@ class_name HumanizerLogger
 
 enum LogLevel { INFO, DEBUG }
 static var log_level = LogLevel.INFO
-static var log_file: FileAccess = FileAccess.open("user://humanizer.log", FileAccess.READ_WRITE)
 
 static var profile_db_mutex := Mutex.new()
 static var profile_db = {}
@@ -10,7 +9,6 @@ static var profile_db = {}
 static func _log(category: String, string: String):
 	var message = "[humanizer " + category + "] " + str(string)
 	print(message)
-	log_file.store_string(message + "\n")
 
 static func info(string: String):
 	_log("info", string)
