@@ -312,6 +312,7 @@ func _deserialize() -> void:
 
 #### Mesh Management ####
 func add_equipment_type(equip_type:HumanizerEquipmentType)->void:
+	#print("adding equipment " + equip_type.resource_name)
 	var equip := HumanizerEquipment.new(equip_type.resource_name)
 	add_equipment(equip)
 

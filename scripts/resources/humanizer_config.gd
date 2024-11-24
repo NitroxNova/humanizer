@@ -18,8 +18,21 @@ extends Resource
 
 @export_group('Slot Definitions')
 @export var equipment: Array[HumanizerSlotCategory] = [
-	HumanizerSlotCategory.new("Body Parts","", PackedStringArray( ['Body', 'RightEye', 'LeftEye', 'RightEyebrow', 'LeftEyebrow', 'RightEyelash', 'LeftEyelash', 'Hair', 'Tongue', 'Teeth',])),
-	HumanizerSlotCategory.new("Clothing","Clothes",PackedStringArray(['Head','Eyes','Mouth','Hands','Arms','Torso','Legs','Feet',])),
+	
+	HumanizerSlotCategory.new("Body Parts","", 
+		PackedStringArray( ['Body', 'RightEye', 'LeftEye', 'RightEyebrow', 'LeftEyebrow', 'RightEyelash', 'LeftEyelash', 'Hair', 'Tongue', 'Teeth',]), 
+		Array([HumanizerFolderOverride.new("hair", ["Hair"]), 
+			HumanizerFolderOverride.new("eyes",["LeftEye","RightEye"], true), 
+			HumanizerFolderOverride.new("eyebrows",["LeftEyebrow","RightEyebrow"], true), 
+			HumanizerFolderOverride.new("eyelashes",["LeftEyelash","RightEyelash"], true)], 
+		TYPE_OBJECT, "Resource", HumanizerFolderOverride)),
+	
+	HumanizerSlotCategory.new("Clothing","Clothes",
+		PackedStringArray(['Head','Eyes','Mouth','Hands','Arms','Torso','Legs','Feet',]), 
+		Array([HumanizerFolderOverride.new("hats",["Head"]),
+			HumanizerFolderOverride.new("shoes",["Feet"])], 
+		TYPE_OBJECT, "Resource", HumanizerFolderOverride)),
+	
 ]
 ## Body Part Slot Definitions
 @export var body_part_slots: Array[String] = [
@@ -71,3 +84,39 @@ extends Resource
 @export_flags_3d_render var default_character_render_layers = 1
 ## Texture atlas resolution
 @export_enum("1k:1024", "2k:2048", "4k:4096") var atlas_resolution: int = 2048
+
+func get_folder_override_slots(mhclo_path:String):
+	#print(mhclo_path)
+	var folder_path = mhclo_path
+	for import_path in asset_import_paths:
+		import_path = import_path.path_join("equipment")
+		if folder_path.begins_with(import_path):
+			folder_path = folder_path.replace(import_path,"")
+			continue
+	folder_path = folder_path.get_base_dir().path_join("") #add a slash on the end, so it can be searched for multi level folder names
+	folder_path = folder_path.to_lower()
+	mhclo_path = mhclo_path.to_lower()
+	#print(mhclo_path)
+	var slots = []
+	for slot_cat in equipment:
+		for folder_ovr in slot_cat.folder_overrides:
+			var fn = "/".path_join(folder_ovr.folder_name.to_lower()).path_join("") #slashes on both sides to eliminate false positives (in case one name is partially in another)
+			if fn in mhclo_path:
+				if folder_ovr.left_right:
+					#print(mhclo_path.get_file())
+					var has_side
+					for side in ["left","right"]:
+						if mhclo_path.get_file().begins_with(side):
+							for slot in folder_ovr.slots:
+								if slot.to_lower().begins_with(side) and slot not in slots:
+									slots.append(slot)
+							has_side = true
+					if not has_side: # assign to both sides, so they can add single equipment with both eyelashes	
+						for slot in folder_ovr.slots:
+							if slot not in slots:
+								slots.append(slot)
+				else:
+					for slot in folder_ovr.slots:
+						if slot not in slots:
+							slots.append(slot)
+	return slots	
