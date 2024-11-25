@@ -8,7 +8,7 @@ var mesh_arrays : Dictionary = {}
 var materials: Dictionary = {}
 var rig: HumanizerRig 
 var skeleton_data : Dictionary = {} #bone names with parent, position and rotation data
-signal material_updated
+#signal material_updated
 
 # this function must be awaited
 func load_config_async(_human_config):
@@ -134,21 +134,21 @@ func get_group_bake_arrays(group_name:String): #transparent, opaque or all
 func set_skin_color(color:Color):
 	human_config.skin_color = color
 	var body = human_config.get_equipment_in_slot("Body")
-	materials[body.type] = body.material_config.generate_material_3D()
-	material_updated.emit(body)
+	body.material_config.generate_material_3D(materials[body.type])
+	#material_updated.emit(body)
 	
 func set_eye_color(color:Color):
 	human_config.eye_color = color
 	var slots = ["LeftEye","RightEye","Eyes"]
 	for equip in human_config.get_equipment_in_slots(slots):
-		materials[equip.type] = equip.material_config.generate_material_3D()
-		material_updated.emit(equip)
+		equip.material_config.generate_material_3D(materials[equip.type])
+		#material_updated.emit(equip)
 		
 func set_hair_color(color:Color):
 	human_config.hair_color = color
 	var hair_equip = human_config.get_equipment_in_slot("Hair")
 	if hair_equip != null:
-		materials[hair_equip.type].albedo_color = color
+		hair_equip.material_config.generate_material_3D(materials[hair_equip.type])
 	set_eyebrow_color(human_config.eyebrow_color)
 
 func set_eyebrow_color(color:Color):
@@ -156,13 +156,15 @@ func set_eyebrow_color(color:Color):
 	var slots = ["LeftEyebrow","RightEyebrow","Eyebrows"]
 	for eyebrow_equip in human_config.get_equipment_in_slots(slots):
 		materials[eyebrow_equip.type].albedo_color = color
-		material_updated.emit(eyebrow_equip)
+		#material_updated.emit(eyebrow_equip)
 
 func init_equipment_material(equip:HumanizerEquipment): #called from thread
 	#print("initializing equipment")
 	var equip_type = equip.get_type()
-	materials[equip.type] = equip.material_config.generate_material_3D()
-	material_updated.emit(equip)
+	var material = StandardMaterial3D.new()
+	material.resource_local_to_scene = true
+	materials[equip.type] = material
+	equip.material_config.generate_material_3D(material)
 
 func set_equipment_material(equip:HumanizerEquipment, material_name: String)-> void:
 	human_config.set_equipment_material(equip,material_name)	
@@ -170,8 +172,8 @@ func set_equipment_material(equip:HumanizerEquipment, material_name: String)-> v
 
 func update_material(equip_type:String): #from the material config
 	var equip = human_config.equipment[equip_type]
-	materials[equip.type] = equip.material_config.generate_material_3D()
-	material_updated.emit(equip)
+	equip.material_config.generate_material_3D(materials[equip.type])
+	#material_updated.emit(equip)
 
 func get_mesh(mesh_name:String):
 	var mesh = ArrayMesh.new()

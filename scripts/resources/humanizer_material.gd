@@ -5,9 +5,31 @@ class_name HumanizerMaterial
 signal on_material_updated
 
 const TEXTURE_LAYERS = ['albedo', 'normal', 'ao']
+static var material_property_names = get_standard_material_properties()
 
 @export var overlays: Array[HumanizerOverlay] = []
 @export_file var base_material_path: String
+
+static func get_standard_material_properties() -> PackedStringArray:
+	var prop_names = PackedStringArray()
+	#only get properties unique to material, so we can copy those onto existing material instead of gernating a new material and using signals
+	
+	var base_props = []
+	for prop in Material.new().get_property_list():
+		base_props.append(prop.name)
+	
+	for prop in StandardMaterial3D.new().get_property_list():
+		var flags = PROPERTY_USAGE_SCRIPT_VARIABLE
+		#if prop.name not in base_props and (prop.usage & flags > 0):
+		if prop.name not in base_props and prop.usage < 64:
+			prop_names.append(prop.name) 
+			#print(str(prop.usage) + " " + prop.name)
+	if not ProjectSettings.get("rendering/lights_and_shadows/use_physical_light_units"):
+		prop_names.remove_at( prop_names.find("emission_intensity"))
+	#remove these so it doesnt flash the base texture when it changes (only set texture when its done updating)
+	for tex_name in TEXTURE_LAYERS:
+		prop_names.remove_at( prop_names.find(tex_name + "_texture"))
+	return prop_names
 
 func duplicate(subresources=false):
 	if not subresources:
@@ -16,16 +38,20 @@ func duplicate(subresources=false):
 		var dupe = HumanizerMaterial.new()
 		dupe.base_material_path = base_material_path
 		for overlay in overlays:
-			dupe.overlays.append(overlay.duplicate(true))	
+			dupe.overlays.append(overlay.duplicate(true))
 		return dupe
 
-func generate_material_3D() -> StandardMaterial3D:
-	var material = StandardMaterial3D.new()
+func generate_material_3D(material:StandardMaterial3D)->void:
+	var base_material := StandardMaterial3D.new()
 	if FileAccess.file_exists(base_material_path):
-		material = HumanizerResourceService.load_resource(base_material_path).duplicate() #dont want to overwrite base material values
-
+		base_material = HumanizerResourceService.load_resource(base_material_path)
+		for prop_name in material_property_names:
+			material.set(prop_name,base_material.get(prop_name))
+		material.resource_local_to_scene = true
 	if overlays.size() == 0:
-		pass
+		for tex_name in TEXTURE_LAYERS:
+			tex_name += "_texture"
+			material.set(tex_name , base_material.get(tex_name ))
 	elif overlays.size() == 1:
 		material.albedo_color = overlays[0].color
 		if not overlays[0].albedo_texture_path in ["",null]:
@@ -51,7 +77,7 @@ func generate_material_3D() -> StandardMaterial3D:
 			material.normal_texture = textures.normal
 			material.ao_texture = textures.ao
 		)
-	return material
+	
 	
 func _update_material() -> Dictionary:
 	var textures : Dictionary = {}
@@ -124,7 +150,7 @@ func set_overlay(idx: int, overlay: HumanizerOverlay) -> void:
 func remove_overlay(ov: HumanizerOverlay) -> void:
 	for o in overlays:
 		if o == ov:
-			overlays.erase(o) 
+			overlays.erase(o)
 			return
 	push_warning('Cannot remove overlay ' + ov.resource_name + '. Not found.')
 	
