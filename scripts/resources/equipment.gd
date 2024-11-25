@@ -27,6 +27,7 @@ func _init(_type=null,_texture_name=null,_material_config=null): # https://docs.
 		texture_name = _texture_name
 	material_config = _material_config
 	if material_config == null:
+		material_config = HumanizerMaterial.new()
 		set_material(texture_name)
 
 func set_material(material_name:String):
@@ -41,11 +42,14 @@ func set_material(material_name:String):
 		mat_path = ""
 	
 	if material is StandardMaterial3D:
-		material_config = HumanizerMaterial.new()
 		material_config.base_material_path = mat_path
+		material_config.overlays.clear()
 		material_config.add_overlay(HumanizerOverlay.from_material(material))
 	elif material is HumanizerMaterial:
-		material_config = material.duplicate(true)
+		material_config.base_material_path = material.base_material_path
+		material_config.overlays.clear()
+		for overlay in material.overlays:
+			material_config.overlays.append(overlay.duplicate())
 		
 	texture_name = material_name
 		
