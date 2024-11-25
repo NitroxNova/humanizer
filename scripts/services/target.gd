@@ -15,11 +15,11 @@ static func init_helper_vertex(target_data = null) -> PackedVector3Array:
 
 	HumanizerLogger.profile("init_helper_vertex", func():
 		if target_data != null:
-			var hash = hash([data.basis, target_data])
-			if cache.has(hash):
-				return cache[hash]
+			#var hash = hash([data.basis, target_data])
+			#if cache.has(hash):
+				#return cache[hash]
 			set_targets_raw(target_data, helper_vertex) # took 578ms to init_helper_vertex 703 19158
-			cache[hash] = helper_vertex
+			#cache[hash] = helper_vertex
 	)
 
 	return helper_vertex

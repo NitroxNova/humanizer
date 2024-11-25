@@ -17,8 +17,9 @@ static func start():
 		return
 	if not threads.is_empty(): 
 		return
-
-	Engine.get_main_loop().get_root().tree_exiting.connect(exit) # graceful exit
+	
+	if not Engine.get_main_loop().get_root().tree_exiting.is_connected(exit): 
+		Engine.get_main_loop().get_root().tree_exiting.connect(exit) # graceful exit
 	for i in range(0, thread_count):
 		var thread = Thread.new()
 		threads.append(thread)
@@ -92,4 +93,3 @@ static func _worker_thread():
 			continue
 		else:
 			job_mutex.unlock()
-
