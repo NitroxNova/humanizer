@@ -22,14 +22,14 @@ func duplicate(subresources=false):
 func generate_material_3D() -> StandardMaterial3D:
 	var material = StandardMaterial3D.new()
 	if FileAccess.file_exists(base_material_path):
-		material = load(base_material_path).duplicate() #dont want to overwrite base material values
+		material = HumanizerResourceService.load_resource(base_material_path).duplicate() #dont want to overwrite base material values
 
 	if overlays.size() == 0:
 		pass
 	elif overlays.size() == 1:
 		material.albedo_color = overlays[0].color
 		if not overlays[0].albedo_texture_path in ["",null]:
-			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, load(overlays[0].albedo_texture_path))
+			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, HumanizerResourceService.load_resource(overlays[0].albedo_texture_path))
 		else:
 			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO,null)
 		if overlays[0].normal_texture_path in ["",null]:
@@ -38,17 +38,19 @@ func generate_material_3D() -> StandardMaterial3D:
 		else:
 			material.normal_enabled = true
 			material.normal_scale = overlays[0].normal_strength
-			material.set_texture(BaseMaterial3D.TEXTURE_NORMAL, load(overlays[0].normal_texture_path))
+			material.set_texture(BaseMaterial3D.TEXTURE_NORMAL, HumanizerResourceService.load_resource(overlays[0].normal_texture_path))
 		if not overlays[0].ao_texture_path in ["",null]:
-			material.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, load(overlays[0].ao_texture_path))
+			material.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, HumanizerResourceService.load_resource(overlays[0].ao_texture_path))
 	else:
-		#print("more than 1 overlay")
-		var textures = await _update_material()
-		material.normal_enabled = textures.normal != null
-		material.ao_enabled = textures.ao != null
-		material.albedo_texture = textures.albedo
-		material.normal_texture = textures.normal
-		material.ao_texture = textures.ao
+		# awaiting outside the main thread will switch to the main thread if the signal awaited is emitted by the main thread
+		HumanizerJobQueue.add_job_main_thread(func():
+			var textures = await _update_material()
+			material.normal_enabled = textures.normal != null
+			material.ao_enabled = textures.ao != null
+			material.albedo_texture = textures.albedo
+			material.normal_texture = textures.normal
+			material.ao_texture = textures.ao
+		)
 	return material
 	
 func _update_material() -> Dictionary:
@@ -58,7 +60,7 @@ func _update_material() -> Dictionary:
 	for texture in TEXTURE_LAYERS: #albedo, normal, ambient occulsion ect..
 		var texture_size = Vector2(2**11,2**11)
 		if overlays[0].albedo_texture_path != "":
-			texture_size = load(overlays[0].albedo_texture_path).get_size()
+			texture_size = HumanizerResourceService.load_resource(overlays[0].albedo_texture_path).get_size()
 		var image_vp = SubViewport.new()
 		
 		image_vp.size = texture_size
@@ -69,13 +71,13 @@ func _update_material() -> Dictionary:
 			if overlay == null:
 				continue
 			var path = overlay.get(texture + '_texture_path')
-			if path == '':
+			if path == null || path == '':
 				if texture == 'albedo':
 					var im_col_rect = ColorRect.new()
 					im_col_rect.color = overlay.color
 					image_vp.add_child(im_col_rect)
 				continue
-			var im_texture = load(path)
+			var im_texture = HumanizerResourceService.load_resource(path)
 			var im_tex_rect = TextureRect.new()
 			im_tex_rect.position = overlay.offset
 			im_tex_rect.texture = im_texture
@@ -88,12 +90,11 @@ func _update_material() -> Dictionary:
 		if image_vp.get_child_count() == 0:
 			textures[texture] = null
 		else:
-			
 			Engine.get_main_loop().get_root().add_child.call_deferred(image_vp)
 			image_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
 			if not image_vp.is_inside_tree():
 				await Signal(image_vp,"tree_entered")
-			#await Signal(RenderingServer, "frame_post_draw")
+			await Signal(RenderingServer, "frame_post_draw")
 			await RenderingServer.frame_post_draw
 			var image = image_vp.get_texture().get_image()
 			image.generate_mipmaps()

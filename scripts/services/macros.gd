@@ -2,7 +2,7 @@
 extends Resource
 class_name HumanizerMacroService
 
-const macro_ranges :Dictionary = {
+static var macro_ranges :Dictionary = {
 		age = [["baby",0],["child",.12],["young",.25],["old",1]],
 		gender = [["female",0.0],["male",1.0]],
 		height = [["minheight",0],["",.5],["maxheight",1]],
@@ -13,7 +13,7 @@ const macro_ranges :Dictionary = {
 		firmness = [["minfirmness",0],["averagefirmness",0.5],["maxfirmness",1]]
 	}
 
-const macro_combos : Dictionary = {
+static var macro_combos : Dictionary = {
 		"racegenderage": ["race", "gender", "age"],
 		"genderagemuscleweight": ["universal", "gender", "age", "muscle", "weight"],
 		"genderagemuscleweightproportions": ["gender", "age", "muscle", "weight", "proportions"],
@@ -111,6 +111,11 @@ static func get_combination_values(combo_name:String,data:Dictionary):
 		elif macro_name == "race":
 			next_shapes = data.race.duplicate()
 		else:
+			if not macro_name in data:
+				# printerr("no macro data for name '" + macro_name + "'")
+				# printerr(str(data))
+				# print_stack()
+				continue
 			var curr_macro = data[macro_name]
 			for shape_name in combo_shapekeys:
 				for offset_counter in curr_macro.offset.size():

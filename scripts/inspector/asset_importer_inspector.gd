@@ -14,7 +14,7 @@ func _parse_category(_importer, category):
 		#print("Category: " + category + " , is not asset_importer.gd")
 		return
 	importer = _importer
-	inspector = load("res://addons/humanizer/scenes/inspector/asset_importer_inspector.tscn").instantiate()
+	inspector = HumanizerResourceService.load_resource("res://addons/humanizer/scenes/inspector/asset_importer_inspector.tscn").instantiate()
 	add_custom_control(inspector)
 	slot_boxes = {}
 	for slots_cat:HumanizerSlotCategory in HumanizerGlobalConfig.config.equipment:

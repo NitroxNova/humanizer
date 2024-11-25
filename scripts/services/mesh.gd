@@ -164,9 +164,7 @@ static func blend_color(image: Image, color: Color) -> void:
 		for y in image.get_height():
 			image.set_pixel(x, y, image.get_pixel(x, y) * color)
 			
-static func compress_material(args:Dictionary):
-	#print("compressing material")
-	var mesh:ArrayMesh = args.mesh
+static func compress_material(mesh: ArrayMesh):
 	for surface_id in mesh.get_surface_count():
 		var material: BaseMaterial3D = mesh.surface_get_material(surface_id)
 		for texture in ['albedo', 'normal', 'ao']:
@@ -182,8 +180,7 @@ static func compress_material(args:Dictionary):
 				else:
 					new_texture.take_over_path(save_path)
 					ResourceSaver.save(new_texture, save_path)
-					material.set(texture + '_texture', load(save_path))
+					material.set(texture + '_texture', HumanizerResourceService.load_resource(save_path))
 		if not material.resource_path in ["",null]:
 			material.take_over_path(material.resource_path)
 			ResourceSaver.save(material, material.resource_path)
-	#print("done compressing material")

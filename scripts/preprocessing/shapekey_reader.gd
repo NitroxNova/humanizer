@@ -17,7 +17,7 @@ func run():
 	DirAccess.remove_absolute("res://addons/humanizer/data/resources/target_data.res")
 	
 	# Load helper mesh and index vertices
-	var helper_mesh: ArrayMesh = load('res://addons/humanizer/data/resources/base_helpers.res')
+	var helper_mesh: ArrayMesh = HumanizerResourceService.load_resource('res://addons/humanizer/data/resources/base_helpers.res')
 	var helper_vertices = helper_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
 	var mh2gd_index = HumanizerUtils.get_mh2gd_index_from_mesh(helper_mesh)
 
@@ -33,7 +33,7 @@ func run():
 	
 	ResourceSaver.save(target_data,"res://addons/humanizer/data/resources/target_data.res")	
 	
-	HumanizerTargetService.data = load("res://addons/humanizer/data/resources/target_data.res")
+	HumanizerTargetService.data = HumanizerResourceService.load_resource("res://addons/humanizer/data/resources/target_data.res")
 	print('Finished collecting shapekey data')
 
 func _process_shapekey(path: String,prefix:String=""):

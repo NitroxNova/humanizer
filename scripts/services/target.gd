@@ -2,41 +2,69 @@
 extends Resource
 class_name HumanizerTargetService
 
+static var cache = {}
 static var data: HumanizerTargetData = load("res://addons/humanizer/data/resources/target_data.res")
 
-static func init_helper_vertex(target_data=null)->PackedVector3Array:
+static func exit():
+	# todo mutex
+	cache.clear()
+	HumanizerLogger.debug("target service shutdown")
+
+static func init_helper_vertex(target_data = null) -> PackedVector3Array:
 	var helper_vertex = data.basis.duplicate()
-	if target_data != null:
-		set_targets_raw(target_data,helper_vertex)
+
+	HumanizerLogger.profile("init_helper_vertex", func():
+		if target_data != null:
+			var hash = hash([data.basis, target_data])
+			if cache.has(hash):
+				return cache[hash]
+			set_targets_raw(target_data, helper_vertex) # took 578ms to init_helper_vertex 703 19158
+			cache[hash] = helper_vertex
+	)
+
 	return helper_vertex
 
-static func set_targets(new_targets:Dictionary,current_targets:Dictionary,helper_vertex:PackedVector3Array):
+static func set_targets(new_targets: Dictionary, current_targets: Dictionary, helper_vertex: PackedVector3Array):
 	var macros = {}
 	for target_name in new_targets.keys():
 		if target_name in HumanizerMacroService.macro_options or target_name in HumanizerMacroService.race_options:
 			macros[target_name] = new_targets[target_name]
 			new_targets.erase(target_name)
 	if not macros.is_empty():
-		HumanizerMacroService.set_macros(macros,current_targets,helper_vertex)
-	set_targets_raw(new_targets,helper_vertex,current_targets)
-	
-static func set_targets_raw(new_targets:Dictionary,helper_vertex:PackedVector3Array,current_targets=null):
-	for target_name in new_targets:
-		if target_name in data.names:
-			var offset = data.names[target_name]
-			for ref_id in range(offset[0],offset[1]):
-				var mh_id =  data.index[ref_id]
-				var coords = data.coords[ref_id]
-				#print(mh_id)
-				var prev_value = 0
+		HumanizerMacroService.set_macros(macros, current_targets, helper_vertex)
+	set_targets_raw(new_targets, helper_vertex, current_targets)
+
+static func set_targets_raw(new_targets: Dictionary, helper_vertex: PackedVector3Array, current_targets = null):
+
+	# this branch duplicates the code but the top one is more optimized for the critical path
+	# todo move this loop to a c++ module and optimize it
+	if current_targets == null:
+		for target_name in new_targets:
+			if target_name in data.names:
+				var offset = data.names[target_name]
+				var range = range(offset[0], offset[1])
+				for ref_id in range:
+					var mh_id = data.index[ref_id]
+					var coords = data.coords[ref_id]
+					var prev_value = 0
+					helper_vertex[mh_id] += coords * (new_targets[target_name] - prev_value)
+	else:
+		for target_name in new_targets:
+			if target_name in data.names:
+				var offset = data.names[target_name]
+				for ref_id in range(offset[0], offset[1]):
+					var mh_id = data.index[ref_id]
+					var coords = data.coords[ref_id]
+					var prev_value = 0
+					if current_targets != null:
+						prev_value = current_targets.get(target_name, 0)
+					helper_vertex[mh_id] += coords * (new_targets[target_name] - prev_value)
 				if current_targets != null:
-					prev_value = current_targets.get(target_name,0)
-				helper_vertex[mh_id] += coords * (new_targets[target_name] - prev_value)
-			if current_targets != null:
-				if new_targets[target_name] == 0:
-					current_targets.erase(target_name)
-				else:
-					current_targets[target_name] = new_targets[target_name]
+					if new_targets[target_name] == 0:
+						current_targets.erase(target_name)
+					else:
+						current_targets[target_name] = new_targets[target_name]
+
 	var foot_offset = HumanizerBodyService.get_foot_offset(helper_vertex)
 	if foot_offset != 0:
 		for mh_id in helper_vertex.size():
@@ -64,7 +92,7 @@ static func get_shapekey_categories() -> Dictionary:
 	}
 	for raw_name in data.names:
 		var name = raw_name.to_lower()
-		if 'penis' in name:# or name.ends_with('firmness'):
+		if 'penis' in name: # or name.ends_with('firmness'):
 			continue
 		#macros
 		if name.begins_with('african') or name.begins_with('asian') or name.begins_with('caucasian') or name.begins_with('female') or name.begins_with('male') or name.begins_with('universal'):

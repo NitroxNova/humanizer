@@ -178,6 +178,7 @@ func _clean_recursive(path: String) -> void:
 			##ResourceSaver.save(new_mat, mat_path)
 			##materials[new_mat.resource_name] = mat_path
 
+
 static func _calculate_bone_weights(mhclo:MHCLO,import_settings:Dictionary):
 	var rigged_bone_weights
 	if import_settings.rigged_glb != "":

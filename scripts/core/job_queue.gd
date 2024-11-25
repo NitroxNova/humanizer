@@ -1,78 +1,95 @@
-@tool
-class_name HumanizerJobQueue
 extends Node
+class_name HumanizerJobQueue
 
-## Enqueue a job with a dictionary with HumanizerJobQueue.enquque(job_data) 
-## Ensure the job_data dictionary has a "callable" key pointing to the function
-## The function should also accept a dictionary argument
-## The job_data will be passed as the argument to the callable
-## Chain jobs together by passing the "on_finished" key
+# todo export thread count to plugin project settings
+static var thread_count := 1 #max(1, OS.get_processor_count() / 4)
 
-static var Instance : HumanizerJobQueue
+static var threads: Array[Thread] = []
+static var thread_exit = false
+static var job_semaphore: Semaphore = Semaphore.new()
+static var job_mutex: Mutex = Mutex.new()
+static var jobs: Array[Callable] = []
 
-@export_range(1, 4, 1) var _n_threads: int = 1:
-	set(value):
-		_n_threads = value
-		if Instance != null:
-			Instance._n_threads = value
-var _threads : Array[Thread] = []
-var _semaphores : Array[Semaphore] = []
-var _mutex : Mutex = Mutex.new()
-var _queue : Array[Dictionary] = []
-var _close_threads : bool = false
+static var debug_run_on_main = false
 
-
-func _init() -> void:
-	if Instance == null:
-		Instance = self
-	else:
+static func start():
+	if thread_exit:
 		return
-	
-	for i in _n_threads:
-		_threads.append(Thread.new())
-		_semaphores.append(Semaphore.new())
-		_threads[i].start(_process_queue.bind(_semaphores[i]))
+	if not threads.is_empty(): 
+		return
+
+	Engine.get_main_loop().get_root().tree_exiting.connect(exit) # graceful exit
+	for i in range(0, thread_count):
+		var thread = Thread.new()
+		threads.append(thread)
+		thread.start(_worker_thread)
+
+	HumanizerLogger.debug("Setup thread pool with " + str(thread_count) + " threads")
 
 func _exit_tree() -> void:
-	_mutex.lock()
-	_close_threads = true
-	_mutex.unlock()
-	for s in _semaphores:
-		s.post()
-	for t in _threads:
-		t.wait_to_finish()
+	exit()
 
-static func enqueue(job: Dictionary) -> void:
-	Instance._mutex.lock()
-	Instance._queue.append(job)
-	Instance._mutex.unlock()
-	for s : Semaphore in Instance._semaphores:
-		s.post()
+static func exit():
+	if threads.is_empty():
+		return
 
-func _process_queue(semaphore : Semaphore) -> void:
+	job_mutex.lock()
+	thread_exit = true
+	job_mutex.unlock()
 
+	for thread in threads:
+		job_semaphore.post()
+	for thread in threads:
+		if thread.is_started():
+			thread.wait_to_finish()
+	threads.clear()
+
+	job_mutex.lock()
+	jobs.clear()
+	job_mutex.unlock()
+
+	HumanizerResourceService.exit()
+	HumanizerTargetService.exit()
+	HumanizerLogger.debug("job_queue shutdown")
+
+static func add_job(callable: Callable):
+	if thread_exit:
+		return
+
+	start()
+
+	if debug_run_on_main:
+		callable.call()
+		return
+	job_mutex.lock()
+	jobs.push_back(callable)
+	job_mutex.unlock()
+	job_semaphore.post()
+
+# todo fix crash on exit, main thread jobs are being queued holding references to characterbody3d, on thread_exit we ignore the jobs leading to orphaned nodes
+static func add_job_main_thread(callable: Callable):
+	if thread_exit:
+		return
+
+	start()
+	(func():
+		if Engine.get_main_loop().get_root() == null: # why do i have to do this?
+			return
+		callable.call()
+	).call_deferred()
+
+static func _worker_thread():
 	while true:
-		var job_data : Dictionary
-		var wait : bool
-		_mutex.lock()
-		var exit = _close_threads
-		if not _queue.is_empty():
-			job_data = _queue[0]
-			_queue.remove_at(0)
-		else:
-			wait = true
-		_mutex.unlock()
-		
-		if exit:
+		job_semaphore.wait()
+		if thread_exit:
 			break
-		
-		if wait:
-			semaphore.wait()
+		job_mutex.lock()
+		if len(jobs) > 0:
+			var task = jobs[0]
+			jobs.remove_at(0)
+			job_mutex.unlock()
+			task.call()
+			continue
 		else:
-			(job_data.callable as Callable).call(job_data)
-			while job_data.has('on_finished'):
-				var next_job = (job_data.on_finished as Callable)
-				job_data.erase('on_finished')
-				if next_job:
-					next_job.call(job_data)
-					
+			job_mutex.unlock()
+

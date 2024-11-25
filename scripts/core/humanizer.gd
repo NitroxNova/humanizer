@@ -12,6 +12,7 @@ signal material_updated
 
 # this function must be awaited
 func load_config_async(_human_config):
+	var timer
 	materials = {}
 	mesh_arrays = {}
 	skeleton_data = {}
@@ -25,44 +26,56 @@ func load_config_async(_human_config):
 		human_config.add_equipment(HumanizerEquipment.new("LeftEyeBall-LowPoly"))
 	else:	
 		human_config = _human_config
+
 	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
-	for equip in human_config.equipment.values():
-		mesh_arrays[equip.type] = HumanizerEquipmentService.load_mesh_arrays(equip.get_type())
-		await init_equipment_material(equip)
+
+	HumanizerLogger.profile("load equipment", func():
+		for equip in human_config.equipment.values():
+			mesh_arrays[equip.type] = HumanizerEquipmentService.load_mesh_arrays(equip.get_type())
+			init_equipment_material(equip)
+	)
+
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
 
+# there are race conditions in this function (i think)
 func get_CharacterBody3D(baked:bool):
-	hide_clothes_vertices()
 	var human = CharacterBody3D.new()
-	human.set_script(load("res://addons/humanizer/scripts/utils/human_controller.gd"))
-	var skeleton = get_skeleton()
-	human.add_child(skeleton)
-	skeleton.set_unique_name_in_owner(true)
-	var body_mesh = MeshInstance3D.new()
-	body_mesh.name = "Avatar"
-	if baked:
-		body_mesh.mesh = standard_bake_meshes()	
-	else:
-		body_mesh.mesh = get_combined_meshes()
-	human.add_child(body_mesh)
-	body_mesh.skeleton = NodePath('../' + skeleton.name)
-	body_mesh.skin = skeleton.create_skin_from_rest_transforms()
 
-	var anim_player = get_animation_tree()
-	if anim_player != null:
-		human.add_child(anim_player)
-		anim_player.active=true
-	skeleton.owner = human
-	anim_player.owner = human
-	if human_config.has_component("main_collider"):
-		human.add_child(get_main_collider())
-	if human_config.has_component("ragdoll"):
-		add_ragdoll_colliders(skeleton)
+	HumanizerLogger.profile("humanizer.get_CharacterBody3D", func():
+		hide_clothes_vertices()
+		
+		human.set_script(HumanizerResourceService.load_resource("res://addons/humanizer/scripts/utils/human_controller.gd"))
+		var skeleton = get_skeleton()
+		human.add_child(skeleton)
+		skeleton.set_unique_name_in_owner(true)
+		var body_mesh = MeshInstance3D.new()
+		body_mesh.name = "Avatar"
+		if baked:
+			body_mesh.mesh = standard_bake_meshes()
+		else:
+			HumanizerLogger.profile("humanizer.get_CharacterBody3D.get_combined_meshes", func():
+				body_mesh.mesh = get_combined_meshes()
+			)
+		human.add_child(body_mesh)
+		body_mesh.skeleton = NodePath('../' + skeleton.name)
+		body_mesh.skin = skeleton.create_skin_from_rest_transforms()
+
+		var anim_player = get_animation_tree()
+		if anim_player != null:
+			human.add_child(anim_player)
+			anim_player.active=true
+		skeleton.owner = human
+		anim_player.owner = human
+		if human_config.has_component("main_collider"):
+			human.add_child(get_main_collider())
+		if human_config.has_component("ragdoll"):
+			add_ragdoll_colliders(skeleton)
+	)
+
 	return human
 
 func get_combined_meshes() -> ArrayMesh:
-	#print("getting combined meshes")
 	var new_mesh = ArrayMesh.new()
 	for equip_name in mesh_arrays:
 		var new_arrays = get_mesh_arrays(equip_name)
@@ -75,9 +88,9 @@ func get_combined_meshes() -> ArrayMesh:
 	
 func get_animation_tree():
 	if human_config.rig == 'default-RETARGETED':
-		return load("res://addons/humanizer/data/animations/face_animation_tree.tscn").instantiate()
+		return HumanizerResourceService.load_resource("res://addons/humanizer/data/animations/face_animation_tree.tscn").instantiate()
 	elif human_config.rig.ends_with('RETARGETED'):
-		return load("res://addons/humanizer/data/animations/animation_tree.tscn").instantiate()
+		return HumanizerResourceService.load_resource("res://addons/humanizer/data/animations/animation_tree.tscn").instantiate()
 	else:  # No example animator for specific rigs that aren't retargeted
 		return
 
@@ -89,7 +102,7 @@ func standard_bake_meshes():
 	var transparent = get_group_bake_arrays("transparent")
 	if not transparent.is_empty():
 		combine_surfaces_to_mesh(transparent,new_mesh)	
-	HumanizerJobQueue.enqueue({callable=HumanizerMeshService.compress_material,mesh=new_mesh})
+	HumanizerJobQueue.add_job(HumanizerMeshService.compress_material.bind(new_mesh))
 	return new_mesh
 
 func combine_surfaces_to_mesh(surface_names:PackedStringArray,new_mesh:=ArrayMesh.new(),atlas_resolution:int=HumanizerGlobalConfig.config.atlas_resolution):
@@ -121,14 +134,14 @@ func get_group_bake_arrays(group_name:String): #transparent, opaque or all
 func set_skin_color(color:Color):
 	human_config.skin_color = color
 	var body = human_config.get_equipment_in_slot("Body")
-	materials[body.type] = await body.material_config.generate_material_3D()
+	materials[body.type] = body.material_config.generate_material_3D()
 	material_updated.emit(body)
 	
 func set_eye_color(color:Color):
 	human_config.eye_color = color
 	var slots = ["LeftEye","RightEye","Eyes"]
 	for equip in human_config.get_equipment_in_slots(slots):
-		materials[equip.type] = await equip.material_config.generate_material_3D()
+		materials[equip.type] = equip.material_config.generate_material_3D()
 		material_updated.emit(equip)
 		
 func set_hair_color(color:Color):
@@ -148,24 +161,18 @@ func set_eyebrow_color(color:Color):
 func init_equipment_material(equip:HumanizerEquipment): #called from thread
 	#print("initializing equipment")
 	var equip_type = equip.get_type()
-	materials[equip.type] = await equip.material_config.generate_material_3D()
+	materials[equip.type] = equip.material_config.generate_material_3D()
 	material_updated.emit(equip)
 
 func set_equipment_material(equip:HumanizerEquipment, material_name: String)-> void:
 	human_config.set_equipment_material(equip,material_name)	
-	await init_equipment_material(equip)
+	init_equipment_material(equip)
 
 func update_material(equip_type:String): #from the material config
 	var equip = human_config.equipment[equip_type]
-	materials[equip.type] = await equip.material_config.generate_material_3D()
+	materials[equip.type] = equip.material_config.generate_material_3D()
 	material_updated.emit(equip)
-	
-#func force_update_materials(): # not normally needed, use this if generated humans arent updating textures properly (was an issue in the stress test - has something to do with threads)
-	#for equip in human_config.equipment.values():
-		#if equip.material_config != null:
-			#await RenderingServer.frame_post_draw	
-			#equip.material_config.update_standard_material_3D(materials[equip.type])
-		
+
 func get_mesh(mesh_name:String):
 	var mesh = ArrayMesh.new()
 	var new_arrays = get_mesh_arrays(mesh_name)
@@ -192,7 +199,7 @@ func add_equipment(equip:HumanizerEquipment):
 	if equip_type.rigged:
 		HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip_type.resource_name], skeleton_data)
 	update_equipment_weights(equip_type.resource_name)
-	await init_equipment_material(equip)
+	init_equipment_material(equip)
 
 func remove_equipment(equip:HumanizerEquipment):
 	human_config.remove_equipment(equip)
@@ -222,7 +229,7 @@ func fit_all_meshes():
 
 func fit_equipment_mesh(equip_name:String):
 	var equip:HumanizerEquipment = human_config.equipment[equip_name]
-	var mhclo = load(equip.get_type().mhclo_path)
+	var mhclo = HumanizerResourceService.load_resource(equip.get_type().mhclo_path)
 	mesh_arrays[equip_name] = HumanizerEquipmentService.fit_mesh_arrays(mesh_arrays[equip_name],helper_vertex,mhclo)
 
 func set_rig(rig_name:String):
@@ -257,7 +264,7 @@ func update_bone_weights():
 		
 func update_equipment_weights(equip_name:String):
 	var equip_type:HumanizerEquipmentType = human_config.equipment[equip_name].get_type()
-	var mhclo = load(equip_type.mhclo_path)
+	var mhclo = HumanizerResourceService.load_resource(equip_type.mhclo_path)
 	if equip_type.rigged:
 		var bones = mhclo.rigged_bones[rig.resource_name].duplicate() #could potentially have multiple of the same mhclo open, dont want to change other arrays (due to godot resource sharing)
 		for bone_array_id in bones.size():

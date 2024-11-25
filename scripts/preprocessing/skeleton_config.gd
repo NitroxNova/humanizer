@@ -22,7 +22,7 @@ func run():
 			in_data = HumanizerUtils.read_json(rig.mh_json_path)
 			if in_data.has('bones'):  # Game Engine rig doesn't have bones key
 				in_data = in_data['bones']
-			skeleton = load(rig.skeleton_path).instantiate()
+			skeleton = HumanizerResourceService.load_resource(rig.skeleton_path).instantiate()
 			
 			if in_data.size() == 0:
 				printerr('Failed to load skeleton json from makehuman')

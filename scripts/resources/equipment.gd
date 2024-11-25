@@ -35,7 +35,7 @@ func set_material(material_name:String):
 	var mat_path = ""
 	if material_name in equip_type.textures:
 		mat_path = equip_type.textures[material_name]
-		material = load(mat_path)
+		material = HumanizerResourceService.load_resource(mat_path)
 	else:
 		material = StandardMaterial3D.new()
 		mat_path = ""
@@ -52,4 +52,4 @@ func set_material(material_name:String):
 func get_type():
 	if type in HumanizerRegistry.equipment:
 		return HumanizerRegistry.equipment[type]
-	printerr("Unkown equipment type: " + type)
+	printerr("Unknown equipment type: " + type)

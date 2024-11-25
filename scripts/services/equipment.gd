@@ -5,7 +5,7 @@ class_name HumanizerEquipmentService
 static func load_mesh_arrays(equip:HumanizerEquipmentType):
 	var sf_arrays = []
 	sf_arrays.resize(Mesh.ARRAY_MAX)
-	var mhclo = load(equip.mhclo_path)
+	var mhclo = HumanizerResourceService.load_resource(equip.mhclo_path)
 	sf_arrays[Mesh.ARRAY_TEX_UV] = mhclo.uv_array
 	sf_arrays[Mesh.ARRAY_INDEX] = mhclo.index_array.duplicate()
 	sf_arrays[Mesh.ARRAY_CUSTOM0] = mhclo.custom0_array
@@ -25,14 +25,14 @@ static func fit_mesh_arrays(mesh_arrays:Array, helper_vertex_array: PackedVector
 	return mesh_arrays
 
 static func _sort_by_z_depth(clothes_a: HumanizerEquipment, clothes_b: HumanizerEquipment): # from highest to lowest
-	if load(clothes_a.get_type().mhclo_path).z_depth > load(clothes_b.get_type().mhclo_path).z_depth:
+	if HumanizerResourceService.load_resource(clothes_a.get_type().mhclo_path).z_depth > HumanizerResourceService.load_resource(clothes_b.get_type().mhclo_path).z_depth:
 		return true
 	return false
 
 static func show_vertices(equip_list:Dictionary,mesh_arrays:Dictionary):
 	for equip:HumanizerEquipment in equip_list.values():
 		var equip_type :HumanizerEquipmentType = equip.get_type()
-		var mhclo = load(equip_type.mhclo_path)
+		var mhclo = HumanizerResourceService.load_resource(equip_type.mhclo_path)
 		mesh_arrays[equip.type][Mesh.ARRAY_INDEX] = mhclo.index_array.duplicate()
 
 static func hide_vertices(equip_list:Dictionary,mesh_arrays:Dictionary):
@@ -45,7 +45,7 @@ static func hide_vertices(equip_list:Dictionary,mesh_arrays:Dictionary):
 	
 	for equip:HumanizerEquipment in depth_sorted_clothes:
 		var equip_type: HumanizerEquipmentType = equip.get_type()
-		var mhclo : MHCLO = load(equip_type.mhclo_path)
+		var mhclo : MHCLO = HumanizerResourceService.load_resource(equip_type.mhclo_path)
 		var cl_delete_verts_mh = []
 		cl_delete_verts_mh.resize(mhclo.vertex_data.size())
 		cl_delete_verts_mh.fill(false)
@@ -93,10 +93,9 @@ static func hide_faces(surface_arrays:Array,delete_verts:Array):
 	
 	surface_arrays[Mesh.ARRAY_INDEX] = keep_faces
 
-#scripts/mpfb/services/clothesservice.py
 static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig,skeleton_data:Dictionary):
-	#"""Try to copy rigging weights from the base mesh to the clothes mesh, hopefully #making the clothes fit the provided rig."""
-	# Create an empty outline with placeholders arrays that will contain lists of
+    #"""Try to copy rigging weights from the base mesh to the clothes mesh, hopefully #making the clothes fit the provided rig."""
+    # Create an empty outline with placeholders arrays that will contain lists of
 	# vertices + weights per vertex group
 	var clothes_weights = []
 	for i in mhclo.vertex_data.size():

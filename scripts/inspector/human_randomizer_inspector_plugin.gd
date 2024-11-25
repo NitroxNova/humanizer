@@ -7,6 +7,6 @@ func _can_handle(human_rnd):
 func _parse_category(human_rnd, category):
 	if category != 'human_randomizer.gd':
 		return
-	var scene = load("res://addons/humanizer/scenes/inspector/human_randomizer_inspector.tscn").instantiate()
+	var scene = HumanizerResourceService.load_resource("res://addons/humanizer/scenes/inspector/human_randomizer_inspector.tscn").instantiate()
 	add_custom_control(scene)
 	scene.setup(human_rnd)
