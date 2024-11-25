@@ -8,7 +8,7 @@
 
 ## RESOURCES:
  - [Humanizer Wiki](https://github.com/NitroxNova/humanizer/wiki)
- - [Humanizer Discord](https://discord.gg/sQWar92A)
+ - [Humanizer Discord](https://discord.gg/MN5vJtJYD5)
 
 ## FEATURES:
 
