@@ -17,7 +17,7 @@ func _parse_category(_importer, category):
 	inspector = HumanizerResourceService.load_resource("res://addons/humanizer/scenes/inspector/asset_importer_inspector.tscn").instantiate()
 	add_custom_control(inspector)
 	slot_boxes = {}
-	for slots_cat:HumanizerSlotCategory in HumanizerGlobalConfig.config.equipment:
+	for slots_cat:HumanizerSlotCategory in HumanizerGlobalConfig.config.equipment_slots:
 		var label = Label.new()
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		label.text = "--- " + slots_cat.category + " ---"
