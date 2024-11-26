@@ -40,6 +40,12 @@ placeholder_text = "Display Name"
 unique_name_in_owner = true
 layout_mode = 2
 
+[node name="SlotsDisabledLabel" type="Label" parent="ImportOptions/SlotsContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+text = "Cannot change slots when equipment is in pre-defined slots override folder. "
+
 [node name="GLB_Button" type="Button" parent="ImportOptions"]
 unique_name_in_owner = true
 layout_mode = 2

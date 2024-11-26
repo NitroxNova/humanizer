@@ -21,7 +21,7 @@ func _ready() -> void:
 	visibility_changed.connect(_set_visibility)
 	build_grid()
 	await get_tree().process_frame
-	for slot in HumanizerGlobalConfig.config.equipment[category].get_slots():
+	for slot in HumanizerGlobalConfig.config.equipment_slots[category].get_slots():
 		asset_option_buttons[slot] = get_node('%' + slot + 'OptionButton')
 		material_option_buttons[slot] = get_node('%' + slot + 'TextureOptionButton')
 		
@@ -55,8 +55,8 @@ func build_grid() -> void:
 	for child in grid.get_children():
 		grid.remove_child(child)
 		child.queue_free()
-	for slot_label in HumanizerGlobalConfig.config.equipment[category].slots:
-		var slot = slot_label + HumanizerGlobalConfig.config.equipment[category].suffix
+	for slot_label in HumanizerGlobalConfig.config.equipment_slots[category].slots:
+		var slot = slot_label + HumanizerGlobalConfig.config.equipment_slots[category].suffix
 		var label = Label.new()
 		label.text = slot_label
 		grid.add_child(label)
@@ -83,7 +83,7 @@ func build_grid() -> void:
 		
 func fill_table(config: HumanConfig) -> void:
 	#print("filling table")
-	for slot in HumanizerGlobalConfig.config.equipment[category].get_slots():
+	for slot in HumanizerGlobalConfig.config.equipment_slots[category].get_slots():
 		var clothes = config.get_equipment_in_slot(slot)
 		if clothes != null:
 			var options = asset_option_buttons[slot] as OptionButton

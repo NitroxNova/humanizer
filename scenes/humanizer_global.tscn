@@ -13,57 +13,57 @@ script/source = "@tool
 extends Node
 "
 
-[sub_resource type="Resource" id="Resource_h5chv"]
+[sub_resource type="Resource" id="Resource_yrmqy"]
 script = ExtResource("4_nipot")
 folder_name = "hair"
 slots = PackedStringArray("Hair")
 left_right = false
 
-[sub_resource type="Resource" id="Resource_uakle"]
+[sub_resource type="Resource" id="Resource_0jg15"]
 script = ExtResource("4_nipot")
 folder_name = "eyes"
 slots = PackedStringArray("LeftEye", "RightEye")
 left_right = true
 
-[sub_resource type="Resource" id="Resource_vmkmf"]
+[sub_resource type="Resource" id="Resource_o3orb"]
 script = ExtResource("4_nipot")
 folder_name = "eyebrows"
 slots = PackedStringArray("LeftEyebrow", "RightEyebrow")
 left_right = true
 
-[sub_resource type="Resource" id="Resource_uwijd"]
+[sub_resource type="Resource" id="Resource_tt3th"]
 script = ExtResource("4_nipot")
 folder_name = "eyelashes"
 slots = PackedStringArray("LeftEyelash", "RightEyelash")
 left_right = true
 
-[sub_resource type="Resource" id="Resource_76gff"]
+[sub_resource type="Resource" id="Resource_fcv5a"]
 script = ExtResource("3_ge6bv")
 category = "Body Parts"
 suffix = ""
 slots = PackedStringArray("Body", "RightEye", "LeftEye", "RightEyebrow", "LeftEyebrow", "RightEyelash", "LeftEyelash", "Hair", "Tongue", "Teeth")
-folder_overrides = Array[ExtResource("4_nipot")]([SubResource("Resource_h5chv"), SubResource("Resource_uakle"), SubResource("Resource_vmkmf"), SubResource("Resource_uwijd")])
+folder_overrides = Array[ExtResource("4_nipot")]([SubResource("Resource_yrmqy"), SubResource("Resource_0jg15"), SubResource("Resource_o3orb"), SubResource("Resource_tt3th")])
 
-[sub_resource type="Resource" id="Resource_iuuos"]
+[sub_resource type="Resource" id="Resource_6a2w0"]
 script = ExtResource("4_nipot")
 folder_name = "hats"
 slots = PackedStringArray("Head")
 left_right = false
 
-[sub_resource type="Resource" id="Resource_qrrha"]
+[sub_resource type="Resource" id="Resource_1x8hu"]
 script = ExtResource("4_nipot")
 folder_name = "shoes"
 slots = PackedStringArray("Feet")
 left_right = false
 
-[sub_resource type="Resource" id="Resource_8rryg"]
+[sub_resource type="Resource" id="Resource_rejh0"]
 script = ExtResource("3_ge6bv")
 category = "Clothing"
 suffix = "Clothes"
 slots = PackedStringArray("Head", "Eyes", "Mouth", "Hands", "Arms", "Torso", "Legs", "Feet")
-folder_overrides = Array[ExtResource("4_nipot")]([SubResource("Resource_iuuos"), SubResource("Resource_qrrha")])
+folder_overrides = Array[ExtResource("4_nipot")]([SubResource("Resource_6a2w0"), SubResource("Resource_1x8hu")])
 
-[sub_resource type="Resource" id="Resource_eyivk"]
+[sub_resource type="Resource" id="Resource_lp23c"]
 script = ExtResource("3_k24ro")
 asset_import_paths = Array[String](["res://addons/humanizer/data/assets/"])
 human_export_path = "res://data/humans/"
@@ -71,9 +71,7 @@ default_characterbody_script = "res://addons/humanizer/scripts/utils/human_contr
 default_rigidbody_script = ""
 default_staticbody_script = ""
 default_area_script = ""
-equipment = Array[ExtResource("3_ge6bv")]([SubResource("Resource_76gff"), SubResource("Resource_8rryg")])
-body_part_slots = Array[String](["Body", "RightEye", "LeftEye", "RightEyebrow", "LeftEyebrow", "RightEyelash", "LeftEyelash", "Hair", "Tongue", "Teeth"])
-clothing_slots = Array[String](["Head", "Eyes", "Mouth", "Hands", "Arms", "Torso", "Legs", "Feet"])
+equipment_slots = Array[ExtResource("3_ge6bv")]([SubResource("Resource_fcv5a"), SubResource("Resource_rejh0")])
 default_skeleton = "game_engine-RETARGETED"
 default_animation_tree = ExtResource("2_hdl0y")
 default_baked_root_node = "CharacterBody3D"
@@ -90,7 +88,7 @@ script = SubResource("GDScript_yaxf4")
 
 [node name="HumanizerConfig" type="Node" parent="."]
 script = ExtResource("2_vm4hu")
-_config = SubResource("Resource_eyivk")
+_config = SubResource("Resource_lp23c")
 
 [node name="HumanizerRegistry" type="Node" parent="."]
 script = ExtResource("57_651fh")

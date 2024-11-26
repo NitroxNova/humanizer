@@ -17,7 +17,7 @@ extends Resource
 @export_file var default_area_script: String
 
 @export_group('Slot Definitions')
-@export var equipment: Array[HumanizerSlotCategory] = [
+@export var equipment_slots: Array[HumanizerSlotCategory] = [
 	
 	HumanizerSlotCategory.new("Body Parts","", 
 		PackedStringArray( ['Body', 'RightEye', 'LeftEye', 'RightEyebrow', 'LeftEyebrow', 'RightEyelash', 'LeftEyelash', 'Hair', 'Tongue', 'Teeth',]), 
@@ -33,30 +33,6 @@ extends Resource
 			HumanizerFolderOverride.new("shoes",["Feet"])], 
 		TYPE_OBJECT, "Resource", HumanizerFolderOverride)),
 	
-]
-## Body Part Slot Definitions
-@export var body_part_slots: Array[String] = [
-	'Body',
-	'RightEye',
-	'LeftEye',
-	'RightEyebrow',
-	'LeftEyebrow',
-	'RightEyelash',
-	'LeftEyelash',
-	'Hair',
-	'Tongue',
-	'Teeth',
-]
-## Clothing Slot Definitions
-@export var clothing_slots: Array[String] =  [
-	'Head',
-	'Eyes',
-	'Mouth',
-	'Hands',
-	'Arms',
-	'Torso',
-	'Legs',
-	'Feet',
 ]
 
 @export_group("Animation")
@@ -98,7 +74,7 @@ func get_folder_override_slots(mhclo_path:String):
 	mhclo_path = mhclo_path.to_lower()
 	#print(mhclo_path)
 	var slots = []
-	for slot_cat in equipment:
+	for slot_cat in equipment_slots:
 		for folder_ovr in slot_cat.folder_overrides:
 			var fn = "/".path_join(folder_ovr.folder_name.to_lower()).path_join("") #slashes on both sides to eliminate false positives (in case one name is partially in another)
 			if fn in mhclo_path:

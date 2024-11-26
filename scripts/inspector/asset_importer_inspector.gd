@@ -90,8 +90,20 @@ func fill_options(path:String=""):
 	inspector.get_node('%GLB_Label').text = ""
 	inspector.get_node('%LoadRiggedGLB').current_dir = mhclo_path.get_base_dir()
 	var settings = HumanizerEquipmentImportService.load_import_settings(mhclo_path)
-	for slot in settings.slots:
-		slot_boxes[slot].button_pressed = true
+	var folder_override = HumanizerGlobalConfig.config.get_folder_override_slots(mhclo_path)
+	
+	if folder_override.is_empty():
+		inspector.get_node('%SlotsDisabledLabel').hide()
+		for slot in settings.slots:
+			slot_boxes[slot].button_pressed = true 
+		for slot in slot_boxes:	
+			slot_boxes[slot].disabled = false
+	else:
+		inspector.get_node('%SlotsDisabledLabel').show()
+		for slot in folder_override:
+			slot_boxes[slot].button_pressed = true 
+		for slot in slot_boxes:	
+			slot_boxes[slot].disabled = true
 	inspector.get_node('%DisplayName').text = settings.display_name
 	inspector.get_node('%GLB_Label').text = settings.rigged_glb
 	for bone in settings.attach_bones:
