@@ -70,7 +70,7 @@ static func load_import_settings(mhclo_path:String):
 		#if you already know the json path just use this line 
 		settings = HumanizerUtils.read_json(json_path)
 	else:
-		settings.mhclo_path = mhclo_path
+		settings.mhclo = mhclo_path
 		settings.slots = []
 		settings.attach_bones = []
 		var mhclo := MHCLO.new()
@@ -111,8 +111,45 @@ static func search_for_rigged_glb(mhclo_path:String)->String:
 	return ""
 	
 static func import_all():
-	print("TODO rewrite import all")
+	#first, look for mhclos without settings.json , want to copy those settings before deleting the resource
+	for path in HumanizerGlobalConfig.config.asset_import_paths:
+		for dir in OSPath.get_dirs(path.path_join('equipment')):
+			scan_for_missing_import_settings(dir)
+	#since there are nested folders, want to delete everything first then regenerate
+	for path in HumanizerGlobalConfig.config.asset_import_paths:
+		for dir in OSPath.get_dirs(path.path_join('equipment')):
+			HumanizerMaterialService.import_materials(dir)
+			import_folder(dir)
+			
+	print("Reloading Registry")
+	HumanizerRegistry.load_all()
+	print('Done')
 
+static func import_folder(path):
+	for folder in OSPath.get_dirs(path):
+		import_folder(folder)
+	
+	for file in OSPath.get_files(path):
+		if file.ends_with("import_settings.json"):
+			import(file,false) #already generated materials			
+	
+
+static func scan_for_missing_import_settings(path,clean=true):
+	for folder in OSPath.get_dirs(path):
+		scan_for_missing_import_settings(folder)
+	for file in OSPath.get_files(path):
+		if file.get_extension() == "mhclo":
+			#need to rewrite json incase slots categories have been updated
+			var settings_path = file.replace(".mhclo",".import_settings.json")
+			var equip_settings = HumanizerEquipmentImportService.load_import_settings(file)
+			HumanizerUtils.save_json(settings_path,equip_settings)
+	#now that the import settings are copied, can delete any .res files
+	if clean:
+		for file in OSPath.get_files(path):
+			if file.get_extension() in ['res', 'tscn', 'tres']:
+				DirAccess.remove_absolute(file)
+	
+	
 #static func import_all() -> void:
 	##if _asset_path != '':  # User operating from scene
 		##pass

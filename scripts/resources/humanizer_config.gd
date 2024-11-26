@@ -108,15 +108,18 @@ func get_folder_override_slots(mhclo_path:String):
 					for side in ["left","right"]:
 						if mhclo_path.get_file().begins_with(side):
 							for slot in folder_ovr.slots:
+								slot += slot_cat.suffix
 								if slot.to_lower().begins_with(side) and slot not in slots:
 									slots.append(slot)
 							has_side = true
 					if not has_side: # assign to both sides, so they can add single equipment with both eyelashes	
 						for slot in folder_ovr.slots:
+							slot += slot_cat.suffix
 							if slot not in slots:
 								slots.append(slot)
 				else:
 					for slot in folder_ovr.slots:
+						slot += slot_cat.suffix
 						if slot not in slots:
 							slots.append(slot)
 	return slots	

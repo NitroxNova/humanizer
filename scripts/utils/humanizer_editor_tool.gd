@@ -98,13 +98,7 @@ func _ready() -> void:
 		
 func reset():
 	#print("reseting")
-	var new_config = HumanConfig.new()
-	new_config.init_macros()
-	new_config.rig = HumanizerGlobalConfig.config.default_skeleton
-	new_config.add_equipment(HumanizerEquipment.new("DefaultBody"))
-	new_config.add_equipment(HumanizerEquipment.new("RightEyeball-LowPoly"))
-	new_config.add_equipment(HumanizerEquipment.new("LeftEyeBall-LowPoly"))
-	human_config = new_config
+	human_config = HumanConfig.new_default()
 	
 func set_human_config(config: HumanConfig) -> void:
 	human_config = config

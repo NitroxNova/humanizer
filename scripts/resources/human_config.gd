@@ -50,6 +50,15 @@ signal equipment_removed(equip:HumanizerEquipment)
 			_handle_color_overrides(equip)
 		notify_property_list_changed()
 
+static func new_default():
+	var new_config = HumanConfig.new()
+	new_config.init_macros()
+	new_config.rig = HumanizerGlobalConfig.config.default_skeleton
+	new_config.add_equipment(HumanizerEquipment.new("DefaultBody"))
+	new_config.add_equipment(HumanizerEquipment.new("RightEye-LowPolyEyeball"))
+	new_config.add_equipment(HumanizerEquipment.new("LeftEye-LowPolyEyeball"))
+	return new_config
+	
 func init_macros():
 	var default_macros = HumanizerMacroService.get_default_macros()
 	var macros = {}

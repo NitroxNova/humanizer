@@ -41,8 +41,8 @@ func randomize_eyes() -> void:
 	color.r += rng.randf()
 	color.g += rng.randf()
 	color.b += rng.randf()
-	human.add_equipment(HumanizerEquipment.new("LeftEyeBall-LowPoly"))
-	human.add_equipment(HumanizerEquipment.new("RightEyeball-LowPoly"))
+	human.add_equipment(HumanizerEquipment.new("LeftEye-LowPolyEyeball"))
+	human.add_equipment(HumanizerEquipment.new("RightEye-LowPolyEyeball"))
 	human.eye_color = color
 
 func randomize_eyelashes() -> void:

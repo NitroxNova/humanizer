@@ -11,21 +11,13 @@ var skeleton_data : Dictionary = {} #bone names with parent, position and rotati
 #signal material_updated
 
 # this function must be awaited
-func load_config_async(_human_config):
+func load_config_async(_human_config:HumanConfig):
 	var timer
 	materials = {}
 	mesh_arrays = {}
 	skeleton_data = {}
 	rig = null
-	if _human_config == null:
-		human_config = HumanConfig.new()
-		human_config.init_macros()
-		human_config.rig = HumanizerGlobalConfig.config.default_skeleton
-		human_config.add_equipment(HumanizerEquipment.new("DefaultBody"))
-		human_config.add_equipment(HumanizerEquipment.new("RightEyeball-LowPoly"))
-		human_config.add_equipment(HumanizerEquipment.new("LeftEyeBall-LowPoly"))
-	else:	
-		human_config = _human_config
+	human_config = _human_config
 
 	helper_vertex = HumanizerTargetService.init_helper_vertex(human_config.targets)
 
