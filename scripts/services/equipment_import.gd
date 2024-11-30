@@ -150,27 +150,6 @@ static func scan_for_missing_import_settings(path,clean=true):
 				DirAccess.remove_absolute(file)
 	
 	
-#static func import_all() -> void:
-	##if _asset_path != '':  # User operating from scene
-		##pass
-		###dont really want to delete resources, just save over them..
-		###for fl in OSPath.get_files(_asset_path):
-			###if fl.get_extension() in ['res', 'tscn', 'tres']:
-				###DirAccess.remove_absolute(fl)
-		###_scan_path_for_assets(_asset_path)
-	##else:                  # Bulk import task
-		##if not clean_only:
-			##print('Bulk asset import')
-		##else:
-			##print('Purging assets')
-	#for path in HumanizerGlobalConfig.config.asset_import_paths:
-		#for dir in OSPath.get_dirs(path.path_join('equipment')):
-			##_clean_recursive(dir)
-			#_scan_recursive(dir)
-	#print("Reloading Registry")
-	#HumanizerRegistry.load_all()
-	#print('Done')
-	
 func _clean_recursive(path: String) -> void:
 	for dir in OSPath.get_dirs(path):
 		_clean_recursive(dir)
@@ -178,44 +157,6 @@ func _clean_recursive(path: String) -> void:
 		if fl.get_extension() in ['res', 'tscn', 'tres']:
 			DirAccess.remove_absolute(fl)
 	
-#static func _scan_recursive(path: String) -> void:
-	#for dir in OSPath.get_dirs(path):
-		#_scan_recursive(dir)
-	#_scan_path_for_assets(path)
-	#
-##static func _scan_path_for_assets(path: String) -> void:
-	##var materials := {}
-	##var obj_data = null
-	##var contents = OSPath.get_contents(path)
-	##var asset_data := {}
-	###var overlay = {}
-	##
-	##for file_name in OSPath.get_files(path):
-		##if file_name.get_extension() == "mhclo":
-			##var fl = file_name.get_file().get_basename()
-			##var _mhclo := MHCLO.new()
-			##_mhclo.parse_file(file_name)
-			##asset_data[fl] = {}
-			##asset_data[fl]['mhclo'] = _mhclo
-			##var rigged: String = path.path_join(asset_data[fl]['mhclo'].obj_file_name.get_basename() + '.glb')
-			##if FileAccess.file_exists(rigged):
-				##asset_data[fl]['rigged'] = rigged
-	##
-	##if asset_data.size() == 0:
-		##return
-	##
-	##for dir in contents.dirs:
-		##contents.files.append_array(OSPath.get_files(dir))
-		##
-	### Get textures
-	##for file_name in contents.files:
-		##if file_name.get_extension() == "mhmat":
-			##var new_mat = HumanizerMaterialService.mhmat_to_material(file_name)
-			##var mat_path = file_name.get_base_dir().path_join( new_mat.resource_name + '_material.res')
-			##ResourceSaver.save(new_mat, mat_path)
-			##materials[new_mat.resource_name] = mat_path
-
-
 static func _calculate_bone_weights(mhclo:MHCLO,import_settings:Dictionary):
 	var rigged_bone_weights
 	if import_settings.rigged_glb != "":
@@ -225,10 +166,7 @@ static func _calculate_bone_weights(mhclo:MHCLO,import_settings:Dictionary):
 		var skeleton_data = HumanizerRigService.init_skeleton_data(rig,false)
 		HumanizerEquipmentService.interpolate_weights( mhclo,rig,skeleton_data)
 		if import_settings.rigged_glb != "":
-			for bone in mhclo.rigged_config:
-				if bone.name != "neutral_bone":
-					skeleton_data[bone.name] = {}
-			HumanizerEquipmentService.interpolate_rigged_weights(mhclo,rigged_bone_weights,skeleton_data,rig_name)
+			HumanizerEquipmentService.interpolate_rigged_weights(mhclo,rigged_bone_weights,rig_name)
 			
 static func _build_import_mesh(path: String, mhclo: MHCLO) -> ArrayMesh: 
 	# build basis from obj file
@@ -249,8 +187,23 @@ static func _build_rigged_bone_arrays(mhclo:MHCLO,glb:String) -> Dictionary:
 		push_error('Failed to load glb : ' + glb)
 		return {}
 	var root = gltf.generate_scene(state)
-	var skeleton:Skeleton3D = root.get_child(0).get_child(0)
+	
+	#var skeleton:Skeleton3D = root.get_child(0).get_child(0)
+	var skeleton_nodes = root.find_children("*","Skeleton3D")
+	if skeleton_nodes.size() < 1:
+		printerr("couldnt find skeleton in GLB file " + glb)
+		return {}
+	elif skeleton_nodes.size() > 1:
+		printerr("too many skeletons in GLB, there should only be one " + glb)
+		return {}
+	var skeleton : Skeleton3D = skeleton_nodes[0]
+	
 	var glb_arrays = (skeleton.get_child(0) as ImporterMeshInstance3D).mesh.get_surface_arrays(0)
+	
+
+	if glb_arrays == null:
+		printerr("couldnt find mesh in GLB file " + glb)
+		return {}
 	
 	var mh_to_glb_idx = []
 	mh_to_glb_idx.resize(mhclo.mh2gd_index.size())
@@ -264,15 +217,26 @@ static func _build_rigged_bone_arrays(mhclo:MHCLO,glb:String) -> Dictionary:
 		mh_to_glb_idx[mh_id].append(glb_id)
 	
 	var bone_config = []
-	bone_config.resize(skeleton.get_bone_count())
 	for bone_id in skeleton.get_bone_count():
-		bone_config[bone_id] = {}
-		bone_config[bone_id].name = skeleton.get_bone_name(bone_id)
-		bone_config[bone_id].transform = skeleton.get_bone_rest(bone_id) #for local bone rotation
-		bone_config[bone_id].parent = skeleton.get_bone_parent(bone_id)
+		#remove root bone, need to discuss
+		var bone_name :String = skeleton.get_bone_name(bone_id)
+		if bone_name.to_lower() in ["neutral_bone","root"]:
+			continue
+		bone_config.append({old_id=bone_id,name=bone_name})
+	
+	#remapping bones here to make it easier down the line, remove the root / neutral_bone
+	for this_bone in bone_config:
+		var bone_id = this_bone.old_id
+		this_bone.transform = skeleton.get_bone_rest(bone_id) #for local bone rotation
+		var old_parent_id = skeleton.get_bone_parent(bone_id)
+		var parent_id = -1
+		for p_bone_id in bone_config.size():
+			if bone_config[p_bone_id].old_id == old_parent_id:
+				parent_id = p_bone_id
+		this_bone.parent = parent_id
 		
 		# This is ugly but it should work
-		bone_config[bone_id].vertices = {'ids': []}
+		this_bone.vertices = {'ids': []}
 
 		## Find nearest vertex to bone and then nearest vertex in opposite direction
 		var vtx1: Vector3
@@ -280,9 +244,6 @@ static func _build_rigged_bone_arrays(mhclo:MHCLO,glb:String) -> Dictionary:
 		var min_distancesq: float = 1e11
 		var min_id: int = -1
 		var bone_pos: Vector3 = skeleton.get_bone_global_rest(bone_id).origin
-		if bone_pos == Vector3.ZERO:
-			# IDK what neutral bone is for but we don't need it
-			continue
 		
 		# Find closest distance squared
 		for vtx in glb_arrays[Mesh.ARRAY_VERTEX].size():
@@ -301,7 +262,7 @@ static func _build_rigged_bone_arrays(mhclo:MHCLO,glb:String) -> Dictionary:
 			if min_id != -1:
 				break
 		# Add this id to the config
-		bone_config[bone_id].vertices['ids'].append(min_id)
+		this_bone.vertices['ids'].append(min_id)
 		
 		min_distancesq = 1e11
 		min_id = -1
@@ -321,8 +282,8 @@ static func _build_rigged_bone_arrays(mhclo:MHCLO,glb:String) -> Dictionary:
 			if min_id != -1:
 				break
 				
-		bone_config[bone_id].vertices['ids'].append(min_id)
-		bone_config[bone_id].vertices['offset'] = bone_pos - 0.5 * (vtx1 + vtx2)
+		this_bone.vertices['ids'].append(min_id)
+		this_bone.vertices['offset'] = bone_pos - 0.5 * (vtx1 + vtx2)
 		# Now when we build the skeleton we just set the global bone position to
 		# 0.5 * (v1 + v2) + offset
 	

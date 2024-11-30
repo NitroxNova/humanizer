@@ -30,7 +30,14 @@ static func _get_materials():
 						equipment[equip_type].textures[mat_res.resource_name] = mat_file
 						if mat_file.get_file().get_basename() == "default":
 							equipment[equip_type].default_material = mat_res.resource_name
-
+						#want to merge rigged and unrigged into same equip type, so can just be toggled for cut scenes or whatever
+						#but for now im doing this
+						var rigged_name = equip_type + "_Rigged"
+						if rigged_name in equipment:
+							equipment[rigged_name].textures[mat_res.resource_name] = mat_file
+							if mat_file.get_file().get_basename() == "default":
+								equipment[rigged_name].default_material = mat_res.resource_name
+						
 static func add_equipment_type(equip:HumanizerEquipmentType):
 	#print('Registering equipment ' + equip.resource_name)
 	if equipment.has(equip.resource_name):

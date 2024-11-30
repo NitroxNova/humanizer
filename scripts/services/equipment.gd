@@ -94,8 +94,8 @@ static func hide_faces(surface_arrays:Array,delete_verts:Array):
 	surface_arrays[Mesh.ARRAY_INDEX] = keep_faces
 
 static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig,skeleton_data:Dictionary):
-    #"""Try to copy rigging weights from the base mesh to the clothes mesh, hopefully #making the clothes fit the provided rig."""
-    # Create an empty outline with placeholders arrays that will contain lists of
+	#"""Try to copy rigging weights from the base mesh to the clothes mesh, hopefully #making the clothes fit the provided rig."""
+	# Create an empty outline with placeholders arrays that will contain lists of
 	# vertices + weights per vertex group
 	var clothes_weights = []
 	for i in mhclo.vertex_data.size():
@@ -175,12 +175,13 @@ static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig,skeleton_data:Dic
 			mhclo.bones[rig.resource_name].append(bw_pair[0])
 			mhclo.weights[rig.resource_name].append(bw_pair[1])
 
-static func interpolate_rigged_weights(mhclo:MHCLO, rigged_bone_weights:Dictionary,skeleton_data:Dictionary,rig_name:String):
+static func interpolate_rigged_weights(mhclo:MHCLO, rigged_bone_weights:Dictionary,rig_name:String):
 	var base_bone_weights = {}
 	base_bone_weights.bones = mhclo.bones[rig_name]
 	base_bone_weights.weights = mhclo.weights[rig_name]
 	mhclo.rigged_bones[rig_name] = PackedInt32Array()
 	mhclo.rigged_weights[rig_name] = PackedFloat32Array()
+
 	for gd_id in mhclo.custom0_array.size():
 		var mh_id = mhclo.custom0_array[gd_id]
 		var mh_bones = []
@@ -188,13 +189,15 @@ static func interpolate_rigged_weights(mhclo:MHCLO, rigged_bone_weights:Dictiona
 		var remainder = 0
 		for array_id in rigged_bone_weights.bones[mh_id].size():
 			if rigged_bone_weights.weights[mh_id][array_id] != 0:
-				var rig_bone_id = rigged_bone_weights.bones[mh_id][array_id]
-				var bone_name = mhclo.rigged_config[rig_bone_id].name
-				var bone_id = skeleton_data.keys().find(bone_name)
+				var old_id = rigged_bone_weights.bones[mh_id][array_id]
+				var bone_id = -1
+				for new_id in mhclo.rigged_config.size():
+					if mhclo.rigged_config[new_id].old_id == old_id:
+						bone_id = new_id
 				if bone_id == -1: # the "neutral bone", where the hair connects to the head, for example
 					remainder += rigged_bone_weights.weights[mh_id][array_id]
 				else:
-					mh_bones.append((rig_bone_id+1)*-1) #offset by one because -0 = 0
+					mh_bones.append((bone_id+1)*-1) #offset by one because -0 = 0
 					mh_weights.append(rigged_bone_weights.weights[mh_id][array_id])
 		if remainder > 0:
 			for array_id in range(gd_id*8,(gd_id+1)*8):

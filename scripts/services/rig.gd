@@ -119,17 +119,17 @@ static func skeleton_add_rigged_equipment(equipment:HumanizerEquipment, sf_array
 	var import_settings = equipment.get_type().get_import_settings()
 	for bone_config in mhclo.rigged_config:
 		var bone_name = bone_config.name
-		if bone_name != "neutral_bone":
-			skeleton_data[bone_name] = {}
-			skeleton_data[bone_name].global_pos = get_asset_bone_position(sf_arrays,mhclo,bone_config)
-			skeleton_data[bone_name].local_xform = bone_config.transform
-			var parent_name = get_rigged_parent_bone(import_settings,mhclo,bone_config,skeleton_data)
-			if parent_name != null:
-				skeleton_data[bone_name].parent = parent_name
-			else:
-				printerr(" no valid attach bones defined for " + equipment.type)
+		skeleton_data[bone_name] = {}
+		skeleton_data[bone_name].global_pos = get_asset_bone_position(sf_arrays,mhclo,bone_config)
+		skeleton_data[bone_name].local_xform = bone_config.transform
+		var parent_name = get_rigged_parent_bone(import_settings,mhclo,bone_config,skeleton_data)
+		if parent_name != null:
+			skeleton_data[bone_name].parent = parent_name
+		else:
+			printerr(" no valid attach bones defined for " + equipment.type)
 	
 static func get_asset_bone_position(sf_arrays:Array,mhclo:MHCLO,bone_config:Dictionary):
+	#print(bone_config.vertices.ids)
 	var v1 = sf_arrays[Mesh.ARRAY_VERTEX][mhclo.mh2gd_index[bone_config.vertices.ids[0]][0]]
 	var v2 = sf_arrays[Mesh.ARRAY_VERTEX][mhclo.mh2gd_index[bone_config.vertices.ids[1]][0]]
 	var bone_pos = 0.5 * (v1+v2) + bone_config.vertices.offset
