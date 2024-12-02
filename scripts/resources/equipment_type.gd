@@ -11,7 +11,7 @@ class_name HumanizerEquipmentType #base equipment definition
 
 var mhclo_path: String:
 	get:
-		return path.path_join(resource_name.replace("_Rigged","") + '_mhclo.res')
+		return path.path_join(resource_name.replace("_Rigged","") + '.mhclo.res')
 
 func get_import_settings():
 		var json_path = path.path_join(resource_name.replace("_Rigged","") + '.import_settings.json')

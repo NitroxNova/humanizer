@@ -104,7 +104,7 @@ static func _scan_dir(path: String) -> void:
 	for file in contents.files:
 		if file.get_extension() not in ['tres', 'res']: # only use .res  , .tres is renamed to .tres.remap on export (same for .tscn)
 			continue
-		var suffix: String = file.get_file().rsplit('.', true, 1)[0].split('_')[-1]
-		if suffix in ['material', 'mhclo', 'mesh']:
+		var suffix: String = file.get_basename().get_extension()
+		if suffix in ['material', 'mhclo']:
 			continue
 		add_equipment_type(HumanizerResourceService.load_resource(file))
