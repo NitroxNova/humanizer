@@ -107,4 +107,8 @@ static func _scan_dir(path: String) -> void:
 		var suffix: String = file.get_basename().get_extension()
 		if suffix in ['material', 'mhclo']:
 			continue
-		add_equipment_type(HumanizerResourceService.load_resource(file))
+		var equip = HumanizerResourceService.load_resource(file)
+		if equip is HumanizerEquipmentType:
+			add_equipment_type(equip)
+		else:
+			printerr("unexpected resource type " + file)
