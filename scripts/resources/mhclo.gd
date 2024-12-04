@@ -27,22 +27,17 @@ enum SECTION {header,vertices,delete_vertices}
 var obj_file_name: String
 var display_name : String
 var default_material : String
+var mhclo_path : String
 
 func parse_file(filename:String):
+	mhclo_path = filename
 	resource_name = filename.get_basename().get_file()
-	#print(resource_name)
 	var file = FileAccess.open(filename,FileAccess.READ)
 	var current_section = SECTION.header
 	while file.get_position() < file.get_length():
 		var line = file.get_line()
 		if line.begins_with("material "):  #can be above or below the "verts 0"
-			var mat_path = line.split(" ",false,1)[1]
-			mat_path = filename.get_base_dir().path_join(mat_path)
-			#print(mat_path)
-			if FileAccess.file_exists(mat_path):
-				default_material = mat_path.get_file().get_basename() #remove .mhmat extension
-			else:
-				printerr("material file does not exist " + mat_path)
+			default_material = line.split(" ",false,1)[1]
 		elif current_section == SECTION.header:
 			if line == "verts 0":
 				current_section = SECTION.vertices

@@ -39,11 +39,27 @@ static func search_for_generated_materials(folder:String)->Dictionary:
 		materials.merge(search_for_generated_materials(subfolder))	
 	# top folder should override if conflicts
 	for file_name in OSPath.get_files(folder):
-		if file_name.get_extension() == "res":
-			var mat_res = HumanizerResourceService.load_resource(file_name)
-			if mat_res is StandardMaterial3D:
-				materials[file_name.get_file().get_basename().get_basename()] = file_name
+		if file_name.get_extension() == "mhmat":
+			#may not have been imported yet, thats ok, just return what the filename will be
+			var mat_res_path = file_name.replace(".mhmat",".material.res")
+			materials[file_name.get_file().get_basename()] = mat_res_path
 	return materials
+
+static func default_material_from_mhclo(mhclo:MHCLO):
+	var default_material = ""
+	var material_path = mhclo.mhclo_path.get_base_dir().path_join(mhclo.default_material)
+	if FileAccess.file_exists(material_path):
+		default_material = mhclo.default_material.replace(".res","")
+	else:
+		printerr(" warning - mhmat does not exist - " + material_path)
+	#if default material is not set in mhclo (or if the name is invalid - most likely)
+	#just fill in with the first material in the list, starting with manually defined materials at the top
+	#its much easier for them to change it in the dropdown than to find the file and edit the text
+	if default_material == "":
+		var mat_list = search_for_materials(mhclo.mhclo_path)
+		if mat_list.size() > 0:
+			default_material = mat_list.keys()[0]
+	return default_material
 
 static func mhmat_to_material(path:String)->StandardMaterial3D:
 	var material = StandardMaterial3D.new()

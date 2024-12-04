@@ -21,7 +21,7 @@ static func import(json_path:String,import_materials:=true):
 	equip_type.resource_name = mhclo.resource_name
 	equip_type.default_material = settings.default_material
 	var save_path = folder.path_join(equip_type.resource_name + '.res')
-	
+	equip_type.textures = HumanizerMaterialService.search_for_materials(mhclo.mhclo_path)
 	equip_type.display_name = settings.display_name
 	
 	equip_type.slots.clear()
@@ -75,7 +75,7 @@ static func load_import_settings(mhclo_path:String):
 		if version < 1.1:
 			var mhclo := MHCLO.new()
 			mhclo.parse_file(mhclo_path)
-			settings.default_material = mhclo.default_material
+			settings.default_material = HumanizerMaterialService.default_material_from_mhclo(mhclo)
 			settings.version = 1.1
 	else:
 		settings.mhclo = mhclo_path
@@ -83,7 +83,7 @@ static func load_import_settings(mhclo_path:String):
 		settings.attach_bones = []
 		var mhclo := MHCLO.new()
 		mhclo.parse_file(mhclo_path)
-		settings.default_material = mhclo.default_material
+		settings.default_material = HumanizerMaterialService.default_material_from_mhclo(mhclo)
 		#print("loading resource")
 		#try new resource naming convention first
 		var res_path = get_equipment_resource_path(mhclo_path)
@@ -111,7 +111,9 @@ static func load_import_settings(mhclo_path:String):
 		settings.slots.append_array(slots_ovr)
 	
 	return settings
-	
+
+
+
 static func search_for_rigged_glb(mhclo_path:String)->String:
 	var glb_path = mhclo_path.get_basename() + ".glb"
 	#print(glb_path)
