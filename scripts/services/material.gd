@@ -11,6 +11,28 @@ static func import_materials(folder:String):
 			new_mat.take_over_path(mat_path)
 			ResourceSaver.save(new_mat, mat_path)
 
+static func search_for_materials(mhclo_path:String):
+	var equip_type = mhclo_path.get_file().get_basename().get_basename() #get rid of both .mhclo.res extensions
+	var materials = search_for_manual_materials(equip_type)
+	#search for the generated materials after, so custom materials are first in the list
+	materials.merge(search_for_generated_materials(mhclo_path.get_base_dir()))
+	return materials	
+
+static func search_for_manual_materials(equip_type:String):
+	var materials = {}
+	for folder in HumanizerGlobalConfig.config.asset_import_paths:
+		var materials_path = folder.path_join('materials')
+		materials_path = materials_path.path_join(equip_type)
+		for subfolder in OSPath.get_dirs(materials_path):
+			materials.merge(search_for_manual_materials(subfolder))	
+		# top folder should override if conflicts
+		for mat_file in OSPath.get_files(materials_path):
+			if mat_file.get_extension() == "res":
+				var mat_res = HumanizerResourceService.load_resource(mat_file)
+				if mat_res is HumanizerMaterial or mat_res is StandardMaterial3D:
+					materials[mat_file.get_file().get_basename().get_basename()] = mat_file
+	return materials		
+
 static func search_for_generated_materials(folder:String)->Dictionary:
 	var materials = {}
 	for subfolder in OSPath.get_dirs(folder):
@@ -20,7 +42,7 @@ static func search_for_generated_materials(folder:String)->Dictionary:
 		if file_name.get_extension() == "res":
 			var mat_res = HumanizerResourceService.load_resource(file_name)
 			if mat_res is StandardMaterial3D:
-				materials[mat_res.resource_name] = file_name
+				materials[file_name.get_file().get_basename().get_basename()] = file_name
 	return materials
 
 static func mhmat_to_material(path:String)->StandardMaterial3D:

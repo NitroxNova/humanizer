@@ -80,6 +80,24 @@ func fill_bone_options(idx:int):
 	for bone_name in skeleton_data:
 		inspector.get_node('%BoneOptions').add_item(bone_name)
 
+func fill_material_options():
+	var options :OptionButton = inspector.get_node('%DefaultMaterial')
+	options.clear()
+	options.add_item(" -- None (Random) --")
+	options.set_item_metadata(0,"")
+	var mat_list = HumanizerMaterialService.search_for_materials(get_mhclo_path())
+	for mat_id in mat_list:
+		var mat_res = HumanizerResourceService.load_resource(mat_list[mat_id])
+		var mat_name = mat_res.resource_name
+		var idx = options.item_count
+		options.add_item(mat_name)
+		options.set_item_metadata(idx,mat_id)
+	
+	for idx in options.get_item_count():
+		var mat_id = options.get_item_metadata(idx)
+		if mat_id == import_settings.default_material:
+			options.selected = idx
+		
 func fill_options(path:String=""):
 	#print("fill options")
 	for box in slot_boxes.values():
@@ -90,7 +108,9 @@ func fill_options(path:String=""):
 		child.queue_free()
 	inspector.get_node('%GLB_Label').text = ""
 	inspector.get_node('%LoadRiggedGLB').current_dir = mhclo_path.get_base_dir()
+	
 	import_settings = HumanizerEquipmentImportService.load_import_settings(mhclo_path)
+	fill_material_options()
 	var folder_override = HumanizerGlobalConfig.config.get_folder_override_slots(mhclo_path)
 	
 	if folder_override.is_empty():
@@ -128,6 +148,8 @@ func import_asset():
 	if import_settings.display_name.strip_edges() == "":
 		var string_id = import_settings.mhclo.get_basename().get_file()
 		printerr("No display name set, using string ID " + string_id) 
+	var select_material = inspector.get_node('%DefaultMaterial').selected
+	import_settings.default_material = inspector.get_node('%DefaultMaterial').get_item_metadata(select_material)
 	import_settings.rigged_glb = inspector.get_node('%GLB_Label').text
 	import_settings.attach_bones = []
 	for hbox in inspector.get_node('%BoneList').get_children():

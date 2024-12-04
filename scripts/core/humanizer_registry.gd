@@ -19,25 +19,9 @@ static func load_all() -> void:
 	)
 	
 static func _get_materials():
-	for folder in HumanizerGlobalConfig.config.asset_import_paths:
-		var materials_path = folder.path_join('materials')
-		for dir in OSPath.get_dirs(materials_path):
-			var equip_type = dir.get_file()
-			for mat_file in OSPath.get_files(dir):
-				if mat_file.get_extension() == "res":
-					var mat_res = HumanizerResourceService.load_resource(mat_file)
-					if mat_res is HumanizerMaterial or mat_res is StandardMaterial3D:
-						equipment[equip_type].textures[mat_res.resource_name] = mat_file
-						if mat_file.get_file().get_basename() == "default":
-							equipment[equip_type].default_material = mat_res.resource_name
-						#want to merge rigged and unrigged into same equip type, so can just be toggled for cut scenes or whatever
-						#but for now im doing this
-						var rigged_name = equip_type + "_Rigged"
-						if rigged_name in equipment:
-							equipment[rigged_name].textures[mat_res.resource_name] = mat_file
-							if mat_file.get_file().get_basename() == "default":
-								equipment[rigged_name].default_material = mat_res.resource_name
-						
+	for equip_type in equipment.values():
+		equip_type.textures = HumanizerMaterialService.search_for_materials(equip_type.mhclo_path)
+		
 static func add_equipment_type(equip:HumanizerEquipmentType):
 	#print('Registering equipment ' + equip.resource_name)
 	if equipment.has(equip.resource_name):

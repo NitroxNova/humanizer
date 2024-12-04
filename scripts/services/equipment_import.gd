@@ -19,7 +19,6 @@ static func import(json_path:String,import_materials:=true):
 		
 	equip_type.path = folder
 	equip_type.resource_name = mhclo.resource_name
-	equip_type.textures = HumanizerMaterialService.search_for_generated_materials(folder)
 	equip_type.default_material = settings.default_material
 	var save_path = folder.path_join(equip_type.resource_name + '.res')
 	
