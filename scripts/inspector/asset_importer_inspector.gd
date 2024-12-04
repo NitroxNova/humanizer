@@ -2,6 +2,7 @@ class_name AssetImporterInspectorPlugin
 extends EditorInspectorPlugin
 
 var slot_boxes = {}
+var import_settings := {}
 var inspector:Control
 var importer
 
@@ -89,12 +90,12 @@ func fill_options(path:String=""):
 		child.queue_free()
 	inspector.get_node('%GLB_Label').text = ""
 	inspector.get_node('%LoadRiggedGLB').current_dir = mhclo_path.get_base_dir()
-	var settings = HumanizerEquipmentImportService.load_import_settings(mhclo_path)
+	import_settings = HumanizerEquipmentImportService.load_import_settings(mhclo_path)
 	var folder_override = HumanizerGlobalConfig.config.get_folder_override_slots(mhclo_path)
 	
 	if folder_override.is_empty():
 		inspector.get_node('%SlotsDisabledLabel').hide()
-		for slot in settings.slots:
+		for slot in import_settings.slots:
 			slot_boxes[slot].button_pressed = true 
 		for slot in slot_boxes:	
 			slot_boxes[slot].disabled = false
@@ -104,11 +105,11 @@ func fill_options(path:String=""):
 			slot_boxes[slot].button_pressed = true 
 		for slot in slot_boxes:	
 			slot_boxes[slot].disabled = true
-	inspector.get_node('%DisplayName').text = settings.display_name
-	inspector.get_node('%GLB_Label').text = settings.rigged_glb
-	for bone in settings.attach_bones:
+	inspector.get_node('%DisplayName').text = import_settings.display_name
+	inspector.get_node('%GLB_Label').text = import_settings.rigged_glb
+	for bone in import_settings.attach_bones:
 		add_attach_bone(bone)
-	inspector.get_node('%DisplayName').text = settings.display_name
+	inspector.get_node('%DisplayName').text = import_settings.display_name
 	if inspector.get_node('%GLB_Label').text == "":
 		inspector.get_node('%GLB_Label').text = HumanizerEquipmentImportService.search_for_rigged_glb(mhclo_path)	
 		
@@ -117,8 +118,6 @@ func get_mhclo_path():
 
 func import_asset():
 	#print("importing asset")
-	var import_settings = {}
-	import_settings.version = 1.0
 	var slot_list = []
 	for slot_name in slot_boxes:
 		if slot_boxes[slot_name].button_pressed:

@@ -13,43 +13,44 @@ static func import(json_path:String,import_materials:=true):
 	mhclo.parse_file(settings.mhclo)
 	print('Importing asset ' + mhclo.resource_name)
 	# Build resource object
-	var resource := HumanizerEquipmentType.new()
+	var equip_type := HumanizerEquipmentType.new()
 	# Mesh operations
 	_build_import_mesh(folder, mhclo)
 		
-	resource.path = folder
-	resource.resource_name = mhclo.resource_name
-	resource.textures = HumanizerMaterialService.search_for_generated_materials(folder)
-	var save_path = folder.path_join(resource.resource_name + '.res')
+	equip_type.path = folder
+	equip_type.resource_name = mhclo.resource_name
+	equip_type.textures = HumanizerMaterialService.search_for_generated_materials(folder)
+	equip_type.default_material = settings.default_material
+	var save_path = folder.path_join(equip_type.resource_name + '.res')
 	
-	resource.display_name = settings.display_name
+	equip_type.display_name = settings.display_name
 	
-	resource.slots.clear()
+	equip_type.slots.clear()
 	for slot in settings.slots:
-		resource.slots.append(slot)
-	if resource.slots.is_empty():
-		printerr("Warning - " + resource.resource_name + " has no equipment slots, you can manually add them to the resource file.")
+		equip_type.slots.append(slot)
+	if equip_type.slots.is_empty():
+		printerr("Warning - " + equip_type.resource_name + " has no equipment slots, you can manually add them to the resource file.")
 	
 	_calculate_bone_weights(mhclo,settings)
 	
-	resource.take_over_path(save_path)
-	ResourceSaver.save(resource, resource.resource_path)
+	equip_type.take_over_path(save_path)
+	ResourceSaver.save(equip_type, equip_type.resource_path)
 	#build rigged equipment
 	if settings.rigged_glb != "":
-		var rigged_resource = resource.duplicate()
+		var rigged_resource = equip_type.duplicate()
 		rigged_resource.rigged = true
-		rigged_resource.display_name = resource.display_name + " (Rigged)"
-		rigged_resource.resource_name = resource.resource_name + "_Rigged"
-		var rigged_fl = resource.resource_path.get_basename() + "_Rigged.res"
+		rigged_resource.display_name = equip_type.display_name + " (Rigged)"
+		rigged_resource.resource_name = equip_type.resource_name + "_Rigged"
+		var rigged_fl = equip_type.resource_path.get_basename() + "_Rigged.res"
 		rigged_resource.take_over_path(rigged_fl)
 		ResourceSaver.save(rigged_resource, rigged_fl)
 		HumanizerRegistry.add_equipment_type(rigged_resource)
 		
 	#save after adding bone/weights to mhclo
-	mhclo.take_over_path(resource.mhclo_path)
+	mhclo.take_over_path(equip_type.mhclo_path)
 	ResourceSaver.save(mhclo, mhclo.resource_path)
 	#add main resource to registry
-	HumanizerRegistry.add_equipment_type(resource)	
+	HumanizerRegistry.add_equipment_type(equip_type)	
 
 static func get_import_settings_path(mhclo_path)->String:
 	var json_path = mhclo_path.get_basename()
@@ -69,12 +70,21 @@ static func load_import_settings(mhclo_path:String):
 		#print("loading json") 
 		#if you already know the json path just use this line 
 		settings = HumanizerUtils.read_json(json_path)
+		if "version" not in settings:
+			settings.version = 1.0
+		var version = float(settings.version)
+		if version < 1.1:
+			var mhclo := MHCLO.new()
+			mhclo.parse_file(mhclo_path)
+			settings.default_material = mhclo.default_material
+			settings.version = 1.1
 	else:
 		settings.mhclo = mhclo_path
 		settings.slots = []
 		settings.attach_bones = []
 		var mhclo := MHCLO.new()
 		mhclo.parse_file(mhclo_path)
+		settings.default_material = mhclo.default_material
 		#print("loading resource")
 		#try new resource naming convention first
 		var res_path = get_equipment_resource_path(mhclo_path)
@@ -100,7 +110,7 @@ static func load_import_settings(mhclo_path:String):
 	if not slots_ovr.is_empty():
 		settings.slots = []
 		settings.slots.append_array(slots_ovr)
-		
+	
 	return settings
 	
 static func search_for_rigged_glb(mhclo_path:String)->String:
