@@ -49,7 +49,7 @@ static func default_material_from_mhclo(mhclo:MHCLO):
 	var default_material = ""
 	var material_path = mhclo.mhclo_path.get_base_dir().path_join(mhclo.default_material)
 	if FileAccess.file_exists(material_path):
-		default_material = mhclo.default_material.replace(".res","")
+		default_material = mhclo.default_material.replace(".mhmat","")
 	else:
 		printerr(" warning - mhmat does not exist - " + material_path)
 	#if default material is not set in mhclo (or if the name is invalid - most likely)

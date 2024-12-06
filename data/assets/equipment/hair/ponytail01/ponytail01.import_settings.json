@@ -1,1 +1,1 @@
-{"attach_bones":["Head"],"display_name":"Ponytail01","mhclo":"res://addons/humanizer/data/assets/equipment/hair/ponytail01/ponytail01.mhclo","rigged_glb":"res://addons/humanizer/data/assets/equipment/hair/ponytail01/ponytail01.glb","slots":["Hair"],"version":1}
+{"attach_bones":["Head"],"default_material":"dariush086_ponytail01_platinum","display_name":"Ponytail01","mhclo":"res://addons/humanizer/data/assets/equipment/hair/ponytail01/ponytail01.mhclo","rigged_glb":"res://addons/humanizer/data/assets/equipment/hair/ponytail01/ponytail01.glb","slots":["Hair"],"version":1.1}
