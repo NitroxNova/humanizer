@@ -6,8 +6,6 @@ extends ScrollContainer
 
 static var visible_setting := false
 
-static var last_equipped := {}
-static var last_materials := {}
 var asset_option_buttons := {}
 var material_option_buttons := {}
 var config: HumanConfig
@@ -91,29 +89,40 @@ func fill_table(config: HumanConfig) -> void:
 			for item_idx in options.item_count:
 				if clothes.get_type().resource_name == options.get_item_metadata(item_idx):
 					options.selected = item_idx
-					var mat: int = 0
-					for texture in clothes.get_type().textures:
-						materials.add_item(texture)
-						if materials.get_item_text(mat) == clothes.texture_name:
-							materials.selected = mat
-						mat += 1
-			
+					fill_material_options(slot)
+
+func fill_material_options(slot: String):
+	var material_options: OptionButton = material_option_buttons[slot]
+	material_options.clear()
+	material_options.add_item(" -- None -- ")
+	material_options.set_item_metadata(0,"")
+	
+	var equip = config.get_equipment_in_slot(slot)
+	if equip == null:
+		return # can fill materials for null equipment
+	var equip_type = equip.get_type()
+	for mat_id in equip_type.textures:
+		var option_id = material_options.item_count
+		var mat_path = equip_type.textures[mat_id]
+		var mat_res = HumanizerResourceService.load_resource(mat_path)
+		var mat_name = mat_res.resource_name
+		material_options.add_item(mat_name)
+		material_options.set_item_metadata(option_id,mat_id)
+		if equip.texture_name == mat_id:
+			material_options.selected = option_id
+	
 func reset() -> void:
-	last_equipped = {}
-	last_materials = {}
 	for slot in HumanizerGlobalConfig.config.clothing_slots:
 		(asset_option_buttons[slot] as OptionButton).selected = 0
 		(material_option_buttons[slot] as OptionButton).selected = -1
 
 func clear_clothes(slot: String) -> void:
-	var cl = last_equipped[slot]
-	for sl in asset_option_buttons:
-		var slot_name = sl+"Clothes"
-		if last_equipped.has(slot_name) and last_equipped[slot_name] == cl:
-			last_equipped.erase(slot_name)
-			var options = asset_option_buttons[sl] as OptionButton
-			options.selected = 0
-			material_option_buttons[sl].selected = -1
+	var equip = config.get_equipment_in_slot(slot)
+	var equip_type = equip.get_type()
+	var slots = equip_type.slots
+	for sl in slots:
+		var equip_options = asset_option_buttons[sl]
+		equip_options.selected = 0
 
 func _get_slots(index: int, slot: String) -> Array[String]:
 	var slots: Array[String] = []
@@ -129,8 +138,6 @@ func _get_slots(index: int, slot: String) -> Array[String]:
 func _item_selected(index: int, slot: String):
 	## Get corresponding slot option and material buttons
 	var options: OptionButton = asset_option_buttons[slot]
-	var material_options = material_option_buttons[slot]
-	material_options.clear()
 	
 	## Get selected item name
 	var name = options.get_item_text(index)
@@ -159,34 +166,28 @@ func _item_selected(index: int, slot: String):
 	
 	## Fill material options for each
 	for sl in slots:
-		var materials: OptionButton = material_option_buttons[sl]
-		materials.clear()
-		for mat in HumanizerRegistry.equipment[string_id].textures:
-			materials.add_item(mat.get_file().replace('.tres', ''))
+		fill_material_options(sl)
 	
 	## Emit signals and set to default material
 	if config != null and not string_id in config.equipment:
 		var clothes: HumanizerEquipmentType = HumanizerRegistry.equipment[string_id]
-		for sl in slots:
-			last_equipped[sl] = clothes
 		#print("clothes changed " + string_id)
 		clothes_changed.emit(clothes)
 		var textures = material_option_buttons[slot]
 		material_set.emit(name, textures.get_item_text(textures.selected))
 
 func _material_selected(idx: int, slot: String) -> void:
-	var texture_name: String = material_option_buttons[slot].get_item_text(idx)
-	var options: OptionButton = asset_option_buttons[slot]
-	var name: String = options.get_item_text(options.selected)
-	
-	var slots: Array[String] = []
-	for sl: String in asset_option_buttons:
-		options = asset_option_buttons[sl] as OptionButton
-		if options.get_item_text(options.selected) == name:
-			slots.append(sl)
+	var material_options: OptionButton = material_option_buttons[slot]
+	var mat_id = material_options.get_item_metadata(idx)
+	#var name: String = options.get_item_text(options.selected)
+	var equip = config.get_equipment_in_slot(slot)
+	var slots = equip.get_type().slots
 	
 	for sl in slots:
-		var materials: OptionButton = material_option_buttons[sl]
-		materials.selected = idx
+		material_options = material_option_buttons[sl]
+		for option_id in material_options.item_count:
+			if material_options.get_item_metadata(option_id) == mat_id:
+				material_options.selected = option_id
+				
 		
-	material_set.emit(name, texture_name)
+	material_set.emit(equip.type, mat_id)

@@ -53,7 +53,8 @@ func set_material(material_name:String):
 		
 	texture_name = material_name
 		
-func get_type():
+func get_type()->HumanizerEquipmentType:
 	if type in HumanizerRegistry.equipment:
 		return HumanizerRegistry.equipment[type]
 	printerr("Unknown equipment type: " + type)
+	return null

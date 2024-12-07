@@ -87,10 +87,11 @@ func set_equipment_material(equip:HumanizerEquipment,material):
 	equip.set_material(material)
 	_handle_color_overrides(equip)
 
-func get_equipment_in_slot(slot_name:String):
+func get_equipment_in_slot(slot_name:String)->HumanizerEquipment:
 	for equip in equipment.values():
 		if slot_name in equip.get_type().slots:
 			return equip # should only be one item per slot
+	return null
 
 func get_equipment_in_slots(slot_names:Array):
 	var equip_list = []
