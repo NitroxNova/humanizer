@@ -80,7 +80,7 @@ func _parse_category(human, category):
 	scene.get_node('%ClothesButton').pressed.connect(func(): cl_container.visible = not cl_container.visible)
 	cl_container.visible = cl_container.visible_setting
 	cl_container.clothes_changed.connect(func(cl): human.add_equipment_type(cl))
-	cl_container.clothes_cleared.connect(func(sl): human.remove_equipment_in_slot(sl+"Clothes"))
+	cl_container.clothes_cleared.connect(func(sl): human.remove_equipment_in_slot(sl))
 	cl_container.material_set.connect(func(cl, idx): human.set_equipment_texture_by_name(cl, idx))
 	cl_container.config = human.human_config
 

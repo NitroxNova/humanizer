@@ -19,36 +19,30 @@ func _ready() -> void:
 	visibility_changed.connect(_set_visibility)
 	build_grid()
 	await get_tree().process_frame
-	for slot in HumanizerGlobalConfig.config.equipment_slots[category].get_slots():
-		asset_option_buttons[slot] = get_node('%' + slot + 'OptionButton')
-		material_option_buttons[slot] = get_node('%' + slot + 'TextureOptionButton')
-		
-		asset_option_buttons[slot].clear()
-		material_option_buttons[slot].clear()
-		
-		var options = asset_option_buttons[slot] as OptionButton
-		var materials = material_option_buttons[slot] as OptionButton
 
-		options.item_selected.connect(_item_selected.bind(slot))
-		materials.item_selected.connect(_material_selected.bind(slot))
-		
-		options.add_item('None')
-		for asset in HumanizerRegistry.filter_equipment({'slot'=slot}):
-			var display_name = asset.display_name
-			if display_name == "":
-				display_name = asset.resource_name
-			var idx = options.item_count
-			options.add_item(display_name)
-			options.set_item_metadata(idx,asset.resource_name)
-			
 	if config != null:
 		fill_table(config)
+	config.equipment_added.connect(_on_config_equipment_added)
+	config.equipment_removed.connect(_on_config_equipment_removed)
+	
+func _on_config_equipment_added(equip:HumanizerEquipment):
+	for slot in equip.get_type().slots:
+		if slot in asset_option_buttons:
+			update_row(slot)
+	
+func _on_config_equipment_removed(equip:HumanizerEquipment):
+	for slot in equip.get_type().slots:
+		if slot in asset_option_buttons:
+			var options = asset_option_buttons[slot]
+			options.selected = 0
+			fill_material_options(slot)
 
 func _set_visibility() -> void:
 	# Refuses to work as an anonymous function for some reason
 	visible_setting = visible
 
 func build_grid() -> void:
+	#print("building grid") - called every time an option is pressed -- why
 	var grid = find_child('GridContainer')
 	for child in grid.get_children():
 		grid.remove_child(child)
@@ -63,43 +57,60 @@ func build_grid() -> void:
 		label.text = 'Asset'
 		grid.add_child(label)
 		var options = OptionButton.new()
+		asset_option_buttons[slot] = options
 		options.name = slot + 'OptionButton'
 		options.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		grid.add_child(options)
+		#add equipment options
+		options.add_item(' -- None -- ')
+		for asset in HumanizerRegistry.filter_equipment({'slot'=slot}):
+			var display_name = asset.display_name
+			if display_name == "":
+				display_name = asset.resource_name
+			var idx = options.item_count
+			options.add_item(display_name)
+			options.set_item_metadata(idx,asset.resource_name)
 		options.unique_name_in_owner = true
+		options.item_selected.connect(_item_selected.bind(slot))
+		
 		grid.add_child(VSeparator.new())
 		label = Label.new()
 		label.text = 'Texture'
 		grid.add_child(label)
-		options = OptionButton.new()
-		options.name = slot + 'TextureOptionButton'
-		grid.add_child(options)
-		options.unique_name_in_owner = true
-		options.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var materials = OptionButton.new()
+		material_option_buttons[slot] = materials
+		materials.name = slot + 'TextureOptionButton'
+		grid.add_child(materials)
+		materials.unique_name_in_owner = true
+		materials.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		materials.item_selected.connect(_material_selected.bind(slot))
 	for child in grid.get_children():
 		child.owner = self
 		
 func fill_table(config: HumanConfig) -> void:
 	#print("filling table")
-	for slot in HumanizerGlobalConfig.config.equipment_slots[category].get_slots():
-		var clothes = config.get_equipment_in_slot(slot)
-		if clothes != null:
-			var options = asset_option_buttons[slot] as OptionButton
-			var materials = material_option_buttons[slot] as OptionButton 
-			for item_idx in options.item_count:
-				if clothes.get_type().resource_name == options.get_item_metadata(item_idx):
-					options.selected = item_idx
-					fill_material_options(slot)
+	for slot in asset_option_buttons:
+		update_row(slot)
+
+func update_row(slot):
+	var clothes = config.get_equipment_in_slot(slot)
+	var options = asset_option_buttons[slot] as OptionButton
+	if clothes == null:
+		options.selected = 0
+	else:
+		for item_idx in options.item_count:
+			if clothes.get_type().resource_name == options.get_item_metadata(item_idx):
+				options.selected = item_idx
+	fill_material_options(slot)
 
 func fill_material_options(slot: String):
 	var material_options: OptionButton = material_option_buttons[slot]
 	material_options.clear()
 	material_options.add_item(" -- None -- ")
 	material_options.set_item_metadata(0,"")
-	
 	var equip = config.get_equipment_in_slot(slot)
 	if equip == null:
-		return # can fill materials for null equipment
+		return # cant fill materials for null equipment
 	var equip_type = equip.get_type()
 	for mat_id in equip_type.textures:
 		var option_id = material_options.item_count
@@ -112,17 +123,9 @@ func fill_material_options(slot: String):
 			material_options.selected = option_id
 	
 func reset() -> void:
-	for slot in HumanizerGlobalConfig.config.clothing_slots:
+	for slot in asset_option_buttons:
 		(asset_option_buttons[slot] as OptionButton).selected = 0
 		(material_option_buttons[slot] as OptionButton).selected = -1
-
-func clear_clothes(slot: String) -> void:
-	var equip = config.get_equipment_in_slot(slot)
-	var equip_type = equip.get_type()
-	var slots = equip_type.slots
-	for sl in slots:
-		var equip_options = asset_option_buttons[sl]
-		equip_options.selected = 0
 
 func _get_slots(index: int, slot: String) -> Array[String]:
 	var slots: Array[String] = []
@@ -138,44 +141,18 @@ func _get_slots(index: int, slot: String) -> Array[String]:
 func _item_selected(index: int, slot: String):
 	## Get corresponding slot option and material buttons
 	var options: OptionButton = asset_option_buttons[slot]
+	var equip_id = options.get_item_metadata(index)
 	
-	## Get selected item name
-	var name = options.get_item_text(index)
-	if name == 'None':
+	if equip_id == null:
 		clothes_cleared.emit(slot)
-		clear_clothes(slot)
 		return
-	
-	var string_id = options.get_item_metadata(index)
-	
-	## Find other slots with same item (same name)
-	var slots: Array[String] = []
-	var selected = asset_option_buttons[slot].selected
-	for sl in asset_option_buttons:
-		options = asset_option_buttons[sl] as OptionButton
-		for item in options.item_count:
-			if options.get_item_text(item) == name:
-				slots.append(sl)
-	
-	## Choose same item in those slots
-	for sl in slots:
-		options = asset_option_buttons[sl] as OptionButton
-		for item in options.item_count:
-			if options.get_item_text(item) == name:
-				options.selected = item
-	
-	## Fill material options for each
-	for sl in slots:
-		fill_material_options(sl)
-	
-	## Emit signals and set to default material
-	if config != null and not string_id in config.equipment:
-		var clothes: HumanizerEquipmentType = HumanizerRegistry.equipment[string_id]
+		
+	## Emit signals 
+	if config != null and not equip_id in config.equipment:
+		var clothes: HumanizerEquipmentType = HumanizerRegistry.equipment[equip_id]
 		#print("clothes changed " + string_id)
 		clothes_changed.emit(clothes)
-		var textures = material_option_buttons[slot]
-		material_set.emit(name, textures.get_item_text(textures.selected))
-
+	
 func _material_selected(idx: int, slot: String) -> void:
 	var material_options: OptionButton = material_option_buttons[slot]
 	var mat_id = material_options.get_item_metadata(idx)
@@ -189,5 +166,4 @@ func _material_selected(idx: int, slot: String) -> void:
 			if material_options.get_item_metadata(option_id) == mat_id:
 				material_options.selected = option_id
 				
-		
 	material_set.emit(equip.type, mat_id)
