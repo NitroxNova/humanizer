@@ -13,24 +13,40 @@ static func import_materials(folder:String):
 
 static func search_for_materials(mhclo_path:String):
 	var equip_type = mhclo_path.get_file().get_basename().get_basename() #get rid of both .mhclo.res extensions
-	var materials = search_for_manual_materials(equip_type)
+	var materials = get_manual_materials(mhclo_path.get_base_dir())
 	#search for the generated materials after, so custom materials are first in the list
 	materials.merge(search_for_generated_materials(mhclo_path.get_base_dir()))
 	return materials	
 
-static func search_for_manual_materials(equip_type:String):
+static func get_manual_materials(mhclo_folder):
 	var materials = {}
-	for folder in HumanizerGlobalConfig.config.asset_import_paths:
-		var materials_path = folder.path_join('materials')
-		materials_path = materials_path.path_join(equip_type)
-		for subfolder in OSPath.get_dirs(materials_path):
-			materials.merge(search_for_manual_materials(subfolder))	
-		# top folder should override if conflicts
-		for mat_file in OSPath.get_files(materials_path):
-			if mat_file.get_extension() == "res":
-				var mat_res = HumanizerResourceService.load_resource(mat_file)
-				if mat_res is HumanizerMaterial or mat_res is StandardMaterial3D:
-					materials[mat_file.get_file().get_basename().get_basename()] = mat_file
+	var sub_folder = ""
+	#print("search for manual materials")
+	for asset_folder in HumanizerGlobalConfig.config.asset_import_paths:
+		if mhclo_folder.begins_with(asset_folder):
+			asset_folder = asset_folder.path_join("equipment")
+			sub_folder = mhclo_folder.replace(asset_folder,"")
+	#print(sub_folder)
+	if sub_folder == "":
+		#this shouldnt happen, since were searching in the defined folders
+		printerr("couldnt find base asset folder for " + mhclo_folder)
+		return
+	for asset_folder in HumanizerGlobalConfig.config.asset_import_paths:
+		var materials_path = asset_folder.path_join('materials')
+		materials_path = materials_path.path_join(sub_folder)
+		materials.merge(search_for_manual_materials(materials_path))
+	return materials
+	
+static func search_for_manual_materials(path:String):
+	var materials = {}
+	for subfolder in OSPath.get_dirs(path):
+		materials.merge(search_for_manual_materials(subfolder))	
+	# top folder should override if conflicts
+	for mat_file in OSPath.get_files(path):
+		if mat_file.get_extension() == "res":
+			var mat_res = HumanizerResourceService.load_resource(mat_file)
+			if mat_res is HumanizerMaterial or mat_res is StandardMaterial3D:
+				materials[mat_file.get_file().get_basename().get_basename()] = mat_file
 	return materials		
 
 static func search_for_generated_materials(folder:String)->Dictionary:

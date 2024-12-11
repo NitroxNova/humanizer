@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bdiigg5td8axn"
-path.s3tc="res://.godot/imported/uncolored_suit.png-63b173bdc8775cc748ff78f44a1bc33c.s3tc.ctex"
+path.s3tc="res://.godot/imported/uncolored_suit.png-ec5db1482bc00676c1cf3dfef2f0ce16.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/humanizer/data/assets/materials/SuitTop/uncolored_suit.png"
-dest_files=["res://.godot/imported/uncolored_suit.png-63b173bdc8775cc748ff78f44a1bc33c.s3tc.ctex"]
+source_file="res://addons/humanizer/data/assets/materials/outfits/male_elegantsuit01/uncolored_suit.png"
+dest_files=["res://.godot/imported/uncolored_suit.png-ec5db1482bc00676c1cf3dfef2f0ce16.s3tc.ctex"]
 
 [params]
 
