@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cg82igd57ootc"
-path="res://.godot/imported/skin_male_african_middleage_NRM.png-4ff1f60c6afea63afd9a0a79fc2f4255.ctex"
+uid="uid://c1x7y5g8hlt2"
+path="res://.godot/imported/orkMeshNORMAL.png-5fbe8e1ff8ee0b156f103171ec20d098.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/humanizer/data/assets/skin_normals/skin_male_african_middleage_NRM.png"
-dest_files=["res://.godot/imported/skin_male_african_middleage_NRM.png-4ff1f60c6afea63afd9a0a79fc2f4255.ctex"]
+source_file="res://addons/humanizer/data/assets/materials/body/Default/normals/orkMeshNORMAL.png"
+dest_files=["res://.godot/imported/orkMeshNORMAL.png-5fbe8e1ff8ee0b156f103171ec20d098.ctex"]
 
 [params]
 
@@ -24,7 +24,7 @@ compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=1
-roughness/src_normal="res://addons/humanizer/data/assets/skin_normals/skin_male_african_middleage_NRM.png"
+roughness/src_normal="res://addons/humanizer/data/assets/skin_normals/orkMeshNORMAL.png"
 process/fix_alpha_border=true
 process/premult_alpha=false
 process/normal_map_invert_y=false

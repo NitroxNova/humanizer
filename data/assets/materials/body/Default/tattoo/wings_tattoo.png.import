@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cgtcccjpq7mta"
-path="res://.godot/imported/Aksel_Skin_NRM.png-3fca6b1e0a468b40ba74dccb78838c68.ctex"
+uid="uid://col0xxaf71nlh"
+path="res://.godot/imported/wings_tattoo.png-d96611adb66c4dca1aabda06e645db27.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/humanizer/data/assets/skin_normals/Aksel_Skin_NRM.png"
-dest_files=["res://.godot/imported/Aksel_Skin_NRM.png-3fca6b1e0a468b40ba74dccb78838c68.ctex"]
+source_file="res://addons/humanizer/data/assets/materials/body/Default/tattoo/wings_tattoo.png"
+dest_files=["res://.godot/imported/wings_tattoo.png-d96611adb66c4dca1aabda06e645db27.ctex"]
 
 [params]
 
@@ -21,14 +21,14 @@ compress/lossy_quality=0.7
 compress/hdr_compression=1
 compress/normal_map=2
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
-process/fix_alpha_border=true
+process/fix_alpha_border=false
 process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=0
+detect_3d/compress_to=1

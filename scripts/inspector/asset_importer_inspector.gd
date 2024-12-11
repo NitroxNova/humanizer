@@ -86,6 +86,8 @@ func fill_material_options():
 	options.add_item(" -- None (Random) --")
 	options.set_item_metadata(0,"")
 	var mat_list = HumanizerMaterialService.search_for_materials(get_mhclo_path())
+	mat_list = mat_list.materials
+	#print(mat_list)
 	for mat_id in mat_list:
 		var mat_res = HumanizerResourceService.load_resource(mat_list[mat_id])
 		var mat_name = mat_res.resource_name
@@ -158,5 +160,5 @@ func import_asset():
 	var save_file = HumanizerEquipmentImportService.get_import_settings_path(get_mhclo_path())
 	HumanizerUtils.save_json(save_file,import_settings)
 	HumanizerEquipmentImportService.import(save_file)
-	HumanizerRegistry.load_all()
+	#HumanizerRegistry.load_all()
 	

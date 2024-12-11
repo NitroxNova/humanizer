@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c1x7y5g8hlt2"
-path="res://.godot/imported/orkMeshNORMAL.png-bbcac4c2ba1f8487451788bb9a67e5ee.ctex"
+uid="uid://cgtcccjpq7mta"
+path="res://.godot/imported/Aksel_Skin_NRM.png-2c268f1c0a16ed1521742ce58e7c5506.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/humanizer/data/assets/skin_normals/orkMeshNORMAL.png"
-dest_files=["res://.godot/imported/orkMeshNORMAL.png-bbcac4c2ba1f8487451788bb9a67e5ee.ctex"]
+source_file="res://addons/humanizer/data/assets/materials/body/Default/normals/Aksel_Skin_NRM.png"
+dest_files=["res://.godot/imported/Aksel_Skin_NRM.png-2c268f1c0a16ed1521742ce58e7c5506.ctex"]
 
 [params]
 
@@ -23,8 +23,8 @@ compress/normal_map=2
 compress/channel_pack=0
 mipmaps/generate=true
 mipmaps/limit=-1
-roughness/mode=1
-roughness/src_normal="res://addons/humanizer/data/assets/skin_normals/orkMeshNORMAL.png"
+roughness/mode=0
+roughness/src_normal=""
 process/fix_alpha_border=true
 process/premult_alpha=false
 process/normal_map_invert_y=false

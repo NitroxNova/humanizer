@@ -10,3 +10,4 @@ normal_texture_path = ""
 ao_texture_path = ""
 color = Color(1, 1, 1, 1)
 offset = Vector2i(1618, 1046)
+normal_strength = 1.0

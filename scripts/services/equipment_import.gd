@@ -21,7 +21,9 @@ static func import(json_path:String,import_materials:=true):
 	equip_type.resource_name = mhclo.resource_name
 	equip_type.default_material = settings.default_material
 	var save_path = folder.path_join(equip_type.resource_name + '.res')
-	equip_type.textures = HumanizerMaterialService.search_for_materials(mhclo.mhclo_path)
+	var mats = HumanizerMaterialService.search_for_materials(mhclo.mhclo_path)
+	equip_type.textures = mats.materials
+	equip_type.overlays = mats.overlays
 	equip_type.display_name = settings.display_name
 	
 	equip_type.slots.clear()

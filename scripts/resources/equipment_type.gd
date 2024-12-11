@@ -7,8 +7,9 @@ class_name HumanizerEquipmentType #base equipment definition
 @export var default_material: String
 @export var rigged: bool = false
 @export var textures: Dictionary
+@export var overlays: Dictionary
 @export var slots: Array[String]
-#resource name is already a variable, using for the equipment string id
+#resource_name is already a variable, using for the equipment string id
 
 var mhclo_path: String:
 	get:

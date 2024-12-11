@@ -14,13 +14,14 @@ static func load_all() -> void:
 	HumanizerLogger.profile("HumanizerRegistry", func():
 		_get_rigs()
 		_load_equipment()
-		_get_skin_textures()
 		_get_materials()
 	)
 	
 static func _get_materials():
 	for equip_type in equipment.values():
-		equip_type.textures = HumanizerMaterialService.search_for_materials(equip_type.mhclo_path)
+		var mats = HumanizerMaterialService.search_for_materials(equip_type.mhclo_path)
+		equip_type.textures = mats.materials
+		equip_type.overlays = mats.overlays	
 		
 static func add_equipment_type(equip:HumanizerEquipmentType):
 	#print('Registering equipment ' + equip.resource_name)
@@ -60,20 +61,6 @@ static func _get_rigs() -> void:
 					rigs[name].skeleton_path  = file.trim_suffix('.remap')
 				elif file.get_extension() == 'res':
 					rigs[name].rigged_mesh_path = file
-
-static func _get_skin_textures() -> void:
-	## load texture paths
-	overlays['skin'] = {}
-	for path in HumanizerGlobalConfig.config.asset_import_paths:
-		for dir in OSPath.get_dirs(path.path_join('skins')):
-			if dir.get_file() == '_overlays':
-				for file in OSPath.get_files(dir):
-					overlays['skin'][file.get_basename()] = file
-			else:
-				continue
-		for fl in OSPath.get_files(path.path_join('skin_normals')):
-			if fl.get_extension() in ['png', 'jpg']:
-				skin_normals[fl.get_file().get_basename()] = fl
 
 static func _load_equipment() -> void:
 	equipment={}
