@@ -8,6 +8,8 @@ static var visible_setting := false
 
 var asset_option_buttons := {}
 var material_option_buttons := {}
+var overlay_option_buttons := {}
+var overlay_option_dropdowns := {}
 var config: HumanConfig
 
 signal clothes_changed(cl: HumanizerEquipmentType)
@@ -43,19 +45,33 @@ func _set_visibility() -> void:
 
 func build_grid() -> void:
 	#print("building grid") - called every time an option is pressed -- why
-	var grid = find_child('GridContainer')
+	var grid :GridContainer = find_child('GridContainer')
+	grid.columns = 7
 	for child in grid.get_children():
 		grid.remove_child(child)
 		child.queue_free()
+	var label = Label.new()
+	label.text = ""
+	grid.add_child(label)
+	grid.add_child(VSeparator.new())
+	label = Label.new()
+	label.text = "Equipment"
+	grid.add_child(label)
+	grid.add_child(VSeparator.new())
+	label = Label.new()
+	label.text = "Material"
+	grid.add_child(label)
+	grid.add_child(VSeparator.new())
+	label = Label.new()
+	label.text = "Overlays"
+	grid.add_child(label)
+	
 	for slot_label in HumanizerGlobalConfig.config.equipment_slots[category].slots:
 		var slot = slot_label + HumanizerGlobalConfig.config.equipment_slots[category].suffix
-		var label = Label.new()
+		label = Label.new()
 		label.text = slot_label
 		grid.add_child(label)
 		grid.add_child(VSeparator.new())
-		label = Label.new()
-		label.text = 'Asset'
-		grid.add_child(label)
 		var options = OptionButton.new()
 		asset_option_buttons[slot] = options
 		options.name = slot + 'OptionButton'
@@ -74,9 +90,6 @@ func build_grid() -> void:
 		options.item_selected.connect(_item_selected.bind(slot))
 		
 		grid.add_child(VSeparator.new())
-		label = Label.new()
-		label.text = 'Texture'
-		grid.add_child(label)
 		var materials = OptionButton.new()
 		material_option_buttons[slot] = materials
 		materials.name = slot + 'TextureOptionButton'
@@ -84,6 +97,21 @@ func build_grid() -> void:
 		materials.unique_name_in_owner = true
 		materials.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		materials.item_selected.connect(_material_selected.bind(slot))
+		
+		grid.add_child(VSeparator.new())
+		var overlay_container = VBoxContainer.new()
+		var overlay_button = Button.new()
+		overlay_button.text = "Show Overlays"
+		overlay_button.hide()
+		overlay_container.add_child(overlay_button)
+		overlay_option_buttons[slot] = overlay_button
+		overlay_button.pressed.connect(_on_show_overlays_pressed.bind(slot))
+		var item_list = VBoxContainer.new()
+		item_list.visible = false
+		overlay_container.add_child(item_list)
+		overlay_option_dropdowns[slot] = item_list
+		grid.add_child(overlay_container)
+		
 	for child in grid.get_children():
 		child.owner = self
 		
@@ -102,6 +130,7 @@ func update_row(slot):
 			if clothes.get_type().resource_name == options.get_item_metadata(item_idx):
 				options.selected = item_idx
 	fill_material_options(slot)
+	fill_overlay_options(slot)
 
 func fill_material_options(slot: String):
 	var material_options: OptionButton = material_option_buttons[slot]
@@ -121,7 +150,50 @@ func fill_material_options(slot: String):
 		material_options.set_item_metadata(option_id,mat_id)
 		if equip.texture_name == mat_id:
 			material_options.selected = option_id
+
+func fill_overlay_options(slot: String):
+	#clear dropdowns
+	for child in overlay_option_dropdowns[slot].get_children():
+		overlay_option_dropdowns[slot].remove_child(child)
+		child.queue_free()
+	overlay_option_dropdowns[slot].hide()	
 	
+	var equip = config.get_equipment_in_slot(slot)
+	if equip == null:
+		return # cant fill overlays for null equipment
+	var equip_type = equip.get_type()
+	#hide button and return if no overlays to display
+	if equip_type.overlays.size() < 1:
+		overlay_option_buttons[slot].hide()
+		return
+		
+	overlay_option_buttons[slot].text = "Show Overlays"
+	overlay_option_buttons[slot].show()	
+	for overlay_id in equip_type.overlays:
+		var overlay_path = equip_type.overlays[overlay_id]
+		var overlay = HumanizerResourceService.load_resource(overlay_path)
+		var checkbox = CheckBox.new()
+		checkbox.text = overlay.resource_name
+		overlay_option_dropdowns[slot].add_child(checkbox)
+
+func _on_show_overlays_pressed(slot):
+	var equip = config.get_equipment_in_slot(slot)
+	if equip == null:
+		return # cant fill overlays for null equipment
+	var equip_type = equip.get_type()
+	#hide button and return if no overlays to display
+	if equip_type.overlays.size() < 1:
+		overlay_option_buttons[slot].hide()
+		return
+	
+	var button:Button = overlay_option_buttons[slot]
+	if button.text == "Show Overlays":
+		overlay_option_dropdowns[slot].show()
+		button.text = "Hide Overlays"
+	elif button.text == "Hide Overlays":
+		overlay_option_dropdowns[slot].hide()
+		button.text = "Show Overlays"
+			
 func reset() -> void:
 	for slot in asset_option_buttons:
 		(asset_option_buttons[slot] as OptionButton).selected = 0
