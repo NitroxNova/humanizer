@@ -2,7 +2,7 @@
 extends Resource
 class_name HumanizerMaterial
 
-signal on_material_updated
+signal material_updated
 
 const TEXTURE_LAYERS = ['albedo', 'normal', 'ao']
 static var material_property_names = get_standard_material_properties()
@@ -140,10 +140,12 @@ func add_overlay(overlay: HumanizerOverlay) -> void:
 		printerr('Overlay already present?')
 		return
 	overlays.append(overlay)
+	material_updated.emit()
 
 func set_overlay(idx: int, overlay: HumanizerOverlay) -> void:
 	if overlays.size() - 1 >= idx:
 		overlays[idx] = overlay
+		material_updated.emit()
 	else:
 		push_error('Invalid overlay index')
 
@@ -151,6 +153,7 @@ func remove_overlay(ov: HumanizerOverlay) -> void:
 	for o in overlays:
 		if o == ov:
 			overlays.erase(o)
+			material_updated.emit()
 			return
 	push_warning('Cannot remove overlay ' + ov.resource_name + '. Not found.')
 	
@@ -159,13 +162,15 @@ func remove_overlay_at(idx: int) -> void:
 		push_error('Invalid index')
 		return
 	overlays.remove_at(idx)
+	material_updated.emit()
 
 func remove_overlay_by_name(name: String) -> void:
 	var idx := _get_index(name)
 	if idx == -1:
-		printerr('Overlay not present?')
+		printerr('Overlay not present? ' + name)
 		return
 	overlays.remove_at(idx)
+	material_updated.emit()
 	
 func _get_index(name: String) -> int:
 	for i in overlays.size():

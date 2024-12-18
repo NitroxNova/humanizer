@@ -70,8 +70,8 @@ func _parse_category(human, category):
 	bp_container.clothes_changed.connect(func(cl): human.add_equipment_type(cl))
 	bp_container.clothes_cleared.connect(func(sl): human.remove_equipment_in_slot(sl))
 	bp_container.material_set.connect(func(cl, idx): human.set_equipment_texture_by_name(cl, idx))
-	
-	
+	bp_container.overlay_added.connect(human.add_overlay)
+	bp_container.overlay_removed.connect(human.remove_overlay)
 	
 	bp_container.config = human.human_config
 
@@ -83,6 +83,8 @@ func _parse_category(human, category):
 	cl_container.clothes_cleared.connect(func(sl): human.remove_equipment_in_slot(sl))
 	cl_container.material_set.connect(func(cl, idx): human.set_equipment_texture_by_name(cl, idx))
 	cl_container.config = human.human_config
+	cl_container.overlay_added.connect(human.add_overlay)
+	cl_container.overlay_removed.connect(human.remove_overlay)
 
 	# Skin controls
 	var skin_normal_options = scene.get_node('%SkinNormalOptionsButton')

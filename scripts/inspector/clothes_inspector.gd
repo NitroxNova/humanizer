@@ -15,7 +15,8 @@ var config: HumanConfig
 signal clothes_changed(cl: HumanizerEquipmentType)
 signal clothes_cleared(slot: String)
 signal material_set(name: String, material_index: int)
-
+signal overlay_added(slot:String,overlay_id:String)
+signal overlay_removed(slot:String,overlay_id:String)
 
 func _ready() -> void:
 	visibility_changed.connect(_set_visibility)
@@ -26,7 +27,7 @@ func _ready() -> void:
 		fill_table(config)
 		config.equipment_added.connect(_on_config_equipment_added)
 		config.equipment_removed.connect(_on_config_equipment_removed)
-	
+		
 func _on_config_equipment_added(equip:HumanizerEquipment):
 	for slot in equip.get_type().slots:
 		if slot in asset_option_buttons:
@@ -172,10 +173,18 @@ func fill_overlay_options(slot: String):
 	for overlay_id in equip_type.overlays:
 		var overlay_path = equip_type.overlays[overlay_id]
 		var overlay = HumanizerResourceService.load_resource(overlay_path)
-		var checkbox = CheckBox.new()
+		var checkbox := CheckBox.new()
 		checkbox.text = overlay.resource_name
+		checkbox.set_meta("overlay_id",overlay_id)
 		overlay_option_dropdowns[slot].add_child(checkbox)
+		checkbox.toggled.connect(_overlay_option_toggled.bind(slot,overlay_id))
 
+func _overlay_option_toggled(toggled_on:bool,slot:String,overlay_id:String):
+	if toggled_on:
+		overlay_added.emit(slot,overlay_id)
+	else:
+		overlay_removed.emit(slot,overlay_id)
+		
 func _on_show_overlays_pressed(slot):
 	var equip = config.get_equipment_in_slot(slot)
 	if equip == null:
