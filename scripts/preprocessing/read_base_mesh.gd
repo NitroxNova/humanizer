@@ -10,7 +10,7 @@ func run():
 	print('Generating base mesh resources')
 	
 	#region Generate base mesh with helpers
-	var vertex_groups = HumanizerUtils.read_json("res://addons/humanizer/data/resources/basemesh_vertex_groups.json")
+	var vertex_groups = HumanizerResourceService.load_resource("res://addons/humanizer/data/resources/basemesh_vertex_groups.json")
 	var obj_to_mesh = ObjToMesh.new("res://addons/humanizer/data/resources/base.obj")
 	var helper_mesh = obj_to_mesh.run().mesh
 

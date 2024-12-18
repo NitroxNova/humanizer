@@ -158,7 +158,7 @@ func import_asset():
 		var label = hbox.get_node("Label")
 		import_settings.attach_bones.append(label.text)
 	var save_file = HumanizerEquipmentImportService.get_import_settings_path(get_mhclo_path())
-	HumanizerUtils.save_json(save_file,import_settings)
+	HumanizerResourceService.save_resource(save_file,import_settings)
 	HumanizerEquipmentImportService.import(save_file)
 	#HumanizerRegistry.load_all()
 	

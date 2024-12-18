@@ -3,7 +3,7 @@ class_name HumanizerEquipmentImportService
 
 static func import(json_path:String,import_materials:=true):
 	#load settings
-	var settings = HumanizerUtils.read_json(json_path)
+	var settings = HumanizerResourceService.load_resource(json_path)
 	var folder = json_path.get_base_dir()
 	if import_materials:
 		#generate material files
@@ -34,22 +34,20 @@ static func import(json_path:String,import_materials:=true):
 	
 	_calculate_bone_weights(mhclo,settings)
 	
-	equip_type.take_over_path(save_path)
-	ResourceSaver.save(equip_type, equip_type.resource_path)
+	HumanizerResourceService.save_resource(save_path,equip_type)
+
 	#build rigged equipment
 	if settings.rigged_glb != "":
 		var rigged_resource = equip_type.duplicate()
 		rigged_resource.rigged = true
 		rigged_resource.display_name = equip_type.display_name + " (Rigged)"
 		rigged_resource.resource_name = equip_type.resource_name + "_Rigged"
-		var rigged_fl = equip_type.resource_path.get_basename() + "_Rigged.res"
-		rigged_resource.take_over_path(rigged_fl)
-		ResourceSaver.save(rigged_resource, rigged_fl)
+		var rigged_filename = equip_type.resource_path.get_basename() + "_Rigged.res"
+		HumanizerResourceService.save_resource(rigged_filename,rigged_resource)
 		HumanizerRegistry.add_equipment_type(rigged_resource)
 		
 	#save after adding bone/weights to mhclo
-	mhclo.take_over_path(equip_type.mhclo_path)
-	ResourceSaver.save(mhclo, mhclo.resource_path)
+	HumanizerResourceService.save_resource(equip_type.mhclo_path,mhclo)
 	#add main resource to registry
 	HumanizerRegistry.add_equipment_type(equip_type)	
 
@@ -70,7 +68,7 @@ static func load_import_settings(mhclo_path:String):
 	if FileAccess.file_exists(json_path):
 		#print("loading json") 
 		#if you already know the json path just use this line 
-		settings = HumanizerUtils.read_json(json_path)
+		settings = HumanizerResourceService.load_resource(json_path)
 		if "version" not in settings:
 			settings.version = 1.0
 		var version = float(settings.version)
@@ -155,7 +153,7 @@ static func scan_for_missing_import_settings(path,clean=true):
 			#need to rewrite json incase slots categories have been updated
 			var settings_path = file.replace(".mhclo",".import_settings.json")
 			var equip_settings = HumanizerEquipmentImportService.load_import_settings(file)
-			HumanizerUtils.save_json(settings_path,equip_settings)
+			HumanizerResourceService.save_resource(settings_path,equip_settings)
 	#now that the import settings are copied, can delete any .res files
 	if clean:
 		for file in OSPath.get_files(path):

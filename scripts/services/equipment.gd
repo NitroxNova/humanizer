@@ -101,7 +101,7 @@ static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig,skeleton_data:Dic
 	for i in mhclo.vertex_data.size():
 		clothes_weights.append([])
 		
-	var bone_weights = HumanizerUtils.read_json(rig.bone_weights_json_path)
+	var bone_weights = HumanizerResourceService.load_resource(rig.bone_weights_json_path)
 	
 	# Build cross reference dicts to easily map between a vertex group index and # a vertex group name
 	var group_index = []

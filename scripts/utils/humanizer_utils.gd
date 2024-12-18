@@ -15,14 +15,7 @@ static func get_mh2gd_index_from_mesh(input_mesh:ArrayMesh):
 		mh2gd_index[mh_id].append(gd_id)
 	return mh2gd_index
 
-static func read_json(file_name:String):
-	var json_as_text = FileAccess.get_file_as_string(file_name)
-	var json_as_dict = JSON.parse_string(json_as_text)
-	return json_as_dict
-	
-static func save_json(file_path, data):
-	var file = FileAccess.open(file_path, FileAccess.WRITE)
-	file.store_line(JSON.stringify(data))
+
 
 static func set_node_owner(node:Node,owner:Node):
 	for child in node.get_children():

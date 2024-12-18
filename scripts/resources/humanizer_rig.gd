@@ -16,7 +16,7 @@ func load_retargeted_skeleton() -> Skeleton3D:
 	return HumanizerResourceService.load_resource(skeleton_retargeted_path).instantiate()
 
 func load_bone_weights() -> Dictionary:
-	var weights: Dictionary = HumanizerUtils.read_json(mh_weights_path).weights
+	var weights: Dictionary = HumanizerResourceService.load_resource(mh_weights_path).weights
 	for in_name:String in weights.keys():
 		if ':' not in in_name:
 			continue

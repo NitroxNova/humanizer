@@ -24,8 +24,8 @@ func _ready() -> void:
 
 	if config != null:
 		fill_table(config)
-	config.equipment_added.connect(_on_config_equipment_added)
-	config.equipment_removed.connect(_on_config_equipment_removed)
+		config.equipment_added.connect(_on_config_equipment_added)
+		config.equipment_removed.connect(_on_config_equipment_removed)
 	
 func _on_config_equipment_added(equip:HumanizerEquipment):
 	for slot in equip.get_type().slots:

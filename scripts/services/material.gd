@@ -8,8 +8,7 @@ static func import_materials(folder:String):
 		if file_name.get_extension() == "mhmat":
 			var new_mat = HumanizerMaterialService.mhmat_to_material(file_name)
 			var mat_path = file_name.get_base_dir().path_join( file_name.get_file().replace('.mhmat','.material.res'))
-			new_mat.take_over_path(mat_path)
-			ResourceSaver.save(new_mat, mat_path)
+			HumanizerResourceService.save_resource(mat_path,new_mat)
 
 static func search_for_materials(mhclo_path:String):
 	var materials = {}

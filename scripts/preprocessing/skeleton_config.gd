@@ -4,7 +4,7 @@ extends RefCounted
 func run():
 	print('Creating Skeleton Config')
 	# Prepare data structures
-	var vertex_groups = HumanizerUtils.read_json("res://addons/humanizer/data/resources/basemesh_vertex_groups.json")
+	var vertex_groups = HumanizerResourceService.load_resource("res://addons/humanizer/data/resources/basemesh_vertex_groups.json")
 	
 	for path in HumanizerGlobalConfig.config.asset_import_paths:
 		for name in HumanizerRegistry.rigs:
@@ -19,7 +19,7 @@ func run():
 			var in_data: Dictionary
 			var skeleton: Skeleton3D = null
 			var dir: String = rig.mh_json_path.get_base_dir()
-			in_data = HumanizerUtils.read_json(rig.mh_json_path)
+			in_data = HumanizerResourceService.load_resource(rig.mh_json_path)
 			if in_data.has('bones'):  # Game Engine rig doesn't have bones key
 				in_data = in_data['bones']
 			skeleton = HumanizerResourceService.load_resource(rig.skeleton_path).instantiate()
@@ -47,7 +47,7 @@ func run():
 						rig_config[bone_id].head.vertex_indices = cube_index
 			
 			rig.config_json_path = dir.path_join('skeleton_config.json')
-			HumanizerUtils.save_json(rig.config_json_path, rig_config)
+			HumanizerResourceService.save_resource(rig.config_json_path, rig_config)
 			
 			# Get bone weights for clothes
 			var out_data := []
@@ -56,7 +56,7 @@ func run():
 				out_data[i] = []
 			var bone_names := []
 			
-			var skeleton_weights:Dictionary = HumanizerUtils.read_json(dir.path_join("weights."+name+".json")).weights
+			var skeleton_weights:Dictionary = HumanizerResourceService.load_resource(dir.path_join("weights."+name+".json")).weights
 			for in_name:String in skeleton_weights.keys():
 				var out_name = in_name.replace(":","_")
 				if not in_name == out_name:
@@ -77,6 +77,6 @@ func run():
 					bw_pair[1] /= weight_sum
 			
 			rig.bone_weights_json_path = dir.path_join('bone_weights.json')
-			HumanizerUtils.save_json(rig.bone_weights_json_path, {names=bone_names,weights=out_data})
+			HumanizerResourceService.save_resource(rig.bone_weights_json_path, {names=bone_names,weights=out_data})
 			print('Finished creating skeleton config')
 	
