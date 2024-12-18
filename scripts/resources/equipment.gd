@@ -49,7 +49,7 @@ func set_material(material_name:String):
 		material_config.base_material_path = material.base_material_path
 		material_config.overlays.clear()
 		for overlay in material.overlays:
-			material_config.overlays.append(overlay.duplicate())
+			material_config.add_overlay(overlay.duplicate())
 		
 	texture_name = material_name
 		

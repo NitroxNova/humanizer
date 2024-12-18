@@ -15,7 +15,7 @@ func initialize() -> void:
 	if get_surface_override_material(0) != null:
 		get_surface_override_material(0).resource_local_to_scene = true
 	material_config.resource_local_to_scene = true
-	material_config.material_updated.connect(update_material)
+	material_config.changed.connect(update_material)
 
 func update_material() -> void:
 	trigger_material_update.emit(name)

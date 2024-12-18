@@ -2,8 +2,6 @@
 extends Resource
 class_name HumanizerMaterial
 
-signal material_updated
-
 const TEXTURE_LAYERS = ['albedo', 'normal', 'ao']
 static var material_property_names = get_standard_material_properties()
 
@@ -107,11 +105,18 @@ func _update_material() -> Dictionary:
 			var im_tex_rect = TextureRect.new()
 			im_tex_rect.position = overlay.offset
 			im_tex_rect.texture = im_texture
-			#image_vp.call_deferred("add_child",im_tex_rect)
-			image_vp.add_child(im_tex_rect)
 			if texture == 'albedo':
 				#blend color with overlay texture and then copy to base image
 				im_tex_rect.modulate = overlay.color
+			if texture == 'normal':
+				if image_vp.get_child_count() == 0:
+					var blank_normal = ColorRect.new()
+					blank_normal.color = Color(.5,.5,1)
+					image_vp.add_child(blank_normal)
+					blank_normal.size = texture_size
+				im_tex_rect.modulate.a = overlay.normal_strength
+			#image_vp.call_deferred("add_child",im_tex_rect)
+			image_vp.add_child(im_tex_rect)
 		
 		if image_vp.get_child_count() == 0:
 			textures[texture] = null
@@ -140,12 +145,13 @@ func add_overlay(overlay: HumanizerOverlay) -> void:
 		printerr('Overlay already present?')
 		return
 	overlays.append(overlay)
-	material_updated.emit()
+	overlay.changed.connect(changed.emit)
+	changed.emit()
 
 func set_overlay(idx: int, overlay: HumanizerOverlay) -> void:
 	if overlays.size() - 1 >= idx:
 		overlays[idx] = overlay
-		material_updated.emit()
+		changed.emit()
 	else:
 		push_error('Invalid overlay index')
 
@@ -153,7 +159,7 @@ func remove_overlay(ov: HumanizerOverlay) -> void:
 	for o in overlays:
 		if o == ov:
 			overlays.erase(o)
-			material_updated.emit()
+			changed.emit()
 			return
 	push_warning('Cannot remove overlay ' + ov.resource_name + '. Not found.')
 	
@@ -162,7 +168,7 @@ func remove_overlay_at(idx: int) -> void:
 		push_error('Invalid index')
 		return
 	overlays.remove_at(idx)
-	material_updated.emit()
+	changed.emit()
 
 func remove_overlay_by_name(name: String) -> void:
 	var idx := _get_index(name)
@@ -170,7 +176,7 @@ func remove_overlay_by_name(name: String) -> void:
 		printerr('Overlay not present? ' + name)
 		return
 	overlays.remove_at(idx)
-	material_updated.emit()
+	changed.emit()
 	
 func _get_index(name: String) -> int:
 	for i in overlays.size():
