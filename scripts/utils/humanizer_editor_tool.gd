@@ -572,18 +572,6 @@ func remove_overlay(slot:String,overlay_id:String):
 	var overlay = HumanizerResourceService.load_resource(equip.get_type().overlays[overlay_id]) 
 	equip.material_config.remove_overlay_by_name(overlay.resource_name)
 	
-	
-func set_skin_normal_texture(texture_name: String) -> void:
-
-	#print('setting skin normal texture')
-	var body_equip = human_config.get_equipment_in_slot("Body")
-	var texture_path = ''
-	if texture_name != "None":
-		texture_path = HumanizerRegistry.skin_normals[texture_name]
-	if body_equip != null:
-		body_equip.material_config.overlays[0].normal_texture_path = texture_path
-		body_equip.material_config.overlays[0].normal_strength = .2
-	body_equip.material_config.update_standard_material_3D(humanizer.materials[body_equip.type])
 
 func set_equipment_texture_by_slot(slot_name:String, texture: String):
 	var equip = human_config.get_equipment_in_slot(slot_name)

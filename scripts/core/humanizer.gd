@@ -159,7 +159,7 @@ func init_equipment_material(equip:HumanizerEquipment): #called from thread
 	equip.material_config.generate_material_3D(material)
 
 func set_equipment_material(equip:HumanizerEquipment, material_name: String)-> void:
-	human_config.set_equipment_material(equip,material_name)	
+	human_config.set_equipment_material(equip,material_name)
 	init_equipment_material(equip)
 
 func update_material(equip_type:String): #from the material config

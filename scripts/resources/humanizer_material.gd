@@ -72,7 +72,9 @@ func generate_material_3D(material:StandardMaterial3D)->void:
 			material.normal_enabled = textures.normal != null
 			material.ao_enabled = textures.ao != null
 			material.albedo_texture = textures.albedo
+			material.albedo_color = Color.WHITE
 			material.normal_texture = textures.normal
+			material.normal_scale = 1
 			material.ao_texture = textures.ao
 		)
 	

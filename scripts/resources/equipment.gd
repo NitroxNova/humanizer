@@ -44,7 +44,8 @@ func set_material(material_name:String):
 	if material is StandardMaterial3D:
 		material_config.base_material_path = mat_path
 		material_config.overlays.clear()
-		material_config.add_overlay(HumanizerOverlay.from_material(material))
+		var base_overlay = HumanizerOverlay.from_material(material)
+		material_config.add_overlay(base_overlay)
 	elif material is HumanizerMaterial:
 		material_config.base_material_path = material.base_material_path
 		material_config.overlays.clear()
