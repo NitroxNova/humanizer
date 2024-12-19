@@ -316,7 +316,6 @@ func trigger_material_update(equip_type:String):
 func init_equipment(equip: HumanizerEquipment) -> void:
 	if baked:
 		push_warning("Can't change equipment.  Already baked")
-		notify_property_list_changed()
 		return
 	
 	var equip_type = equip.get_type()
@@ -336,13 +335,11 @@ func init_equipment(equip: HumanizerEquipment) -> void:
 		rebuild_skeleton() #update rig with additional asset bones, and remove any from previous asset
 	mesh_inst.skeleton = '../' + skeleton.name
 	mesh_inst.skin = skeleton.create_skin_from_rest_transforms()
-	notify_property_list_changed()
 
 func add_equipment(equip: HumanizerEquipment) -> void:
 	#print("Adding equipment")
 	if baked:
 		push_warning("Can't change equipment.  Already baked")
-		notify_property_list_changed()
 		return
 	
 	var equip_type = equip.get_type()
@@ -355,7 +352,6 @@ func remove_equipment(equip: HumanizerEquipment) -> void:
 	#print("removing equipment")
 	if baked:
 		push_warning("Can't change equipment.  Already baked")
-		notify_property_list_changed()
 		return
 	var equip_type = equip.get_type()
 	_delete_child_by_name(equip_type.resource_name)
@@ -366,7 +362,6 @@ func remove_equipment(equip: HumanizerEquipment) -> void:
 func remove_equipment_in_slot(slot: String) -> void:
 	if baked:
 		push_warning("Can't change clothes.  Already baked")
-		notify_property_list_changed()
 		return
 	var equip = human_config.get_equipment_in_slot(slot)
 	if equip != null:
@@ -401,7 +396,6 @@ func set_bake_meshes(subset: String) -> void:
 		add = add or subset == 'Transparent' and mat != null and mat.transparency == BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
 		if add:
 			_bake_meshes.append(child)
-	notify_property_list_changed()
 
 func standard_bake() -> void:
 	set_bake_meshes('Opaque')
@@ -536,7 +530,6 @@ func _combine_meshes() -> ArrayMesh:
 func _set_shapekey_data(shapekeys: Dictionary) -> void:
 	if baked and not bake_in_progress:
 		printerr('Cannot change shapekeys on baked mesh.  Reset the character.')
-		notify_property_list_changed()
 		return
 	humanizer.set_targets(shapekeys)
 	#print(body_mesh.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX].size())
@@ -550,13 +543,11 @@ func add_shapekey() -> void:
 		printerr('A new shape with this name already exists')
 		return
 	_new_shapekeys[new_shapekey_name] = human_config.targets.duplicate(true)
-	notify_property_list_changed()
 
 #### Materials ####
 func add_overlay(slot:String,overlay_id:String):
 	if baked:
 		printerr('Cannot change skin textures. Alrady baked.')
-		notify_property_list_changed()
 		return
 	var equip:HumanizerEquipment = human_config.get_equipment_in_slot(slot)
 	var overlay = HumanizerResourceService.load_resource(equip.get_type().overlays[overlay_id]) 
@@ -566,7 +557,6 @@ func add_overlay(slot:String,overlay_id:String):
 func remove_overlay(slot:String,overlay_id:String):
 	if baked:
 		printerr('Cannot change skin textures. Alrady baked.')
-		notify_property_list_changed()
 		return
 	var equip:HumanizerEquipment = human_config.get_equipment_in_slot(slot)
 	var overlay = HumanizerResourceService.load_resource(equip.get_type().overlays[overlay_id]) 
@@ -589,7 +579,6 @@ func set_equipment_material(equip:HumanizerEquipment, texture: String) -> void:
 		return
 	humanizer.set_equipment_material(equip,texture)
 	get_node(equip.type).set_surface_override_material(0,humanizer.materials[equip.type])
-	notify_property_list_changed()
 	
 func init_rig() -> void:
 	skeleton = humanizer.get_skeleton()
@@ -691,7 +680,6 @@ func set_component_state(enabled: bool, component: StringName) -> void:
 				saccades.queue_free()
 			if animator != null:
 				animator.active = true
-			notify_property_list_changed()
 		elif component == &'root_bone':
 			humanizer.disable_root_bone_component()
 			if skeleton != null:

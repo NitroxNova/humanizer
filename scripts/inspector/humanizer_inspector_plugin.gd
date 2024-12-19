@@ -9,6 +9,8 @@ func _parse_category(human, category):
 		return
 	if category != 'humanizer_editor_tool.gd':
 		return
+	
+	#print("humanizer inspector plugin - parsing category")
 	var scene = load("res://addons/humanizer/scenes/inspector/humanizer_inspector.tscn").instantiate()
 	add_custom_control(scene)
 	
@@ -63,29 +65,30 @@ func _parse_category(human, category):
 	scene.get_node('%HideClothesVerticesButton').pressed.connect(human.hide_clothes_vertices)
 	scene.get_node('%UnHideClothesVerticesButton').pressed.connect(human.unhide_clothes_vertices)
 	
-	# BodyParts inspector
-	var bp_container = scene.get_node('%BodyPartsContainer') as ClothesInspector
-	scene.get_node('%BodyPartsButton').pressed.connect(func(): bp_container.visible = not bp_container.visible)
-	bp_container.visible = bp_container.visible_setting
-	bp_container.clothes_changed.connect(func(cl): human.add_equipment_type(cl))
-	bp_container.clothes_cleared.connect(func(sl): human.remove_equipment_in_slot(sl))
-	bp_container.material_set.connect(func(cl, idx): human.set_equipment_texture_by_name(cl, idx))
-	bp_container.overlay_added.connect(human.add_overlay)
-	bp_container.overlay_removed.connect(human.remove_overlay)
-	
-	bp_container.config = human.human_config
-
-	# Clothes inspector
-	var cl_container = scene.get_node('%ClothesContainer') as ClothesInspector
-	scene.get_node('%ClothesButton').pressed.connect(func(): cl_container.visible = not cl_container.visible)
-	cl_container.visible = cl_container.visible_setting
-	cl_container.clothes_changed.connect(func(cl): human.add_equipment_type(cl))
-	cl_container.clothes_cleared.connect(func(sl): human.remove_equipment_in_slot(sl))
-	cl_container.material_set.connect(func(cl, idx): human.set_equipment_texture_by_name(cl, idx))
-	cl_container.config = human.human_config
-	cl_container.overlay_added.connect(human.add_overlay)
-	cl_container.overlay_removed.connect(human.remove_overlay)
-	
+	#Equipment inspectors
+	var cat_id = 0
+	for equip_category:HumanizerSlotCategory in HumanizerGlobalConfig.config.equipment_slots:
+		var button = Button.new()
+		var container = ClothesInspector.new()
+		button.text = equip_category.category
+		button.pressed.connect(toggle_equipment.bind(container))
+		container.visible = false
+		var grid = GridContainer.new()
+		grid.name = "GridContainer"
+		container.add_child(grid)
+		container.custom_minimum_size.y = 300
+		container.category = cat_id		
+		scene.get_node('%Equipment').add_child(button)
+		scene.get_node('%Equipment').add_child(container)
+		grid.owner = container
+		container.clothes_changed.connect(human.add_equipment_type)
+		container.clothes_cleared.connect(human.remove_equipment_in_slot)
+		container.material_set.connect(human.set_equipment_texture_by_name)
+		container.overlay_added.connect(human.add_overlay)
+		container.overlay_removed.connect(human.remove_overlay)
+		container.config = human.human_config
+		cat_id += 1
+		
 	# Add shapekey categories and sliders
 	var sliders = HumanizerTargetService.get_shapekey_categories()
 	var cat_scene = HumanizerResourceService.load_resource("res://addons/humanizer/scenes/inspector/slider_category_inspector.tscn")
@@ -104,6 +107,9 @@ func _parse_category(human, category):
 		scene.get_node('%ShapekeysVBoxContainer').add_child(button)
 		scene.get_node('%ShapekeysVBoxContainer').add_child(cat_container)
 		button.pressed.connect(func(): cat_container.visible = not cat_container.visible)
+
+func toggle_equipment(container:Container):
+	container.visible = not container.visible
 
 func hair_color_changed(color:Color, human, eyebrow_color_picker):
 	human.humanizer.set_hair_color(color)

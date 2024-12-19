@@ -8,6 +8,7 @@ var importer
 
 func _can_handle(node):
 	return node is HumanizerAssetImporter
+
 	
 func _parse_category(_importer, category):
 	#print("parsing asset importer")

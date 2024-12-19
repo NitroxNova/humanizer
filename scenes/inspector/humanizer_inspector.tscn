@@ -1,7 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://bjevkufa7lstr"]
+[gd_scene load_steps=4 format=3 uid="uid://bjevkufa7lstr"]
 
 [ext_resource type="Theme" uid="uid://ckdypew3dhoqq" path="res://addons/humanizer/data/resources/humanizer_inspector_theme.tres" id="1_i577l"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/inspector/clothes_inspector.gd" id="3_wse4b"]
 
 [sub_resource type="GDScript" id="GDScript_s6oci"]
 script/source = "@tool
@@ -54,45 +53,6 @@ func _set_rig_options() -> void:
 			
 func _on_rig_selected(idx: int) -> void:
 	human.set_rig(get_item_text(idx))
-"
-
-[sub_resource type="GDScript" id="GDScript_crbyj"]
-script/source = "@tool
-extends OptionButton
-
-var config: HumanConfig
-
-signal skin_selected(name:String, data: Dictionary)
-
-
-func _ready() -> void:
-	var textures = HumanizerRegistry.skin_normals
-	clear()
-	item_selected.connect(_skin_selected)
-	add_item(\"None\")
-	for skin in textures:
-		add_item(skin)
-	
-	if config != null:
-		var body = config.get_equipment_in_slot(\"Body\")
-		if body != null:
-			var mat_config = body.material_config
-			if mat_config and mat_config.overlays.size() > 0:
-				var texture = mat_config.overlays[0].normal_texture_path.get_file().get_basename()
-				for item in item_count:
-					if get_item_text(item) == texture:
-						selected = item
-			else:
-				selected = 0
-func reset() -> void:
-	selected = 0
-
-func _skin_selected(idx: int) -> void:
-	if idx == 0:
-		skin_selected.emit(\"None\")
-	else:
-		var name = get_item_text(idx)
-		skin_selected.emit(name)
 "
 
 [node name="MarginContainer" type="MarginContainer"]
@@ -238,32 +198,6 @@ size_flags_horizontal = 3
 tooltip_text = "Fit skeleton bones to current mesh"
 text = "Adjust  Skeleton"
 
-[node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer3"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Skin Normal:"
-horizontal_alignment = 1
-
-[node name="SkinNormalOptionsButton" type="OptionButton" parent="VBoxContainer/HBoxContainer3"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_stretch_ratio = 3.0
-tooltip_text = "Skin texture selector"
-selected = 0
-item_count = 4
-popup/item_0/text = "None"
-popup/item_1/text = "orkMeshNORMAL"
-popup/item_1/id = 1
-popup/item_2/text = "skin_male_african_middleage_NRM"
-popup/item_2/id = 2
-popup/item_3/text = "Aksel_Skin_NRM"
-popup/item_3/id = 3
-script = SubResource("GDScript_crbyj")
-
 [node name="HideVerticesButtons3" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
@@ -281,53 +215,9 @@ size_flags_horizontal = 3
 tooltip_text = "Reload the clothes to restore all vertices"
 text = "Restore Clothes Vertices"
 
-[node name="BodyPartsButton" type="Button" parent="VBoxContainer"]
+[node name="Equipment" type="VBoxContainer" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-tooltip_text = "Click to open body parts options"
-text = "Body Parts"
-
-[node name="BodyPartsContainer" type="ScrollContainer" parent="VBoxContainer"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-vertical_scroll_mode = 0
-script = ExtResource("3_wse4b")
-category = "0"
-
-[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/BodyPartsContainer"]
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/BodyPartsContainer/PanelContainer"]
-layout_mode = 2
-
-[node name="GridContainer" type="GridContainer" parent="VBoxContainer/BodyPartsContainer/PanelContainer/MarginContainer"]
-layout_mode = 2
-columns = 7
-
-[node name="ClothesButton" type="Button" parent="VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-tooltip_text = "Click to open clothes options"
-text = "Clothes"
-
-[node name="ClothesContainer" type="ScrollContainer" parent="VBoxContainer"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-vertical_scroll_mode = 0
-script = ExtResource("3_wse4b")
-category = "1"
-
-[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/ClothesContainer"]
-layout_mode = 2
-
-[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/ClothesContainer/PanelContainer"]
-layout_mode = 2
-
-[node name="GridContainer" type="GridContainer" parent="VBoxContainer/ClothesContainer/PanelContainer/MarginContainer"]
-layout_mode = 2
-columns = 7
 
 [node name="HideVerticesButtons2" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2

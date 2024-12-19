@@ -47,6 +47,9 @@ func _set_visibility() -> void:
 func build_grid() -> void:
 	#print("building grid") - called every time an option is pressed -- why
 	var grid :GridContainer = find_child('GridContainer')
+	if grid == null:
+		printerr("Cant find GridContainer")
+		return
 	grid.columns = 7
 	for child in grid.get_children():
 		grid.remove_child(child)
