@@ -117,3 +117,4 @@ static func prepare_shapekeys_for_baking(human_config: HumanConfig, _new_shapeke
 				human_config.targets = new_sks[sk_name].duplicate(true)
 				human_config.set_targets({age=HumanizerMorphs.AGE_KEYS[age]})
 				_new_shapekeys[sk_name + '-' + age] = human_config.targets.duplicate(true)
+		human_config.targets = base_targets
