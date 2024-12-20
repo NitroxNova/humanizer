@@ -6,9 +6,9 @@ static func load_mesh_arrays(equip:HumanizerEquipmentType):
 	var sf_arrays = []
 	sf_arrays.resize(Mesh.ARRAY_MAX)
 	var mhclo = HumanizerResourceService.load_resource(equip.mhclo_path)
-	sf_arrays[Mesh.ARRAY_TEX_UV] = mhclo.uv_array
+	sf_arrays[Mesh.ARRAY_TEX_UV] = mhclo.uv_array.duplicate()
 	sf_arrays[Mesh.ARRAY_INDEX] = mhclo.index_array.duplicate()
-	sf_arrays[Mesh.ARRAY_CUSTOM0] = mhclo.custom0_array
+	sf_arrays[Mesh.ARRAY_CUSTOM0] = mhclo.custom0_array.duplicate()
 	sf_arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
 	sf_arrays[Mesh.ARRAY_VERTEX].resize(mhclo.uv_array.size())
 	sf_arrays[Mesh.ARRAY_VERTEX].fill(Vector3.ZERO)

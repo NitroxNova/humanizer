@@ -267,10 +267,10 @@ func update_equipment_weights(equip_name:String):
 				bone_id = skeleton_data.keys().find( mhclo.rigged_config[(bone_id +1) *-1].name) #offset by one because -0 = 0
 				bones[bone_array_id] = bone_id
 		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = bones
-		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = mhclo.rigged_weights[rig.resource_name]
+		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = mhclo.rigged_weights[rig.resource_name].duplicate()
 	else:
-		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = mhclo.bones[rig.resource_name]
-		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = mhclo.weights[rig.resource_name]
+		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = mhclo.bones[rig.resource_name].duplicate()
+		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = mhclo.weights[rig.resource_name].duplicate()
 	
 func enable_root_bone_component():
 	human_config.enable_component(&'root_bone')
