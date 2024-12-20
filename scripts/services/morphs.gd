@@ -99,17 +99,21 @@ static func prepare_shapekeys_for_baking(human_config: HumanConfig, _new_shapeke
 					shape['weight'] = HumanizerMorphs.WEIGHT_KEYS[weight]
 					_new_shapekeys[sk_name + '-' + key] = shape
 	elif human_config.components.has(&'age_morphs'):
-		human_config.targets['age'] = 0.25
+		human_config.set_targets({age=.25})
+		var base_targets = human_config.targets.duplicate()
+		#human_config.targets['age'] = 0.25
 		for sk in _new_shapekeys:
-			_new_shapekeys[sk]['age'] = 0.25
+			human_config.targets = _new_shapekeys[sk]
+			human_config.set_targets({age=.25})
+			_new_shapekeys[sk] = human_config.targets.duplicate()
 		var new_sks = _new_shapekeys.duplicate()
 		for age in HumanizerMorphs.AGE_KEYS:
 			if age == 'young':
-				continue 
-			var shape = human_config.targets.duplicate(true)
-			shape['age'] = HumanizerMorphs.AGE_KEYS[age]
-			_new_shapekeys['base-' + age] = shape
+				continue #already added as basis shapes
+			human_config.targets = base_targets.duplicate()
+			human_config.set_targets({age=HumanizerMorphs.AGE_KEYS[age]})
+			_new_shapekeys['base-' + age] = human_config.targets.duplicate(true)
 			for sk_name in new_sks:
-				shape = new_sks[sk_name].duplicate(true)
-				shape['age'] = HumanizerMorphs.AGE_KEYS[age]
-				_new_shapekeys[sk_name + '-' + age] = shape
+				human_config.targets = new_sks[sk_name].duplicate(true)
+				human_config.set_targets({age=HumanizerMorphs.AGE_KEYS[age]})
+				_new_shapekeys[sk_name + '-' + age] = human_config.targets.duplicate(true)

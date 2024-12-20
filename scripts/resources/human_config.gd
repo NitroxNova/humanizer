@@ -71,6 +71,12 @@ func init_macros():
 	targets.merge(new_targets.targets,true)
 	targets.merge(macros,true)
 
+func set_targets(new_targets:Dictionary): 
+	var empty_helper = PackedVector3Array()
+	empty_helper.resize(22000)
+	empty_helper.fill(Vector3.ZERO)
+	HumanizerTargetService.set_targets(new_targets,targets,empty_helper)
+
 func _handle_color_overrides(equip:HumanizerEquipment):
 	var equip_type = equip.get_type()
 	if equip_type.in_slot(["LeftEye","RightEye","Eyes"]):
