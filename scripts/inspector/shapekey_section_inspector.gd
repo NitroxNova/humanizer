@@ -36,7 +36,8 @@ func _ready() -> void:
 		slider.custom_minimum_size = Vector2i(150, 10)
 		slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		%GridContainer.add_child(slider)
-		slider.drag_ended.connect(_on_value_changed.bind(slider))
+		#slider.drag_ended.connect(_on_value_changed.bind(slider))
+		slider.value_changed.connect(_on_value_changed.bind(slider))
 		slider.owner = self
 		slider.unique_name_in_owner = true
 
