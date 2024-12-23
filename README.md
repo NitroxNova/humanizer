@@ -23,7 +23,7 @@
 
 ## INSTALLATION:
 
-1. Download the zip file from [Humanizer v2.0.0](https://github.com/NitroxNova/humanizer/releases/tag/v2.0.0) and extract it into your addons folder (make sure it's named lowercase 'humanizer').
+1. Download the zip file from [Humanizer v2.1.0](https://github.com/NitroxNova/humanizer/releases/tag/v2.1.0) and extract it into your addons folder (make sure it's named lowercase 'humanizer').
 2. Watch the features and installation video on [YouTube](https://www.youtube.com/watch?v=HcscAIpmVgE).
 3. Can now export the project with default settings!
 
