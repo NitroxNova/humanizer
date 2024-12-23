@@ -1,7 +1,10 @@
-1.2.1-beta
+2.1.0  
 added handling for mhmat files and custom materials / overlays  
 fixed asset importer node in authoring scene to set import settings for bones, slots, default material and display name  
 resource caching and thread safety for quickly generating large numbers of characters in game  
+   
+2.0.0    
+refactored everything, decoupled logic from nodes and made characting building ~5x faster  
   
 1.2.0-beta  
 remove lfs tracking as it was going over the limit, and place shapekey data into seperate files so they are less than 100mb  
