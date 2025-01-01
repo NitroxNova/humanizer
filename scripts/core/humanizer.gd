@@ -8,9 +8,10 @@ var mesh_arrays : Dictionary = {}
 var materials: Dictionary = {}
 var rig: HumanizerRig 
 var skeleton_data : Dictionary = {} #bone names with parent, position and rotation data
-#signal material_updated
 
-# this function must be awaited
+signal done_generating_materials
+
+# if eyes are blank, wait for done_generating_materials in calling class 
 func load_config_async(_human_config:HumanConfig):
 	var timer
 	materials = {}
@@ -29,7 +30,8 @@ func load_config_async(_human_config:HumanConfig):
 
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
-
+	check_materials_done_generating()
+	
 # there are race conditions in this function (i think)
 func get_CharacterBody3D(baked:bool):
 	var human = CharacterBody3D.new()
@@ -156,7 +158,16 @@ func init_equipment_material(equip:HumanizerEquipment): #called from thread
 	var material = StandardMaterial3D.new()
 	material.resource_local_to_scene = true
 	materials[equip.type] = material
-	equip.material_config.generate_material_3D(material)
+	var mat_config = equip.material_config
+	mat_config.done_generating.connect(check_materials_done_generating)
+	mat_config.generate_material_3D(material)
+
+func check_materials_done_generating():
+	for equip in human_config.equipment.values():
+		if equip.material_config.is_generating:
+			return false
+	done_generating_materials.emit()
+	return true
 
 func set_equipment_material(equip:HumanizerEquipment, material_name: String)-> void:
 	human_config.set_equipment_material(equip,material_name)

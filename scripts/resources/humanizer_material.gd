@@ -8,6 +8,10 @@ static var material_property_names = get_standard_material_properties()
 @export var overlays: Array[HumanizerOverlay] = []
 @export_file var base_material_path: String
 
+var is_generating = false
+
+signal done_generating
+
 static func get_standard_material_properties() -> PackedStringArray:
 	var prop_names = PackedStringArray()
 	#only get properties unique to material, so we can copy those onto existing material instead of gernating a new material and using signals
@@ -66,6 +70,7 @@ func generate_material_3D(material:StandardMaterial3D)->void:
 		if not overlays[0].ao_texture_path in ["",null]:
 			material.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, HumanizerResourceService.load_resource(overlays[0].ao_texture_path))
 	else:
+		is_generating = true
 		# awaiting outside the main thread will switch to the main thread if the signal awaited is emitted by the main thread
 		HumanizerJobQueue.add_job_main_thread(func():
 			var textures = await _update_material()
@@ -76,6 +81,8 @@ func generate_material_3D(material:StandardMaterial3D)->void:
 			material.normal_texture = textures.normal
 			material.normal_scale = 1
 			material.ao_texture = textures.ao
+			is_generating = false
+			done_generating.emit()
 		)
 	
 	
