@@ -13,7 +13,7 @@ var n_humans: int = 0
 var generating: bool = true
 var t0: float
 var pos: Vector3 = Vector3.ZERO
-var threads : Array[Thread] = []
+var humanizers : Array[Humanizer]
 
 func _ready() -> void:
 	## You have to feed in the following randomization parameters to the randomizer
@@ -25,30 +25,6 @@ func _ready() -> void:
 		randomizer.randomization[cat] = 0.5
 		randomizer.asymmetry[cat] = 0.1 
 		randomizer.categories[cat] = true
-
-func new_thread() -> Thread:
-	var thread = Thread.new()
-	threads.append(thread)
-	return thread
-
-func thread_cleanup():
-	for thread in threads:
-		if thread.is_started() and not thread.is_alive():
-			var character3d = thread.wait_to_finish()
-			#print(character3d)
-			add_child(character3d)
-			character3d.global_position = pos
-			character3d.camera = $Camera3D
-			
-			pos.x += 1
-			if pos.x > 15.5:
-				pos.z += 1
-				pos.x = 0
-			n_humans += 1
-			$UI/humans.text = str(n_humans)
-			print(\"New human took \" + str((Time.get_ticks_msec() - t0) / 1000) + ' seconds')
-			t0 = Time.get_ticks_msec()
-			threads.erase(thread)
 			
 	
 func _process(delta) -> void:
@@ -59,32 +35,52 @@ func _process(delta) -> void:
 		generating = not generating
 		print('Generating new humans : ' + str(generating))
 	
-	thread_cleanup()
+
 	
 	if fps < 55:
 		return
-	if threads.size() > 0:
+	if humanizers.size() > 4:
 		return
 	if generating:
-		var thread = new_thread()
-		thread.start(_generate_human.bind(thread))
+		var humanizer = Humanizer.new()
+		humanizers.append(humanizer)
+		HumanizerJobQueue.add_job(_generate_human.bind(humanizer))
 	
-func _generate_human(thread:Thread):
+func _generate_human(humanizer:Humanizer):
 	print('starting new human')
 	var human_config = HumanConfig.new()
 	human_config.rig = HumanizerGlobalConfig.config.default_skeleton
 	#human_config.enable_component(&'ragdoll')
 	print('randomizing')
-	randomizer.human = human_config
+	#randomizer.human = human_config
 	#human_config.set_component_state(true, &'ragdoll')
-	randomizer.randomize_body_parts()
-	randomizer.randomize_clothes()
-	randomizer.randomize_shapekeys()
+	randomizer.randomize_body_parts(human_config)
+	randomizer.randomize_clothes(human_config)
+	randomizer.randomize_shapekeys(human_config)
 	human_config.init_macros()
-	var humanizer = Humanizer.new()
+	humanizer.done_generating_materials.connect(spawn_human.bind(humanizer))
 	humanizer.load_config_async(human_config)
-	var new_human = humanizer.get_CharacterBody3D(false)
-	return new_human
+	#await 
+	
+
+func spawn_human(humanizer):
+	HumanizerJobQueue.add_job(func():
+		var character3d = humanizer.get_CharacterBody3D(false)
+		call_deferred(\"add_child\",character3d)
+		character3d.global_position = pos
+		character3d.camera = $Camera3D
+		
+		pos.x += 1
+		if pos.x > 15.5:
+			pos.z += 1
+			pos.x = 0
+		n_humans += 1
+		$UI/humans.text = str(n_humans)
+		print(\"New human took \" + str((Time.get_ticks_msec() - t0) / 1000) + ' seconds')
+		t0 = Time.get_ticks_msec()
+		humanizers.erase(humanizer)
+		)
+	
 "
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_vyou0"]
