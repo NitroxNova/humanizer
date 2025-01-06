@@ -1,3 +1,6 @@
+2.1.1  
+fixed animation import and some things with materials not loading  
+
 2.1.0  
 added handling for mhmat files and custom materials / overlays  
 fixed asset importer node in authoring scene to set import settings for bones, slots, default material and display name  
