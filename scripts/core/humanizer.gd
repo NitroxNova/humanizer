@@ -30,7 +30,8 @@ func load_config_async(_human_config:HumanConfig):
 
 	fit_all_meshes()
 	set_rig(human_config.rig) #this adds the rigged bones and updates all the bone weights
-	check_materials_done_generating()
+	if not check_materials_done_generating():
+		await done_generating_materials
 	
 # there are race conditions in this function (i think)
 func get_CharacterBody3D(baked:bool):

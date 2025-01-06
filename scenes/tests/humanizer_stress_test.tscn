@@ -13,7 +13,9 @@ var n_humans: int = 0
 var generating: bool = true
 var t0: float
 var pos: Vector3 = Vector3.ZERO
-var humanizers : Array[Humanizer]
+
+var current_threads = 0
+const MAX_THREADS = 4
 
 func _ready() -> void:
 	## You have to feed in the following randomization parameters to the randomizer
@@ -35,18 +37,16 @@ func _process(delta) -> void:
 		generating = not generating
 		print('Generating new humans : ' + str(generating))
 	
-
-	
 	if fps < 55:
 		return
-	if humanizers.size() > 4:
+	if current_threads >= MAX_THREADS:
 		return
 	if generating:
-		var humanizer = Humanizer.new()
-		humanizers.append(humanizer)
-		HumanizerJobQueue.add_job(_generate_human.bind(humanizer))
+		current_threads += 1
+		HumanizerJobQueue.add_job(_generate_human)
 	
-func _generate_human(humanizer:Humanizer):
+func _generate_human():
+	var humanizer = Humanizer.new()
 	print('starting new human')
 	var human_config = HumanConfig.new()
 	human_config.rig = HumanizerGlobalConfig.config.default_skeleton
@@ -58,15 +58,12 @@ func _generate_human(humanizer:Humanizer):
 	randomizer.randomize_clothes(human_config)
 	randomizer.randomize_shapekeys(human_config)
 	human_config.init_macros()
-	humanizer.done_generating_materials.connect(spawn_human.bind(humanizer))
-	humanizer.load_config_async(human_config)
-	#await 
-	
+	await humanizer.load_config_async(human_config)
 
-func spawn_human(humanizer):
 	HumanizerJobQueue.add_job(func():
 		var character3d = humanizer.get_CharacterBody3D(false)
 		call_deferred(\"add_child\",character3d)
+		# everything that can be done in the main thread is better done there
 		character3d.global_position = pos
 		character3d.camera = $Camera3D
 		
@@ -78,7 +75,7 @@ func spawn_human(humanizer):
 		$UI/humans.text = str(n_humans)
 		print(\"New human took \" + str((Time.get_ticks_msec() - t0) / 1000) + ' seconds')
 		t0 = Time.get_ticks_msec()
-		humanizers.erase(humanizer)
+		current_threads -= 1
 		)
 	
 "
