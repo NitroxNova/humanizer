@@ -1,6 +1,6 @@
 # Humanizer Plugin - 3D Character Creator for Godot 4  
 
-[IMPORTANT use the latests 2.1.1 release](https://github.com/NitroxNova/humanizer/releases/tag/v2.1.1)  
+[IMPORTANT use the latest 2.1.1 release](https://github.com/NitroxNova/humanizer/releases/tag/v2.1.1)  
 new version with separate import and authoring plugins, coming soon!  
 [humanizer import plugin](https://github.com/NitroxNova/humanizer_import)
 
