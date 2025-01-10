@@ -6,6 +6,7 @@ var shapekeys := {}
 var enabled_cats := {}
 var rand_sliders := {}
 var asym_sliders := {}
+var human_config : HumanConfig
 
 func setup(_human_rnd: HumanRandomizer):
 	human_rnd = _human_rnd
@@ -51,7 +52,7 @@ func _randomize_shapekeys() -> void:
 	human_rnd.categories = categories
 	human_rnd.randomization = randomization
 	human_rnd.asymmetry = asymmetry
-	human_rnd.randomize_shapekeys()
+	human_rnd.randomize_shapekeys(human_config)
 
 func _on_rand_slider_value_changed(changed: bool, slider: HSlider, cat: String) -> void:
 	human_rnd.randomization[cat] = slider.value
