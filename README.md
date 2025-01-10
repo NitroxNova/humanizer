@@ -2,7 +2,8 @@
 
 [IMPORTANT use the latest 2.1.1 release](https://github.com/NitroxNova/humanizer/releases/tag/v2.1.1)  
 new version with separate import and authoring plugins, coming soon!  
-[humanizer import plugin](https://github.com/NitroxNova/humanizer_import)
+humanizer [import plugin](https://github.com/NitroxNova/humanizer_import)  
+humanizer [author plugin](https://github.com/NitroxNova/humanizer_author)  
 
 **Converted from MakeHuman and MPFB2 plugin for Blender**
 
