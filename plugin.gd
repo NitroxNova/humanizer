@@ -1,14 +1,6 @@
 @tool
 extends EditorPlugin
 
-# The new node type to be added
-const humanizer_node = preload('res://addons/humanizer/scripts/utils/humanizer_editor_tool.gd')
-# Its icon in the scene tree
-const node_icon = preload('res://addons/humanizer/icon.png')
-# Editor inspectors 
-var humanizer_inspector = HumanizerEditorInspectorPlugin.new()
-var human_randomizer_inspector = HumanRandomizerInspectorPlugin.new()
-var humanizer_material_inspector = HumanizerMeshInstanceInspectorPlugin.new()
 
 # For mapping tool menu signals
 const menu_ids := {
@@ -27,21 +19,12 @@ var thread := Thread.new()
 func _enter_tree():
 	# Load global config singleton
 	add_autoload_singleton('HumanizerGlobal', "res://addons/humanizer/scenes/humanizer_global.tscn")
-	# Add editor inspector plugins
-	add_inspector_plugin(humanizer_inspector)
-	add_inspector_plugin(human_randomizer_inspector)
-	add_inspector_plugin(humanizer_material_inspector)
-	# Add custom humanizer node
-	add_custom_type('Humanizer', 'Node3D', humanizer_node, node_icon)
 	# Add a submenu to the Project/Tools menu
 	_add_tool_submenu()
 
 func _exit_tree():
 	remove_custom_type('Humanizer')
 	remove_tool_menu_item('Humanizer')
-	remove_inspector_plugin(humanizer_inspector)
-	remove_inspector_plugin(human_randomizer_inspector)
-	remove_inspector_plugin(humanizer_material_inspector)
 	remove_autoload_singleton('HumanizerGlobal')
 	if thread.is_started():
 		thread.wait_to_finish()
