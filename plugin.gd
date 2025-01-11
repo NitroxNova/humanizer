@@ -21,7 +21,7 @@ func _enter_tree():
 	add_autoload_singleton('HumanizerGlobal', "res://addons/humanizer/scenes/humanizer_global.tscn")
 	# Add a submenu to the Project/Tools menu
 	_add_tool_submenu()
-
+	
 func _exit_tree():
 	remove_custom_type('Humanizer')
 	remove_tool_menu_item('Humanizer')

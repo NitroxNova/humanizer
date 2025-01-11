@@ -3,7 +3,8 @@ extends Resource
 class_name HumanizerTargetService
 
 static var cache = {}
-static var data: HumanizerTargetData = load("res://addons/humanizer/data/resources/target_data.res")
+static var data: HumanizerTargetData #loaded in the humanizer global
+
 
 static func exit():
 	# todo mutex
