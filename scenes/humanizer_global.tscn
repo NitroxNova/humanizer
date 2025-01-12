@@ -21,67 +21,70 @@ func _ready() -> void:
 				ProjectSettings.load_resource_pack(folder.path_join(file))
 	
 	HumanizerTargetService.data = load(\"res://humanizer/target/base_targets.res\")
+
+	HumanizerRegistry._load_equipment()
+	HumanizerRegistry._get_materials()
 "
 
-[sub_resource type="Resource" id="Resource_5565e"]
+[sub_resource type="Resource" id="Resource_3ojrw"]
 script = ExtResource("4_nipot")
 folder_name = "hair"
 slots = PackedStringArray("Hair")
 left_right = false
 
-[sub_resource type="Resource" id="Resource_senf4"]
+[sub_resource type="Resource" id="Resource_yqdqg"]
 script = ExtResource("4_nipot")
 folder_name = "eyes"
 slots = PackedStringArray("LeftEye", "RightEye")
 left_right = true
 
-[sub_resource type="Resource" id="Resource_082ug"]
+[sub_resource type="Resource" id="Resource_3sdl6"]
 script = ExtResource("4_nipot")
 folder_name = "eyebrows"
 slots = PackedStringArray("LeftEyebrow", "RightEyebrow")
 left_right = true
 
-[sub_resource type="Resource" id="Resource_5g8lj"]
+[sub_resource type="Resource" id="Resource_qwmjw"]
 script = ExtResource("4_nipot")
 folder_name = "eyelashes"
 slots = PackedStringArray("LeftEyelash", "RightEyelash")
 left_right = true
 
-[sub_resource type="Resource" id="Resource_kb5ac"]
+[sub_resource type="Resource" id="Resource_w3ser"]
 script = ExtResource("3_ge6bv")
 category = "Body Parts"
 suffix = ""
 slots = PackedStringArray("Body", "RightEye", "LeftEye", "RightEyebrow", "LeftEyebrow", "RightEyelash", "LeftEyelash", "Hair", "Tongue", "Teeth")
-folder_overrides = Array[ExtResource("4_nipot")]([SubResource("Resource_5565e"), SubResource("Resource_senf4"), SubResource("Resource_082ug"), SubResource("Resource_5g8lj")])
+folder_overrides = Array[ExtResource("4_nipot")]([SubResource("Resource_3ojrw"), SubResource("Resource_yqdqg"), SubResource("Resource_3sdl6"), SubResource("Resource_qwmjw")])
 
-[sub_resource type="Resource" id="Resource_kviln"]
+[sub_resource type="Resource" id="Resource_vp13k"]
 script = ExtResource("4_nipot")
 folder_name = "hats"
 slots = PackedStringArray("Head")
 left_right = false
 
-[sub_resource type="Resource" id="Resource_qvnm4"]
+[sub_resource type="Resource" id="Resource_sqpin"]
 script = ExtResource("4_nipot")
 folder_name = "shoes"
 slots = PackedStringArray("Feet")
 left_right = false
 
-[sub_resource type="Resource" id="Resource_ui6vh"]
+[sub_resource type="Resource" id="Resource_grgju"]
 script = ExtResource("3_ge6bv")
 category = "Clothing"
 suffix = "Clothes"
 slots = PackedStringArray("Head", "Eyes", "Mouth", "Hands", "Arms", "Torso", "Legs", "Feet")
-folder_overrides = Array[ExtResource("4_nipot")]([SubResource("Resource_kviln"), SubResource("Resource_qvnm4")])
+folder_overrides = Array[ExtResource("4_nipot")]([SubResource("Resource_vp13k"), SubResource("Resource_sqpin")])
 
-[sub_resource type="Resource" id="Resource_c12pu"]
+[sub_resource type="Resource" id="Resource_vs1td"]
 script = ExtResource("3_k24ro")
-asset_import_paths = Array[String](["res://addons/humanizer/data/assets/", "res://addons/humanizer_assets/", "user://humanizer/"])
+asset_import_paths = Array[String](["res://addons/humanizer/data/assets/", "res://addons/humanizer_assets/", "user://humanizer/", "res://humanizer/"])
 human_export_path = "res://data/humans/"
 default_characterbody_script = "res://addons/humanizer/scripts/utils/human_controller.gd"
 default_rigidbody_script = ""
 default_staticbody_script = ""
 default_area_script = ""
-equipment_slots = Array[ExtResource("3_ge6bv")]([SubResource("Resource_kb5ac"), SubResource("Resource_ui6vh")])
+equipment_slots = Array[ExtResource("3_ge6bv")]([SubResource("Resource_w3ser"), SubResource("Resource_grgju")])
 default_skeleton = "game_engine-RETARGETED"
 default_animation_tree = ExtResource("2_hdl0y")
 default_baked_root_node = "CharacterBody3D"
@@ -98,7 +101,7 @@ script = SubResource("GDScript_yaxf4")
 
 [node name="HumanizerConfig" type="Node" parent="."]
 script = ExtResource("2_vm4hu")
-_config = SubResource("Resource_c12pu")
+_config = SubResource("Resource_vs1td")
 
 [node name="HumanizerRegistry" type="Node" parent="."]
 script = ExtResource("57_651fh")

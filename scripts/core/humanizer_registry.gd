@@ -8,7 +8,8 @@ static var overlays := {}
 static var rigs := {}
 
 func _init() -> void:
-	load_all()
+	#load_all()
+	_get_rigs()
 
 static func load_all() -> void:
 	HumanizerLogger.profile("HumanizerRegistry", func():
@@ -64,9 +65,9 @@ static func _get_rigs() -> void:
 
 static func _load_equipment() -> void:
 	equipment={}
-	for path in HumanizerGlobalConfig.config.asset_import_paths:
-		for dir in OSPath.get_dirs(path.path_join('equipment')):
-			_scan_dir(dir)
+	var equip_folder = "res://humanizer/equipment"
+	for dir in DirAccess.get_directories_at(equip_folder):
+		_scan_dir(equip_folder.path_join(dir))
 
 static func _scan_dir(path: String) -> void:
 	var contents := OSPath.get_contents(path)
@@ -80,6 +81,7 @@ static func _scan_dir(path: String) -> void:
 			continue
 		var equip = HumanizerResourceService.load_resource(file)
 		if equip is HumanizerEquipmentType:
+			equip.path = path
 			add_equipment_type(equip)
 		else:
 			printerr("unexpected resource type " + file)

@@ -4,7 +4,7 @@ extends Resource
 
 @export_group('Paths')
 ## Paths where humanizer will look to find files for building assets
-@export var asset_import_paths: Array[String] = ['res://addons/humanizer/data/assets/',"res://addons/humanizer_assets/","user://humanizer/"] #where you'll put the mods
+@export var asset_import_paths: Array[String] = ['res://addons/humanizer/data/assets/',"res://addons/humanizer_assets/","user://humanizer/","res://humanizer/"] #where you'll put the mods
 ## Path where human resources will be serialized
 @export_dir var human_export_path: String = 'res://data/humans/'
 ## Path to default root node script for baked humans
