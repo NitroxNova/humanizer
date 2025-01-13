@@ -15,15 +15,20 @@ extends Node
 
 # called when enters the editor AND when enters the game
 func _ready() -> void:
-	for folder in HumanizerGlobalConfig.config.asset_import_paths:
-		for file in DirAccess.get_files_at(folder):
-			if file.get_extension() == \"zip\":
-				ProjectSettings.load_resource_pack(folder.path_join(file))
-	
-	HumanizerTargetService.data = load(\"res://humanizer/target/base_targets.res\")
+	if Engine.is_editor_hint():
+		pass
+		#mod loading isnt supported in the editor by default,
+		#will manually scan the zip here instead, and add to the registry
+	else:
+		for folder in HumanizerGlobalConfig.config.asset_import_paths:
+			for file in DirAccess.get_files_at(folder):
+				if file.get_extension() == \"zip\":
+					ProjectSettings.load_resource_pack(folder.path_join(file))
+		
+		HumanizerTargetService.data = load(\"res://humanizer/target/base_targets.res\")
 
-	HumanizerRegistry._load_equipment()
-	HumanizerRegistry._get_materials()
+		HumanizerRegistry._load_equipment()
+		HumanizerRegistry._get_materials()
 "
 
 [sub_resource type="Resource" id="Resource_3ojrw"]

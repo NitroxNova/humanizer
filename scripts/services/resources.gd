@@ -33,6 +33,8 @@ static func assert_started():
 #resource can be a Resource or Dictionary if json	
 static func save_resource(path:String,resource) -> void:
 	assert_started()
+	if not DirAccess.dir_exists_absolute(path.get_base_dir()):
+		DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	if path.get_extension().to_lower() == "json":
 		_save_json(path,resource)
 	else:

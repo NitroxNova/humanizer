@@ -72,7 +72,7 @@ func parse_file(filename:String):
 		elif current_section == SECTION.vertices:
 			if line == "delete_verts":
 				current_section = SECTION.delete_vertices
-			elif not line == "":
+			elif not line == "" and not line.begins_with("#"):
 				if line.strip_edges().get_slice(" ",0).is_valid_int():
 					var line_array = line.split_floats(" ",false)
 					if line_array.size() == 1:
