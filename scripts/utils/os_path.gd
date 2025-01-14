@@ -2,6 +2,23 @@ class_name OSPath
 extends RefCounted
 
 
+static func read_json(file_name:String): #Array or Dictionary
+	var json_as_text = FileAccess.get_file_as_string(file_name)
+	var json_as_dict = JSON.parse_string(json_as_text)
+	return json_as_dict
+	
+static func save_json(file_path, data):
+	var file = FileAccess.open(file_path, FileAccess.WRITE)
+	file.store_line(JSON.stringify(data))
+
+static func get_files_recursive(path:String):
+	var paths = []
+	for file in DirAccess.get_files_at(path):
+		paths.append(path.path_join(file))
+	for dir in DirAccess.get_directories_at(path):
+		paths.append_array(get_files_recursive(path.path_join(dir)))
+	return paths
+
 static func get_contents(path: String) -> Dictionary:
 	return {'dirs': OSPath.get_dirs(path), 'files': OSPath.get_files(path)}
 

@@ -36,7 +36,7 @@ static func save_resource(path:String,resource) -> void:
 	if not DirAccess.dir_exists_absolute(path.get_base_dir()):
 		DirAccess.make_dir_recursive_absolute(path.get_base_dir())
 	if path.get_extension().to_lower() == "json":
-		_save_json(path,resource)
+		OSPath.save_json(path,resource)
 	else:
 		resource.take_over_path(path)
 		ResourceSaver.save(resource,path)
@@ -52,21 +52,18 @@ static func load_resource(path:String): #can return Resource or Dictionary
 	assert_started()
 	var resource #can be resource or dictionary from json
 	if resources.has(path):
-		resource = resources[path]
-	else:
-		if path.get_extension().to_lower() == "json":
-			resource = _read_json(path)
-		else:
-			resource = load(path)
-		_set_resource(path,resource)
-		HumanizerLogger.debug("Resource loaded: " + path)
-	return resource
+		return resources[path]
 
-static func _read_json(file_name:String): #Array or Dictionary
-	var json_as_text = FileAccess.get_file_as_string(file_name)
-	var json_as_dict = JSON.parse_string(json_as_text)
-	return json_as_dict
+	if path.get_extension().to_lower() == "json":
+		resource = OSPath.read_json(path)
+	else:
+		resource = load(path)
+		if resource == null and path.get_extension() in ["png","jpg","jpeg"]:
+			#to load image at runtime if the .import file doesnt exist
+			var image = Image.load_from_file(path)
+			resource = ImageTexture.create_from_image(image)
+			resource.resource_path = path
 	
-static func _save_json(file_path, data):
-	var file = FileAccess.open(file_path, FileAccess.WRITE)
-	file.store_line(JSON.stringify(data))
+	_set_resource(path,resource)
+	HumanizerLogger.debug("Resource loaded: " + path)
+	return resource

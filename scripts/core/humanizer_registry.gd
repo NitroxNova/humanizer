@@ -19,8 +19,9 @@ static func load_all() -> void:
 	)
 	
 static func _get_materials():
-	for equip_type in equipment.values():
-		var mats = HumanizerMaterialService.search_for_materials(equip_type.mhclo_path)
+	for equip_id in equipment:
+		var equip_type = equipment[equip_id]
+		var mats = HumanizerMaterialService.search_for_materials("res://humanizer/material".path_join(equip_id))
 		equip_type.textures = mats.materials
 		equip_type.overlays = mats.overlays	
 		

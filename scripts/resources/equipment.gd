@@ -35,8 +35,8 @@ func set_material(material_name:String):
 	var material
 	var mat_path = ""
 	if material_name in equip_type.textures:
-		mat_path = equip_type.textures[material_name]
-		material = HumanizerResourceService.load_resource(mat_path)
+		material = equip_type.textures[material_name].duplicate()
+		print(material.albedo_texture)
 	else:
 		material = StandardMaterial3D.new()
 		mat_path = ""

@@ -16,7 +16,6 @@ static func get_mh2gd_index_from_mesh(input_mesh:ArrayMesh):
 	return mh2gd_index
 
 
-
 static func set_node_owner(node:Node,owner:Node):
 	for child in node.get_children():
 		set_node_owner(child,owner)
