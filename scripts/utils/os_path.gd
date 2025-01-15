@@ -8,6 +8,7 @@ static func read_json(file_name:String): #Array or Dictionary
 	return json_as_dict
 	
 static func save_json(file_path, data):
+	#print(file_path)
 	var file = FileAccess.open(file_path, FileAccess.WRITE)
 	file.store_line(JSON.stringify(data))
 
