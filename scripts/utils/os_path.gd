@@ -14,6 +14,8 @@ static func save_json(file_path, data):
 
 static func get_files_recursive(path:String):
 	var paths = []
+	if not DirAccess.dir_exists_absolute(path):
+		return paths
 	for file in DirAccess.get_files_at(path):
 		paths.append(path.path_join(file))
 	for dir in DirAccess.get_directories_at(path):

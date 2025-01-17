@@ -36,7 +36,7 @@ func set_material(material_name:String):
 	var mat_path = ""
 	if material_name in equip_type.textures:
 		material = equip_type.textures[material_name].duplicate()
-		print(material.albedo_texture)
+		#print(material.albedo_texture)
 	else:
 		material = StandardMaterial3D.new()
 		mat_path = ""
