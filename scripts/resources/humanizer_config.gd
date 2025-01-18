@@ -23,6 +23,8 @@ extends Resource
 		PackedStringArray( ['Body', 'RightEye', 'LeftEye', 'RightEyebrow', 'LeftEyebrow', 'RightEyelash', 'LeftEyelash', 'Hair', 'Tongue', 'Teeth',]), 
 		Array([HumanizerFolderOverride.new("hair", ["Hair"]), 
 			HumanizerFolderOverride.new("body", ["Body"]),
+			HumanizerFolderOverride.new("teeth", ["Teeth"]),
+			HumanizerFolderOverride.new("tongue", ["Tongue"]),
 			HumanizerFolderOverride.new("eyes",["LeftEye","RightEye"], true), 
 			HumanizerFolderOverride.new("eyebrows",["LeftEyebrow","RightEyebrow"], true), 
 			HumanizerFolderOverride.new("eyelashes",["LeftEyelash","RightEyelash"], true)], 
