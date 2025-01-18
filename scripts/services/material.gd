@@ -2,14 +2,24 @@ extends Resource
 class_name HumanizerMaterialService
 
 static func search_for_materials(path:String):
+	#print(path)
 	var materials = {}
 	var overlays = {}
 	var files = OSPath.get_files_recursive(path)
+	#print(files)
 	for file:String in files:
-		if file.get_file()=="standard_material.json":
-			var mat_id = file.get_base_dir().get_file() #folder name above
+		if file.get_extension()=="res":
+			var mat_res = HumanizerResourceService.load_resource(file)
+			var mat_id = file.get_file().get_basename()
+			if mat_res is HumanizerOverlay:
+				overlays[mat_id] = mat_res
+			elif mat_res is HumanizerMaterial:
+				materials[mat_id] = mat_res
+				
+		if file.get_extension()=="json":
+			var mat_id = file.get_file().get_basename() # get 
 			var material = StandardMaterial3D.new()
-			var mat_props = OSPath.read_json(file) #dont want to cache this so load directly
+			var mat_props = OSPath.read_json(file) # dont want to cache this so load directly
 			for prop_name:String in mat_props:
 				var prop_value = mat_props[prop_name]
 				if material[prop_name] is Color:

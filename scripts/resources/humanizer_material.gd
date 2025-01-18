@@ -45,8 +45,9 @@ func duplicate(subresources=false):
 
 func generate_material_3D(material:StandardMaterial3D)->void:
 	var base_material := StandardMaterial3D.new()
-	if FileAccess.file_exists(base_material_path):
-		base_material = HumanizerResourceService.load_resource(base_material_path)
+	var mat_id = base_material_path.split("/")
+	if mat_id[0] in HumanizerRegistry.equipment and mat_id[1] in HumanizerRegistry.equipment[mat_id[0]].textures:
+		base_material = HumanizerRegistry.equipment[mat_id[0]].textures[mat_id[1]]
 		for prop_name in material_property_names:
 			material.set(prop_name,base_material.get(prop_name))
 		material.resource_local_to_scene = true

@@ -24,6 +24,13 @@ static func _get_materials():
 		var mats = HumanizerMaterialService.search_for_materials("res://humanizer/material".path_join(equip_id))
 		equip_type.textures = mats.materials
 		equip_type.overlays = mats.overlays	
+	#now populate shared materials
+	for equip_id in equipment:
+		var equip_type = equipment[equip_id]
+		if equip_type.material_override != "":
+			var override_equip = equipment[equip_type.material_override]
+			equip_type.textures = override_equip.textures
+			equip_type.overlays = override_equip.overlays
 		
 static func add_equipment_type(equip:HumanizerEquipmentType):
 	#print('Registering equipment ' + equip.resource_name)

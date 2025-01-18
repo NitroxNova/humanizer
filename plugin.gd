@@ -4,7 +4,7 @@ extends EditorPlugin
 
 # For mapping tool menu signals
 const menu_ids := {
-	'generate_base_mesh': 1,
+	
 	'read_shapekeys': 2,
 	'rig_config': 4,
 	'process_raw_data': 10,
@@ -36,7 +36,7 @@ func _add_tool_submenu() -> void:
 	var import_assets_popup = PopupMenu.new()
 	
 	preprocessing_popup.name = 'preprocessing_popup'
-	preprocessing_popup.add_item('Generate Base Meshes', menu_ids.generate_base_mesh)
+	
 	preprocessing_popup.add_item('Read ShapeKey files', menu_ids.read_shapekeys)
 	preprocessing_popup.add_item('Set Up Skeleton Configs', menu_ids.rig_config)
 	
@@ -55,8 +55,6 @@ func _handle_menu_event(id) -> void:
 		return
 	if thread.is_started():
 		thread.wait_to_finish()
-	if id == menu_ids.generate_base_mesh:
-		thread.start(_generate_base_meshes)
 	elif id == menu_ids.read_shapekeys:
 		thread.start(_read_shapekeys)
 	elif id == menu_ids.rig_config:
@@ -72,7 +70,7 @@ func _handle_menu_event(id) -> void:
 func _process_raw_data() -> void:
 	print_debug('Running all preprocessing')
 	for task in [
-		_generate_base_meshes,
+		
 		_read_shapekeys,
 		_rig_config
 	]:
@@ -80,9 +78,6 @@ func _process_raw_data() -> void:
 		while thread.is_alive():
 			await get_tree().create_timer(1).timeout
 		thread.wait_to_finish()
-	
-func _generate_base_meshes() -> void:
-	ReadBaseMesh.new().run()
 	
 func _read_shapekeys() -> void:
 	ShapeKeyReader.new().run()

@@ -6,10 +6,11 @@
 script/source = "extends Node3D
 
 var humanizer := Humanizer.new()
-var shirt = HumanizerEquipment.new(\"Shirt-MakeHumanTShirt\")
+var shirt : HumanizerEquipment 
 var body_mesh_inst : MeshInstance3D
 
 func _ready():
+	shirt = HumanizerEquipment.new(\"Shirt-MakeHumanTShirt\")
 	var config = HumanConfig.new()
 	config.targets['gender'] = 0.0
 	config.targets['age'] = .25
@@ -18,17 +19,17 @@ func _ready():
 	config.hair_color = Color.PURPLE
 	config.eyebrow_color = Color(\"550055\")
 	config.rig = HumanizerGlobalConfig.config.default_skeleton
-	config.add_equipment(HumanizerEquipment.new(\"DefaultBody\",\"young_caucasian_female\"))
-	#config.add_equipment(HumanizerEquipment.new(\"Pants-SkinnyJeans\"))
-	#config.add_equipment(shirt)
-	#config.add_equipment(HumanizerEquipment.new(\"Shoes-02\"))
-	#config.add_equipment(HumanizerEquipment.new(\"RightEye-LowPolyEyeball\"))
-	#config.add_equipment(HumanizerEquipment.new(\"LeftEye-LowPolyEyeball\"))
-	#config.add_equipment(HumanizerEquipment.new(\"Hair-Bob02\"))
-	#config.add_equipment(HumanizerEquipment.new(\"RightEyebrow-002\"))
-	#config.add_equipment(HumanizerEquipment.new(\"LeftEyebrow-002\"))
-	#config.add_equipment(HumanizerEquipment.new(\"RightEyelash\"))
-	#config.add_equipment(HumanizerEquipment.new(\"LeftEyelash\"))
+	config.add_equipment(HumanizerEquipment.new(\"Body-Default\",\"young_caucasian_female\"))
+	config.add_equipment(HumanizerEquipment.new(\"Pants-SkinnyJeans\"))
+	config.add_equipment(shirt)
+	config.add_equipment(HumanizerEquipment.new(\"Shoes-02\"))
+	config.add_equipment(HumanizerEquipment.new(\"RightEye-LowPolyEyeball\"))
+	config.add_equipment(HumanizerEquipment.new(\"LeftEye-LowPolyEyeball\"))
+	config.add_equipment(HumanizerEquipment.new(\"Hair-Bob02\"))
+	config.add_equipment(HumanizerEquipment.new(\"RightEyebrow-002\"))
+	config.add_equipment(HumanizerEquipment.new(\"LeftEyebrow-002\"))
+	config.add_equipment(HumanizerEquipment.new(\"RightEyelash\"))
+	config.add_equipment(HumanizerEquipment.new(\"LeftEyelash\"))
 	humanizer.load_config_async(config)
 	var char = humanizer.get_CharacterBody3D(false) ## can bake character here by setting argument to true
 	add_child(char)
