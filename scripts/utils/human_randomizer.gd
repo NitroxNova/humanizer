@@ -10,14 +10,14 @@ var shapekeys: Dictionary
 var rng := RandomNumberGenerator.new()
 
 static func get_random_equipment_for_slot(slot_name):
-	var equip_type = Random.choice(HumanizerRegistry.filter_equipment({'slot': slot_name}))
-	var texture = Random.choice(equip_type.textures.keys())
+	var equip_type = HumanizerRegistry.filter_equipment({'slot': slot_name}).pick_random()
+	var texture = equip_type.textures.keys().pick_random()
 	var equipment = HumanizerEquipment.new(equip_type.resource_name,texture)
 	
 	return equipment
 	
 func randomize_body_parts(human:HumanConfig) -> void:
-	human.add_equipment(HumanizerEquipment.new("DefaultBody"))
+	human.add_equipment(HumanizerEquipment.new("Body-Default"))
 	randomize_eyebrows(human)
 	randomize_eyelashes(human)
 	randomize_eyes(human)

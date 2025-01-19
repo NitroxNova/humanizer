@@ -18,7 +18,7 @@ func _init(_type=null,_texture_name=null,_material_config=null): # https://docs.
 		if equip_type.default_material == "" or equip_type.default_material == null:
 			#print("no default texture")
 			if equip_type.textures.size() > 0:
-				texture_name = Random.choice(equip_type.textures.keys())
+				texture_name = equip_type.textures.keys().pick_random()
 			else:
 				texture_name = ""
 		else:
