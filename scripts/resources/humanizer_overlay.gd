@@ -32,18 +32,32 @@ extends Resource
 		normal_strength = value
 		changed.emit()
 
+func get_texture(t_name:String)->Texture2D: #albedo, normal, ao..
+	return HumanizerResourceService.load_resource(get_texture_path(t_name))
+
+func get_texture_path(t_name:String)->String:
+	var path = "res://humanizer/material/"
+	path += get(t_name + "_texture_path") # equip_id / image_name
+	path += ".image.res"
+	return path
+	
 static func from_material(material: StandardMaterial3D) -> HumanizerOverlay:
 	var dict = {}
 	if material.albedo_texture != null:
-		dict.albedo = material.albedo_texture.resource_path
+		dict.albedo = strip_texture_path(material.albedo_texture.resource_path)
 	if material.albedo_color != Color.WHITE:
 		dict.color = material.albedo_color
 	if material.normal_enabled and material.normal_texture != null:
-		dict.normal = material.normal_texture.resource_path
+		dict.normal = strip_texture_path(material.normal_texture.resource_path)
 		dict.normal_strength = material.normal_scale
 	if material.ao_enabled and material.ao_texture != null:
-		dict.ao = material.ao_texture.resource_path
+		dict.ao = strip_texture_path(material.ao_texture.resource_path)
 	return from_dict(dict)
+
+static func strip_texture_path(path:String)->String:
+	path = path.trim_prefix("res://humanizer/material")
+	path = path.trim_suffix(".image.res")
+	return path
 
 static func from_dict(data: Dictionary) -> HumanizerOverlay:
 	var overlay = HumanizerOverlay.new()

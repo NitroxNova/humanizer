@@ -45,7 +45,7 @@ func duplicate(subresources=false):
 
 func generate_material_3D(material:StandardMaterial3D)->void:
 	var base_material := StandardMaterial3D.new()
-	var mat_id = base_material_path.split("/")
+	var mat_id = base_material_path.split("/") #equip_id / material_id
 	if mat_id[0] in HumanizerRegistry.equipment and mat_id[1] in HumanizerRegistry.equipment[mat_id[0]].textures:
 		base_material = HumanizerRegistry.equipment[mat_id[0]].textures[mat_id[1]]
 		for prop_name in material_property_names:
@@ -57,19 +57,19 @@ func generate_material_3D(material:StandardMaterial3D)->void:
 			material.set(tex_name , base_material.get(tex_name ))
 	elif overlays.size() == 1:
 		material.albedo_color = overlays[0].color
-		if not overlays[0].albedo_texture_path in ["",null]:
-			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, HumanizerResourceService.load_resource(overlays[0].albedo_texture_path))
-		else:
+		if overlays[0].albedo_texture_path in ["",null]:
 			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO,null)
+		else:
+			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, overlays[0].get_texture("albedo"))
 		if overlays[0].normal_texture_path in ["",null]:
 			material.normal_enabled = false
 			material.set_texture(BaseMaterial3D.TEXTURE_NORMAL,null)
 		else:
 			material.normal_enabled = true
 			material.normal_scale = overlays[0].normal_strength
-			material.set_texture(BaseMaterial3D.TEXTURE_NORMAL, HumanizerResourceService.load_resource(overlays[0].normal_texture_path))
+			material.set_texture(BaseMaterial3D.TEXTURE_NORMAL, overlays[0].get_texture("normal"))
 		if not overlays[0].ao_texture_path in ["",null]:
-			material.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, HumanizerResourceService.load_resource(overlays[0].ao_texture_path))
+			material.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, overlays[0].get_texture("ao"))
 	else:
 		is_generating = true
 		# awaiting outside the main thread will switch to the main thread if the signal awaited is emitted by the main thread
@@ -91,10 +91,10 @@ func _update_material() -> Dictionary:
 	var textures : Dictionary = {}
 	if overlays.size() <= 1:
 		return textures
-	for texture in TEXTURE_LAYERS: #albedo, normal, ambient occulsion ect..
+	for t_name in TEXTURE_LAYERS: #albedo, normal, ambient occulsion ect..
 		var texture_size = Vector2(2**11,2**11)
 		if overlays[0].albedo_texture_path != "":
-			texture_size = HumanizerResourceService.load_resource(overlays[0].albedo_texture_path).get_size()
+			texture_size = overlays[0].get_texture("albedo").get_size()
 		var image_vp = SubViewport.new()
 		
 		image_vp.size = texture_size
@@ -104,21 +104,21 @@ func _update_material() -> Dictionary:
 		for overlay in overlays:
 			if overlay == null:
 				continue
-			var path = overlay.get(texture + '_texture_path')
+			var path = overlay.get(t_name + '_texture_path')
 			if path == null || path == '':
-				if texture == 'albedo':
+				if t_name == 'albedo':
 					var im_col_rect = ColorRect.new()
 					im_col_rect.color = overlay.color
 					image_vp.add_child(im_col_rect)
 				continue
-			var im_texture = HumanizerResourceService.load_resource(path)
+			var im_texture = overlay.get_texture(t_name)
 			var im_tex_rect = TextureRect.new()
 			im_tex_rect.position = overlay.offset
 			im_tex_rect.texture = im_texture
-			if texture == 'albedo':
+			if t_name == 'albedo':
 				#blend color with overlay texture and then copy to base image
 				im_tex_rect.modulate = overlay.color
-			if texture == 'normal':
+			if t_name == 'normal':
 				if image_vp.get_child_count() == 0:
 					var blank_normal = ColorRect.new()
 					blank_normal.color = Color(.5,.5,1)
@@ -129,7 +129,7 @@ func _update_material() -> Dictionary:
 			image_vp.add_child(im_tex_rect)
 		
 		if image_vp.get_child_count() == 0:
-			textures[texture] = null
+			textures[t_name] = null
 		else:
 			Engine.get_main_loop().get_root().add_child.call_deferred(image_vp)
 			image_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
@@ -139,7 +139,7 @@ func _update_material() -> Dictionary:
 			await RenderingServer.frame_post_draw
 			var image = image_vp.get_texture().get_image()
 			image.generate_mipmaps()
-			textures[texture] = ImageTexture.create_from_image(image)
+			textures[t_name] = ImageTexture.create_from_image(image)
 		image_vp.queue_free()
 	return textures
 
