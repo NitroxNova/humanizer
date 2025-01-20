@@ -2,7 +2,7 @@
 
 [IMPORTANT use the latest 2.1.1 release](https://github.com/NitroxNova/humanizer/releases/tag/v2.1.1)  just ignore the errors, go to the 'project settings' and enable the humanizer plugin, and check the humanizer global is also, may have to reload  
   
-new version with separate import and authoring plugins, coming soon!  (you dont need to download these yet -- currently under development)
+new version with separate import and authoring plugins, coming soon!  (you dont need to download these yet -- currently under development)  
 [system assets](https://github.com/NitroxNova/humanizer_assets)  
 [import plugin](https://github.com/NitroxNova/humanizer_import)  
 [author plugin](https://github.com/NitroxNova/humanizer_author)  
