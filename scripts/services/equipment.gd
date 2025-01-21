@@ -176,12 +176,13 @@ static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig,skeleton_data:Dic
 			mhclo.weights[rig.resource_name].append(bw_pair[1])
 
 static func interpolate_rigged_weights(mhclo:MHCLO, rigged_bone_weights:Dictionary,rig_name:String):
-	var base_bone_weights = {}
-	base_bone_weights.bones = mhclo.bones[rig_name]
-	base_bone_weights.weights = mhclo.weights[rig_name]
-	mhclo.rigged_bones[rig_name] = PackedInt32Array()
-	mhclo.rigged_weights[rig_name] = PackedFloat32Array()
-
+	var base_bones = mhclo.bones[rig_name]
+	var base_weights = mhclo.weights[rig_name]
+	
+	var output = {}
+	output.bones = PackedInt32Array()
+	output.weights = PackedFloat32Array()
+	
 	for gd_id in mhclo.custom0_array.size():
 		var mh_id = mhclo.custom0_array[gd_id]
 		var mh_bones = []
@@ -191,8 +192,8 @@ static func interpolate_rigged_weights(mhclo:MHCLO, rigged_bone_weights:Dictiona
 			if rigged_bone_weights.weights[mh_id][array_id] != 0:
 				var old_id = rigged_bone_weights.bones[mh_id][array_id]
 				var bone_id = -1
-				for new_id in mhclo.rigged_config.size():
-					if mhclo.rigged_config[new_id].old_id == old_id:
+				for new_id in rigged_bone_weights.config.size():
+					if rigged_bone_weights.config[new_id].old_id == old_id:
 						bone_id = new_id
 				if bone_id == -1: # the "neutral bone", where the hair connects to the head, for example
 					remainder += rigged_bone_weights.weights[mh_id][array_id]
@@ -201,10 +202,10 @@ static func interpolate_rigged_weights(mhclo:MHCLO, rigged_bone_weights:Dictiona
 					mh_weights.append(rigged_bone_weights.weights[mh_id][array_id])
 		if remainder > 0:
 			for array_id in range(gd_id*8,(gd_id+1)*8):
-				if base_bone_weights.weights[array_id] > 0:
-					mh_bones.append(base_bone_weights.bones[array_id])
+				if base_weights[array_id] > 0:
+					mh_bones.append(base_bones[array_id])
 					#assuming rigged weights are already normalized
-					mh_weights.append(base_bone_weights.weights[array_id] * remainder)
+					mh_weights.append(base_weights[array_id] * remainder)
 		while mh_bones.size() < 8:
 			mh_bones.append(0)
 			mh_weights.append(0)
@@ -215,5 +216,7 @@ static func interpolate_rigged_weights(mhclo:MHCLO, rigged_bone_weights:Dictiona
 					lowest_id = w
 			mh_bones.remove_at(lowest_id)
 			mh_weights.remove_at(lowest_id)
-		mhclo.rigged_bones[rig_name].append_array(mh_bones)
-		mhclo.rigged_weights[rig_name].append_array(mh_weights)
+		output.bones.append_array(mh_bones)
+		output.weights.append_array(mh_weights)
+	
+	return output

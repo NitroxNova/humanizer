@@ -6,7 +6,7 @@ class_name HumanizerEquipmentType #base equipment definition
 @export_dir var path: String #folder
 @export var default_material: String
 @export var material_override: String
-@export var rigged: bool = false
+@export var rig_config : HumanizerEquipmentRigConfig 
 @export var textures: Dictionary
 @export var overlays: Dictionary
 @export var slots: Array[String]
@@ -25,4 +25,8 @@ func in_slot(slot_names:Array):
 		if sl_name in slots:
 			return true
 	return false
-	
+
+func is_rigged():
+	if rig_config == null:
+		return false
+	return true

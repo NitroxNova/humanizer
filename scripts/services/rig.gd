@@ -45,9 +45,9 @@ static func adjust_bone_positions(skeleton_data:Dictionary,rig:HumanizerRig,help
 	asset_bone_positions.resize(skeleton_data.size())
 	for equip in equipment.values():
 		var equip_type = equip.get_type()
-		if equip_type.rigged:
+		if equip_type.is_rigged():
 			var mhclo : MHCLO = HumanizerResourceService.load_resource(equip_type.mhclo_path)
-			for bone_config in mhclo.rigged_config:
+			for bone_config in equip_type.rig_config.config:
 				var bone_id = skeleton_data.keys().find(bone_config.name)
 				if bone_id > -1:
 					asset_bone_positions[bone_id] = get_asset_bone_position(mesh_arrays[equip.type],mhclo,bone_config)				
@@ -116,13 +116,14 @@ static func is_retargeted(rig_name:String):
 	
 static func skeleton_add_rigged_equipment(equipment:HumanizerEquipment, sf_arrays:Array,skeleton_data:Dictionary):
 	var mhclo : MHCLO = HumanizerResourceService.load_resource(equipment.get_type().mhclo_path)
-	var import_settings = equipment.get_type().get_import_settings()
-	for bone_config in mhclo.rigged_config:
+	var equip_type = equipment.get_type()
+	for bone_id in equip_type.rig_config.config.size():
+		var bone_config = equip_type.rig_config.config[bone_id]
 		var bone_name = bone_config.name
 		skeleton_data[bone_name] = {}
 		skeleton_data[bone_name].global_pos = get_asset_bone_position(sf_arrays,mhclo,bone_config)
 		skeleton_data[bone_name].local_xform = bone_config.transform
-		var parent_name = get_rigged_parent_bone(import_settings,mhclo,bone_config,skeleton_data)
+		var parent_name = get_rigged_parent_bone(equip_type.rig_config,bone_id,skeleton_data)
 		if parent_name != null:
 			skeleton_data[bone_name].parent = parent_name
 		else:
@@ -141,11 +142,12 @@ static func skeleton_remove_rigged_equipment(equipment:HumanizerEquipment,skelet
 		var bone_name = bone_config.name
 		skeleton_data.erase(bone_name)			
 				
-static func get_rigged_parent_bone(import_settings:Dictionary,mhclo:MHCLO, bone_config:Dictionary,skeleton_data:Dictionary):
+static func get_rigged_parent_bone(rig_config:HumanizerEquipmentRigConfig,bone_id:int,skeleton_data:Dictionary):
+	var bone_config = rig_config.config[bone_id]
 	if bone_config.parent == -1:
-		for parent_name in import_settings.attach_bones:
+		for parent_name in rig_config.attach_bones:
 			if parent_name in skeleton_data:
 				return parent_name
 	else:
-		return mhclo.rigged_config[bone_config.parent].name
+		return rig_config.config[bone_config.parent].name
 		 

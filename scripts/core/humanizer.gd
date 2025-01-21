@@ -244,7 +244,7 @@ func set_rig(rig_name:String):
 	rig = HumanizerRigService.get_rig(rig_name)
 	skeleton_data = HumanizerRigService.init_skeleton_data(rig,retargeted)
 	for equip in human_config.equipment.values():
-		if equip.get_type().rigged:
+		if equip.get_type().is_rigged():
 			HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip.type],skeleton_data)
 	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex,human_config.equipment,mesh_arrays)
 	update_bone_weights()
@@ -271,15 +271,15 @@ func update_bone_weights():
 func update_equipment_weights(equip_name:String):
 	var equip_type:HumanizerEquipmentType = human_config.equipment[equip_name].get_type()
 	var mhclo = HumanizerResourceService.load_resource(equip_type.mhclo_path)
-	if equip_type.rigged:
-		var bones = mhclo.rigged_bones[rig.resource_name].duplicate() #could potentially have multiple of the same mhclo open, dont want to change other arrays (due to godot resource sharing)
+	if equip_type.is_rigged():
+		var bones = equip_type.rig_config.bones[rig.resource_name].duplicate() #could potentially have multiple of the same mhclo open, dont want to change other arrays (due to godot resource sharing)
 		for bone_array_id in bones.size():
 			var bone_id = bones[bone_array_id]
 			if bone_id < 0:
-				bone_id = skeleton_data.keys().find( mhclo.rigged_config[(bone_id +1) *-1].name) #offset by one because -0 = 0
+				bone_id = skeleton_data.keys().find( equip_type.rig_config.config[(bone_id +1) *-1].name) #offset by one because -0 = 0
 				bones[bone_array_id] = bone_id
 		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = bones
-		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = mhclo.rigged_weights[rig.resource_name].duplicate()
+		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = equip_type.rig_config.weights[rig.resource_name].duplicate()
 	else:
 		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = mhclo.bones[rig.resource_name].duplicate()
 		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = mhclo.weights[rig.resource_name].duplicate()
