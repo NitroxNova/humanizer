@@ -1,6 +1,17 @@
 class_name OSPath
 extends RefCounted
 
+static func is_folder_empty(folder:String):
+	var contents = get_contents(folder)
+	if contents.dirs.size() == 0 and contents.files.size() == 0:
+		return true
+	return false
+	
+static func delete_empty_folders(folder:String):
+	for dir in DirAccess.get_directories_at(folder):
+		delete_empty_folders(folder.path_join(dir))
+	if is_folder_empty(folder):
+		DirAccess.remove_absolute(folder)
 
 static func read_json(file_name:String): #Array or Dictionary
 	var json_as_text = FileAccess.get_file_as_string(file_name)
