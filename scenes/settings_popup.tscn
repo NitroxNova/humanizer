@@ -32,9 +32,13 @@ text = "Slot Categories"
 unique_name_in_owner = true
 layout_mode = 2
 selected = 0
-item_count = 1
+item_count = 3
 popup/item_0/text = " -- New Category -- "
 popup/item_0/id = 0
+popup/item_1/text = "Body Parts"
+popup/item_1/id = 1
+popup/item_2/text = "Clothing"
+popup/item_2/id = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer/VBoxContainer"]
 layout_mode = 2
