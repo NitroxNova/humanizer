@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://dthel8j2gphl6"]
 
-[ext_resource type="Script" path="res://addons/humanizer/scripts/utils/camera_controls.gd" id="1_pu1mm"]
+[ext_resource type="Script" uid="uid://dyxi0t7phpyf4" path="res://addons/humanizer/scripts/utils/camera_controls.gd" id="1_pu1mm"]
 
 [sub_resource type="GDScript" id="GDScript_1i7gn"]
 script/source = "extends Node3D
@@ -18,7 +18,7 @@ func _ready():
 	config.eye_color = Color.GREEN
 	config.hair_color = Color.PURPLE
 	config.eyebrow_color = Color(\"550055\")
-	config.rig = HumanizerGlobalConfig.config.default_skeleton
+	config.rig = ProjectSettings.get_setting( \"addons/humanizer/default_skeleton\")
 	config.add_equipment(HumanizerEquipment.new(\"Body-Default\",\"young_caucasian_female\"))
 	config.add_equipment(HumanizerEquipment.new(\"Pants-SkinnyJeans\"))
 	config.add_equipment(shirt)

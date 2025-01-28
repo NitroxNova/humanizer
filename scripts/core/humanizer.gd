@@ -100,7 +100,7 @@ func standard_bake_meshes():
 	HumanizerJobQueue.add_job(HumanizerMeshService.compress_material.bind(new_mesh))
 	return new_mesh
 
-func combine_surfaces_to_mesh(surface_names:PackedStringArray,new_mesh:=ArrayMesh.new(),atlas_resolution:int=HumanizerGlobalConfig.config.atlas_resolution):
+func combine_surfaces_to_mesh(surface_names:PackedStringArray,new_mesh:=ArrayMesh.new(),atlas_resolution:int=ProjectSettings.get_setting("atlas_resolution")):
 	var bake_arrays = []
 	var bake_mats = []
 	for s_name in surface_names:
@@ -302,7 +302,7 @@ func get_main_collider():
 func adjust_main_collider(main_collider:CollisionShape3D):
 	HumanizerColliderService.adjust_main_collider(helper_vertex,main_collider)
 
-func add_ragdoll_colliders(skeleton:Skeleton3D,ragdoll_layers =HumanizerGlobalConfig.config.default_physical_bone_layers,ragdoll_mask=HumanizerGlobalConfig.config.default_physical_bone_mask):
+func add_ragdoll_colliders(skeleton:Skeleton3D,ragdoll_layers = ProjectSettings.get_setting("addons/humanizer/physical_bone_layers"),ragdoll_mask=ProjectSettings.get_setting("addons/humanizer/physical_bone_mask")):
 	skeleton.reset_bone_poses()
 	HumanizerPhysicalSkeleton.new(skeleton, helper_vertex, ragdoll_layers, ragdoll_mask).run()
 	skeleton.reset_bone_poses()

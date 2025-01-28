@@ -24,7 +24,7 @@ enum AppType {
 			return
 		else:  ## okay, start recording
 			_streaming = true
-			human = get_node_or_null('../')
+			#human = get_node_or_null('../')
 			if human == null or skeleton == null or animation_tree == null:
 				printerr('Missing at least one of the following in the scene : human, skeleton, animator')
 				return
@@ -49,7 +49,7 @@ var next_key: float
 var clip: Animation
 var socket := UDPServer.new()
 var peer: PacketPeerUDP
-@onready var human: HumanizerEditorTool = $'../'
+@onready var human: Humanizer
 var skeleton: Skeleton3D:
 	get:
 		return human.skeleton

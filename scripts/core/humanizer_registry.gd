@@ -7,9 +7,9 @@ static var skin_normals := {}
 static var overlays := {}
 static var rigs := {}
 
-func _init() -> void:
+#func _init() -> void:
 	#load_all()
-	_get_rigs()
+	#_get_rigs()
 
 static func load_all() -> void:
 	HumanizerLogger.profile("HumanizerRegistry", func():
@@ -49,7 +49,8 @@ static func filter_equipment(filter: Dictionary) -> Array[HumanizerEquipmentType
 
 static func _get_rigs() -> void:
 	#  Create and/or cache rig resources
-	for folder in HumanizerGlobalConfig.config.asset_import_paths:
+	print(ProjectSettings.get_setting("addons/humanizer/asset_import_paths"))
+	for folder in ProjectSettings.get_setting("addons/humanizer/asset_import_paths"):
 		var rig_path = folder.path_join('rigs')
 		for dir in OSPath.get_dirs(rig_path):
 			var name = dir.get_file()

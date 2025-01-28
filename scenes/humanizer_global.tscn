@@ -1,12 +1,7 @@
-[gd_scene load_steps=21 format=3 uid="uid://dsrnmyw7n7drw"]
+[gd_scene load_steps=4 format=3 uid="uid://dsrnmyw7n7drw"]
 
-[ext_resource type="PackedScene" uid="uid://csan8bknfmodc" path="res://addons/humanizer/data/animations/animation_tree.tscn" id="2_hdl0y"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/core/humanizer_global_config.gd" id="2_vm4hu"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/core/job_queue.gd" id="3_56c55"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/slot_category.gd" id="3_ge6bv"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/humanizer_config.gd" id="3_k24ro"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/resources/folder_override.gd" id="4_nipot"]
-[ext_resource type="Script" path="res://addons/humanizer/scripts/core/humanizer_registry.gd" id="57_651fh"]
+[ext_resource type="Script" uid="uid://c7k4xjkkdp28k" path="res://addons/humanizer/scripts/core/job_queue.gd" id="3_56c55"]
+[ext_resource type="Script" uid="uid://ca38rmt511vrf" path="res://addons/humanizer/scripts/core/humanizer_registry.gd" id="57_651fh"]
 
 [sub_resource type="GDScript" id="GDScript_yaxf4"]
 script/source = "@tool
@@ -15,12 +10,13 @@ extends Node
 
 # called when enters the editor AND when enters the game
 func _ready() -> void:
+	HumanizerRegistry._get_rigs()
 	if Engine.is_editor_hint():
 		pass
 		#mod loading isnt supported in the editor by default,
 		#will manually scan the zip here instead, and add to the registry
 	else:
-		for folder in HumanizerGlobalConfig.config.asset_import_paths:
+		for folder in ProjectSettings.get_setting(\"addons/humanizer/asset_import_paths\"):
 			for file in DirAccess.get_files_at(folder):
 				if file.get_extension() == \"zip\":
 					ProjectSettings.load_resource_pack(folder.path_join(file))
@@ -31,100 +27,8 @@ func _ready() -> void:
 		HumanizerRegistry._get_materials()
 "
 
-[sub_resource type="Resource" id="Resource_6ipmm"]
-script = ExtResource("4_nipot")
-folder_name = "hair"
-slots = PackedStringArray("Hair")
-left_right = false
-
-[sub_resource type="Resource" id="Resource_haco1"]
-script = ExtResource("4_nipot")
-folder_name = "body"
-slots = PackedStringArray("Body")
-left_right = false
-
-[sub_resource type="Resource" id="Resource_j02u5"]
-script = ExtResource("4_nipot")
-folder_name = "teeth"
-slots = PackedStringArray("Teeth")
-left_right = false
-
-[sub_resource type="Resource" id="Resource_xxaij"]
-script = ExtResource("4_nipot")
-folder_name = "tongue"
-slots = PackedStringArray("Tongue")
-left_right = false
-
-[sub_resource type="Resource" id="Resource_u35qs"]
-script = ExtResource("4_nipot")
-folder_name = "eyes"
-slots = PackedStringArray("LeftEye", "RightEye")
-left_right = true
-
-[sub_resource type="Resource" id="Resource_xv360"]
-script = ExtResource("4_nipot")
-folder_name = "eyebrows"
-slots = PackedStringArray("LeftEyebrow", "RightEyebrow")
-left_right = true
-
-[sub_resource type="Resource" id="Resource_rs0gl"]
-script = ExtResource("4_nipot")
-folder_name = "eyelashes"
-slots = PackedStringArray("LeftEyelash", "RightEyelash")
-left_right = true
-
-[sub_resource type="Resource" id="Resource_rku3m"]
-script = ExtResource("3_ge6bv")
-category = "Body Parts"
-suffix = ""
-slots = PackedStringArray("Body", "RightEye", "LeftEye", "RightEyebrow", "LeftEyebrow", "RightEyelash", "LeftEyelash", "Hair", "Tongue", "Teeth")
-folder_overrides = Array[ExtResource("4_nipot")]([SubResource("Resource_6ipmm"), SubResource("Resource_haco1"), SubResource("Resource_j02u5"), SubResource("Resource_xxaij"), SubResource("Resource_u35qs"), SubResource("Resource_xv360"), SubResource("Resource_rs0gl")])
-
-[sub_resource type="Resource" id="Resource_a6860"]
-script = ExtResource("4_nipot")
-folder_name = "hats"
-slots = PackedStringArray("Head")
-left_right = false
-
-[sub_resource type="Resource" id="Resource_f24l4"]
-script = ExtResource("4_nipot")
-folder_name = "shoes"
-slots = PackedStringArray("Feet")
-left_right = false
-
-[sub_resource type="Resource" id="Resource_q7xgh"]
-script = ExtResource("3_ge6bv")
-category = "Clothing"
-suffix = "Clothes"
-slots = PackedStringArray("Head", "Eyes", "Mouth", "Hands", "Arms", "Torso", "Legs", "Feet")
-folder_overrides = Array[ExtResource("4_nipot")]([SubResource("Resource_a6860"), SubResource("Resource_f24l4")])
-
-[sub_resource type="Resource" id="Resource_j4o7b"]
-script = ExtResource("3_k24ro")
-asset_import_paths = Array[String](["res://addons/humanizer/data/assets/", "res://addons/humanizer_assets/", "user://humanizer/", "res://humanizer/"])
-human_export_path = "res://data/humans/"
-default_characterbody_script = "res://addons/humanizer/scripts/utils/human_controller.gd"
-default_rigidbody_script = ""
-default_staticbody_script = ""
-default_area_script = ""
-equipment_slots = Array[ExtResource("3_ge6bv")]([SubResource("Resource_rku3m"), SubResource("Resource_q7xgh")])
-default_skeleton = "game_engine-RETARGETED"
-default_animation_tree = ExtResource("2_hdl0y")
-default_baked_root_node = "CharacterBody3D"
-default_character_physics_layers = 2
-default_character_physics_mask = 3
-default_staticbody_physics_layers = 1
-default_physical_bone_layers = 4
-default_physical_bone_mask = 5
-default_character_render_layers = 1
-atlas_resolution = 2048
-
 [node name="HumanizerGlobal" type="Node"]
 script = SubResource("GDScript_yaxf4")
-
-[node name="HumanizerConfig" type="Node" parent="."]
-script = ExtResource("2_vm4hu")
-_config = SubResource("Resource_j4o7b")
 
 [node name="HumanizerRegistry" type="Node" parent="."]
 script = ExtResource("57_651fh")

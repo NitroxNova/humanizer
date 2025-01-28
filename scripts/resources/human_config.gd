@@ -53,7 +53,7 @@ signal equipment_removed(equip:HumanizerEquipment)
 static func new_default():
 	var new_config = HumanConfig.new()
 	new_config.init_macros()
-	new_config.rig = HumanizerGlobalConfig.config.default_skeleton
+	new_config.rig = ProjectSettings.get_setting("addons/humanizer/default_skeleton")
 	new_config.add_equipment(HumanizerEquipment.new("DefaultBody"))
 	new_config.add_equipment(HumanizerEquipment.new("RightEye-LowPolyEyeball"))
 	new_config.add_equipment(HumanizerEquipment.new("LeftEye-LowPolyEyeball"))
