@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://rydq451487vy"]
 
-[ext_resource type="Script" uid="uid://dkw68whbtvin6" path="res://addons/humanizer/scripts/utils/settings_popup.gd" id="1_br4dc"]
+[ext_resource type="Script" uid="uid://bfpdi0jgww8uo" path="res://addons/humanizer/scripts/utils/settings_popup.gd" id="1_br4dc"]
 
 [node name="settings_popup" type="Window"]
 title = "Humanizer Settings"
