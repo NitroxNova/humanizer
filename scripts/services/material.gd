@@ -67,10 +67,9 @@ static func search_for_generated_materials(folder:String)->Dictionary:
 		materials.merge(search_for_generated_materials(subfolder))	
 	# top folder should override if conflicts
 	for file_name in OSPath.get_files(folder):
-		if file_name.get_extension() == "mhmat":
-			#may not have been imported yet, thats ok, just return what the filename will be
-			var mat_res_path = file_name.replace(".mhmat",".material.res")
-			materials[file_name.get_file().get_basename()] = mat_res_path
+		if file_name.ends_with(".material.res"):
+			materials[file_name.get_file().trim_suffix(".material.res")] = file_name
+	print(materials)
 	return materials
 
 static func default_material_from_mhclo(mhclo:MHCLO):

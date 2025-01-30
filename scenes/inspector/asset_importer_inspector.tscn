@@ -43,8 +43,9 @@ layout_mode = 2
 layout_mode = 2
 text = "Default Material "
 
-[node name="DefaultMaterial" type="OptionButton" parent="ImportOptions/HBoxContainer2"]
+[node name="DefaultMaterial" type="LineEdit" parent="ImportOptions/HBoxContainer2"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 
 [node name="SlotsContainer" type="VBoxContainer" parent="ImportOptions"]

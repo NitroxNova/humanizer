@@ -2,13 +2,15 @@
 extends MarginContainer
 
 var human_rnd: HumanRandomizer
+var human_config : HumanConfig
 var shapekeys := {}
 var enabled_cats := {}
 var rand_sliders := {}
 var asym_sliders := {}
 
-func setup(_human_rnd: HumanRandomizer):
+func setup(_human_rnd: HumanRandomizer, _human_config:HumanConfig):
 	human_rnd = _human_rnd
+	human_config = _human_config
 	var hbox = %VBoxContainer/HBoxContainer
 	if human_rnd.human == null:
 		hbox.queue_free()
@@ -51,7 +53,7 @@ func _randomize_shapekeys() -> void:
 	human_rnd.categories = categories
 	human_rnd.randomization = randomization
 	human_rnd.asymmetry = asymmetry
-	human_rnd.randomize_shapekeys()
+	human_rnd.randomize_shapekeys(human_config)
 
 func _on_rand_slider_value_changed(changed: bool, slider: HSlider, cat: String) -> void:
 	human_rnd.randomization[cat] = slider.value
