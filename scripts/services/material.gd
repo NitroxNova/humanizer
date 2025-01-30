@@ -69,7 +69,6 @@ static func search_for_generated_materials(folder:String)->Dictionary:
 	for file_name in OSPath.get_files(folder):
 		if file_name.ends_with(".material.res"):
 			materials[file_name.get_file().trim_suffix(".material.res")] = file_name
-	print(materials)
 	return materials
 
 static func default_material_from_mhclo(mhclo:MHCLO):
