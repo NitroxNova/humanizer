@@ -24,16 +24,16 @@ func randomize_body_parts(human:HumanConfig) -> void:
 	randomize_hair(human)
 
 func randomize_clothes(human:HumanConfig) -> void:
-	human.add_equipment(get_random_equipment_for_slot("TorsoClothes"))
-	human.add_equipment(get_random_equipment_for_slot("LegsClothes"))
-	human.add_equipment(get_random_equipment_for_slot("FeetClothes"))
+	human.add_equipment(get_random_equipment_for_slot("torsoclothes"))
+	human.add_equipment(get_random_equipment_for_slot("legsclothes"))
+	human.add_equipment(get_random_equipment_for_slot("feetclothes"))
 
 func randomize_eyebrows(human:HumanConfig) -> void:
 	## Assumes left and right eyebrow slots
 	## Assumes same number of entries for both slots
-	var left_eyebrow = get_random_equipment_for_slot("LeftEyebrow")
+	var left_eyebrow = get_random_equipment_for_slot("lefteyebrow")
 	human.add_equipment(left_eyebrow )
-	var right_eyebrow_name = left_eyebrow.type.replace('Left', 'Right')
+	var right_eyebrow_name = left_eyebrow.type.replace('left', 'right')
 	human.add_equipment( HumanizerEquipment.new( right_eyebrow_name,left_eyebrow.texture_name))
 
 func randomize_eyes(human:HumanConfig) -> void:
@@ -54,7 +54,7 @@ func randomize_hair(human:HumanConfig) -> void:
 	color.r += rng.randf()
 	color.g += rng.randf()
 	color.b += rng.randf()
-	human.add_equipment(get_random_equipment_for_slot("Hair"))
+	human.add_equipment(get_random_equipment_for_slot("hair"))
 	human.hair_color = color
 	
 func randomize_shapekeys(human:HumanConfig) -> void:

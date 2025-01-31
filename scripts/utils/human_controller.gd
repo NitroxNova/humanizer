@@ -36,7 +36,6 @@ func _physics_process(delta):
 	var move_input: Vector2 = Input.get_vector(
 		&'ui_left', &'ui_right', &'ui_down', &'ui_up')
 	moving = move_input.length() > 0.1  # Give a little deadzone
-
 	var movement: Vector3 = move_input.x * cam_right + move_input.y * cam_forward
 	if moving:
 		# IDK why negative signs but it works

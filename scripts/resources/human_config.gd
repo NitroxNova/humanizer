@@ -24,20 +24,20 @@ signal equipment_removed(equip:HumanizerEquipment)
 @export var skin_color: Color = Color.WHITE:
 	set(value):
 		skin_color = value
-		for equip in get_equipment_in_slots([&'Body']):
+		for equip in get_equipment_in_slots([&'body']):
 			_handle_color_overrides(equip)
 			
 @export var eye_color: Color = Color.SKY_BLUE:
 	set(value):
 		eye_color = value
-		var slots: Array = [&'RightEye', &'LeftEye', &'Eyes']
+		var slots: Array = [&'righteye', &'lefteye', &'eyes']
 		for equip in get_equipment_in_slots(slots):
 			_handle_color_overrides(equip)
 
 @export var eyebrow_color: Color = Color("330000"):
 	set(value):
 		eyebrow_color = value
-		var slots: Array = [&'RightEyebrow', &'LeftEyebrow', &'Eyebrows']
+		var slots: Array = [&'righteyebrow', &'lefteyebrow', &'eyebrows']
 		for equip in get_equipment_in_slots(slots):
 			_handle_color_overrides(equip)
 
@@ -46,7 +46,7 @@ signal equipment_removed(equip:HumanizerEquipment)
 		hair_color = value
 		const eyebrow_color_weight := 0.4
 		eyebrow_color = Color(hair_color * eyebrow_color_weight, 1.)
-		for equip in get_equipment_in_slots([&'Hair']):
+		for equip in get_equipment_in_slots([&'hair']):
 			_handle_color_overrides(equip)
 		notify_property_list_changed()
 
@@ -79,14 +79,14 @@ func set_targets(new_targets:Dictionary):
 
 func _handle_color_overrides(equip:HumanizerEquipment):
 	var equip_type = equip.get_type()
-	if equip_type.in_slot(["LeftEye","RightEye","Eyes"]):
+	if equip_type.in_slot(["lefteye","righteye","eyes"]):
 		if equip.material_config.overlays.size() > 1:
 			equip.material_config.overlays[1].color = eye_color
-	elif equip_type.in_slot(["Body"]):
+	elif equip_type.in_slot(["body"]):
 		equip.material_config.overlays[0].color = skin_color
-	elif equip_type.in_slot(["Hair"]):
+	elif equip_type.in_slot(["hair"]):
 		equip.material_config.overlays[0].color = hair_color
-	elif equip_type.in_slot(["LeftEyebrow","RightEyebrow","Eyebrows"]):
+	elif equip_type.in_slot(["lefteyebrow","righteyebrow","eyebrows"]):
 		equip.material_config.overlays[0].color = eyebrow_color
 
 func set_equipment_material(equip:HumanizerEquipment,material):
