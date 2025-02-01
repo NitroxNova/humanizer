@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dsrnmyw7n7drw"]
 
-[ext_resource type="Script" uid="uid://c7k4xjkkdp28k" path="res://addons/humanizer/scripts/core/job_queue.gd" id="3_56c55"]
-[ext_resource type="Script" uid="uid://ca38rmt511vrf" path="res://addons/humanizer/scripts/core/humanizer_registry.gd" id="57_651fh"]
+[ext_resource type="Script" uid="uid://cbr40v52sl3vm" path="res://addons/humanizer/scripts/core/job_queue.gd" id="3_56c55"]
+[ext_resource type="Script" uid="uid://befmxpwnpnjyu" path="res://addons/humanizer/scripts/core/humanizer_registry.gd" id="57_651fh"]
 
 [sub_resource type="GDScript" id="GDScript_yaxf4"]
 script/source = "@tool
@@ -16,15 +16,18 @@ func _ready() -> void:
 		#mod loading isnt supported in the editor by default,
 		#will manually scan the zip here instead, and add to the registry
 	else:
+		var existing_files = [] #cant use dirAccess.get_files_at for existing files once a 'resource pack' is loaded
 		for folder in ProjectSettings.get_setting(\"addons/humanizer/asset_import_paths\"):
-			for file in DirAccess.get_files_at(folder):
-				if file.get_extension() == \"zip\":
-					ProjectSettings.load_resource_pack(folder.path_join(file))
+			existing_files.append_array(OSPath.get_files_recursive(folder))
+		for file_path in existing_files:
+			if file_path.get_extension() == \"zip\":
+				ProjectSettings.load_resource_pack(file_path)
 		
 		HumanizerTargetService.data = load(\"res://humanizer/target/base_targets.res\")
 
 		HumanizerRegistry._load_equipment()
 		HumanizerRegistry._get_materials()
+		HumanizerRegistry.load_animations()
 "
 
 [node name="HumanizerGlobal" type="Node"]

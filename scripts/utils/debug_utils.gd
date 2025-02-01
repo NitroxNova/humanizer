@@ -9,7 +9,7 @@ static func generate_random_human(callback: Callable):
 			var humanizer: Humanizer = Humanizer.new()
 
 			HumanizerLogger.profile("generate_random_human preamble", func():
-				human_config.rig = HumanizerGlobalConfig.config.default_skeleton
+				human_config.rig = ProjectSettings.get_setting("addons/humanizer/default_skeleton")
 
 				randomizer.shapekeys = HumanizerTargetService.get_shapekey_categories()
 				randomizer.randomization = {}

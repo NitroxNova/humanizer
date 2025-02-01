@@ -7,10 +7,13 @@ script/source = "extends Node3D
 
 var humanizer := Humanizer.new()
 var shirt : HumanizerEquipment 
+var suit_top : HumanizerEquipment
 var body_mesh_inst : MeshInstance3D
+var anim_player : AnimationPlayer
 
 func _ready():
 	shirt = HumanizerEquipment.new(\"Shirt-MakeHumanTShirt\")
+	suit_top = HumanizerEquipment.new(\"Shirt-SuitTop\")
 	var config = HumanConfig.new()
 	config.targets['gender'] = 0.0
 	config.targets['age'] = .25
@@ -36,13 +39,20 @@ func _ready():
 	HumanizerUtils.set_node_owner(char,self)
 	char.camera = $Camera3D
 	body_mesh_inst = char.get_node(\"Avatar\")
-
+	anim_player = char.get_node(\"AnimationTree/AnimationPlayer\")
+	var anim_tree : AnimationTree = char.get_node(\"AnimationTree\")
+	anim_tree.active = false
+	anim_player.play(\"animations/Idle\")
+	
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed(&'ui_accept'):
-		if humanizer.human_config.get_equipment_in_slot(\"TorsoClothes\") == null:
-			humanizer.add_equipment(shirt)
+		var anim_name = Array(anim_player.get_animation_list()).pick_random()		
+		anim_player.play(anim_name)
+				
+		if humanizer.human_config.get_equipment_in_slot(\"torsoclothes\") == shirt:
+			humanizer.add_equipment(suit_top)
 		else:
-			humanizer.remove_equipment(shirt)
+			humanizer.add_equipment(shirt)
 		humanizer.show_clothes_vertices()
 		humanizer.hide_clothes_vertices()
 		body_mesh_inst.mesh = humanizer.get_combined_meshes()

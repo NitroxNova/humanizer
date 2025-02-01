@@ -47,9 +47,12 @@ static func filter_equipment(filter: Dictionary) -> Array[HumanizerEquipmentType
 					filtered.append(equip)
 	return filtered
 
+static func load_animations() -> void:
+	pass
+		
+
 static func _get_rigs() -> void:
 	#  Create and/or cache rig resources
-	print(ProjectSettings.get_setting("addons/humanizer/asset_import_paths"))
 	for folder in ProjectSettings.get_setting("addons/humanizer/asset_import_paths"):
 		var rig_path = folder.path_join('rigs')
 		for dir in OSPath.get_dirs(rig_path):

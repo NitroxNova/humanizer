@@ -82,13 +82,19 @@ func get_combined_meshes() -> ArrayMesh:
 	return new_mesh
 	
 func get_animation_tree():
+	var anim_tree : AnimationTree
 	if human_config.rig == 'default-RETARGETED':
-		return HumanizerResourceService.load_resource("res://addons/humanizer/data/animations/face_animation_tree.tscn").instantiate()
+		anim_tree = HumanizerResourceService.load_resource("res://addons/humanizer/data/animations/face_animation_tree.tscn").instantiate()
 	elif human_config.rig.ends_with('RETARGETED'):
-		return HumanizerResourceService.load_resource("res://addons/humanizer/data/animations/animation_tree.tscn").instantiate()
+		anim_tree = HumanizerResourceService.load_resource("res://addons/humanizer/data/animations/animation_tree.tscn").instantiate()
 	else:  # No example animator for specific rigs that aren't retargeted
 		return
-
+	for file_name in OSPath.get_files_recursive("res://humanizer/animation/"):
+		var anim_lib : AnimationLibrary = HumanizerResourceService.load_resource(file_name)
+		var anim_player : AnimationPlayer = anim_tree.get_node("AnimationPlayer")
+		anim_player.add_animation_library(file_name.get_file().get_basename(),anim_lib)
+	return anim_tree
+	
 func standard_bake_meshes():
 	var new_mesh = ArrayMesh.new()
 	var opaque = get_group_bake_arrays("opaque")
@@ -198,11 +204,14 @@ func get_mesh_arrays(mesh_name:String) -> Array: # generate normals/tangents, wi
 	return new_arrays
 	
 func add_equipment(equip:HumanizerEquipment):
-	human_config.add_equipment(equip)
 	var equip_type = equip.get_type()
+	var remove_equip = human_config.get_equipment_in_slots(equip_type.slots)
+	for re in remove_equip:
+		remove_equipment(re)
+	human_config.add_equipment(equip)
 	mesh_arrays[equip_type.resource_name] = HumanizerEquipmentService.load_mesh_arrays(equip_type)
 	fit_equipment_mesh(equip_type.resource_name)
-	if equip_type.rigged:
+	if equip_type.rig_config != null:
 		HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip_type.resource_name], skeleton_data)
 	update_equipment_weights(equip_type.resource_name)
 	init_equipment_material(equip)
@@ -211,7 +220,7 @@ func remove_equipment(equip:HumanizerEquipment):
 	human_config.remove_equipment(equip)
 	var equip_type = equip.get_type()
 	mesh_arrays.erase(equip_type.resource_name)
-	if equip_type.rigged:
+	if equip_type.rig_config != null:
 		HumanizerRigService.skeleton_remove_rigged_equipment(equip, skeleton_data)
 	materials.erase(equip_type.resource_name)
 	
