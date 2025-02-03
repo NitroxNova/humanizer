@@ -1,7 +1,7 @@
 [gd_scene load_steps=103 format=3 uid="uid://bfc3rdd8bqs5t"]
 
 [ext_resource type="AnimationLibrary" uid="uid://cuxxbj7avet71" path="res://addons/humanizer/data/animations/animations.glb" id="1_cbbvd"]
-[ext_resource type="AnimationLibrary" uid="uid://c3k62u37mtyiu" path="res://addons/humanizer/data/animations/face_poses.glb" id="2_skm8r"]
+[ext_resource type="AnimationLibrary" uid="uid://dlwm4vghdc0vk" path="res://addons/humanizer/data/animations/face_poses.glb" id="2_skm8r"]
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_y8ecg"]
 animation = &"face_poses/browOuterUpRight"
@@ -468,10 +468,6 @@ node_connections = [&"browDownLeft", 0, &"Animation", &"browDownLeft", 1, &"Anim
 [node name="AnimationTree" type="AnimationTree"]
 active = false
 root_node = NodePath(".")
-libraries = {
-"animations": ExtResource("1_cbbvd"),
-"face_poses": ExtResource("2_skm8r")
-}
 tree_root = SubResource("AnimationNodeBlendTree_3xj3i")
 anim_player = NodePath("AnimationPlayer")
 parameters/browDownLeft/add_amount = 0.021595
@@ -527,6 +523,6 @@ parameters/tongueOut/add_amount = 0.014472
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 deterministic = true
 libraries = {
-"animations": ExtResource("1_cbbvd"),
-"face_poses": ExtResource("2_skm8r")
+&"animations": ExtResource("1_cbbvd"),
+&"face_poses": ExtResource("2_skm8r")
 }

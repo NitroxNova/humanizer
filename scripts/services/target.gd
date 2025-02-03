@@ -4,15 +4,20 @@ class_name HumanizerTargetService
 
 static var cache = {}
 static var data: HumanizerTargetData #loaded in the humanizer global
-
+static var basis : PackedVector3Array
 
 static func exit():
 	# todo mutex
 	cache.clear()
 	HumanizerLogger.debug("target service shutdown")
 
+static func load_data():
+	data = load("res://humanizer/target/base_targets.res")
+	var basis_file = FileAccess.open("res://addons/humanizer/data/resources/basis.data",FileAccess.READ)
+	basis = basis_file.get_var()
+
 static func init_helper_vertex(target_data = null) -> PackedVector3Array:
-	var helper_vertex = data.basis.duplicate()
+	var helper_vertex = basis.duplicate()
 
 	HumanizerLogger.profile("init_helper_vertex", func():
 		if target_data != null:

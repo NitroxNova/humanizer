@@ -32,13 +32,10 @@ transitions = ["Start", "animations_Idle", SubResource("AnimationNodeStateMachin
 [node name="AnimationTree" type="AnimationTree"]
 active = false
 root_node = NodePath(".")
-libraries = {
-"animations": ExtResource("2_a0fcn")
-}
 tree_root = SubResource("AnimationNodeStateMachine_1sk7a")
 anim_player = NodePath("AnimationPlayer")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-"animations": ExtResource("2_a0fcn")
+&"animations": ExtResource("2_a0fcn")
 }

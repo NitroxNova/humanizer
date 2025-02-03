@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dsrnmyw7n7drw"]
 
-[ext_resource type="Script" uid="uid://cbr40v52sl3vm" path="res://addons/humanizer/scripts/core/job_queue.gd" id="3_56c55"]
-[ext_resource type="Script" uid="uid://befmxpwnpnjyu" path="res://addons/humanizer/scripts/core/humanizer_registry.gd" id="57_651fh"]
+[ext_resource type="Script" uid="uid://bahokwt4p5d4m" path="res://addons/humanizer/scripts/core/job_queue.gd" id="3_56c55"]
+[ext_resource type="Script" uid="uid://b6axyn8sn0m6g" path="res://addons/humanizer/scripts/core/humanizer_registry.gd" id="57_651fh"]
 
 [sub_resource type="GDScript" id="GDScript_yaxf4"]
 script/source = "@tool
@@ -23,8 +23,8 @@ func _ready() -> void:
 			if file_path.get_extension() == \"zip\":
 				ProjectSettings.load_resource_pack(file_path)
 		
-		HumanizerTargetService.data = load(\"res://humanizer/target/base_targets.res\")
-
+		HumanizerTargetService.load_data()
+		
 		HumanizerRegistry._load_equipment()
 		HumanizerRegistry._get_materials()
 		HumanizerRegistry.load_animations()
