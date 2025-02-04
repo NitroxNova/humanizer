@@ -3,7 +3,7 @@ extends Resource
 class_name HumanizerTargetService
 
 static var cache = {}
-static var data: HumanizerTargetData #loaded in the humanizer global
+static var data: Dictionary[String,PackedVector4Array] = {}#loaded in the humanizer global
 static var basis : PackedVector3Array
 
 static func exit():
@@ -12,7 +12,10 @@ static func exit():
 	HumanizerLogger.debug("target service shutdown")
 
 static func load_data():
-	data = load("res://humanizer/target/base_targets.res")
+	var target_files = OSPath.get_files_recursive("res://humanizer/target/")
+	for file_path in target_files:
+		var tar_file = FileAccess.open(file_path,FileAccess.READ)
+		data.merge(tar_file.get_var())
 	var basis_file = FileAccess.open("res://addons/humanizer/data/resources/basis.data",FileAccess.READ)
 	basis = basis_file.get_var()
 
@@ -46,21 +49,22 @@ static func set_targets_raw(new_targets: Dictionary, helper_vertex: PackedVector
 	# todo move this loop to a c++ module and optimize it
 	if current_targets == null:
 		for target_name in new_targets:
-			if target_name in data.names:
-				var offset = data.names[target_name]
-				var range = range(offset[0], offset[1])
-				for ref_id in range:
-					var mh_id = data.index[ref_id]
-					var coords = data.coords[ref_id]
+			if target_name in data:
+				var curr_tar_data : PackedVector4Array = data[target_name]
+				for ref_id in curr_tar_data.size():
+					var curr_line : Vector4 = curr_tar_data[ref_id]
+					var mh_id:int = curr_line.w
+					var coords = Vector3(curr_line.x,curr_line.y,curr_line.z)
 					var prev_value = 0
 					helper_vertex[mh_id] += coords * (new_targets[target_name] - prev_value)
 	else:
 		for target_name in new_targets:
-			if target_name in data.names:
-				var offset = data.names[target_name]
-				for ref_id in range(offset[0], offset[1]):
-					var mh_id = data.index[ref_id]
-					var coords = data.coords[ref_id]
+			if target_name in data:
+				var curr_tar_data : PackedVector4Array = data[target_name]
+				for ref_id in curr_tar_data.size():
+					var curr_line : Vector4 = curr_tar_data[ref_id]
+					var mh_id:int  = curr_line.w
+					var coords = Vector3(curr_line.x,curr_line.y,curr_line.z)
 					var prev_value = 0
 					if current_targets != null:
 						prev_value = current_targets.get(target_name, 0)
@@ -75,7 +79,7 @@ static func set_targets_raw(new_targets: Dictionary, helper_vertex: PackedVector
 	if foot_offset != 0:
 		for mh_id in helper_vertex.size():
 			helper_vertex[mh_id].y -= foot_offset
-
+	
 static func get_shapekey_categories() -> Dictionary:
 	var categories := {
 		'Macro': [],
@@ -96,7 +100,7 @@ static func get_shapekey_categories() -> Dictionary:
 		'Misc': [],
 		'Custom': [],
 	}
-	for raw_name in data.names:
+	for raw_name in data:
 		var name = raw_name.to_lower()
 		if 'penis' in name: # or name.ends_with('firmness'):
 			continue

@@ -37,7 +37,7 @@ static func show_vertices(equip_list:Dictionary,mesh_arrays:Dictionary):
 
 static func hide_vertices(equip_list:Dictionary,mesh_arrays:Dictionary):
 	var delete_verts_mh := []
-	delete_verts_mh.resize(HumanizerTargetService.data.basis.size())
+	delete_verts_mh.resize(HumanizerTargetService.basis.size())
 	var depth_sorted_clothes := []
 	for equip in equip_list.values():
 		depth_sorted_clothes.append(equip)

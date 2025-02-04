@@ -15,8 +15,9 @@ static func get_hips_height(helper_vertex:PackedVector3Array):
 
 static func get_foot_offset(helper_vertex:PackedVector3Array):
 	var offset = max(helper_vertex[feet_ids[0]].y, helper_vertex[feet_ids[1]].y)
-	var foot_offset = Vector3.UP * offset
-	return foot_offset.y
+	#var foot_offset = Vector3.UP * offset
+	#print(helper_vertex[feet_ids[0]].y)
+	return offset
 
 static func get_head_height(helper_vertex:PackedVector3Array):
 	return helper_vertex[head_top_id].y

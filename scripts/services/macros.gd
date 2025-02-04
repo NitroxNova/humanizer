@@ -130,7 +130,7 @@ static func get_combination_values(combo_name:String,data:Dictionary):
 		next_shapes = {}
 		
 	for shape_name in combo_shapekeys.keys():
-		if not shape_name in HumanizerTargetService.data.names:
+		if not shape_name in HumanizerTargetService.data:
 			combo_shapekeys.erase(shape_name)
 	
 	return combo_shapekeys

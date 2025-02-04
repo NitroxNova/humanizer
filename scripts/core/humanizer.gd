@@ -264,6 +264,7 @@ func get_skeleton()->Skeleton3D:
 	#print(skeleton_data)
 	var skeleton = HumanizerRigService.get_skeleton_3D(skeleton_data)
 	skeleton.motion_scale = HumanizerRigService.get_motion_scale(human_config.rig,helper_vertex)
+	#skeleton.motion_scale = 1
 	return skeleton
 
 func rebuild_skeleton(skeleton:Skeleton3D):

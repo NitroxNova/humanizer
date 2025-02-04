@@ -96,7 +96,7 @@ static func init_skeleton_data(rig: HumanizerRig,retargeted:bool)->Dictionary:
 static func get_motion_scale(rig_name:String, helper_vertex:PackedVector3Array):
 	var base_motion_scale = _get_base_motion_scale(rig_name)
 	var hips_height = HumanizerBodyService.get_hips_height(helper_vertex)
-	var base_hips_height = HumanizerBodyService.get_hips_height(HumanizerTargetService.data.basis)
+	var base_hips_height = HumanizerBodyService.get_hips_height(HumanizerTargetService.basis)
 	return base_motion_scale * (hips_height  / base_hips_height)
 
 static func _get_base_motion_scale(rig_name:String):
