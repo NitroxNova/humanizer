@@ -57,6 +57,3 @@ func create_animation_resource():
 		increment += 1
 	ResourceSaver.save(anim_lib,file_name)
 	
-	#replace .gdignore file - although it should still be there, but just in case
-	FileAccess.open(input_folder.path_join(".gdignore"), FileAccess.WRITE).store_string("")
-	
