@@ -1,26 +1,12 @@
-# Humanizer Plugin - 3D Character Creator for Godot 4
-
-**Converted from MakeHuman and MPFB2 plugin for Blender**
-
-- [MakeHuman Community MPFB](https://static.makehumancommunity.org/mpfb.html)
-- [GitHub - makehumancommunity/mpfb2](https://github.com/makehumancommunity/mpfb2)
-- [GitHub - makehumancommunity/makehuman](https://github.com/makehumancommunity/makehuman)
+# Humanizer Plugin - 3D Character Creator for Godot 4.3  
 
 ## RESOURCES:
  - [Humanizer Wiki](https://github.com/NitroxNova/humanizer/wiki)
  - [Humanizer Discord](https://discord.gg/MN5vJtJYD5)
 
-## FEATURES:
-
-- Fully customizable character weight/height/gender/race/age
-- Over a thousand shape keys for an endless variety of unique characters
-- Mixamo animations compatible with retargeted standard and game engine rigs
-- Facial mocap capability on the standard retargeted rig
-- Body parts and clothing can have bones attached
-- Change eye, hair, and skin colours with an overlay system
-- Physical ragdolls
-- Base clothing and body part assets from MakeHuman
-
-### Support the Project:
-
+## How to Help:
 - [Patreon - ReignBowGames](https://www.patreon.com/ReignBowGames)
+
+![Screenshot from 2025-02-07 23-11-43](https://github.com/user-attachments/assets/a152e617-7ddb-409a-81e2-bf0e5fb1de01)
+
+![Screenshot from 2025-02-07 23-11-26](https://github.com/user-attachments/assets/882173b1-0e6c-4d1a-91b0-ec475a6cb57c)
