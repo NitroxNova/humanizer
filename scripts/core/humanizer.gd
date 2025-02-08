@@ -160,7 +160,8 @@ func init_equipment_material(equip:HumanizerEquipment): #called from thread
 	material.resource_local_to_scene = true
 	materials[equip.type] = material
 	var mat_config = equip.material_config
-	mat_config.done_generating.connect(check_materials_done_generating)
+	if not mat_config.done_generating.is_connected(check_materials_done_generating):
+		mat_config.done_generating.connect(check_materials_done_generating)
 	mat_config.generate_material_3D(material)
 
 func check_materials_done_generating():

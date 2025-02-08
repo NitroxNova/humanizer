@@ -646,7 +646,7 @@ func _reset_animator() -> void:
 		reset_face_pose()
 
 func reset_face_pose() -> void:
-	var face_poses: AnimationLibrary = HumanizerResourceService.load_resource("res://addons/humanizer/data/animations/face_poses.glb")
+	var face_poses: AnimationLibrary = HumanizerResourceService.load_resource("res://addons/humanizer/data/animations/face_poses.res")
 	for clip: String in face_poses.get_animation_list():
 		animator.set("parameters/" + clip + "/add_amount", 0.)
 
