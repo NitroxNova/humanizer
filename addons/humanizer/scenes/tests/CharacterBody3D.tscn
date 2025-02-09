@@ -7,6 +7,7 @@ script/source = "extends Node3D
 
 var humanizer := Humanizer.new()
 var shirt = HumanizerEquipment.new(\"Shirt-MakeHumanTShirt\")
+var suit = HumanizerEquipment.new(\"SuitTop\")
 var body_mesh_inst : MeshInstance3D
 
 func _ready():
@@ -38,10 +39,12 @@ func _ready():
 
 func _process(delta: float) -> void:
 	if Input.is_action_just_pressed(&'ui_accept'):
-		if humanizer.human_config.get_equipment_in_slot(\"TorsoClothes\") == null:
+		if humanizer.human_config.get_equipment_in_slot(\"TorsoClothes\") == suit:
+			humanizer.remove_equipment(suit)
 			humanizer.add_equipment(shirt)
 		else:
 			humanizer.remove_equipment(shirt)
+			humanizer.add_equipment(suit)
 		humanizer.show_clothes_vertices()
 		humanizer.hide_clothes_vertices()
 		body_mesh_inst.mesh = humanizer.get_combined_meshes()
