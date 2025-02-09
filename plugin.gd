@@ -74,7 +74,7 @@ func init_config():
 		ProjectSettings.set_setting("addons/humanizer/default_skeleton",default_skeleton)
 		#ProjectSettings.set_initial_value("addons/humanizer/default_skeleton",default_skeleton)
 		
-		var animation_tree = "res://addons/humanizer/data/animations/animation_tree"
+		var animation_tree = "res://addons/humanizer/data/animations/animation_tree.tscn"
 		ProjectSettings.set_setting("addons/humanizer/default_animation_tree",animation_tree)
 		#ProjectSettings.set_initial_value("addons/humanizer/default_animation_tree",animation_tree)
 		
@@ -164,5 +164,5 @@ func init_config():
 		}
 		ProjectSettings.add_property_info(property_info)
 		
-		#ProjectSettings.save()
-		ProjectSettings.save_custom("override.cfg") #works but why does it still save to project.godot as well? 
+		ProjectSettings.save()
+		#ProjectSettings.save_custom("override.cfg") #works but why does it still save to project.godot as well? 

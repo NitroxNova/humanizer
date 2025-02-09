@@ -86,13 +86,14 @@ func get_animation_tree():
 	if human_config.rig == 'default-RETARGETED':
 		anim_tree = HumanizerResourceService.load_resource("res://addons/humanizer/data/animations/face_animation_tree.tscn").instantiate()
 	elif human_config.rig.ends_with('RETARGETED'):
-		anim_tree = HumanizerResourceService.load_resource("res://addons/humanizer/data/animations/animation_tree.tscn").instantiate()
+		anim_tree = HumanizerResourceService.load_resource(ProjectSettings.get_setting("addons/humanizer/default_animation_tree")).instantiate()
+	
 	else:  # No example animator for specific rigs that aren't retargeted
 		return
-	for file_name in OSPath.get_files_recursive("res://humanizer/animation/"):
-		var anim_lib : AnimationLibrary = HumanizerResourceService.load_resource(file_name)
-		var anim_player : AnimationPlayer = anim_tree.get_node("AnimationPlayer")
-		anim_player.add_animation_library(file_name.get_file().get_basename(),anim_lib)
+	#for file_name in OSPath.get_files_recursive("res://humanizer/animation/"):
+		#var anim_lib : AnimationLibrary = HumanizerResourceService.load_resource(file_name)
+		#var anim_player : AnimationPlayer = anim_tree.get_node("AnimationPlayer")
+		#anim_player.add_animation_library(file_name.get_file().get_basename(),anim_lib)
 	return anim_tree
 	
 func standard_bake_meshes():
