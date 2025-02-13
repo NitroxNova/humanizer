@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=3 uid="uid://bhe86eqebf0ql"]
 
-[ext_resource type="Script" uid="uid://ctgkavk1ull33" path="res://addons/humanizer/scripts/utils/human_randomizer.gd" id="1_uu82v"]
-[ext_resource type="Script" uid="uid://b17miv6yfsb8d" path="res://addons/humanizer/scripts/utils/camera_controls.gd" id="2_um4m6"]
+[ext_resource type="Script" uid="uid://dlastk36ecd83" path="res://addons/humanizer/scripts/utils/human_randomizer.gd" id="1_uu82v"]
+[ext_resource type="Script" uid="uid://dca5fmwhfg13y" path="res://addons/humanizer/scripts/utils/camera_controls.gd" id="2_um4m6"]
 
 [sub_resource type="GDScript" id="GDScript_avvx6"]
 script/source = "extends Node
