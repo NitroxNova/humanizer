@@ -1,5 +1,7 @@
 .godot/
 *.tmp
+*.uid
+*.depren
 
 # Godot 4+ specific ignores
 .godot/
