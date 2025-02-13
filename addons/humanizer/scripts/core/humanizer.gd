@@ -40,7 +40,7 @@ func get_CharacterBody3D(baked:bool):
 	HumanizerLogger.profile("humanizer.get_CharacterBody3D", func():
 		hide_clothes_vertices()
 		
-		human.set_script(HumanizerResourceService.load_resource("res://addons/humanizer/scripts/utils/human_controller.gd"))
+		human.set_script(HumanizerResourceService.load_resource(ProjectSettings.get_setting("addons/humanizer/default_characterbody_script")))
 		var skeleton = get_skeleton()
 		human.add_child(skeleton)
 		skeleton.set_unique_name_in_owner(true)
