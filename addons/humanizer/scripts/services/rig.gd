@@ -137,8 +137,8 @@ static func get_asset_bone_position(sf_arrays:Array,mhclo:MHCLO,bone_config:Dict
 	return bone_pos
 
 static func skeleton_remove_rigged_equipment(equipment:HumanizerEquipment,skeleton_data:Dictionary):
-	var mhclo : MHCLO = HumanizerResourceService.load_resource(equipment.get_type().mhclo_path)
-	for bone_config in mhclo.rigged_config:
+	#var mhclo : MHCLO = HumanizerResourceService.load_resource(equipment.get_type().mhclo_path)
+	for bone_config in equipment.get_type().rig_config.config:
 		var bone_name = bone_config.name
 		skeleton_data.erase(bone_name)			
 				

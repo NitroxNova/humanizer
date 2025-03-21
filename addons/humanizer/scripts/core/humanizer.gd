@@ -10,6 +10,7 @@ var rig: HumanizerRig
 var skeleton_data : Dictionary = {} #bone names with parent, position and rotation data
 
 signal done_generating_materials
+signal skeleton_changed
 
 # if eyes are blank, wait for done_generating_materials in calling class 
 func load_config_async(_human_config:HumanConfig):
@@ -38,7 +39,6 @@ func get_CharacterBody3D(baked:bool):
 	var human = CharacterBody3D.new()
 
 	HumanizerLogger.profile("humanizer.get_CharacterBody3D", func():
-		hide_clothes_vertices()
 		
 		human.set_script(HumanizerResourceService.load_resource(ProjectSettings.get_setting("addons/humanizer/default_characterbody_script")))
 		var skeleton = get_skeleton()
@@ -214,6 +214,7 @@ func add_equipment(equip:HumanizerEquipment):
 	fit_equipment_mesh(equip_type.resource_name)
 	if equip_type.rig_config != null:
 		HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip_type.resource_name], skeleton_data)
+		skeleton_changed.emit()
 	update_equipment_weights(equip_type.resource_name)
 	init_equipment_material(equip)
 
@@ -223,6 +224,7 @@ func remove_equipment(equip:HumanizerEquipment):
 	mesh_arrays.erase(equip_type.resource_name)
 	if equip_type.rig_config != null:
 		HumanizerRigService.skeleton_remove_rigged_equipment(equip, skeleton_data)
+		skeleton_changed.emit()
 	materials.erase(equip_type.resource_name)
 	
 func get_body_mesh():
@@ -238,7 +240,8 @@ func set_targets(target_data:Dictionary):
 	HumanizerTargetService.set_targets(target_data,human_config.targets,helper_vertex)
 	fit_all_meshes()
 	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex,human_config.equipment,mesh_arrays)
-
+	skeleton_changed.emit()
+	
 func fit_all_meshes():
 	for equip_name in human_config.equipment:
 		fit_equipment_mesh(equip_name)
@@ -260,6 +263,7 @@ func set_rig(rig_name:String):
 	update_bone_weights()
 	if &'root_bone' in human_config.components:
 		enable_root_bone_component()
+	skeleton_changed.emit()
 
 func get_skeleton()->Skeleton3D:
 	#print(skeleton_data)
