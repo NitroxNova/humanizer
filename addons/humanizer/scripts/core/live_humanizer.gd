@@ -17,7 +17,7 @@ func get_CharacterBody3D(baked=false):
 	physics_body = super.get_CharacterBody3D(baked)
 	skeleton_changed.connect(update_skeleton_node)
 	return physics_body
-
+	
 func set_vertex_hiding_enabled():
 	hide_vertex = HIDE_VERTEX_FLAGS.enabled
 

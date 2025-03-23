@@ -1,6 +1,12 @@
 class_name OSPath
 extends RefCounted
 
+static func save_scene_to_file(node:Node,path:String):
+	HumanizerEditorUtils.set_owner_for_children(node)
+	var scene = PackedScene.new()
+	scene.pack(node)
+	ResourceSaver.save(scene,path)
+
 static func is_folder_empty(folder:String):
 	var contents = get_contents(folder)
 	if contents.dirs.size() == 0 and contents.files.size() == 0:

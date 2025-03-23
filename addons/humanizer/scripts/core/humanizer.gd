@@ -41,6 +41,7 @@ func get_CharacterBody3D(baked:bool):
 	HumanizerLogger.profile("humanizer.get_CharacterBody3D", func():
 		
 		human.set_script(HumanizerResourceService.load_resource(ProjectSettings.get_setting("addons/humanizer/default_characterbody_script")))
+		human.human_config = human_config
 		var skeleton = get_skeleton()
 		human.add_child(skeleton)
 		skeleton.set_unique_name_in_owner(true)
@@ -135,27 +136,27 @@ func get_group_bake_arrays(group_name:String): #transparent, opaque or all
 
 func set_skin_color(color:Color):
 	human_config.skin_color = color
-	var body = human_config.get_equipment_in_slot("Body")
+	var body = human_config.get_equipment_in_slot("body")
 	body.material_config.generate_material_3D(materials[body.type])
 	#material_updated.emit(body)
 	
 func set_eye_color(color:Color):
 	human_config.eye_color = color
-	var slots = ["LeftEye","RightEye","Eyes"]
+	var slots = ["lefteye","righteye","eyes"]
 	for equip in human_config.get_equipment_in_slots(slots):
 		equip.material_config.generate_material_3D(materials[equip.type])
 		#material_updated.emit(equip)
 		
 func set_hair_color(color:Color):
 	human_config.hair_color = color
-	var hair_equip = human_config.get_equipment_in_slot("Hair")
+	var hair_equip = human_config.get_equipment_in_slot("hair")
 	if hair_equip != null:
 		hair_equip.material_config.generate_material_3D(materials[hair_equip.type])
 	set_eyebrow_color(human_config.eyebrow_color)
 
 func set_eyebrow_color(color:Color):
 	human_config.eyebrow_color = color
-	var slots = ["LeftEyebrow","RightEyebrow","Eyebrows"]
+	var slots = ["lefteyebrow","righteyebrow","eyebrows"]
 	for eyebrow_equip in human_config.get_equipment_in_slots(slots):
 		materials[eyebrow_equip.type].albedo_color = color
 		#material_updated.emit(eyebrow_equip)
