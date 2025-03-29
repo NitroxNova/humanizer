@@ -10,6 +10,15 @@ extends Node
 
 # called when enters the editor AND when enters the game
 func _ready() -> void:
+	var path = "res://humanizer"
+	if not DirAccess.dir_exists_absolute(path):
+		DirAccess.make_dir_absolute(path)
+	if not DirAccess.dir_exists_absolute(path+"/target"):
+		DirAccess.make_dir_absolute(path+"/target")
+	if not DirAccess.dir_exists_absolute(path+"/material"):
+		DirAccess.make_dir_absolute(path+"/material")
+	if not DirAccess.dir_exists_absolute(path+"/equipment"):
+		DirAccess.make_dir_absolute(path+"/equipment")
 	HumanizerRegistry._get_rigs()
 	if Engine.is_editor_hint():
 		pass
