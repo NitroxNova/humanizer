@@ -60,7 +60,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-HumanizerGlobal="*res://addons/humanizer/scenes/humanizer_global.tscn"
+HumanizerAPI="*res://addons/humanizer/scenes/humanizer_api.tscn"
 
 [editor_plugins]
 

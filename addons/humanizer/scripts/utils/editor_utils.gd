@@ -1,6 +1,5 @@
 class_name HumanizerEditorUtils
 
-
 static func show_window(interior, closeable: bool = true, size=Vector2i(500, 500)) -> void:
 	if not Engine.is_editor_hint():
 		return

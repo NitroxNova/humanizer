@@ -7,14 +7,14 @@ var thread := Thread.new()
 func _enter_tree():
 	init_config()
 	# Load global config singleton
-	add_autoload_singleton('HumanizerGlobal', "res://addons/humanizer/scenes/humanizer_global.tscn")
+	add_autoload_singleton('HumanizerAPI', "res://addons/humanizer/scenes/humanizer_api.tscn")
 	# Add a submenu to the Project/Tools menu
 	_add_tool_submenu()
 	
 func _exit_tree():
 	remove_custom_type('Humanizer')
 	remove_tool_menu_item('Humanizer')
-	remove_autoload_singleton('HumanizerGlobal')
+	remove_autoload_singleton('HumanizerAPI')
 	if thread.is_started():
 		thread.wait_to_finish()
 		
