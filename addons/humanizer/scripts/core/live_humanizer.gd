@@ -34,29 +34,41 @@ func set_targets(target_data:Dictionary):
 	#update_skeleton_node()
 	update_all_equipment_nodes()
 
-func get_skeleton_node():
+func find_skeleton_node():
 	return physics_body.get_node("GeneralSkeleton")
 
-func get_animation_tree_node()->AnimationTree:
+func find_animation_tree_node()->AnimationTree:
 	return physics_body.get_node("AnimationTree")
+
+func find_main_collider_node()-> CollisionShape3D:
+	return physics_body.get_node("MainCollider")
 
 func toggle_animation_tree():
 	#fixes skeleton a-pose
-	var anim_tree = get_animation_tree_node()
+	var anim_tree = find_animation_tree_node()
 	anim_tree.active=false
 	anim_tree.active=true
+
+func update_human_node():
+	update_skeleton_node()
+	update_main_collider_node()
+	update_all_equipment_nodes()
 	
 func update_skeleton_node():
-	var skeleton = get_skeleton_node()
-	skeleton.replace_by(super.get_skeleton())
-	skeleton.queue_free()
+	var skeleton = find_skeleton_node()
+	HumanizerEditorUtils.replace_node(skeleton,super.get_skeleton())
 	toggle_animation_tree()
+
+func update_main_collider_node():
+	var collider = find_main_collider_node()
+	HumanizerEditorUtils.replace_node(collider,super.get_main_collider())
 	
 func update_all_equipment_nodes():
+	# because of vertex hiding, cant just update one piece of clothing. 
 	var body_mesh = physics_body.get_node("Avatar")
 	if hide_vertex == HIDE_VERTEX_FLAGS.enabled:
 		super.hide_clothes_vertices()
 	body_mesh.mesh = get_combined_meshes()
-	var skeleton = get_skeleton_node()
+	var skeleton = find_skeleton_node()
 	body_mesh.skeleton = NodePath('../' + skeleton.name)
 	body_mesh.skin = skeleton.create_skin_from_rest_transforms()

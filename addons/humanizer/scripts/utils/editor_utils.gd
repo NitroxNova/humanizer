@@ -1,5 +1,9 @@
 class_name HumanizerEditorUtils
 
+static func replace_node(old_node:Node,new_node:Node):
+	old_node.replace_by(new_node)
+	old_node.queue_free()
+
 static func show_window(interior, closeable: bool = true, size=Vector2i(500, 500)) -> void:
 	if not Engine.is_editor_hint():
 		return

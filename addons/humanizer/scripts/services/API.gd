@@ -2,6 +2,7 @@
 extends Node
 
 # called when enters the editor AND when enters the game
+# global was the only way to notify when loaded in game, plugin.gd and static resources will not
 func _ready() -> void:
 	var path = "res://humanizer"
 	if not DirAccess.dir_exists_absolute(path):
@@ -38,3 +39,19 @@ func _ready() -> void:
 			HumanizerRegistry._load_equipment()
 			HumanizerRegistry._get_materials()
 			HumanizerRegistry.load_animations()
+
+# for updating npcs on a background thread, so it keeps the same reference ID 
+# update the node's human config first, and then call this
+# assumes the physics body script has a 'human_config' variable - see character_controller script in utils
+# or can pass in a new config, but it makes more sense to update the existing one
+# not for first time generation, just use the normal humanizer.get_character_body3d for that
+# takes about a second to load, if you want instant changes for the player character, keep a live_humanizer in memory
+static func update_human_node_async(human_node:PhysicsBody3D,new_config:HumanConfig=null):
+	var hz_live = Live_Humanizer.new()
+	if new_config == null:
+		new_config = human_node.human_config
+	else:
+		human_node.human_config = new_config
+	hz_live.load_config_async(new_config)
+	hz_live.node = human_node
+	hz_live.update_human_node()
