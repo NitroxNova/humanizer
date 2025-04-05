@@ -19,6 +19,7 @@ static func load_data():
 	var basis_file = FileAccess.open("res://addons/humanizer/data/resources/basis.data",FileAccess.READ)
 	basis = basis_file.get_var()
 
+
 static func init_helper_vertex(target_data = null) -> PackedVector3Array:
 	var helper_vertex = basis.duplicate()
 

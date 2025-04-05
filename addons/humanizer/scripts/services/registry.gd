@@ -13,9 +13,10 @@ static var rigs := {}
 
 static func load_all() -> void:
 	HumanizerLogger.profile("HumanizerRegistry", func():
-		_get_rigs()
+		HumanizerTargetService.load_data()
 		_load_equipment()
 		_get_materials()
+		load_animations()
 	)
 	
 static func _get_materials():

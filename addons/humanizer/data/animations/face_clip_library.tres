@@ -461,5 +461,5 @@ tracks/64/keys = PackedFloat32Array(0.001, 1, 0.00515111, -0.0282177, 0.00602555
 
 [resource]
 _data = {
-"take01": SubResource("Animation_ntkup")
+&"take01": SubResource("Animation_ntkup")
 }

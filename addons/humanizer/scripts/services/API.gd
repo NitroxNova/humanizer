@@ -4,15 +4,6 @@ extends Node
 # called when enters the editor AND when enters the game
 # global was the only way to notify when loaded in game, plugin.gd and static resources will not
 func _ready() -> void:
-	var path = "res://humanizer"
-	if not DirAccess.dir_exists_absolute(path):
-		DirAccess.make_dir_absolute(path)
-	if not DirAccess.dir_exists_absolute(path+"/target"):
-		DirAccess.make_dir_absolute(path+"/target")
-	if not DirAccess.dir_exists_absolute(path+"/material"):
-		DirAccess.make_dir_absolute(path+"/material")
-	if not DirAccess.dir_exists_absolute(path+"/equipment"):
-		DirAccess.make_dir_absolute(path+"/equipment")
 	HumanizerRegistry._get_rigs()
 	if Engine.is_editor_hint():
 		pass
@@ -20,10 +11,7 @@ func _ready() -> void:
 		#will manually scan the zip here instead, and add to the registry
 	else:
 		
-		HumanizerTargetService.load_data()
-		HumanizerRegistry._load_equipment()
-		HumanizerRegistry._get_materials()
-		HumanizerRegistry.load_animations()
+		HumanizerRegistry.load_all()
 		
 		var any_zips_loaded = false
 		var existing_files = [] #cant use dirAccess.get_files_at for existing files once a 'resource pack' is loaded
@@ -35,10 +23,7 @@ func _ready() -> void:
 				any_zips_loaded = true
 		
 		if any_zips_loaded:
-			HumanizerTargetService.load_data()
-			HumanizerRegistry._load_equipment()
-			HumanizerRegistry._get_materials()
-			HumanizerRegistry.load_animations()
+			HumanizerRegistry.load_all()
 
 # for updating npcs on a background thread, so it keeps the same reference ID 
 # update the node's human config first, and then call this

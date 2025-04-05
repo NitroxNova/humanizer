@@ -5,6 +5,17 @@ extends EditorPlugin
 var thread := Thread.new()
 
 func _enter_tree():
+	
+	var path = "res://humanizer"
+	if not DirAccess.dir_exists_absolute(path):
+		DirAccess.make_dir_absolute(path)
+	if not DirAccess.dir_exists_absolute(path+"/target"):
+		DirAccess.make_dir_absolute(path+"/target")
+	if not DirAccess.dir_exists_absolute(path+"/material"):
+		DirAccess.make_dir_absolute(path+"/material")
+	if not DirAccess.dir_exists_absolute(path+"/equipment"):
+		DirAccess.make_dir_absolute(path+"/equipment")
+	
 	init_config()
 	# Load global config singleton
 	add_autoload_singleton('HumanizerAPI', "res://addons/humanizer/scenes/humanizer_api.tscn")
