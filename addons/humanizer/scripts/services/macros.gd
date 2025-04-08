@@ -99,7 +99,7 @@ static func normalize_race_values(macros:Dictionary):
 			macros[race] = 1/race_options.size()
 	else:
 		var ratio = 1/total
-		for race in macros:
+		for race in race_options:
 			macros[race] *= ratio
 	
 static func get_combination_values(combo_name:String,data:Dictionary):
