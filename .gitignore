@@ -2,7 +2,6 @@
 *.tmp
 *.uid
 *.depren
-humanizer/
 addons/humanizer_assets/
 
 # Godot 4+ specific ignores

@@ -108,8 +108,13 @@ func get_equipment_in_slots(slot_names:Array):
 	return equip_list
 
 func add_equipment(equip:HumanizerEquipment) -> void:
+	if equip == null:
+		printerr("cant equip null")
+		return
 	#print("Equipping " + equip.type)
 	var equip_type = equip.get_type()
+	if equip_type == null:
+		return
 	for prev_equip in get_equipment_in_slots(equip_type.slots):
 		remove_equipment(prev_equip)
 	equipment[equip.type] = equip

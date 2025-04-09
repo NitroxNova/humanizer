@@ -5,3 +5,6 @@
 /**        export-ignore
 /addons    !export-ignore
 /addons/** !export-ignore
+#also the base data files in res://humanizer (default body and macros)
+/humanizer    !export-ignore
+/humanizer/** !export-ignore

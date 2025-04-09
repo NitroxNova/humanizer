@@ -9,53 +9,43 @@ var asymmetry: Dictionary
 var shapekeys: Dictionary
 var rng := RandomNumberGenerator.new()
 
-static func get_random_equipment_for_slot(slot_name):
+static func equip_random_for_slot(human:HumanConfig,slot_name,left_right=false):
+	if left_right:
+		slot_name = "left" + slot_name
 	var equip_type = HumanizerRegistry.filter_equipment({'slot': slot_name}).pick_random()
+	if equip_type == null: #no equipment for slot
+		return null
 	var texture = equip_type.textures.keys().pick_random()
 	var equipment = HumanizerEquipment.new(equip_type.resource_name,texture)
+	human.add_equipment(equipment)
+	if left_right:
+		slot_name = slot_name.replace("left","right")
+		var right_equip_name = equipment.type.replace('left', 'right')
+		right_equip_name = right_equip_name.replace('Left', 'Right')
+		human.add_equipment( HumanizerEquipment.new( right_equip_name,texture))
 	
-	return equipment
 	
 func randomize_body_parts(human:HumanConfig) -> void:
-	human.add_equipment(HumanizerEquipment.new("Body-Default"))
-	randomize_eyebrows(human)
-	randomize_eyelashes(human)
-	randomize_eyes(human)
-	randomize_hair(human)
+	equip_random_for_slot(human,"body")
+	equip_random_for_slot(human,"eyebrow",true)
+	equip_random_for_slot(human,"eyelash",true)
+	equip_random_for_slot(human,"eye",true)
+	equip_random_for_slot(human,"hair")
+	human.eye_color = random_color()
+	human.hair_color = random_color()
+	human.skin_color = random_color()	
 
 func randomize_clothes(human:HumanConfig) -> void:
-	human.add_equipment(get_random_equipment_for_slot("torsoclothes"))
-	human.add_equipment(get_random_equipment_for_slot("legsclothes"))
-	human.add_equipment(get_random_equipment_for_slot("feetclothes"))
+	equip_random_for_slot(human,"torsoclothes")
+	equip_random_for_slot(human,"legsclothes")
+	equip_random_for_slot(human,"feetclothes")
 
-func randomize_eyebrows(human:HumanConfig) -> void:
-	## Assumes left and right eyebrow slots
-	## Assumes same number of entries for both slots
-	var left_eyebrow = get_random_equipment_for_slot("lefteyebrow")
-	human.add_equipment(left_eyebrow )
-	var right_eyebrow_name = left_eyebrow.type.replace('left', 'right')
-	human.add_equipment( HumanizerEquipment.new( right_eyebrow_name,left_eyebrow.texture_name))
-
-func randomize_eyes(human:HumanConfig) -> void:
+func random_color():
 	var color: Color = Color.BLACK
 	color.r += rng.randf()
 	color.g += rng.randf()
 	color.b += rng.randf()
-	human.add_equipment(HumanizerEquipment.new("LeftEye-LowPolyEyeball"))
-	human.add_equipment(HumanizerEquipment.new("RightEye-LowPolyEyeball"))
-	human.eye_color = color
-
-func randomize_eyelashes(human:HumanConfig) -> void:
-	human.add_equipment(HumanizerEquipment.new("LeftEyelash"))
-	human.add_equipment(HumanizerEquipment.new("RightEyelash"))
-
-func randomize_hair(human:HumanConfig) -> void:
-	var color: Color = Color.BLACK
-	color.r += rng.randf()
-	color.g += rng.randf()
-	color.b += rng.randf()
-	human.add_equipment(get_random_equipment_for_slot("hair"))
-	human.hair_color = color
+	return color
 	
 func randomize_shapekeys(human:HumanConfig) -> void:
 	var values := {}
