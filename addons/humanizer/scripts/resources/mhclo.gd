@@ -84,11 +84,12 @@ func parse_file(filename:String):
 						line_dict.weight = []
 						line_dict.offset = Vector3.ZERO	
 						for i in 3:
-							line_dict.vertex.append(line_array[i])
-							line_dict.weight.append(line_array[i+3])	
-						line_dict.offset.x = line_array[6]		
-						line_dict.offset.y = line_array[7]	
-						line_dict.offset.z = line_array[8]		
+							line_dict.vertex.append(int(line_array[i]))
+							line_dict.weight.append(float(line_array[i+3]))
+						line_dict.offset.x = float(line_array[6])
+						line_dict.offset.y = float(line_array[7])
+						line_dict.offset.z = float(line_array[8])
+						#print("line dict: ", line_array)
 						vertex_data.append(line_dict)
 					else:
 						printerr(line)
@@ -106,23 +107,39 @@ func calculate_mhclo_scale(helper_vertex_array: Array) -> Vector3:
 	var mhclo_scale = Vector3.ZERO
 	for axis in ["x","y","z"]:
 		var scale_data = scale_config[axis]
+		if is_zero_approx(scale_data.length):
+			#print("no scale was found, scale set to 1 for axis", axis)
+			mhclo_scale[axis] = 0.1 # im not sure why this magic number is correct for Fem_suit but it is...
+			continue # we're assuming a default
 		var start_coords = helper_vertex_array[scale_data.start]
 		var end_coords = helper_vertex_array[scale_data.end]
 		var basemesh_dist = absf(end_coords[axis] - start_coords[axis])
-		mhclo_scale[axis] = basemesh_dist/scale_data.length
-	return mhclo_scale
+		mhclo_scale[axis] = basemesh_dist / scale_data.length
+		#print("mcloscale axis ", axis, mhclo_scale[axis])
+	#if is_nan(mhclo_scale.x) or is_nan(mhclo_scale.y) or is_nan(mhclo_scale.z):
+		##assert(false, "we detected nan in the scale and prevented it being imported!")
+		#mhclo_scale =
+	assert(not is_nan(mhclo_scale.x))
+	assert(not is_nan(mhclo_scale.y))
+	assert(not is_nan(mhclo_scale.z))
+	# ban zero scale its not a real thing
+	var scale_fixed: Vector3 = Vector3(max(0.01, mhclo_scale.x), max(0.01, mhclo_scale.y), max(0.01, mhclo_scale.z))
+	return scale_fixed
 
 func get_mhclo_vertex_position( helper_vertex_array: PackedVector3Array, vertex_line:Dictionary, mhclo_scale:Vector3):
 	var new_coords = Vector3.ZERO
 	if vertex_line.format == "single":
-		var vertex_id = vertex_line.vertex[0]
+		var vertex_id: int = vertex_line.vertex[0]
 		new_coords = helper_vertex_array[vertex_id]
 	else:
 		for i in 3:
-			var vertex_id = vertex_line.vertex[i]
-			var v_weight = vertex_line.weight[i]
-			var v_coords = helper_vertex_array[vertex_id]
+			var vertex_id: int = vertex_line.vertex[i]
+			var v_weight: float = vertex_line.weight[i]
+			var v_coords: Vector3 = helper_vertex_array[vertex_id]
 			v_coords *= v_weight
 			new_coords += v_coords
 		new_coords += (vertex_line.offset * mhclo_scale)
+	assert(not is_nan(new_coords.x))
+	assert(not is_nan(new_coords.y))
+	assert(not is_nan(new_coords.z))
 	return new_coords

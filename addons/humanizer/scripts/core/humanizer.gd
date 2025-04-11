@@ -196,11 +196,54 @@ func get_mesh(mesh_name:String):
 	##TODO mesh transform	
 	return mesh
 
+#func get_mesh_arrays(mesh_name:String) -> Array: # generate normals/tangents, without the cutom0
+#	#print("getting mesh arrays")
+#	var new_arrays = mesh_arrays[mesh_name].duplicate()
+#	new_arrays[Mesh.ARRAY_CUSTOM0] = null
+#	if new_arrays[Mesh.ARRAY_INDEX].is_empty():
+#		return []
+#	new_arrays = HumanizerMeshService.generate_normals_and_tangents(new_arrays)
+#	return new_arrays
+
 func get_mesh_arrays(mesh_name:String) -> Array: # generate normals/tangents, without the cutom0
 	#print("getting mesh arrays")
 	var new_arrays = mesh_arrays[mesh_name].duplicate()
 	new_arrays[Mesh.ARRAY_CUSTOM0] = null
 	if new_arrays[Mesh.ARRAY_INDEX].is_empty():
+		push_error("invalid mesh it has no indexes")
+		return []
+	assert(new_arrays)
+	assert(new_arrays is Array)
+	print("Processing make human mesh: ", mesh_name)
+
+	print("array vertex size: ", new_arrays[Mesh.ARRAY_VERTEX].size())
+	print("array index size: ", new_arrays[Mesh.ARRAY_INDEX].size())
+	#print("array normal size: ", new_arrays[Mesh.ARRAY_NORMAL].size())
+	#print("array tangent size: ", new_arrays[Mesh.ARRAY_TANGENT].size())
+	print("array bones size: ", new_arrays[Mesh.ARRAY_BONES].size())
+	# new_arrays[Mesh.ARRAY_BONES] = PackedFloat32Array()
+	#print("array color size: ", new_arrays[Mesh.ARRAY_COLOR].size())
+	#print("array compress size: ", new_arrays[Mesh.ARRAY_COMPRESS_FLAGS_BASE].size())
+	print("array uv size: ", new_arrays[Mesh.ARRAY_TEX_UV].size())
+	#print("array uv2 size: ", new_arrays[Mesh.ARRAY_TEX_UV2].size())
+	#print("array custom 0 size: ", new_arrays[Mesh.ARRAY_CUSTOM0].size())
+
+	# gordo's validator
+	for index in new_arrays[Mesh.ARRAY_INDEX]:
+		var vertex_array: PackedVector3Array = new_arrays[Mesh.ARRAY_VERTEX]
+		assert(index < vertex_array.size())
+	var number_of_nan_vertexes: int = 0
+	for vertex_id in range(new_arrays[Mesh.ARRAY_VERTEX].size()):
+		var vertex: Vector3 = new_arrays[Mesh.ARRAY_VERTEX][vertex_id]
+		if is_nan(vertex.x) or is_nan(vertex.y) or is_nan(vertex.z):
+			push_error("nan vertexes in the file - unfucking")
+			printerr("invalid vertex")
+			vertex = Vector3()
+			number_of_nan_vertexes += 1
+
+	if number_of_nan_vertexes > 0:
+		push_error("we found a total of ", number_of_nan_vertexes, " nan vertexes")
+		push_error("the mesh has a total of: ", new_arrays[Mesh.ARRAY_VERTEX].size(), " vertexes")
 		return []
 	new_arrays = HumanizerMeshService.generate_normals_and_tangents(new_arrays)
 	return new_arrays

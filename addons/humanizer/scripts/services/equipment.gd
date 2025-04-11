@@ -14,11 +14,23 @@ static func load_mesh_arrays(equip:HumanizerEquipmentType):
 	sf_arrays[Mesh.ARRAY_VERTEX].fill(Vector3.ZERO)
 	return sf_arrays
 
-static func fit_mesh_arrays(mesh_arrays:Array, helper_vertex_array: PackedVector3Array, mhclo: MHCLO) -> Array: 
+static func fit_mesh_arrays(mesh_arrays:Array, helper_vertex_array: PackedVector3Array, mhclo: MHCLO) -> Array:
 	var clothes_scale =	mhclo.calculate_mhclo_scale(helper_vertex_array)
+	#if mhclo.mh2gd_index.size() == 0:
+		#assert(mhclo.vertex_data.size() % 3 == 0)
 	for mh_id in mhclo.vertex_data.size():
 		var vertex_line = mhclo.vertex_data[mh_id]
-		var new_coords = mhclo.get_mhclo_vertex_position(helper_vertex_array,vertex_line,clothes_scale)
+		var new_coords = mhclo.get_mhclo_vertex_position(helper_vertex_array, vertex_line, clothes_scale)
+		#if mh_id >= mhclo.mh2gd_index.size():
+			#continue
+		#if is_nan(new_coords.x) or is_nan(new_coords.y) or is_nan(new_coords.z):
+			#new_coords = Vector3()
+			#continue
+		assert(not is_nan(new_coords.x))
+		assert(not is_nan(new_coords.y))
+		assert(not is_nan(new_coords.z))
+		if mh_id >= mhclo.mh2gd_index.size():
+			continue
 		var g_id_array = mhclo.mh2gd_index[mh_id]
 		for g_id in g_id_array:
 			mesh_arrays[Mesh.ARRAY_VERTEX][g_id] = new_coords
@@ -151,7 +163,10 @@ static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig,skeleton_data:Dic
 			if average_weight > 0.001:
 				clothes_weights[vert_id].append([skeleton_bone_id, average_weight])
 		if clothes_weights[vert_id].is_empty():
-			printerr("empty weights" + str(vert_groups))
+			pass
+			#printerr("empty weights" + str(vert_groups))
+			# push_error("empty weights" + str(vert_groups))
+			# push_error("Vertex has weight error: ", vert_id)
 	
 	for bw_array in clothes_weights:
 		var weight_sum = 0
