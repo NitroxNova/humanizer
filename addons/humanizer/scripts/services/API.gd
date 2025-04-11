@@ -18,6 +18,7 @@ func _ready() -> void:
 		for folder in ProjectSettings.get_setting("addons/humanizer/asset_import_paths"):
 			existing_files.append_array(OSPath.get_files_recursive(folder))
 		for file_path in existing_files:
+			print("check existing_files : " + existing_files)
 			if file_path.get_extension() == "zip":
 				ProjectSettings.load_resource_pack(file_path)
 				any_zips_loaded = true

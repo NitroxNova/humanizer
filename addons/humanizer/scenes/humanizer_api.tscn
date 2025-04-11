@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dsrnmyw7n7drw"]
 
-[ext_resource type="Script" uid="uid://cdfj1hc4xr4kf" path="res://addons/humanizer/scripts/services/API.gd" id="1_1qxf4"]
+[ext_resource type="Script" uid="uid://c2bq8y85x0bvs" path="res://addons/humanizer/scripts/services/API.gd" id="1_1qxf4"]
 
 [node name="HumanizerAPI" type="Node"]
 script = ExtResource("1_1qxf4")
