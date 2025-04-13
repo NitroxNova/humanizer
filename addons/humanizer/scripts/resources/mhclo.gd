@@ -6,11 +6,10 @@ enum SECTION {header,vertices,delete_vertices}
 
 @export var vertex_data = []
 @export var delete_vertices : Array
-@export var scale_config = {
-	x={start=0, end=0, length=0},
-	y={start=0, end=0, length=0},
-	z={start=0, end=0, length=0}
-}
+@export var scale_config = { }
+	#typically like this, unless using shear (left_shear : start, end, start_length, end_length) or just shear, for x y and z
+	#x={start=0, end=0, length=0},#y={start=0, end=0, length=0},#z={start=0, end=0, length=0}}
+	
 @export var mh2gd_index := []
 @export var tags := PackedStringArray()
 @export var z_depth := 0
@@ -52,6 +51,24 @@ func parse_file(filename:String):
 				parse_scale_data(line,"y")
 			elif line.begins_with("z_scale "):
 				parse_scale_data(line,"z")
+			elif line.begins_with("shear_x"):
+				parse_shear_data(line,"x")
+			elif line.begins_with("shear_y"):
+				parse_shear_data(line,"y")
+			elif line.begins_with("shear_z"):
+				parse_shear_data(line,"z")
+			elif line.begins_with("l_shear_x"):
+				parse_shear_data(line,"x","left_")
+			elif line.begins_with("l_shear_y"):
+				parse_shear_data(line,"y","left_")
+			elif line.begins_with("l_shear_z"):
+				parse_shear_data(line,"z","left_")
+			elif line.begins_with("r_shear_x"):
+				parse_shear_data(line,"x","right_")
+			elif line.begins_with("r_shear_y"):
+				parse_shear_data(line,"y","right_")
+			elif line.begins_with("r_shear_z"):
+				parse_shear_data(line,"z","right_")
 			elif line.begins_with("z_depth "):
 				z_depth = int(line.get_slice(' ',1))
 		elif current_section == SECTION.delete_vertices:
@@ -97,10 +114,20 @@ func parse_file(filename:String):
 					
 func parse_scale_data(line:String, index:String): #index is x, y, or z
 	var scale_data = line.split_floats(" ",false)
+	scale_config[index] = {}
 	scale_config[index].start = scale_data[1]
 	scale_config[index].end = scale_data[2]
 	scale_config[index].length = scale_data[3]
-	
+
+func parse_shear_data(line:String, index:String, left_right:String = ""): #index is x,y, or z .. left_right should be "left_" or "right_"
+	var scale_data = line.split_floats(" ",false)
+	index = left_right + "shear_" + index 
+	scale_config[index] = {}
+	scale_config[index].start = scale_data[1]
+	scale_config[index].end = scale_data[2]
+	scale_config[index].start_length = scale_data[3] #length from start to origin ("centroid")
+	scale_config[index].end_length = scale_data[4] #length from end to origin
+		
 
 func calculate_mhclo_scale(helper_vertex_array: Array) -> Vector3:
 	var mhclo_scale = Vector3.ZERO
