@@ -131,14 +131,81 @@ func parse_shear_data(line:String, index:String, left_right:String = ""): #index
 
 func calculate_mhclo_scale(helper_vertex_array: Array) -> Vector3:
 	var mhclo_scale = Vector3.ZERO
+	if "x" not in scale_config:
+		#derive scale dimensions from shears, i chose not to implement the full shearing function for performance reasons, but this should be good enough		
+		if "shear_x" in scale_config:
+			#print("getting shear config " + resource_name)
+			for axis in ["x","y","z"]:
+				get_shear_dimensions(axis)
+		elif "left_shear_x" in scale_config:
+			#print("getting left right shear config " + resource_name)
+			for axis in ["x","y","z"]:
+				get_shear_dimensions_left_right(axis)			
+		else:
+			printerr("no scale given for " + resource_name + ". defaulting to 0.1")
+			return Vector3(.1,.1,.1)
 	for axis in ["x","y","z"]:
 		var scale_data = scale_config[axis]
-		var start_coords = helper_vertex_array[scale_data.start]
-		var end_coords = helper_vertex_array[scale_data.end]
-		var basemesh_dist = absf(end_coords[axis] - start_coords[axis])
-		mhclo_scale[axis] = basemesh_dist/scale_data.length
+		mhclo_scale[axis] = get_scale_from_points(scale_data.start,scale_data.end,scale_data.length,axis,helper_vertex_array)
+	
 	return mhclo_scale
 
+func get_shear_dimensions(axis:String):
+	var axis_config = scale_config["shear_" + axis]
+	var start = axis_config.start
+	var end = axis_config.end
+	var length = absf(axis_config.end_length-axis_config.start_length)	
+	scale_config[axis] = {start=start,end=end,length=length}
+
+func get_shear_dimensions_left_right(axis:String): #for left and right shears, get greatest lengths from origin
+	var start
+	var end
+	var start_length
+	var end_length
+	var length
+	
+	var left_shear = get_shear_min_max("left_shear_" + axis)
+	var right_shear = get_shear_min_max("right_shear_" + axis)
+	
+	if left_shear.start_length < right_shear.start_length:
+		start = left_shear.start
+		start_length = left_shear.start_length
+	else:
+		start = right_shear.start
+		start_length = right_shear.start_length
+	
+	if left_shear.end_length > right_shear.end_length:
+		end = left_shear.end
+		end_length = left_shear.end_length
+	else:
+		end = right_shear.end
+		end_length = right_shear.end_length
+		
+	length = absf(end_length-start_length)	
+	scale_config[axis] = {start=start,end=end,length=length}
+
+func get_shear_min_max(key:String): #key = left_shear_x
+	var axis_config = scale_config[key]
+	var start = axis_config.start
+	var end = axis_config.end
+	var start_length = axis_config.start_length
+	var end_length = axis_config.end_length
+	if axis_config.start_length > axis_config.end_length:
+		start = axis_config.end
+		end = axis_config.start
+		start_length = axis_config.end_length
+		end_length = axis_config.start_length
+	return {start=start,end=end,start_length=start_length,end_length=end_length}
+	
+func get_scale_from_points(start:int,end:int,distance:float,axis:String,helper_vertex:Array):
+	var start_coords = helper_vertex[start]
+	var end_coords = helper_vertex[end]
+	var basemesh_dist = absf(end_coords[axis] - start_coords[axis])
+	if distance == 0:
+		printerr("scale length is zero " + resource_name + " try reimporting")
+		return .1
+	return basemesh_dist/distance
+	
 func get_mhclo_vertex_position( helper_vertex_array: PackedVector3Array, vertex_line:Dictionary, mhclo_scale:Vector3):
 	var new_coords = Vector3.ZERO
 	if vertex_line.format == "single":
