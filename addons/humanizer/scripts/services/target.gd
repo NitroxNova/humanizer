@@ -22,65 +22,60 @@ static func load_data():
 
 static func init_helper_vertex(target_data = null) -> PackedVector3Array:
 	var helper_vertex = basis.duplicate()
-
-	HumanizerLogger.profile("init_helper_vertex", func():
-		if target_data != null:
-			#var hash = hash([data.basis, target_data])
-			#if cache.has(hash):
-				#return cache[hash]
-			set_targets_raw(target_data, helper_vertex) # took 578ms to init_helper_vertex 703 19158
-			#cache[hash] = helper_vertex
-	)
-
+	if target_data != null:
+		set_targets(target_data, {macro={},combo={},single={}}, helper_vertex) # took 578ms to init_helper_vertex 703 19158
 	return helper_vertex
 
-static func set_targets(new_targets: Dictionary, current_targets: Dictionary, helper_vertex: PackedVector3Array):
+static func set_targets(target_input: Dictionary, current_targets: Dictionary, helper_vertex: PackedVector3Array=[]):
 	var macros = {}
-	for target_name in new_targets.keys():
+	var new_targets = {combo={},single={}}
+	for target_name in target_input.keys():
 		if target_name in HumanizerMacroService.macro_options or target_name in HumanizerMacroService.race_options:
-			macros[target_name] = new_targets[target_name]
-			new_targets.erase(target_name)
+			macros[target_name] = target_input[target_name]
+		else:
+			new_targets.single[target_name] = target_input[target_name]
 	if not macros.is_empty():
-		HumanizerMacroService.set_macros(macros, current_targets, helper_vertex)
+		var new_combos = HumanizerMacroService.set_macros(macros, current_targets)
+		for combo_name in new_combos:
+			new_targets.combo[combo_name] = new_combos[combo_name]
 	set_targets_raw(new_targets, helper_vertex, current_targets)
 
-static func set_targets_raw(new_targets: Dictionary, helper_vertex: PackedVector3Array, current_targets = null):
-
-	# this branch duplicates the code but the top one is more optimized for the critical path
-	# todo move this loop to a c++ module and optimize it
-	if current_targets == null:
-		for target_name in new_targets:
-			if target_name in data:
-				var curr_tar_data : PackedVector4Array = data[target_name]
-				for ref_id in curr_tar_data.size():
-					var curr_line : Vector4 = curr_tar_data[ref_id]
-					var mh_id:int = curr_line.w
-					var coords = Vector3(curr_line.x,curr_line.y,curr_line.z)
-					var prev_value = 0
-					helper_vertex[mh_id] += coords * (new_targets[target_name] - prev_value)
-	else:
-		for target_name in new_targets:
-			if target_name in data:
-				var curr_tar_data : PackedVector4Array = data[target_name]
-				for ref_id in curr_tar_data.size():
-					var curr_line : Vector4 = curr_tar_data[ref_id]
-					var mh_id:int  = curr_line.w
-					var coords = Vector3(curr_line.x,curr_line.y,curr_line.z)
-					var prev_value = 0
-					if current_targets != null:
-						prev_value = current_targets.get(target_name, 0)
-					helper_vertex[mh_id] += coords * (new_targets[target_name] - prev_value)
-				if current_targets != null:
-					if new_targets[target_name] == 0:
-						current_targets.erase(target_name)
-					else:
-						current_targets[target_name] = new_targets[target_name]
-
-	var foot_offset = HumanizerBodyService.get_foot_offset(helper_vertex)
-	if foot_offset != 0:
-		for mh_id in helper_vertex.size():
-			helper_vertex[mh_id].y -= foot_offset
+static func set_targets_raw(new_targets: Dictionary, helper_vertex: PackedVector3Array, current_targets:Dictionary = {single={},combo={}}):
+	#print(current_targets)
+	for target_name in new_targets.single:
+		var new_value = new_targets.single[target_name]
+		update_helper_from_single_target(target_name,new_value,current_targets.single.get(target_name,0),helper_vertex)		
+		current_targets.single[target_name] = new_targets.single[target_name]
+		if new_value == 0:
+			current_targets.single.erase(target_name)
+		else:
+			current_targets.single[target_name] = new_targets.single[target_name]
 	
+	for combo_name in new_targets.combo:
+		if combo_name not in current_targets.combo:
+			current_targets.combo[combo_name] = {}
+		for target_name in new_targets.combo[combo_name]:
+			var new_value = new_targets.combo[combo_name][target_name]
+			update_helper_from_single_target(target_name,new_value,current_targets.combo[combo_name].get(target_name,0),helper_vertex)		
+			if new_value == 0:
+				current_targets.combo[combo_name].erase(target_name)
+			else:
+				current_targets.combo[combo_name][target_name] = new_targets.combo[combo_name][target_name]
+	if not helper_vertex.is_empty():	
+		var foot_offset = HumanizerBodyService.get_foot_offset(helper_vertex)
+		if foot_offset != 0:
+			for mh_id in helper_vertex.size():
+				helper_vertex[mh_id].y -= foot_offset
+
+static func update_helper_from_single_target(target_name,new_value,prev_value,helper_vertex):
+	if (not helper_vertex.is_empty()) and (target_name in data):
+		var curr_tar_data : PackedVector4Array = data[target_name]
+		for ref_id in curr_tar_data.size():
+			var curr_line : Vector4 = curr_tar_data[ref_id]
+			var mh_id:int  = curr_line.w
+			var coords = Vector3(curr_line.x,curr_line.y,curr_line.z)
+			helper_vertex[mh_id] += coords * (new_value - prev_value)
+			
 static func get_shapekey_categories() -> Dictionary:
 	var categories := {
 		'Macro': [],
@@ -103,8 +98,6 @@ static func get_shapekey_categories() -> Dictionary:
 	}
 	for raw_name in data:
 		var name = raw_name.to_lower()
-		if 'penis' in name: # or name.ends_with('firmness'):
-			continue
 		#macros
 		if name.begins_with('african') or name.begins_with('asian') or name.begins_with('caucasian') or name.begins_with('female') or name.begins_with('male') or name.begins_with('universal'):
 			continue

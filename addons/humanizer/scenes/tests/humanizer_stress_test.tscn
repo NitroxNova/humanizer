@@ -57,7 +57,6 @@ func _generate_human():
 	randomizer.randomize_body_parts(human_config)
 	randomizer.randomize_clothes(human_config)
 	randomizer.randomize_shapekeys(human_config)
-	human_config.init_macros()
 	await humanizer.load_config_async(human_config)
 
 	HumanizerJobQueue.add_job(func():

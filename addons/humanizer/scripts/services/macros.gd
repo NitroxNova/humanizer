@@ -26,35 +26,35 @@ const macro_options = ["age","gender","height","weight","muscle","proportions","
 const race_options = ["african","asian","caucasian"]
 
 
-static func set_macros(macros:Dictionary,current_targets:Dictionary,helper_vertex:PackedVector3Array):
+static func set_macros(new_macros:Dictionary,current_targets:Dictionary):
 	var changed = PackedStringArray()
 	for m in macro_options:
-		if m in macros:
+		if m in new_macros:
 			changed.append(m)
 		else:
-			macros[m] = current_targets.get(m,0.5)
+			new_macros[m] = current_targets.get(m,0.5) #if macro not set, default to .5
 	var race_changed = false
 	for r in race_options:
-		if r in macros:
+		if r in new_macros:
 			race_changed = true
 		else:
-			macros[r] = current_targets[r]
+			new_macros[r] = current_targets.macro[r]
 	if race_changed:
-		normalize_race_values(macros)
+		normalize_race_values(new_macros)
 		changed.append("race")
-	var new_combo_data = get_macro_target_combos(macros,changed)
-	var old_combo_data = get_macro_target_combos(current_targets,changed)
+	var new_combo_data = get_macro_target_combos(new_macros,changed)	
+	#set previous combo values to 0
+	for combo_name in current_targets.combo:
+		for target_name in current_targets.combo[combo_name]:
+			if combo_name in new_combo_data and target_name not in new_combo_data[combo_name]:
+				new_combo_data[combo_name][target_name] = 0
 	
-	var new_targets = new_combo_data.targets
-	for combo_name in new_combo_data.combos:
-		for target_name in old_combo_data.combos[combo_name]:
-			if not target_name in new_targets:
-				new_targets[target_name]=0
-				
-	HumanizerTargetService.set_targets_raw(new_targets,helper_vertex,current_targets)
-	for m in macros:
-		current_targets[m] = macros[m]
+	for m in new_macros:
+		current_targets.macro[m] = new_macros[m]
 	
+	return new_combo_data
+	
+			
 static func get_default_macros():
 	var macros = {}
 	for m in macro_options:
@@ -63,7 +63,7 @@ static func get_default_macros():
 		macros[r] = 1.0/race_options.size()
 	return macros	
 
-#call this from the menu to get the new macro combos
+# age-gender-race , height-weight-age-gender ect..
 static func get_macro_target_combos(macros:Dictionary,changed_list:PackedStringArray=[]):
 	if changed_list.is_empty():
 		#default to recalculate all
@@ -72,21 +72,20 @@ static func get_macro_target_combos(macros:Dictionary,changed_list:PackedStringA
 		changed_list.append("race")
 	
 	var macro_data = {race={}}
-	var new_targets = {}
+	#var new_targets = {}
 	var new_combos = {}
 	for macro_name in macros:
 		if macro_name in race_options:
-			macro_data.race[macro_name] = macros[macro_name]
+			macro_data[macro_name] = macros[macro_name]
 		elif macro_name in macro_options:
 			macro_data[macro_name] = get_macro_category_offset(macro_name,macros[macro_name])
 	for combo_name in macro_combos:
 		for changed_name in changed_list:
 			if changed_name in macro_combos[combo_name]:
 				var combo_shapekeys = get_combination_values(combo_name,macro_data)
-				new_targets.merge(combo_shapekeys,true)
-				new_combos[combo_name] = combo_shapekeys.keys()
+				new_combos[combo_name] = combo_shapekeys
 				break	
-	return {targets=new_targets,combos=new_combos}
+	return new_combos
 
 static func normalize_race_values(macros:Dictionary):
 	var total = 0
@@ -109,7 +108,8 @@ static func get_combination_values(combo_name:String,data:Dictionary):
 		if macro_name == "universal":
 			next_shapes = {"universal"=1}
 		elif macro_name == "race":
-			next_shapes = data.race.duplicate()
+			for race in race_options:
+				next_shapes[race] = data[race]
 		else:
 			if not macro_name in data:
 				# printerr("no macro data for name '" + macro_name + "'")

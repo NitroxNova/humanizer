@@ -9,7 +9,7 @@ signal equipment_removed(equip:HumanizerEquipment)
 @export var rig: String
 
 ## Shapekey Settings
-@export var targets : Dictionary = {}
+@export var targets : Dictionary = {macro={},combo={},single={}}
 
 ## Additional Components
 @export var components := [&'main_collider', &'lod']
@@ -52,30 +52,16 @@ signal equipment_removed(equip:HumanizerEquipment)
 
 static func new_default():
 	var new_config = HumanConfig.new()
-	new_config.init_macros()
+	new_config.set_targets( HumanizerMacroService.get_default_macros())
 	new_config.rig = ProjectSettings.get_setting("addons/humanizer/default_skeleton")
 	new_config.add_equipment(HumanizerEquipment.new("Body-Default"))
 	new_config.add_equipment(HumanizerEquipment.new("RightEye-LowPolyEyeball"))
 	new_config.add_equipment(HumanizerEquipment.new("LeftEye-LowPolyEyeball"))
 	return new_config
 	
-func init_macros():
-	var default_macros = HumanizerMacroService.get_default_macros()
-	var macros = {}
-	for m in default_macros:
-		if m in targets:
-			macros[m] = targets[m]
-		else:
-			macros[m] = default_macros[m]
-	var new_targets = HumanizerMacroService.get_macro_target_combos(macros)
-	targets.merge(new_targets.targets,true)
-	targets.merge(macros,true)
-
 func set_targets(new_targets:Dictionary): 
-	var empty_helper = PackedVector3Array()
-	empty_helper.resize(22000)
-	empty_helper.fill(Vector3.ZERO)
-	HumanizerTargetService.set_targets(new_targets,targets,empty_helper)
+	# to calculate macros before loading into a humanizer
+	HumanizerTargetService.set_targets(new_targets,targets)
 
 func _handle_color_overrides(equip:HumanizerEquipment):
 	var equip_type = equip.get_type()
