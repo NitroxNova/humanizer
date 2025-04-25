@@ -79,4 +79,4 @@ func randomize_shapekeys(human:HumanConfig) -> void:
 			value = abs(value)
 			value = clamp(value, minval, maxval)
 			values[sk] = value		
-	human.targets = values
+	human.set_targets(values)
