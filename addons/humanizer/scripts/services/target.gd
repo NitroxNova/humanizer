@@ -19,11 +19,13 @@ static func load_data():
 	var basis_file = FileAccess.open("res://addons/humanizer/data/resources/basis.data",FileAccess.READ)
 	basis = basis_file.get_var()
 
-
-static func init_helper_vertex(target_data = null) -> PackedVector3Array:
+static func init_helper_vertex(target_data = {combo={},single={}}) -> PackedVector3Array:
 	var helper_vertex = basis.duplicate()
-	if target_data != null:
-		set_targets(target_data, {macro={},combo={},single={}}, helper_vertex) # took 578ms to init_helper_vertex 703 19158
+	for target_name in target_data.single:
+		update_helper_from_single_target(target_name,target_data.single[target_name],0,helper_vertex)
+	for combo_name in target_data.combo:
+		for target_name in target_data.combo[combo_name]:
+			update_helper_from_single_target(target_name,target_data.combo[combo_name][target_name],0,helper_vertex)
 	return helper_vertex
 
 static func set_targets(target_input: Dictionary, current_targets: Dictionary, helper_vertex: PackedVector3Array=[]):
