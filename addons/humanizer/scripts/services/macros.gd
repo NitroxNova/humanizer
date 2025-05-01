@@ -32,7 +32,7 @@ static func set_macros(new_macros:Dictionary,current_targets:Dictionary):
 		if m in new_macros:
 			changed.append(m)
 		else:
-			new_macros[m] = current_targets.get(m,0.5) #if macro not set, default to .5
+			new_macros[m] = current_targets.macro.get(m,0.5) #if macro not set, default to .5
 	var race_changed = false
 	for r in race_options:
 		if r in new_macros:
@@ -71,7 +71,7 @@ static func get_macro_target_combos(macros:Dictionary,changed_list:PackedStringA
 			changed_list.append(m)
 		changed_list.append("race")
 	
-	var macro_data = {race={}}
+	var macro_data = {}
 	#var new_targets = {}
 	var new_combos = {}
 	for macro_name in macros:
