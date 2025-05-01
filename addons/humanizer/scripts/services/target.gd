@@ -32,7 +32,7 @@ static func set_targets(target_input: Dictionary, current_targets: Dictionary, h
 	var macros = {}
 	var new_targets = {combo={},single={}}
 	for target_name in target_input.keys():
-		if target_name in HumanizerMacroService.macro_options or target_name in HumanizerMacroService.race_options:
+		if target_name in HumanizerRegistry.macro_registry:
 			macros[target_name] = target_input[target_name]
 		else:
 			new_targets.single[target_name] = target_input[target_name]

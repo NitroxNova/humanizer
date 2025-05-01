@@ -6,6 +6,8 @@ static var equipment := {}
 static var skin_normals := {}
 static var overlays := {}
 static var rigs := {}
+static var registered_macros := {} #shape keys with the weights for each macro
+static var macro_registry := {}#a registry of all macros and what targets utilize that macro
 
 #func _init() -> void:
 	#load_all()
@@ -17,8 +19,17 @@ static func load_all() -> void:
 		_load_equipment()
 		_get_materials()
 		load_animations()
+		_load_macros()
 	)
-	
+static func _load_macros():
+	for folder in ProjectSettings.get_setting("addons/humanizer/asset_import_paths"):
+		var macro_path = folder.path_join('macros')
+		for dir in OSPath.get_dirs(macro_path):
+			for file in OSPath.get_files(dir):
+				if file.get_extension() == 'res':
+					var macro_save = load(file)
+					registered_macros.merge(macro_save.registered_macros)
+					macro_registry.merge(macro_save.registry)
 static func _get_materials():
 	for equip_id in equipment:
 		var equip_type = equipment[equip_id]
