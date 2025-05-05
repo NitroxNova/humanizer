@@ -8,10 +8,7 @@ static var overlays := {}
 static var rigs := {}
 static var registered_macros := {} #shape keys with the weights for each macro
 static var macro_registry := {}#a registry of all macros and what targets utilize that macro
-
-#func _init() -> void:
-	#load_all()
-	#_get_rigs()
+static var macro_defaults := {}#storing default values for all marco keys
 
 static func load_all() -> void:
 	HumanizerLogger.profile("HumanizerRegistry", func():
@@ -23,13 +20,22 @@ static func load_all() -> void:
 	)
 static func _load_macros():
 	for folder in ProjectSettings.get_setting("addons/humanizer/asset_import_paths"):
+		#macros are stored in any of the load locations in the macros folder
 		var macro_path = folder.path_join('macros')
-		for dir in OSPath.get_dirs(macro_path):
-			for file in OSPath.get_files(dir):
+		var dir = DirAccess.open(macro_path)
+		#if the directory exists... this prevents some errors in folders without macros
+		if dir:
+			for file in dir.get_files():
+				#macros are a .res file
 				if file.get_extension() == 'res':
-					var macro_save = load(file)
+					var macro_save = ResourceLoader.load(macro_path.path_join(file))
+					#we re merging. BUT there is a concern here. I do not overwrite.
+					# the first packs loaded get priority. this can be handled in the 
+					# project settings by setting the array order that the folders are loaded
 					registered_macros.merge(macro_save.registered_macros)
-					macro_registry.merge(macro_save.registry)
+					macro_registry.merge(macro_save.macro_registry)
+					macro_defaults.merge(macro_save.macro_defaults)
+
 static func _get_materials():
 	for equip_id in equipment:
 		var equip_type = equipment[equip_id]

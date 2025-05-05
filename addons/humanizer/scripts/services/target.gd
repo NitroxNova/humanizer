@@ -40,6 +40,7 @@ static func set_targets(target_input: Dictionary, current_targets: Dictionary, h
 		var new_combos = HumanizerMacroService.set_macros(macros, current_targets)
 		for combo_name in new_combos:
 			new_targets.combo[combo_name] = new_combos[combo_name]
+		new_targets.macro = macros
 	set_targets_raw(new_targets, helper_vertex, current_targets)
 
 static func set_targets_raw(new_targets: Dictionary, helper_vertex: PackedVector3Array, current_targets:Dictionary = {single={},combo={}}):
@@ -52,17 +53,16 @@ static func set_targets_raw(new_targets: Dictionary, helper_vertex: PackedVector
 			current_targets.single.erase(target_name)
 		else:
 			current_targets.single[target_name] = new_targets.single[target_name]
-	
-	for combo_name in new_targets.combo:
-		if combo_name not in current_targets.combo:
-			current_targets.combo[combo_name] = {}
-		for target_name in new_targets.combo[combo_name]:
-			var new_value = new_targets.combo[combo_name][target_name]
-			update_helper_from_single_target(target_name,new_value,current_targets.combo[combo_name].get(target_name,0),helper_vertex)		
-			if new_value == 0:
-				current_targets.combo[combo_name].erase(target_name)
-			else:
-				current_targets.combo[combo_name][target_name] = new_targets.combo[combo_name][target_name]
+	for target_name in new_targets.combo:
+		var new_value = new_targets.combo[target_name]
+		var old_value = current_targets.combo.get(target_name,0)
+		update_helper_from_single_target(target_name,new_value,old_value,helper_vertex)
+		if new_value == 0:
+			current_targets.combo.erase(target_name)
+		else:
+			current_targets.combo[target_name] = new_targets.combo[target_name]
+	#merge the new macros into the old macros to preserve history.
+	current_targets.macro.merge(new_targets.macro,true)
 	if not helper_vertex.is_empty():	
 		var foot_offset = HumanizerBodyService.get_foot_offset(helper_vertex)
 		if foot_offset != 0:
@@ -136,8 +136,8 @@ static func get_shapekey_categories() -> Dictionary:
 		else:
 			categories['Misc'].append(raw_name)
 	
-	categories['Macro'].append_array(HumanizerMacroService.macro_options)
-	categories['Race'].append_array(HumanizerMacroService.race_options)
+	categories['Macro'].append_array(HumanizerRegistry.macro_registry.keys())
+	categories['Race'].append_array([])
 	categories['Macro'].erase('cupsize')
 	categories['Macro'].erase('firmness')
 	categories['Breasts'].append('cupsize')
