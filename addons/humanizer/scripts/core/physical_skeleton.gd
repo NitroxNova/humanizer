@@ -5,12 +5,29 @@ var helper_vertex: Array
 var layers
 var mask
 
-enum ColliderShape {
-	BOX,
-	CAPSULE,
-	SPHERE
+# setup all the constraints for each bone joint
+var joints = {
+	"Hips": [PhysicalBone3D.JOINT_TYPE_HINGE, {"joint_constraints/angular_limit_enabled": true, "joint_constraints/angular_limit_lower": 20, "joint_constraints/angular_limit_upper": 135}],#[PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 1, "joint_constraints/twist_span": 1}],[PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 5, "joint_constraints/twist_span": 5}],
+	"Spine": [PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 10, "joint_constraints/twist_span": 10}],
+	"Chest": [PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 10, "joint_constraints/twist_span": 10}],
+	"UpperChest": [PhysicalBone3D.JOINT_TYPE_HINGE, {"joint_constraints/angular_limit_enabled": true, "joint_constraints/angular_limit_lower": 20, "joint_constraints/angular_limit_upper": 135}],#[PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 1, "joint_constraints/twist_span": 1}],
+	"Neck": [PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 2, "joint_constraints/twist_span": 2}],
+	"Head": [PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 10, "joint_constraints/twist_span": 10}],
+	"LeftShoulder": [PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 90, "joint_constraints/twist_span": 30}],
+	"RightShoulder": [PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 90, "joint_constraints/twist_span": 30}],
+	"LeftUpperArm": [PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 90, "joint_constraints/twist_span": 45}],
+	"RightUpperArm": [PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 90, "joint_constraints/twist_span": 45}],
+	"LeftLowerArm": [PhysicalBone3D.JOINT_TYPE_HINGE, {"joint_constraints/angular_limit_enabled": true, "joint_constraints/angular_limit_lower": 20, "joint_constraints/angular_limit_upper": 135}],
+	"RightLowerArm": [PhysicalBone3D.JOINT_TYPE_HINGE, {"joint_constraints/angular_limit_enabled": true, "joint_constraints/angular_limit_lower": 20, "joint_constraints/angular_limit_upper": 135}],
+	"LeftHand": [PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 45, "joint_constraints/twist_span": 45}],
+	"RightHand": [PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 45, "joint_constraints/twist_span": 45}],
+	"LeftUpperLeg": [PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 45, "joint_constraints/twist_span": 45}],
+	"RightUpperLeg": [PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 45, "joint_constraints/twist_span": 45}],
+	"LeftLowerLeg": [PhysicalBone3D.JOINT_TYPE_HINGE,{"joint_rotation"=Vector3(0,-PI/2,0),"joint_constraints/angular_limit_enabled"=true,"joint_constraints/angular_limit_upper"=90,"joint_constraints/angular_limit_lower"=20}],
+	"RightLowerLeg": [PhysicalBone3D.JOINT_TYPE_HINGE,{"joint_rotation"=Vector3(0,-PI/2,0),"joint_constraints/angular_limit_enabled"=true,"joint_constraints/angular_limit_upper"=90,"joint_constraints/angular_limit_lower"=20}],
+	"LeftFoot": [PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 20, "joint_constraints/twist_span": 20}],
+	"RightFoot": [PhysicalBone3D.JOINT_TYPE_CONE, {"joint_constraints/swing_span": 20, "joint_constraints/twist_span": 20}],
 }
-
 
 func _init(_skeleton: Skeleton3D, _helper_vertex, _layers, _mask):
 	skeleton = _skeleton
@@ -24,186 +41,129 @@ func run() -> void:
 			skeleton.remove_child(child)
 			child.queue_free()
 	
-	var next_limb_bone = {
-		&'Hips': &'UpperChest',
-		&'UpperChest': &'Neck',
-		#&'Shoulder': &'UpperArm', ## unity default ragdoll does not include
-		&'UpperArm': &'LowerArm',
-		&'LowerArm': &'Hand',
-		&'UpperLeg': &'LowerLeg',
-		&'LowerLeg': &'Foot',
-		&'Neck': &'Head',  ## Don't think we need this collider
-		&'Hand': &'MiddleDistal',
-		&'Foot': &'Toes',
-	}
-	_add_collider(&'Head', null, ColliderShape.SPHERE)
-	for bone in next_limb_bone:
-		var shape := ColliderShape.CAPSULE
-		if 'Hand' in bone or 'Foot' in bone or 'Hips' in bone or 'Chest' in bone:
-			shape = ColliderShape.BOX
-		if skeleton.find_bone(bone) > -1:
-			_add_collider(bone, next_limb_bone[bone], shape)
-		else:
-			for side in [&'Left', &'Right']:
-				_add_collider(side + bone, side + next_limb_bone[bone], shape)
-
-func _add_collider(bone, next=null, shape:=ColliderShape.CAPSULE) -> void:
-	var physical_bone = PhysicalBone3D.new()
-	var collider = CollisionShape3D.new()
-	physical_bone.name = &'Physical Bone ' + bone
-	physical_bone.add_child(collider)
-	skeleton.add_child(physical_bone)
-	physical_bone.owner = skeleton
-	collider.owner = skeleton
-	physical_bone.scale = Vector3.ONE
-	physical_bone.collision_layer = layers
-	physical_bone.collision_mask = mask
-	physical_bone.bone_name = bone
+	# if i understand well, the joins are automaticly created on the most closer parent that have a PhysicalBone
+	var main_bones = [
+		#"Hips", "Spine", "Chest", "UpperChest",
+		"Hips", "UpperChest",
+		"LeftUpperLeg", "LeftLowerLeg", "LeftFoot",
+		"RightUpperLeg", "RightLowerLeg", "RightFoot",
+		#"LeftShoulder", "LeftUpperArm", "LeftLowerArm", "LeftHand",
+		#"RightShoulder", "RightUpperArm", "RightLowerArm", "RightHand",
+		"LeftUpperArm", "LeftLowerArm", "LeftHand",
+		"RightUpperArm", "RightLowerArm", "RightHand",
+		"Neck", "Head",
+	]
 	
-	
-	if shape == ColliderShape.CAPSULE:
-		collider.shape = CapsuleShape3D.new()
-	elif shape == ColliderShape.BOX:
-		collider.shape = BoxShape3D.new()
-	elif shape == ColliderShape.SPHERE:
-		collider.shape = SphereShape3D.new()
-
-	if next == null:
-		if shape == ColliderShape.SPHERE:
-			var bounds = get_sphere_vertex_bounds(bone)
-			collider.shape.radius = bounds.radius
-			collider.global_position = bounds.center
-			collider.global_transform = skeleton.global_transform * collider.global_transform
-	else:
-		var next_id: int = skeleton.find_bone(next)
-		var next_position: Vector3 = skeleton.get_bone_global_pose(next_id).origin 
-		var this_position: Vector3 = skeleton.get_bone_global_pose(skeleton.find_bone(bone)).origin
-		var up = Basis.looking_at(this_position - next_position).z
-		var forward = Vector3.FORWARD
-		var right = up.cross(forward)
-		forward = right.cross(up)
-		if 'Foot' not in bone:
-			collider.global_basis = Basis.looking_at(forward, up) 
-		else:
-			collider.global_basis = Basis.looking_at(up, forward)
-		collider.global_position = 0.5 * (this_position + next_position)
-
-		### Do resizing here
-		if shape == ColliderShape.CAPSULE:
-			collider.shape.height = (next_position - this_position).length()
-			var vertex_bounds = get_capsule_vertex_bounds(bone)
-			collider.shape.radius = vertex_bounds.distance * 0.5
-			var bone_y_cross_ratio = (vertex_bounds.center.y - this_position.y)/(next_position.y - this_position.y)
-			var bone_y_cross = this_position.lerp(next_position, bone_y_cross_ratio)
-			var offset := Vector3.ZERO
-			collider.global_position.z += vertex_bounds.center.z - bone_y_cross.z
-			collider.global_position.x += vertex_bounds.center.x - bone_y_cross.x
-			
-		elif shape == ColliderShape.BOX:
-			var bounds = get_box_vertex_bounds(bone)
-			var size: Vector3 = bounds.size
-			var center: Vector3 = bounds.center
-			collider.global_position = center
-			collider.shape.size = size
-			#if 'RightHand' in bone:
-			#	collider.rotate_y(30)
-			#elif 'LeftHand' in bone:
-			#	collider.rotate_y(-30)
-
-		collider.global_transform = skeleton.global_transform * collider.global_transform
-	add_joint(physical_bone,bone)
-
-func add_joint(phys_bone:PhysicalBone3D,bone_name:String):
-	var joints = {
-		"LeftLowerLeg" = [PhysicalBone3D.JOINT_TYPE_HINGE,{"joint_rotation"=Vector3(0,-PI/2,0),"joint_constraints/angular_limit_enabled"=true,"joint_constraints/angular_limit_upper"=90,"joint_constraints/angular_limit_lower"=20}],
-		"RightLowerLeg" = [PhysicalBone3D.JOINT_TYPE_HINGE,{"joint_rotation"=Vector3(0,-PI/2,0),"joint_constraints/angular_limit_enabled"=true,"joint_constraints/angular_limit_upper"=90,"joint_constraints/angular_limit_lower"=20}],
-		"LeftLowerArm" = [PhysicalBone3D.JOINT_TYPE_HINGE,{"joint_rotation"=Vector3(deg_to_rad(-15),deg_to_rad(-50),0),"joint_constraints/angular_limit_enabled"=true,"joint_constraints/angular_limit_lower"=0,"joint_constraints/angular_limit_upper"=90}],
-		"RightLowerArm" = [PhysicalBone3D.JOINT_TYPE_HINGE,{"joint_rotation"=Vector3(deg_to_rad(15),deg_to_rad(50),0),"joint_constraints/angular_limit_enabled"=true,"joint_constraints/angular_limit_lower"=0,"joint_constraints/angular_limit_upper"=90}],
-		"Head" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
-		"LeftShoulder" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
-		"RightShoulder" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
-		"LeftUpperArm" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=60,"joint_constraints/twist_span"=30}],
-		"RightUpperArm" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=60,"joint_constraints/twist_span"=30}],
-		#"Hips" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
-		"UpperChest" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=50,"joint_constraints/twist_span"=20}],
-		"LeftUpperLeg" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
-		"RightUpperLeg" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
-		"LeftFoot" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
-		"RightFoot" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
-		"LeftHand" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
-		"RightHand" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=30,"joint_constraints/twist_span"=30}],
-		"Neck" = [PhysicalBone3D.JOINT_TYPE_CONE,{"joint_constraints/swing_span"=20,"joint_constraints/twist_span"=20}],
+	for bone in main_bones :
+		create_physical_bone(bone)
 		
-	}
-	
-	if bone_name in joints:
-		var this_joint = joints[bone_name]
-		phys_bone.joint_type = this_joint[0]
-		for property in this_joint[1]:
-			phys_bone[property] = this_joint[1][property]
-	else:
-		phys_bone.joint_type = PhysicalBone3D.JOINT_TYPE_PIN
-
-func get_sphere_vertex_bounds(bone: String) -> Dictionary:
-	var vertex_names = {
-		"Head" = {front=169,back=5389}
-	}
-	
-	var front : Vector3 = helper_vertex[vertex_names[bone]['front']]
-	var back = helper_vertex[vertex_names[bone]['back']]
-	var center = (front + back)/2
-	var radius = front.distance_to(back) / 2
-	
-	return {center=center,radius=radius}
-
-func get_box_vertex_bounds(bone: String) -> Dictionary:
-	var vertex_names = {
-		"Hips" = {upper=4154, lower=4370, front=4110, back=11006, left=10899, right=4269},
-		"UpperChest" = {upper=1526, lower=4154, front=1890, back=1598, left=10602, right=3938},
-		"LeftFoot" = {upper=12818, lower=12877, front=13146, back=12442, left=12808, right=13300},
-		"RightFoot" = {upper=6221, lower=6280, front=6550, back=5845, left=6704, right=6211},
-		"LeftHand" = {upper=10489, lower=8929, front=9456,back=10535,left=9833,right=10306},
-		"RightHand" = {upper=3823 ,lower=2261 ,front=2788 ,back=3870 ,left=3638 ,right=3165 },
-		}
 		
-	var upper : Vector3 = helper_vertex[vertex_names[bone]['upper']]
-	var lower : Vector3 = helper_vertex[vertex_names[bone]['lower']]
-	var left : Vector3 = helper_vertex[vertex_names[bone]['left']]
-	var right : Vector3 = helper_vertex[vertex_names[bone]['right']]
-	var front : Vector3 = helper_vertex[vertex_names[bone]['front']]
-	var back : Vector3 = helper_vertex[vertex_names[bone]['back']]
+func create_physical_bone(bone_name: String) -> void:
+	var bone_idx = skeleton.find_bone(bone_name)
+	if bone_idx == -1:
+		print(bone_name, "bone_idx == -1")
+		return
 	
-		
-	var size := Vector3.ZERO
-	size.x = abs(left.x - right.x)
-	size.y = abs(upper.y - lower.y)
-	size.z = abs(front.z - back.z)
+	var children = skeleton.get_bone_children(bone_idx)
+	if children.is_empty():
+		print(bone_name, "empty child")
+		return
 	
-	var center := Vector3.ZERO
-	center.x = (left.x + right.x) * .5
-	center.y = (upper.y + lower.y) * .5
-	center.z = (front.z + back.z) * .5
-	
-	return {size=size, center=center}
+	var child_idx = children[0]
+	var bone_pose = skeleton.get_bone_global_pose(bone_idx)
+	var child_pose = skeleton.get_bone_global_pose(child_idx)
 
-func get_capsule_vertex_bounds(bone: String) -> Dictionary:
-	#refer to mpfb2_plugin.data/mesh_metadata/hm08.mirror for opposites
-	var vertex_names = {
-		"LeftUpperArm" = {front=8114, back=8330},
-		"RightUpperArm" = {front=1426, back=1658},
-		"LeftLowerArm" = {front=10541, back=10110}, 
-		"RightLowerArm" = {front=3876, back=3442}, 
-		"LeftLowerLeg" = {front=11325, back=11339},
-		"RightLowerLeg" = {front=4707, back=4721},
-		"LeftUpperLeg" = {front=11116, back=13340},
-		"RightUpperLeg" = {front=4498, back=6744},
-		"Neck" = {front=791, back=856},
-		"LeftShoulder" = {front=8057, back=8281},
-		"RightShoulder" = {front=1365, back=1609},
-	}
-	var front : Vector3 = helper_vertex[vertex_names[bone]['front']]
-	var back : Vector3 = helper_vertex[vertex_names[bone]['back']]
-	return {
-		'distance': front.distance_to(back),
-		'center': 0.5 * (front + back)
-	}
+	# compute position size based on child position
+	var p1 = bone_pose.origin
+	var p2 = child_pose.origin
+	var direction = p2 - p1
+	var height = direction.length()
+
+	# PhysicalBone3D creation
+	var phys_bone := PhysicalBone3D.new()
+	phys_bone.name = "PhysicalBone_" + bone_name
+	phys_bone.bone_name = bone_name
+	phys_bone.collision_layer = layers
+	phys_bone.collision_mask = mask
+
+	# compute orientation based on bone direction
+	var basis = Basis()
+	basis = basis.looking_at(direction.normalized(), Vector3.UP)
+	var transform = Transform3D(basis, p1)
+	phys_bone.global_transform = transform
+
+	# make the collider
+	var shape_node := CollisionShape3D.new()
+	var shape := CapsuleShape3D.new()
+	shape.height = height * 0.9
+	shape.radius = height * 0.1
+	shape_node.shape = shape
+	shape_node.transform.origin.y = height * 0.5
+
+	# specific corrections
+	# don't know why but the arms colliders are not aligned correctly, like if there was in Tpose, but the position is good
+	# maybe related to that : https://github.com/godotengine/godot/issues/98979
+	# this is not specific to arms, it appear on legs bones too, but it's really visible on UpperArms, LowerArms and Hands
+	if bone_name.begins_with("LeftUpperArm") or bone_name.begins_with("RightUpperArm"):
+		var rotate_offset = Transform3D(Basis(Vector3(1, 0, 0), deg_to_rad(45)), Vector3.ZERO)
+		shape_node.transform = rotate_offset * shape_node.transform
+	if bone_name.begins_with("LeftLowerArm") or bone_name.begins_with("RightLowerArm"):
+		var rotate_offset =  Transform3D(Basis(Vector3(1, 0, 0), deg_to_rad(45)), Vector3.ZERO)
+		var rotate_offset2 = Transform3D(Basis(Vector3(0, 0, 1), deg_to_rad(-15)), Vector3.ZERO) # maybe inverse if right
+		shape_node.transform = rotate_offset * rotate_offset2 * shape_node.transform
+	
+	# specific corrections to better cover the body
+	if bone_name.begins_with("Head") :
+		var _shape = SphereShape3D.new()
+		_shape.radius = 0.05
+		shape_node.shape = _shape
+		
+	if bone_name.begins_with("Hips") :
+		var _shape = SphereShape3D.new()
+		_shape.radius = 0.2
+		shape_node.shape = _shape
+		shape_node.transform.origin.z -= height * 0.1
+		
+	if bone_name.begins_with("UpperChest") :
+		var _shape = BoxShape3D.new()
+		_shape.size = Vector3(height, height, height * 0.5);
+		shape_node.shape = _shape
+		shape_node.transform.origin.z += height * 0.1
+		
+	# if the the bone is Spine, Chest or an other not needed bone, we don't add the shape
+	# resulting with a physical bone without shapen collision or join, it seems to help the other bones
+	# it's optionnal, enable it if you use any of this bones in main_bones
+	# var excluded_bones = ["RightShoulder", "LeftShoulder", "Spine", "Chest", "Neck"]
+	# if bone_name not in excluded_bones :
+	# 	phys_bone.add_child(shape_node)
+	phys_bone.add_child(shape_node)
+
+	skeleton.add_child(phys_bone)
+	phys_bone.owner = skeleton
+	shape_node.owner = skeleton
+	
+	# it's optionnal, enable it if you use any of this bones in main_bones
+	# if bone_name in excluded_bones :
+	# 	return
+
+	# setup constraints, the empiric way
+	# default values
+	phys_bone.joint_type = PhysicalBone3D.JOINT_TYPE_CONE
+	phys_bone["joint_constraints/swing_span"] = 0.5
+	phys_bone["joint_constraints/twist_span"] = 0.5
+	phys_bone["joint_constraints/softness"] = 1.
+	phys_bone["joint_constraints/relaxation"] = 1.
+	phys_bone["joint_constraints/bias"] = 0.2
+	if bone_name in ["Hips", "UpperChest", "RightShoulder", "LeftShoulder"] :
+		phys_bone["joint_constraints/relaxation"] = 5.0
+		
+		
+	## if bone is in the joints list, apply this settings
+	if joints.has(bone_name):
+		var joint_info = joints[bone_name]
+		phys_bone.joint_type = joint_info[0]
+		var constraint_data = joint_info[1]
+		for key in constraint_data.keys():
+			phys_bone[key] = constraint_data[key]
+
+	#print("Bone : ", bone_name, " setup at : ", phys_bone.global_transform)
