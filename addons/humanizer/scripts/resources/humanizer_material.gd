@@ -56,8 +56,8 @@ func generate_material_3D(material:StandardMaterial3D=StandardMaterial3D.new()):
 		else:
 			base_mat = load(full_texture_path(base_material,false))
 		for prop_name in material_property_names:
-			if prop_name == "transparency":
-				print(material[prop_name])
+			if not prop_name.ends_with("_texture"):
+				material[prop_name] = base_mat[prop_name]
 		
 		for texture_name in texture_overlays:
 			if texture_overlays[texture_name].size() == 1: 
