@@ -16,9 +16,12 @@ static func search_for_materials(path:String):
 		if file.get_extension()=="res":
 			var mat_res = HumanizerResourceService.load_resource(file)
 			var mat_id = file.get_file().get_basename()
-			if mat_res is HumanizerOverlay:
-				overlays[mat_id] = mat_res
-			elif mat_res is HumanizerMaterial or mat_res is StandardMaterial3D:
+			if mat_res is HumanizerMaterial:
+				if mat_res.base_material == "":
+					overlays[mat_id] = mat_res
+				else:
+					materials[mat_id] = mat_res 
+			elif mat_res is StandardMaterial3D:
 				materials[mat_id] = mat_res
 		
 	return {materials=materials,overlays=overlays}
