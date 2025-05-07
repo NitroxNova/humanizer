@@ -2,16 +2,85 @@
 extends Resource
 class_name HumanizerMaterial
 
-const TEXTURE_LAYERS = ['albedo', 'normal', 'ao']
+@export var base_material:String # "equip_id/material_id" 
+@export var texture_overlays = {} #albedo, normal, ao..
 static var material_property_names = get_standard_material_properties()
 
-@export var overlays: Array[HumanizerOverlay] = []
-@export_file var base_material_path: String
-
+signal done_generating
 var is_generating = false
 
-signal done_generating
+static func create_from_standard_material(material:StandardMaterial3D)->HumanizerMaterial:
+	var hu_mat = HumanizerMaterial.new()
+	hu_mat.base_material = strip_texture_path(material.resource_path)
+	for prop_name in material_property_names:
+		if prop_name.ends_with("_texture") and material[prop_name] is Texture2D:
+			var texture_name = prop_name.trim_suffix("_texture")
+			if material[prop_name] != null:
+				var data = {}
+				data.texture=strip_texture_path(material[prop_name].resource_path)
+				if texture_name == "normal":
+					data.strength = material.normal_scale
+				hu_mat.add_overlay(texture_name,data)	
+	if not "albedo" in hu_mat.texture_overlays:
+		hu_mat.add_overlay("albedo",{})
+	hu_mat.texture_overlays.albedo[0].color = material.albedo_color
+	return hu_mat
 
+static func strip_texture_path(path:String)->String:
+	path = path.trim_prefix("res://humanizer/material")
+	path = path.trim_suffix(".res")
+	path = path.trim_suffix(".image")
+	return path
+
+static func full_texture_path(path:String,image:bool)->String:
+	path = "res://humanizer/material".path_join(path)
+	if image:
+		path += ".image"
+	path += ".res"
+	return path
+
+func add_overlay(layer_name:String,overlay_properties:Dictionary):
+	if not layer_name in texture_overlays:
+		texture_overlays[layer_name] = []
+	# valid properties are name (required), texture ("equip_id/image_name"), offset : Vector2, 
+	# color, gradient : Gradient2D, strength	
+	texture_overlays[layer_name].append(overlay_properties)
+
+func generate_material_3D(material:StandardMaterial3D=null):
+	is_generating = true
+	## awaiting outside the main thread will switch to the main thread if the signal awaited is emitted by the main thread
+	HumanizerJobQueue.add_job_main_thread(func():
+		var base_mat:StandardMaterial3D
+		if base_material == "":
+			base_mat = StandardMaterial3D.new()
+		else:
+			base_mat = load(full_texture_path(base_material,false))
+		for prop_name in material_property_names:
+			if not prop_name.ends_with("_texture"):
+				material[prop_name] = base_mat[prop_name]
+		
+		for texture_name in texture_overlays:
+			if texture_overlays[texture_name].size() == 1: 
+				var overlay = texture_overlays[texture_name][0]
+				if "texture" in overlay:
+					material[texture_name+"_texture"] = load(full_texture_path(overlay.texture,true))
+				if texture_name == "albedo":
+					if "color" in overlay:
+						material.albedo_color = overlay.color
+					else:
+						material.albedo_color = Color.WHITE
+			else:
+				if texture_name == "albedo":		
+					material.albedo_color = Color.WHITE
+				elif texture_name == "normal":
+					material.normal_scale = 1
+				material[texture_name+"_texture"] = await HumanizerAPI.render_overlay_texture(texture_overlays[texture_name],texture_name)
+		is_generating = false
+		done_generating.emit()	
+	)
+				
+	return material
+	
 static func get_standard_material_properties() -> PackedStringArray:
 	var prop_names = PackedStringArray()
 	#only get properties unique to material, so we can copy those onto existing material instead of gernating a new material and using signals
@@ -28,168 +97,6 @@ static func get_standard_material_properties() -> PackedStringArray:
 			#print(str(prop.usage) + " " + prop.name)
 	if not ProjectSettings.get("rendering/lights_and_shadows/use_physical_light_units"):
 		prop_names.remove_at( prop_names.find("emission_intensity"))
-	#remove these so it doesnt flash the base texture when it changes (only set texture when its done updating)
-	for tex_name in TEXTURE_LAYERS:
-		prop_names.remove_at( prop_names.find(tex_name + "_texture"))
+
 	return prop_names
-
-func duplicate(subresources=false):
-	if not subresources:
-		return super(subresources)
-	else:
-		var dupe = HumanizerMaterial.new()
-		dupe.base_material_path = base_material_path
-		for overlay in overlays:
-			dupe.overlays.append(overlay.duplicate(true))
-		return dupe
-
-func generate_material_3D(material:StandardMaterial3D)->void:
-	var base_material := StandardMaterial3D.new()
-	var mat_id = base_material_path.split("/") #equip_id / material_id
-	if mat_id[0] in HumanizerRegistry.equipment and mat_id[1] in HumanizerRegistry.equipment[mat_id[0]].textures:
-		base_material = HumanizerRegistry.equipment[mat_id[0]].textures[mat_id[1]]
-		for prop_name in material_property_names:
-			material.set(prop_name,base_material.get(prop_name))
-		material.resource_local_to_scene = true
-	if overlays.size() == 0:
-		for tex_name in TEXTURE_LAYERS:
-			tex_name += "_texture"
-			material.set(tex_name , base_material.get(tex_name ))
-	elif overlays.size() == 1:
-		material.albedo_color = overlays[0].color
-		if overlays[0].albedo_texture_path in ["",null]:
-			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO,null)
-		else:
-			material.set_texture(BaseMaterial3D.TEXTURE_ALBEDO, overlays[0].get_texture("albedo"))
-		if overlays[0].normal_texture_path in ["",null]:
-			material.normal_enabled = false
-			material.set_texture(BaseMaterial3D.TEXTURE_NORMAL,null)
-		else:
-			material.normal_enabled = true
-			material.normal_scale = overlays[0].normal_strength
-			material.set_texture(BaseMaterial3D.TEXTURE_NORMAL, overlays[0].get_texture("normal"))
-		if not overlays[0].ao_texture_path in ["",null]:
-			material.set_texture(BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION, overlays[0].get_texture("ao"))
-	else:
-		is_generating = true
-		# awaiting outside the main thread will switch to the main thread if the signal awaited is emitted by the main thread
-		HumanizerJobQueue.add_job_main_thread(func():
-			var textures = await _update_material()
-			material.normal_enabled = textures.normal != null
-			material.ao_enabled = textures.ao != null
-			material.albedo_texture = textures.albedo
-			material.albedo_color = Color.WHITE
-			material.normal_texture = textures.normal
-			material.normal_scale = 1
-			material.ao_texture = textures.ao
-			is_generating = false
-			done_generating.emit()
-		)
-	
-	
-func _update_material() -> Dictionary:
-	var textures : Dictionary = {}
-	if overlays.size() <= 1:
-		return textures
-	for t_name in TEXTURE_LAYERS: #albedo, normal, ambient occulsion ect..
-		var texture_size = Vector2(2**11,2**11)
-		if overlays[0].albedo_texture_path != "":
-			texture_size = overlays[0].get_texture("albedo").get_size()
-		var image_vp = SubViewport.new()
-		
-		image_vp.size = texture_size
-		image_vp.transparent_bg = true
-	
-
-		for overlay in overlays:
-			if overlay == null:
-				continue
-			var path = overlay.get(t_name + '_texture_path')
-			if path == null || path == '':
-				if t_name == 'albedo':
-					var im_col_rect = ColorRect.new()
-					im_col_rect.color = overlay.color
-					image_vp.add_child(im_col_rect)
-				continue
-			var im_texture = overlay.get_texture(t_name)
-			var im_tex_rect = TextureRect.new()
-			im_tex_rect.position = overlay.offset
-			im_tex_rect.texture = im_texture
-			if t_name == 'albedo':
-				#blend color with overlay texture and then copy to base image
-				im_tex_rect.modulate = overlay.color
-			if t_name == 'normal':
-				if image_vp.get_child_count() == 0:
-					var blank_normal = ColorRect.new()
-					blank_normal.color = Color(.5,.5,1)
-					image_vp.add_child(blank_normal)
-					blank_normal.size = texture_size
-				im_tex_rect.modulate.a = overlay.normal_strength
-			#image_vp.call_deferred("add_child",im_tex_rect)
-			image_vp.add_child(im_tex_rect)
-		
-		if image_vp.get_child_count() == 0:
-			textures[t_name] = null
-		else:
-			Engine.get_main_loop().get_root().add_child.call_deferred(image_vp)
-			image_vp.render_target_update_mode = SubViewport.UPDATE_ONCE
-			if not image_vp.is_inside_tree():
-				await Signal(image_vp,"tree_entered")
-			await Signal(RenderingServer, "frame_post_draw")
-			await RenderingServer.frame_post_draw
-			var image = image_vp.get_texture().get_image()
-			image.generate_mipmaps()
-			textures[t_name] = ImageTexture.create_from_image(image)
-		image_vp.queue_free()
-	return textures
-
-
-func set_base_textures(overlay: HumanizerOverlay) -> void:
-	if overlays.size() == 0:
-		# Don't append, we want to call the setter 
-		overlays = [overlay]
-	overlays[0] = overlay
-
-func add_overlay(overlay: HumanizerOverlay) -> void:
-	if _get_index(overlay.resource_name) != -1:
-		printerr('Overlay already present?')
-		return
-	overlays.append(overlay)
-	overlay.changed.connect(changed.emit)
-	changed.emit()
-
-func set_overlay(idx: int, overlay: HumanizerOverlay) -> void:
-	if overlays.size() - 1 >= idx:
-		overlays[idx] = overlay
-		changed.emit()
-	else:
-		push_error('Invalid overlay index')
-
-func remove_overlay(ov: HumanizerOverlay) -> void:
-	for o in overlays:
-		if o == ov:
-			overlays.erase(o)
-			changed.emit()
-			return
-	push_warning('Cannot remove overlay ' + ov.resource_name + '. Not found.')
-	
-func remove_overlay_at(idx: int) -> void:
-	if overlays.size() - 1 < idx or idx < 0:
-		push_error('Invalid index')
-		return
-	overlays.remove_at(idx)
-	changed.emit()
-
-func remove_overlay_by_name(name: String) -> void:
-	var idx := _get_index(name)
-	if idx == -1:
-		printerr('Overlay not present? ' + name)
-		return
-	overlays.remove_at(idx)
-	changed.emit()
-	
-func _get_index(name: String) -> int:
-	for i in overlays.size():
-		if overlays[i].resource_name == name:
-			return i
-	return -1
+#

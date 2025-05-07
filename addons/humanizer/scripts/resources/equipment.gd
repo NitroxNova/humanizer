@@ -42,15 +42,9 @@ func set_material(material_name:String):
 		mat_path = ""
 	
 	if material is StandardMaterial3D:
-		material_config.base_material_path = type + "/" + material_name
-		material_config.overlays.clear()
-		var base_overlay = HumanizerOverlay.from_material(material)
-		material_config.add_overlay(base_overlay)
+		material_config = HumanizerMaterial.create_from_standard_material(material)
 	elif material is HumanizerMaterial:
-		material_config.base_material_path = material.base_material_path
-		material_config.overlays.clear()
-		for overlay in material.overlays:
-			material_config.add_overlay(overlay.duplicate())
+		material_config = material.duplicate(true)
 		
 	texture_name = material_name
 		
