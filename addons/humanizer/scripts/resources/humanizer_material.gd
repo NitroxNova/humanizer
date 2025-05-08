@@ -27,7 +27,7 @@ static func create_from_standard_material(material:StandardMaterial3D)->Humanize
 	return hu_mat
 
 static func strip_texture_path(path:String)->String:
-	path = path.trim_prefix("res://humanizer/material")
+	path = path.trim_prefix("res://humanizer/material/")
 	path = path.trim_suffix(".res")
 	path = path.trim_suffix(".image")
 	return path
@@ -48,7 +48,8 @@ func add_overlay(layer_name:String,overlay_properties:Dictionary):
 
 func generate_material_3D(material:StandardMaterial3D=StandardMaterial3D.new()):
 	is_generating = true
-	## awaiting outside the main thread will switch to the main thread if the signal awaited is emitted by the main thread
+			
+	## awaiting outside the main thread will switch to the main thread if the signal awaited is emitted by the main thread		
 	HumanizerJobQueue.add_job_main_thread(func():
 		var base_mat:StandardMaterial3D
 		if base_material == "":
@@ -56,9 +57,10 @@ func generate_material_3D(material:StandardMaterial3D=StandardMaterial3D.new()):
 		else:
 			base_mat = load(full_texture_path(base_material,false))
 		for prop_name in material_property_names:
-			if not prop_name.ends_with("_texture"):
-				material[prop_name] = base_mat[prop_name]
-		
+			if prop_name.ends_with("_texture") and prop_name.trim_suffix("_texture") in texture_overlays:
+				continue
+			material[prop_name] = base_mat[prop_name]
+	
 		for texture_name in texture_overlays:
 			if texture_overlays[texture_name].size() == 1: 
 				var overlay = texture_overlays[texture_name][0]
@@ -77,8 +79,7 @@ func generate_material_3D(material:StandardMaterial3D=StandardMaterial3D.new()):
 				material[texture_name+"_texture"] = await HumanizerAPI.render_overlay_texture(texture_overlays[texture_name],texture_name)
 		is_generating = false
 		done_generating.emit()	
-	)
-				
+	)			
 	return material
 	
 static func get_standard_material_properties() -> PackedStringArray:
