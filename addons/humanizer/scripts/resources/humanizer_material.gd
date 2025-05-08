@@ -46,7 +46,7 @@ func add_overlay(layer_name:String,overlay_properties:Dictionary):
 	# color, gradient : Gradient2D, strength	
 	texture_overlays[layer_name].append(overlay_properties)
 
-func generate_material_3D(material:StandardMaterial3D=null):
+func generate_material_3D(material:StandardMaterial3D=StandardMaterial3D.new()):
 	is_generating = true
 	## awaiting outside the main thread will switch to the main thread if the signal awaited is emitted by the main thread
 	HumanizerJobQueue.add_job_main_thread(func():
