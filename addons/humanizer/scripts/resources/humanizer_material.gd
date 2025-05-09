@@ -46,6 +46,10 @@ func add_overlay(layer_name:String,overlay_properties:Dictionary):
 	# color, gradient : Gradient2D, strength	
 	texture_overlays[layer_name].append(overlay_properties)
 
+func add_overlay_group(config:HumanizerMaterial):
+	for texture in config.texture_overlays:
+		add_overlay(texture,config.texture_overlays[texture])
+	
 func generate_material_3D(material:StandardMaterial3D=StandardMaterial3D.new()):
 	is_generating = true
 			
