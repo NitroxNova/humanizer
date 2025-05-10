@@ -12,6 +12,10 @@ func render_overlay_viewport(overlays:Array,type:String)->Viewport:
 			texture_rect.texture = load(HumanizerMaterial.full_texture_path(layer.texture,true))
 		if "color" in layer:
 			texture_rect.modulate = layer.color
+		#can only have one shader script..
+		if "gradient" in layer:
+			texture_rect.material = load("res://addons/humanizer/scripts/shader/gradient_map.gdshader")
+			texture_rect.material.set_shader_parameter("gradient",layer.gradient)
 		viewport.add_child(texture_rect)
 	viewport.size = texture_size
 	add_child(viewport)

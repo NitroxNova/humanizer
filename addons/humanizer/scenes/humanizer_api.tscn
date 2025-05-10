@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dsrnmyw7n7drw"]
 
-[ext_resource type="Script" uid="uid://ccywl0vah5256" path="res://addons/humanizer/scripts/services/API.gd" id="1_1qxf4"]
-[ext_resource type="Script" uid="uid://bxlv3ldlxdbei" path="res://addons/humanizer/scripts/services/viewport_textures.gd" id="2_068cm"]
+[ext_resource type="Script" uid="uid://bdpnmx80gukmd" path="res://addons/humanizer/scripts/services/API.gd" id="1_1qxf4"]
+[ext_resource type="Script" uid="uid://b7dgrctjr80t4" path="res://addons/humanizer/scripts/services/viewport_textures.gd" id="2_068cm"]
 
 [node name="HumanizerAPI" type="Node"]
 script = ExtResource("1_1qxf4")
