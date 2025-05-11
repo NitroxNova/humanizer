@@ -66,7 +66,7 @@ func generate_material_3D(material:StandardMaterial3D=StandardMaterial3D.new()):
 			material[prop_name] = base_mat[prop_name]
 	
 		for texture_name in texture_overlays:
-			if texture_overlays[texture_name].size() == 1: 
+			if texture_overlays[texture_name].size() == 1 and "gradient" not in texture_overlays[texture_name][0]: 
 				var overlay = texture_overlays[texture_name][0]
 				if "texture" in overlay:
 					material[texture_name+"_texture"] = load(full_texture_path(overlay.texture,true))

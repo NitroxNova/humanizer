@@ -5,6 +5,9 @@ extends Node
 func render_overlay_viewport(overlays:Array,type:String)->Viewport:
 	var viewport = SubViewport.new()
 	var texture_size = Vector2(1024,1024)
+	if "texture" in overlays[0]:
+		var base_texture:Texture2D = load(HumanizerMaterial.full_texture_path(overlays[0].texture,true))
+		texture_size = base_texture.get_size()
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	for layer in overlays:
 		var texture_rect = TextureRect.new()
@@ -14,7 +17,9 @@ func render_overlay_viewport(overlays:Array,type:String)->Viewport:
 			texture_rect.modulate = layer.color
 		#can only have one shader script..
 		if "gradient" in layer:
-			texture_rect.material = load("res://addons/humanizer/scripts/shader/gradient_map.gdshader")
+			print(layer.gradient)
+			texture_rect.material = ShaderMaterial.new()
+			texture_rect.material.shader = load("res://addons/humanizer/scripts/shader/gradient_map.gdshader")
 			texture_rect.material.set_shader_parameter("gradient",layer.gradient)
 		viewport.add_child(texture_rect)
 	viewport.size = texture_size
