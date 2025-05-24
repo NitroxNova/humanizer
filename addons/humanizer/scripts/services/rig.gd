@@ -102,19 +102,10 @@ static func get_motion_scale(rig_name:String, helper_vertex:PackedVector3Array):
 
 static func _get_base_motion_scale(rig_name:String):
 	var sk: Skeleton3D
-	var retargeted = is_retargeted(rig_name)
 	var rig = get_rig(rig_name)
-	if retargeted:
-		sk = rig.load_retargeted_skeleton()
-	else:
-		sk = rig.load_skeleton()
+	sk = rig.load_skeleton()
 	return sk.motion_scale
 
-static func is_retargeted(rig_name:String):
-	if rig_name.ends_with("RETARGETED"):
-		return true
-	return false
-	
 static func skeleton_add_rigged_equipment(equipment:HumanizerEquipment, sf_arrays:Array,skeleton_data:Dictionary):
 	var mhclo : MHCLO = HumanizerResourceService.load_resource(equipment.get_type().mhclo_path)
 	var equip_type = equipment.get_type()

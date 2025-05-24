@@ -54,27 +54,12 @@ static func load_animations() -> void:
 
 static func _get_rigs() -> void:
 	#  Create and/or cache rig resources
-	for folder in ProjectSettings.get_setting("addons/humanizer/asset_import_paths"):
-		var rig_path = folder.path_join('rigs')
-		for dir in OSPath.get_dirs(rig_path):
-			var name = dir.get_file()
-			rigs[name] = HumanizerRig.new()
-			rigs[name].resource_name = name
-			for file in OSPath.get_files(dir):
-				if file.get_extension() == 'json' and file.get_file().begins_with('rig'):
-					rigs[name].mh_json_path = file
-				elif file.get_extension() == 'json' and file.get_file().begins_with('weights'):
-					rigs[name].mh_weights_path = file
-				elif file.get_file() == 'skeleton_config.json':
-					rigs[name].config_json_path = file
-				elif file.get_file() == 'bone_weights.json':
-					rigs[name].bone_weights_json_path = file
-				elif (file.get_extension() == 'tscn' or file.ends_with(".tscn.remap")) and file.get_file().begins_with('general'):
-					rigs[name].skeleton_retargeted_path = file.trim_suffix('.remap')
-				elif file.get_extension() == 'tscn' or file.ends_with(".tscn.remap"):
-					rigs[name].skeleton_path  = file.trim_suffix('.remap')
-				elif file.get_extension() == 'res':
-					rigs[name].rigged_mesh_path = file
+	for rig_path in OSPath.get_files_recursive("res://humanizer/skeleton"):
+		var rig = load(rig_path)
+		if rig is HumanizerRig:
+			var rig_name = rig_path.get_file().get_basename()
+			rig.resource_name = rig_name
+			rigs[rig_name] = rig
 
 static func _load_equipment() -> void:
 	equipment={}

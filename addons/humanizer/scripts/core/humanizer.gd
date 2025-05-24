@@ -256,7 +256,7 @@ func set_rig(rig_name:String):
 	human_config.rig = rig_name
 	var retargeted: bool = rig_name.ends_with('-RETARGETED')
 	rig = HumanizerRigService.get_rig(rig_name)
-	skeleton_data = HumanizerRigService.init_skeleton_data(rig,retargeted)
+	skeleton_data = rig.init_skeleton_data()
 	for equip in human_config.equipment.values():
 		if equip.get_type().is_rigged():
 			HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip.type],skeleton_data)
