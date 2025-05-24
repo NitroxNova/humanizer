@@ -52,7 +52,7 @@ static func adjust_bone_positions(skeleton_data:Dictionary,rig:HumanizerRig,help
 				if bone_id > -1:
 					asset_bone_positions[bone_id] = get_asset_bone_position(mesh_arrays[equip.type],mhclo,bone_config)				
 	
-	var skeleton_config = HumanizerResourceService.load_resource(rig.config_json_path)
+	var skeleton_config = rig.config
 	var bone_id = 0
 	for bone_name in skeleton_data:
 		var bone_pos = Vector3.ZERO
@@ -73,14 +73,15 @@ static func adjust_bone_positions(skeleton_data:Dictionary,rig:HumanizerRig,help
 		skeleton_data[bone_name].global_pos = bone_pos
 		bone_id += 1
 				
-static func init_skeleton_data(rig: HumanizerRig,retargeted:bool)->Dictionary:
+#static func init_skeleton_data(rig: HumanizerRig,retargeted:bool)->Dictionary:
+static func init_skeleton_data(skeleton:Skeleton3D)->Dictionary:
 	var skeleton_data = {}
-	var skeleton : Skeleton3D
-	if retargeted:
-		skeleton = rig.load_retargeted_skeleton()
-	else:
-		skeleton = rig.load_skeleton()
-	#
+	#var skeleton : Skeleton3D
+	#if retargeted:
+		#skeleton = rig.load_retargeted_skeleton()
+	#else:
+		#skeleton = rig.load_skeleton()
+	##
 	for bone_id in skeleton.get_bone_count():
 		var bone_name = skeleton.get_bone_name(bone_id)
 		var bone_data = {}
