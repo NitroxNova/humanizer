@@ -16,6 +16,9 @@ static func load_data():
 	for file_path in target_files:
 		var tar_file = FileAccess.open(file_path,FileAccess.READ)
 		data.merge(tar_file.get_var())
+	load_basis()
+
+static func load_basis():
 	var basis_file = FileAccess.open("res://addons/humanizer/data/resources/basis.data",FileAccess.READ)
 	basis = basis_file.get_var()
 
