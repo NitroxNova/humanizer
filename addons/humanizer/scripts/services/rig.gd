@@ -3,7 +3,7 @@ extends Resource
 class_name HumanizerRigService
 
 static func get_rig(rig_name:String)->HumanizerRig:
-	return HumanizerRegistry.rigs[rig_name.split('-')[0]]
+	return HumanizerRegistry.rigs[rig_name]
 
 static func get_skeleton_3D(skeleton_data:Dictionary):
 	var skeleton = Skeleton3D.new()
