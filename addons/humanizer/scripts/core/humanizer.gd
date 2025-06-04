@@ -297,8 +297,8 @@ func update_equipment_weights(equip_name:String):
 		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = bones
 		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = equip_type.rig_config.weights[rig.resource_name].duplicate()
 	else:
-		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = mhclo.bones[rig.resource_name].duplicate()
-		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = mhclo.weights[rig.resource_name].duplicate()
+		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = mhclo.bones[rig.resource_name.replace("-RETARGETED","")].duplicate()
+		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = mhclo.weights[rig.resource_name.replace("-RETARGETED","")].duplicate()
 	
 func enable_root_bone_component():
 	human_config.enable_component(&'root_bone')
