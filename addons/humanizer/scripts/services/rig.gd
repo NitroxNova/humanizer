@@ -62,16 +62,20 @@ static func adjust_bone_positions(skeleton_data:Dictionary,rig:HumanizerRig,help
 		elif skeleton_config.size() < bone_id + 1:
 			bone_pos = asset_bone_positions[bone_id]
 		else:
-			var bone_data = skeleton_config[bone_id]
-			if "vertex_indices" in bone_data.head:
-				for vid in bone_data.head.vertex_indices:
-					bone_pos += helper_vertex[int(vid)]
-				bone_pos /= bone_data.head.vertex_indices.size()
-			else:
-				bone_pos = helper_vertex[int(bone_data.head.vertex_index)]
-		
+			bone_pos = get_bone_position_from_config(rig,bone_id,"head",helper_vertex)
 		skeleton_data[bone_name].global_pos = bone_pos
 		bone_id += 1
+
+static func get_bone_position_from_config(rig,bone_id,head:String,helper_vertex):
+	var bone_data = rig.config[bone_id]
+	var bone_pos = Vector3.ZERO
+	if "vertex_indices" in bone_data[head]:
+		for vid in bone_data[head].vertex_indices:
+			bone_pos += helper_vertex[int(vid)]
+		bone_pos /= bone_data[head].vertex_indices.size()
+	else:
+		bone_pos = helper_vertex[int(bone_data[head].vertex_index)]
+	return bone_pos
 				
 #static func init_skeleton_data(rig: HumanizerRig,retargeted:bool)->Dictionary:
 static func init_skeleton_data(skeleton:Skeleton3D)->Dictionary:
