@@ -289,16 +289,23 @@ func update_equipment_weights(equip_name:String):
 	var equip_type:HumanizerEquipmentType = human_config.equipment[equip_name].get_type()
 	var mhclo = HumanizerResourceService.load_resource(equip_type.mhclo_path)
 	if equip_type.is_rigged():
-		var bones = equip_type.rig_config.bones[rig.resource_name].duplicate() #could potentially have multiple of the same mhclo open, dont want to change other arrays (due to godot resource sharing)
+		var rigged_bone_weights = {}
+		rigged_bone_weights.bones = equip_type.rig_config.bones
+		rigged_bone_weights.weights = equip_type.rig_config.weights
+		var rig_bw = HumanizerEquipmentService.interpolate_rigged_weights(equip_type,rigged_bone_weights,rig)
+		#equip_type.rig_config.bones[rig_name] = rig_bw.bones
+		#equip_type.rig_config.weights[rig_name] = rig_bw.weights
+		
+		var bones = rig_bw.bones #could potentially have multiple of the same mhclo open, dont want to change other arrays (due to godot resource sharing)
 		for bone_array_id in bones.size():
 			var bone_id = bones[bone_array_id]
 			if bone_id < 0:
 				bone_id = skeleton_data.keys().find( equip_type.rig_config.config[(bone_id +1) *-1].name) #offset by one because -0 = 0
 				bones[bone_array_id] = bone_id
 		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = bones
-		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = equip_type.rig_config.weights[rig.resource_name].duplicate()
+		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = rig_bw.weights
 	else:
-		var bone_weights = HumanizerEquipmentService.interpolate_weights( mhclo,rig,skeleton_data)
+		var bone_weights = HumanizerEquipmentService.interpolate_weights( mhclo,rig)
 		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = bone_weights.bones
 		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = bone_weights.weights
 		#mesh_arrays[equip_name][Mesh.ARRAY_BONES] = mhclo.bones[rig.resource_name.replace("-RETARGETED","")].duplicate()

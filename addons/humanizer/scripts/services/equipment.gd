@@ -93,7 +93,7 @@ static func hide_faces(surface_arrays:Array,delete_verts:Array):
 	
 	surface_arrays[Mesh.ARRAY_INDEX] = keep_faces
 
-static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig,skeleton_data:Dictionary):
+static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig):
 	#"""Try to copy rigging weights from the base mesh to the clothes mesh, hopefully #making the clothes fit the provided rig."""
 	# Create an empty outline with placeholders arrays that will contain lists of
 	# vertices + weights per vertex group
@@ -165,9 +165,11 @@ static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig,skeleton_data:Dic
 			output.weights.append(bw_pair[1])
 	return output
 
-static func interpolate_rigged_weights(mhclo:MHCLO, rigged_bone_weights:Dictionary,rig_name:String):
-	var base_bones = mhclo.bones[rig_name]
-	var base_weights = mhclo.weights[rig_name]
+static func interpolate_rigged_weights(equip_type:HumanizerEquipmentType, rigged_bone_weights:Dictionary,rig:HumanizerRig):
+	var mhclo = HumanizerResourceService.load_resource( equip_type.mhclo_path)
+	var base_bw = interpolate_weights(mhclo,rig)
+	var base_bones = base_bw.bones
+	var base_weights = base_bw.weights
 	
 	var output = {}
 	output.bones = PackedInt32Array()
@@ -182,8 +184,8 @@ static func interpolate_rigged_weights(mhclo:MHCLO, rigged_bone_weights:Dictiona
 			if rigged_bone_weights.weights[mh_id][array_id] != 0:
 				var old_id = rigged_bone_weights.bones[mh_id][array_id]
 				var bone_id = -1
-				for new_id in rigged_bone_weights.config.size():
-					if rigged_bone_weights.config[new_id].old_id == old_id:
+				for new_id in equip_type.rig_config.config.size():
+					if equip_type.rig_config.config[new_id].old_id == old_id:
 						bone_id = new_id
 				if bone_id == -1: # the "neutral bone", where the hair connects to the head, for example
 					remainder += rigged_bone_weights.weights[mh_id][array_id]
