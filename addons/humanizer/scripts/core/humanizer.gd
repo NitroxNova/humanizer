@@ -254,13 +254,14 @@ func fit_equipment_mesh(equip_name:String):
 
 func set_rig(rig_name:String):
 	human_config.rig = rig_name
-	var retargeted: bool = rig_name.ends_with('-RETARGETED')
 	rig = HumanizerRigService.get_rig(rig_name)
+	
 	skeleton_data = rig.init_skeleton_data()
 	for equip in human_config.equipment.values():
 		if equip.get_type().is_rigged():
 			HumanizerRigService.skeleton_add_rigged_equipment(equip,mesh_arrays[equip.type],skeleton_data)
 	HumanizerRigService.adjust_bone_positions(skeleton_data,rig,helper_vertex,human_config.equipment,mesh_arrays)
+	#print(rig.weights.size())
 	update_bone_weights()
 	if &'root_bone' in human_config.components:
 		enable_root_bone_component()
@@ -297,8 +298,11 @@ func update_equipment_weights(equip_name:String):
 		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = bones
 		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = equip_type.rig_config.weights[rig.resource_name].duplicate()
 	else:
-		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = mhclo.bones[rig.resource_name.replace("-RETARGETED","")].duplicate()
-		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = mhclo.weights[rig.resource_name.replace("-RETARGETED","")].duplicate()
+		var bone_weights = HumanizerEquipmentService.interpolate_weights( mhclo,rig,skeleton_data)
+		mesh_arrays[equip_name][Mesh.ARRAY_BONES] = bone_weights.bones
+		mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = bone_weights.weights
+		#mesh_arrays[equip_name][Mesh.ARRAY_BONES] = mhclo.bones[rig.resource_name.replace("-RETARGETED","")].duplicate()
+		#mesh_arrays[equip_name][Mesh.ARRAY_WEIGHTS] = mhclo.weights[rig.resource_name.replace("-RETARGETED","")].duplicate()
 	
 func enable_root_bone_component():
 	human_config.enable_component(&'root_bone')

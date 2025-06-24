@@ -60,6 +60,8 @@ static func _get_rigs() -> void:
 			var rig_name = rig_path.get_file().get_basename()
 			rig.resource_name = rig_name
 			rigs[rig_name] = rig
+			#print(rig.resource_name)
+			#print(rig.weights.size())
 
 static func _load_equipment() -> void:
 	equipment={}

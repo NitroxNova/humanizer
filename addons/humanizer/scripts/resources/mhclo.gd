@@ -14,8 +14,6 @@ enum SECTION {header,vertices,delete_vertices}
 @export var tags := PackedStringArray()
 @export var z_depth := 0
 
-@export var bones := {}
-@export var weights := {}
 @export var uv_array := PackedVector2Array()
 @export var index_array := PackedInt32Array()
 @export var custom0_array := PackedFloat32Array()

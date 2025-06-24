@@ -101,24 +101,11 @@ static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig,skeleton_data:Dic
 	for i in mhclo.vertex_data.size():
 		clothes_weights.append([])
 		
-	var bone_weights = HumanizerResourceService.load_resource(rig.bone_weights_json_path)
+	#var bone_weights = HumanizerResourceService.load_resource(rig.bone_weights_json_path)
+	#print(rig.weights.size())
+	var bone_weights = rig.weights.duplicate(true)
+	#print(bone_weights.size())
 	
-	# Build cross reference dicts to easily map between a vertex group index and # a vertex group name
-	var group_index = []
-	for bone_name in bone_weights.names:
-		var new_bone_id = skeleton_data.keys().find(bone_name)
-		if new_bone_id == -1:
-			if bone_name.begins_with('toe'):
-				if bone_name.ends_with('.L'): # default rig, example: toe4-1.R
-					new_bone_id = skeleton_data.keys().find("toe1-1.L")
-				elif bone_name.ends_with('.R'):
-					new_bone_id = skeleton_data.keys().find("toe1-1.R")
-				else:
-					printerr("Unhandled bone " + bone_name)
-		group_index.append(new_bone_id)
-	for bone_name in bone_weights.names:
-		var new_id = skeleton_data.keys().find(bone_name)
-		group_index.append(new_id)		
 	# We will now iterate over the vertices in the clothes. The idea is to then
 	for vert_id in mhclo.vertex_data.size():
 		var vert_groups = {}
@@ -129,9 +116,10 @@ static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig,skeleton_data:Dic
 			var assigned_weight = 1 #if its a single vertex
 			if "weight" in mhclo.vertex_data[vert_id]:
 				assigned_weight = mhclo.vertex_data[vert_id].weight[match_vert]
-			for bone_weight_pair in bone_weights.weights[human_vert]:
-				var idx = bone_weight_pair[0]
-				var skeleton_bone_id = group_index[idx] #these can be different, ie no toes on standard rig
+			for bone_weight_pair in bone_weights[human_vert]:
+				#var idx = bone_weight_pair[0]
+				#var skeleton_bone_id = group_index[idx] #these can be different, ie no toes on standard rig
+				var skeleton_bone_id = bone_weight_pair[0]
 				if not skeleton_bone_id == -1:
 					if not skeleton_bone_id in vert_groups:
 						vert_groups[skeleton_bone_id] = 0
@@ -167,13 +155,15 @@ static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig,skeleton_data:Dic
 				if bw_pair[1] < lowest[1]:
 					lowest = bw_pair
 			bw_array.erase(lowest)
-			
-	mhclo.bones[rig.resource_name] = PackedInt32Array()
-	mhclo.weights[rig.resource_name] = PackedFloat32Array()
+	
+	var output = {}		
+	output.bones = PackedInt32Array()
+	output.weights = PackedFloat32Array()
 	for mh_id in mhclo.custom0_array:
 		for bw_pair in clothes_weights[mh_id]:
-			mhclo.bones[rig.resource_name].append(bw_pair[0])
-			mhclo.weights[rig.resource_name].append(bw_pair[1])
+			output.bones.append(bw_pair[0])
+			output.weights.append(bw_pair[1])
+	return output
 
 static func interpolate_rigged_weights(mhclo:MHCLO, rigged_bone_weights:Dictionary,rig_name:String):
 	var base_bones = mhclo.bones[rig_name]
