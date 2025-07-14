@@ -141,12 +141,8 @@ static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig):
 		if clothes_weights[vert_id].is_empty():
 			printerr("empty weights" + str(vert_groups))
 	
+	
 	for bw_array in clothes_weights:
-		var weight_sum = 0
-		for bw_pair in bw_array:
-			weight_sum += bw_pair[1]
-		for bw_pair in bw_array:
-			bw_pair[1] /= weight_sum
 		while bw_array.size() < 8:
 			bw_array.append([0,0])
 		while bw_array.size() > 8:
@@ -155,6 +151,21 @@ static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig):
 				if bw_pair[1] < lowest[1]:
 					lowest = bw_pair
 			bw_array.erase(lowest)
+		#cap between 0 and 1	
+		for bw_pair in bw_array:
+			if bw_pair[1] < 0:
+				bw_pair[1] = 0
+			elif bw_pair[1] > 1:
+				bw_pair[1] = 1
+		#then normalize
+		var weight_sum = 0
+		for bw_pair in bw_array:
+			weight_sum += bw_pair[1]
+		for bw_pair in bw_array:
+			bw_pair[1] /= weight_sum
+	
+	if mhclo.resource_name == "Hair-Long01":
+		OSPath.save_json("res://test/gd_long_hair_weights.json",clothes_weights)
 	
 	var output = {}		
 	output.bones = PackedInt32Array()
