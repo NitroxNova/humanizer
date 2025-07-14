@@ -164,9 +164,6 @@ static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig):
 		for bw_pair in bw_array:
 			bw_pair[1] /= weight_sum
 	
-	if mhclo.resource_name == "Hair-Long01":
-		OSPath.save_json("res://test/gd_long_hair_weights.json",clothes_weights)
-	
 	var output = {}		
 	output.bones = PackedInt32Array()
 	output.weights = PackedFloat32Array()
