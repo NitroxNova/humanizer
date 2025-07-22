@@ -94,6 +94,12 @@ static func hide_faces(surface_arrays:Array,delete_verts:Array):
 	surface_arrays[Mesh.ARRAY_INDEX] = keep_faces
 
 static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig):
+	var weight_file_name = "user://equipment_weights/" + rig.resource_name.replace("-RETARGETED","") + "/" + mhclo.resource_name + ".res"
+	if ProjectSettings.get_setting("addons/humanizer/cache_equipment_weights"):
+		if FileAccess.file_exists(weight_file_name):
+			var clothes_weights = HumanizerResourceService.load_resource(weight_file_name)
+			return clothes_weights
+			
 	#"""Try to copy rigging weights from the base mesh to the clothes mesh, hopefully #making the clothes fit the provided rig."""
 	# Create an empty outline with placeholders arrays that will contain lists of
 	# vertices + weights per vertex group
@@ -164,24 +170,35 @@ static func interpolate_weights( mhclo:MHCLO, rig:HumanizerRig):
 		for bw_pair in bw_array:
 			bw_pair[1] /= weight_sum
 	
-	var output = {}		
-	output.bones = PackedInt32Array()
-	output.weights = PackedFloat32Array()
+	var output = Humanizer_Weight_Cache.new()		
+	#output.bones = PackedInt32Array()
+	#output.weights = PackedFloat32Array()
 	for mh_id in mhclo.custom0_array:
 		for bw_pair in clothes_weights[mh_id]:
 			output.bones.append(bw_pair[0])
 			output.weights.append(bw_pair[1])
+	if ProjectSettings.get_setting("addons/humanizer/cache_equipment_weights"):
+		DirAccess.make_dir_recursive_absolute(weight_file_name.get_base_dir())
+		ResourceSaver.save(output,weight_file_name)
 	return output
 
 static func interpolate_rigged_weights(equip_type:HumanizerEquipmentType, rigged_bone_weights:Dictionary,rig:HumanizerRig):
 	var mhclo = HumanizerResourceService.load_resource( equip_type.mhclo_path)
+	var weight_file_name = "user://equipment_weights/" + rig.resource_name.replace("-RETARGETED","") + "/" + equip_type.resource_name + ".res"
+
+	if ProjectSettings.get_setting("addons/humanizer/cache_equipment_weights"):
+		if FileAccess.file_exists(weight_file_name):
+			var output = HumanizerResourceService.load_resource(weight_file_name)
+			return output
+
+	var output = Humanizer_Weight_Cache.new()
+	
 	var base_bw = interpolate_weights(mhclo,rig)
 	var base_bones = base_bw.bones
 	var base_weights = base_bw.weights
 	
-	var output = {}
-	output.bones = PackedInt32Array()
-	output.weights = PackedFloat32Array()
+	#output.bones = PackedInt32Array()
+	#output.weights = PackedFloat32Array()
 	
 	for gd_id in mhclo.custom0_array.size():
 		var mh_id = mhclo.custom0_array[gd_id]
@@ -190,6 +207,7 @@ static func interpolate_rigged_weights(equip_type:HumanizerEquipmentType, rigged
 		var remainder = 0
 		for array_id in rigged_bone_weights.bones[mh_id].size():
 			if rigged_bone_weights.weights[mh_id][array_id] != 0:
+				#TODO get rid of "old_id" on equipment resource
 				var old_id = rigged_bone_weights.bones[mh_id][array_id]
 				var bone_id = -1
 				for new_id in equip_type.rig_config.config.size():
@@ -206,6 +224,7 @@ static func interpolate_rigged_weights(equip_type:HumanizerEquipmentType, rigged
 					mh_bones.append(base_bones[array_id])
 					#assuming rigged weights are already normalized
 					mh_weights.append(base_weights[array_id] * remainder)
+		
 		while mh_bones.size() < 8:
 			mh_bones.append(0)
 			mh_weights.append(0)
@@ -216,7 +235,18 @@ static func interpolate_rigged_weights(equip_type:HumanizerEquipmentType, rigged
 					lowest_id = w
 			mh_bones.remove_at(lowest_id)
 			mh_weights.remove_at(lowest_id)
+		#then normalize - if original bone had 8 + rigged and so one is removed
+		var weight_sum = 0
+		for weight in mh_weights:
+			weight_sum += weight
+		for counter in mh_weights.size():
+			mh_weights[counter] /= weight_sum
+			
 		output.bones.append_array(mh_bones)
 		output.weights.append_array(mh_weights)
-	
+		
+	if ProjectSettings.get_setting("addons/humanizer/cache_equipment_weights"):
+		DirAccess.make_dir_recursive_absolute(weight_file_name.get_base_dir())
+		ResourceSaver.save(output,weight_file_name)
+		
 	return output

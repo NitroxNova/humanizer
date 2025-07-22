@@ -49,6 +49,10 @@ func _open_settings_popup():
 #endregion
 
 func init_config():
+	
+	if not ProjectSettings.has_setting("addons/humanizer/cache_equipment_weights"):
+		ProjectSettings.set_setting("addons/humanizer/cache_equipment_weights",true)
+	
 	if not ProjectSettings.has_setting("addons/humanizer/asset_import_paths"):
 		var property_info = {}
 		var slots = {"Body Parts"={"body"="Body","righteye"="Right Eye","lefteye"="Left Eye","righteyebrow"="Right Eyebrow","lefteyebrow"="Left Eyebrow","righteyelash"="Right Eyelash","lefteyelash"="Left Eyelash","hair"="Hair","teeth"="Teeth","tongue"="Tongue",},

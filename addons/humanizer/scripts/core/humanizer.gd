@@ -296,7 +296,7 @@ func update_equipment_weights(equip_name:String):
 		#equip_type.rig_config.bones[rig_name] = rig_bw.bones
 		#equip_type.rig_config.weights[rig_name] = rig_bw.weights
 		
-		var bones = rig_bw.bones #could potentially have multiple of the same mhclo open, dont want to change other arrays (due to godot resource sharing)
+		var bones = rig_bw.bones.duplicate() #could potentially have multiple of the same mhclo open, dont want to change other arrays (due to godot resource sharing)
 		for bone_array_id in bones.size():
 			var bone_id = bones[bone_array_id]
 			if bone_id < 0:
