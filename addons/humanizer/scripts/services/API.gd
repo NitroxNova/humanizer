@@ -41,8 +41,8 @@ static func update_human_node_async(human_node:PhysicsBody3D,new_config:HumanCon
 	hz_live.node = human_node
 	hz_live.update_human_node()
 
-func render_overlay_texture(overlays:Array,type:String):
-	var texture = await $ViewportTextures.render_overlay_texture(overlays,type)
+func render_overlay_texture(overlay:HumanizerOverlay,type:String):
+	var texture = await $ViewportTextures.render_overlay_texture(overlay,type)
 	return texture
 	
 func render_overlay_viewport(overlays:Array,type:String):

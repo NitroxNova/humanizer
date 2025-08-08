@@ -1,15 +1,15 @@
 [remap]
 
-importer="animation_library"
+importer="scene"
 importer_version=1
-type="AnimationLibrary"
-uid="uid://dlwm4vghdc0vk"
-path="res://.godot/imported/face_poses.glb-b72341318b230a0cda2f9cd001490c05.res"
+type="PackedScene"
+uid="uid://b1e073j08x0a"
+path="res://.godot/imported/face_poses.glb-b72341318b230a0cda2f9cd001490c05.scn"
 
 [deps]
 
 source_file="res://addons/humanizer/data/animations/face_poses.glb"
-dest_files=["res://.godot/imported/face_poses.glb-b72341318b230a0cda2f9cd001490c05.res"]
+dest_files=["res://.godot/imported/face_poses.glb-b72341318b230a0cda2f9cd001490c05.scn"]
 
 [params]
 
@@ -32,18 +32,6 @@ animation/trimming=false
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
-_subresources={
-"nodes": {
-"PATH:AnimationPlayer": {
-"import_tracks/position": 0,
-"import_tracks/rotation": 0,
-"import_tracks/scale": 0
-},
-"PATH:Human_rig/Skeleton3D": {
-"retarget/bone_map": Resource("res://addons/humanizer/data/assets/rigs/default/bone_map.tres"),
-"retarget/remove_tracks/unimportant_positions": false
-}
-}
-}
-gltf/naming_version=1
+_subresources={}
+gltf/naming_version=0
 gltf/embedded_image_handling=1
