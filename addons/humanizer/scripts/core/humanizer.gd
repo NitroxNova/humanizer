@@ -169,7 +169,7 @@ func init_equipment_material(equip:HumanizerEquipment): #called from thread
 	materials[equip.type] = material
 	var mat_config = equip.material_config
 	mat_config.done_generating.connect(check_materials_done_generating)
-	mat_config.generate_material_3D(material)
+	mat_config.generate_material_3D(material,get_mesh_arrays(equip.type))
 
 func check_materials_done_generating():
 	for equip in human_config.equipment.values():
@@ -184,7 +184,7 @@ func set_equipment_material(equip:HumanizerEquipment, material_name: String)-> v
 
 func update_material(equip_type:String): #from the material config
 	var equip = human_config.equipment[equip_type]
-	equip.material_config.generate_material_3D(materials[equip.type])
+	equip.material_config.generate_material_3D(materials[equip.type],get_mesh_arrays(equip.type))
 	#material_updated.emit(equip)
 
 func get_mesh(mesh_name:String):

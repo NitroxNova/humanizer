@@ -9,8 +9,8 @@ void fragment(){
 	//vec4 input_color = texture(SCREEN_TEXTURE, SCREEN_UV);
 	vec4 input_color = texture(TEXTURE, UV);
 	float greyscale_value = (input_color.r + input_color.g + input_color.b) / 3.0;
-	vec3 sampled_color = texture(gradient, vec2(greyscale_value, 0.0)).rgb;
+	vec4 sampled_color = texture(gradient, vec2(greyscale_value, 0.0));
 
-	COLOR.rgb = mix(input_color.rgb, sampled_color, mix_amount);
-	COLOR.a = input_color.a;
+	COLOR.rgb = mix(input_color, sampled_color, mix_amount).rgb;
+	COLOR.a = input_color.a * sampled_color.a;
 }

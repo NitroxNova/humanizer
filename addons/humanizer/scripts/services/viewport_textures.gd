@@ -2,12 +2,12 @@
 extends Node
 #handles the rendering of the overlays
 
-func render_overlay_viewport(overlay:HumanizerOverlay,type:String)->Viewport:
+func render_overlay_viewport(overlay:HumanizerOverlay,type:String,mesh_arrays:Array)->Viewport:
 	var viewport = SubViewport.new()
 	viewport.transparent_bg = true
 	var default_size = Vector2(2048,2048)
 	print("TODO viewport_textures - render overlay viewport")
-	var texture_node = overlay.get_texture_node(default_size)
+	var texture_node = overlay.get_texture_node(default_size,mesh_arrays)
 	viewport.add_child(texture_node)
 	#if "texture" in overlays[0]:
 		#var base_texture:Texture2D = load(HumanizerMaterial.full_texture_path(overlays[0].texture,true))
@@ -31,8 +31,8 @@ func render_overlay_viewport(overlay:HumanizerOverlay,type:String)->Viewport:
 	add_child(viewport)
 	return viewport
 
-func render_overlay_texture(overlays:HumanizerOverlay,type:String)->ImageTexture:
-	var viewport = render_overlay_viewport(overlays,type)
+func render_overlay_texture(overlays:HumanizerOverlay,type:String,mesh_arrays:Array)->ImageTexture:
+	var viewport = render_overlay_viewport(overlays,type,mesh_arrays)
 	var viewport_texture = viewport.get_texture()
 	await RenderingServer.frame_post_draw
 	var image = viewport_texture.get_image()

@@ -36,6 +36,8 @@ static func strip_texture_path(path:String)->String:
 static func full_texture_path(path:String,image:bool)->String:
 	path = "res://humanizer/material".path_join(path)
 	if image:
+		if FileAccess.file_exists(path + ".png"):
+			return path + ".png"
 		path += ".image"
 	path += ".res"
 	return path
@@ -47,7 +49,7 @@ func set_overlays_from_config(config:HumanizerMaterial):
 	for texture in config.texture_overlays:
 		set_overlay(texture,config.texture_overlays[texture].duplicate())
 	
-func generate_material_3D(material:StandardMaterial3D=StandardMaterial3D.new()):
+func generate_material_3D(material:StandardMaterial3D,mesh_arrays:Array):
 	is_generating = true
 			
 	## awaiting outside the main thread will switch to the main thread if the signal awaited is emitted by the main thread		
@@ -68,7 +70,7 @@ func generate_material_3D(material:StandardMaterial3D=StandardMaterial3D.new()):
 			if false:
 				pass
 			else:
-				material[texture_name+"_texture"] = await HumanizerAPI.render_overlay_texture(texture_overlays[texture_name],texture_name)
+				material[texture_name+"_texture"] = await HumanizerAPI.render_overlay_texture(texture_overlays[texture_name],texture_name,mesh_arrays)
 			#if texture_overlays[texture_name].size() == 1 and "gradient" not in texture_overlays[texture_name][0]: 
 				#var overlay = texture_overlays[texture_name][0]
 				#if "texture" in overlay:
