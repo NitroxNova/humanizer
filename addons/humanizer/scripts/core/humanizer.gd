@@ -162,14 +162,13 @@ func set_eyebrow_color(color:Color):
 		#material_updated.emit(eyebrow_equip)
 
 func init_equipment_material(equip:HumanizerEquipment): #called from thread
-	#print("initializing equipment")
 	var equip_type = equip.get_type()
 	var material = StandardMaterial3D.new()
 	material.resource_local_to_scene = true
 	materials[equip.type] = material
 	var mat_config = equip.material_config
 	mat_config.done_generating.connect(check_materials_done_generating)
-	mat_config.generate_material_3D(material,get_mesh_arrays(equip.type))
+	mat_config.generate_material_3D(material,mesh_arrays[equip.type])
 
 func check_materials_done_generating():
 	for equip in human_config.equipment.values():

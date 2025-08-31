@@ -65,12 +65,13 @@ func set_targets(new_targets:Dictionary):
 
 func _handle_color_overrides(equip:HumanizerEquipment):
 	print("TODO human config - handle color overrides")
-	#var equip_type = equip.get_type()
-	#if equip_type.in_slot(["lefteye","righteye","eyes"]):
+	var equip_type = equip.get_type()
+	if equip_type.in_slot(["lefteye","righteye","eyes"]):
+		pass
 		#if equip.material_config.texture_overlays.albedo.size() > 1:
 			#equip.material_config.texture_overlays.albedo[1].color = eye_color
-	#elif equip_type.in_slot(["body"]):
-		#equip.material_config.texture_overlays.albedo[0].color = skin_color
+	elif equip_type.in_slot(["body"]):
+		equip.material_config.texture_overlays.albedo.color = skin_color
 	#elif equip_type.in_slot(["hair"]):
 		#equip.material_config.texture_overlays.albedo[0].color = hair_color
 	#elif equip_type.in_slot(["lefteyebrow","righteyebrow","eyebrows"]):

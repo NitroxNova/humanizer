@@ -22,8 +22,9 @@ static func create_from_standard_material(material:StandardMaterial3D)->Humanize
 				#if texture_name == "normal":
 					#data.strength = material.normal_scale
 				#hu_mat.add_overlay(texture_name,data)	
-	#if not "albedo" in hu_mat.texture_overlays:
+	if not "albedo" in hu_mat.texture_overlays:
 		#hu_mat.add_overlay("albedo",{})
+		hu_mat.texture_overlays.albedo = HumanizerOverlayBlank.new()
 	#hu_mat.texture_overlays.albedo[0].color = material.albedo_color
 	return hu_mat
 
@@ -50,6 +51,7 @@ func set_overlays_from_config(config:HumanizerMaterial):
 		set_overlay(texture,config.texture_overlays[texture].duplicate())
 	
 func generate_material_3D(material:StandardMaterial3D,mesh_arrays:Array):
+	print("generate material 3d")
 	is_generating = true
 			
 	## awaiting outside the main thread will switch to the main thread if the signal awaited is emitted by the main thread		
@@ -87,6 +89,7 @@ func generate_material_3D(material:StandardMaterial3D,mesh_arrays:Array):
 					#material.normal_scale = 1
 				#material[texture_name+"_texture"] = await HumanizerAPI.render_overlay_texture(texture_overlays[texture_name],texture_name)
 		is_generating = false
+		print("done generating")
 		done_generating.emit()	
 	)			
 	return material
