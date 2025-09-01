@@ -12,12 +12,15 @@ var is_generating = false
 static func create_from_standard_material(material:StandardMaterial3D)->HumanizerMaterial:
 	var hu_mat = HumanizerMaterial.new()
 	hu_mat.base_material = strip_texture_path(material.resource_path)
-	print("TODO humanizer_material - create_from_standard_material")
-	#for prop_name in material_property_names:
-		#if prop_name.ends_with("_texture") and material[prop_name] is Texture2D:
-			#var texture_name = prop_name.trim_suffix("_texture")
-			#if material[prop_name] != null:
+	for prop_name in material_property_names:
+		if prop_name.ends_with("_texture") and material[prop_name] is Texture2D:
+			var texture_name = prop_name.trim_suffix("_texture")
+			if material[prop_name] != null:
 				#var data = {}
+				var image_overlay = HumanizerOverlayImage.new()
+				image_overlay.path=strip_texture_path(material[prop_name].resource_path)
+				hu_mat.texture_overlays[texture_name] = image_overlay
+				#print("TODO - normal strength")
 				#data.texture=strip_texture_path(material[prop_name].resource_path)
 				#if texture_name == "normal":
 					#data.strength = material.normal_scale
@@ -66,11 +69,15 @@ func generate_material_3D(material:StandardMaterial3D,mesh_arrays:Array):
 				continue
 			material[prop_name] = base_mat[prop_name]
 		
-		print("TODO humanizer material - render texture overlays")
+		
+		print("TODO humanizer material - normal strength")
 		for texture_name in texture_overlays:
 			#use the base texture if possible, dont want to have a bunch of copies in memory
-			if false:
-				pass
+			if texture_overlays[texture_name] is HumanizerOverlayImage:
+				var overlay = texture_overlays[texture_name]
+				material[texture_name+"_texture"] = load(full_texture_path(overlay.path,true))
+				if texture_name == "albedo":
+					material.albedo_color = overlay.color
 			else:
 				material[texture_name+"_texture"] = await HumanizerAPI.render_overlay_texture(texture_overlays[texture_name],texture_name,mesh_arrays)
 			#if texture_overlays[texture_name].size() == 1 and "gradient" not in texture_overlays[texture_name][0]: 
@@ -89,7 +96,6 @@ func generate_material_3D(material:StandardMaterial3D,mesh_arrays:Array):
 					#material.normal_scale = 1
 				#material[texture_name+"_texture"] = await HumanizerAPI.render_overlay_texture(texture_overlays[texture_name],texture_name)
 		is_generating = false
-		print("done generating")
 		done_generating.emit()	
 	)			
 	return material
