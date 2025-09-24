@@ -4,7 +4,7 @@ extends Node
 
 var mdt : WrapMeshData
 var target_size = Vector2(128,128)
-var image : Image = Image.create(target_size.x,target_size.y,false,Image.FORMAT_RGBA8)
+#var image : Image = Image.create(target_size.x,target_size.y,false,Image.FORMAT_RGBA8)
 
 @export var start_face_id :int = 0
 
@@ -19,12 +19,17 @@ var image : Image = Image.create(target_size.x,target_size.y,false,Image.FORMAT_
 	set(value):
 		run_update()
 
+@export var process = false:
+	set(value):
+		process = value
+
 func _ready():	
 	#mdt.create_from_surface($MeshInstance3D.mesh, 0) # Use surface 0, or iterate through surfaces
 	mdt = WrapMeshData.new($MeshInstance3D.mesh)
 
 func _process(delta:float):
-	#rotate_line += delta
+	if process:
+		rotate_line += delta/10
 	pass
 
 func run_update():
@@ -33,9 +38,9 @@ func run_update():
 
 func run_update2():
 	var line = []
-	mdt = WrapMeshData.new($MeshInstance3D.mesh)
+	#mdt = WrapMeshData.new($MeshInstance3D.mesh)
 	#start in the center and draw line to edge
-	image.fill(Color.PINK)
+	#image.fill(Color.PINK)
 	var face_id = start_face_id
 	var face = mdt.faces[face_id]
 	var verts = mdt.get_face_vertex_positions(face_id)
@@ -45,9 +50,9 @@ func run_update2():
 	var center_point :Vector3 = mdt.get_face_center_point(face_id)
 	line.append(center_point)
 	#draw on starting point
-	var bary_triangle = Barycentric_Triangle_3D.new(verts[0],verts[1],verts[2])
-	var coords_2d = bary_triangle.get_2D_coords(center_point,uvs,target_size)
-	image.set_pixelv(coords_2d,Color.BLUE)
+	#var bary_triangle = Barycentric_Triangle_3D.new(verts[0],verts[1],verts[2])
+	#var coords_2d = bary_triangle.get_2D_coords(center_point,uvs,target_size)
+	#image.set_pixelv(coords_2d,Color.BLUE)
 	
 	var face_normal = mdt.get_face_normal(face_id)
 
@@ -128,8 +133,8 @@ func run_update2():
 	
 	
 	
-	var material = $MeshInstance3D.get_surface_override_material(0)
-	material.albedo_texture = ImageTexture.create_from_image(image)
+	#var material = $MeshInstance3D.get_surface_override_material(0)
+	#material.albedo_texture = ImageTexture.create_from_image(image)
 
 func get_face_intercepts(face_id:int,p1:Vector3,p2:Vector3,crossed_edge_id:int):
 	$points/p1.hide()
