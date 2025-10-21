@@ -103,20 +103,22 @@ func get_face_intercepts(face_id:int,p1:Vector3,p2:Vector3,crossed_edge_id:int):
 	#if p1 == p2:
 		#printerr("get face intercepts - p1 equals p2")
 	#print("get face intercepts")
-	var projection_data = get_3D_to_2D_projection_data(face_id)
-	var intercept_points_2d = []
-	intercept_points_2d.append(project_3d_to_2d_point(projection_data,p1))
-	intercept_points_2d.append(project_3d_to_2d_point(projection_data,p2))
+	var proj_tri = TriangleProjection.new(wmd.faces[face_id].vertices)
+	
+	
 	#var p1_projected = get_edge_line_intersect(projection_data,crossed_edge_id,intercept_points_2d)
-	var p1_projected = project_2d_to_3d_point(projection_data, project_3d_to_2d_point(projection_data,p1))
+	var p1_projected = proj_tri.project_2d_to_3d_point(proj_tri.project_3d_to_2d_point(p1))
 	var intercepts = []
 	for idx in 3:
 		var edge_id = wmd.faces[face_id].edges[idx]
 		if edge_id == crossed_edge_id:
 			#printerr("crossed edge")
 			continue
-		
-		var intercept_3d = get_edge_line_intersect(projection_data,edge_id,intercept_points_2d)
+		var edge_verts_3d = []
+		edge_verts_3d.append(wmd.get_vertex_position(wmd.get_edge_vertex(edge_id,0)))
+		edge_verts_3d.append(wmd.get_vertex_position(wmd.get_edge_vertex(edge_id,1)))
+		#print(edge_verts_3d)
+		var intercept_3d = proj_tri.get_edge_line_intersect(idx,[p1,p2])
 		if intercept_3d == null:
 			#printerr("intercept is null")
 			continue
@@ -147,80 +149,32 @@ func get_face_intercepts(face_id:int,p1:Vector3,p2:Vector3,crossed_edge_id:int):
 	var intercept = intercepts[0]
 	return intercept
 
-func get_3D_to_2D_projection_data(curr_face_id:int):
-	#p0 is a point on the base plane, p1 is the point we are projecting onto it
-	#https://www.baeldung.com/cs/3d-point-2d-plane
-	#3.2. An Alternative Parameterization of the Plane
-	#d=ap +bq +cr
-	var data = {}
-	var normal = wmd.get_face_normal(curr_face_id)
-	data.normal = normal
-	var tri_verts_3d = wmd.get_face_vertex_positions(curr_face_id)
-	var d = normal.x * tri_verts_3d[0].x + normal.y * tri_verts_3d[0].y + normal.z * tri_verts_3d[0].z
-	data.d = d
-	var e1 = tri_verts_3d[1] - tri_verts_3d[0]
-	e1 = e1.normalized()
-	var e2 = e1.cross(normal)
-	e2 = e2.normalized()
-	data.e1 = e1
-	data.e2 = e2
-	data.origin = Vector3.ZERO
+
+
+static func point_within_3d_line_segment(line:Array,point:Vector3):
+	var minx = min(line[0].x,line[1].x)
+	var miny = min(line[0].y,line[1].y)
+	var minz = min(line[0].z,line[1].z)
+	var maxx = max(line[0].x,line[1].x)
+	var maxy = max(line[0].y,line[1].y)
+	var maxz = max(line[0].z,line[1].z)
+	if point.x < minx:
+		return false
+	if point.y < miny:
+		return false
+	if point.z < minz:
+		return false
+	if point.x > maxx:
+		return false
+	if point.y > maxy:
+		return false
+	if point.z > maxz:
+		return false
+	return true
 	
-	#should be very close, get average just to be sure
-	var offset = Vector3.ZERO
-	for v in tri_verts_3d:
-		var point_2d = project_3d_to_2d_point(data,v)
-		var point_3d = project_2d_to_3d_point(data,point_2d)
-		offset += v-point_3d
-	offset /= tri_verts_3d.size()
-	data.origin = offset
-		
-	#print(p4)
-	#print(p2-p4)
-	
-	return data
-
-
-
-func project_3d_to_2d_point(data:Dictionary,p1:Vector3):
-	#If the normal vector is also a unit vector (i.e., its length is 1), the denominator is also one since it denotes the vector’s squared length.
-	#if pow(normal.x,2) + pow(normal.y,2) + pow(normal.z,2) != 1.0:
-		#printerr("normal not normalized")
-	var k = data.d - data.normal.x * p1.x - data.normal.y * p1.y - data.normal.z * p1.z
-	k = k / (pow(data.normal.x,2) + pow(data.normal.y,2) + pow(data.normal.z,2))
-	#print(k)
-	var p2 = Vector3.ZERO #the 3d point projected onto the plane (in 3d)
-	p2.x = p1.x + k * data.normal.x
-	p2.y = p1.y + k * data.normal.y
-	p2.z = p1.z + k * data.normal.z
-	var p3 = Vector2.ZERO
-	p3.x = data.e1.x*p2.x + data.e1.y*p2.y + data.e1.z*p2.z
-	p3.y = data.e2.x*p2.x + data.e2.y*p2.y + data.e2.z*p2.z
-	return p3
-
-func project_2d_to_3d_point(data:Dictionary,p1):
-	var p4 = Vector3.ZERO
-	p4 = p1.x * data.e1 + p1.y * data.e2 + data.origin # + tri_verts_3d[1]
-	return p4
-
-
-func get_edge_line_intersect(projection_data,edge_id,line:Array):
-	#convert to 2d and back to 3d, was having issues with nearly parallel lines (due to rounding) when doing it with pure 3d intersects
-	var edge_verts_3d = []
-	edge_verts_3d.append(wmd.get_vertex_position(wmd.get_edge_vertex(edge_id,0)))
-	edge_verts_3d.append(wmd.get_vertex_position(wmd.get_edge_vertex(edge_id,1)))
-	var edge_verts_2d = []
-	edge_verts_2d.append(project_3d_to_2d_point(projection_data,edge_verts_3d[0]))
-	edge_verts_2d.append(project_3d_to_2d_point(projection_data,edge_verts_3d[1]))
-	#print(edge_verts_2d)
-	var intercept_2d = get_2d_line_intercept(line,edge_verts_2d)
-	if intercept_2d == null:
-		return null
-	var intercept_3d = project_2d_to_3d_point(projection_data,intercept_2d)
-	return intercept_3d
 
 	
-func get_2d_line_intercept(line1,line2):
+static func get_2d_line_intercept(line1,line2,clamp:bool): #clamp to line1 (edge) only NOT line2
 	var l1_eq = get_2d_line_equation(line1[0],line1[1])
 	var l2_eq = get_2d_line_equation(line2[0],line2[1])
 	var point_2d = Vector2.ZERO
@@ -228,10 +182,20 @@ func get_2d_line_intercept(line1,line2):
 		return null
 	point_2d.x = (l1_eq.c * l2_eq.b - l1_eq.b*l2_eq.c) / (l1_eq.a*l2_eq.b - l1_eq.b * l2_eq.a)
 	point_2d.y = (l1_eq.a * l2_eq.c - l1_eq.c*l2_eq.a) / (l1_eq.a*l2_eq.b - l1_eq.b * l2_eq.a)
+	
+	var max_x = max(line1[0].x,line1[1].x)
+	var min_x = min(line1[0].x,line1[1].x)
+	var max_y = max(line1[0].y,line1[1].y)
+	var min_y = min(line1[0].y,line1[1].y)
+	
+	if clamp:
+		if point_2d.x < min_x or point_2d.y < min_y or point_2d.x > max_x or point_2d.y > max_y:
+			return null
+	
 	#print(point_2d)
 	return point_2d
 		
-func get_2d_line_equation(p1,p2):
+static func get_2d_line_equation(p1,p2):
 	# to standard form a1x+b1y=c1
 	if p1.x == p2.x:
 		var a = 1

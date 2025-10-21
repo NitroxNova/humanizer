@@ -54,7 +54,7 @@ func add_face(face:Face):
 	for j in 3:
 		var k = (j + 1) % 3
 		var edge_verts = [face.vertices[j],face.vertices[k]]
-		edge_verts.sort()
+		edge_verts.sort_custom(sort_edge)
 		var edge_id = find_edge_id(edge_verts)
 		#print(edge_id, " ", edge_verts)
 		if edge_id == -1:
@@ -69,6 +69,17 @@ func add_face(face:Face):
 			var l_vertex = vertices[ edge_verts[l]]
 			if edge_id not in l_vertex.edges:
 				l_vertex.edges.append(edge_id)
+
+static func sort_edge(a:Vector3,b:Vector3):
+	if a.x < b.x:
+		return true
+	if a.x == b.x:
+		if a.y < b.y:
+			return true
+		if a.y == b.y:
+			if a.z < b.z:
+				return true
+				#else they are the same which shouldnt happen
 				
 func find_vertex(pos:Vector3):
 	if pos in vertices:
@@ -81,7 +92,7 @@ func find_vertex(pos:Vector3):
 
 func find_edge_id(v_index:Array):
 	var dupe_index = v_index.duplicate()
-	dupe_index.sort()
+	dupe_index.sort_custom(sort_edge)
 	for e_id in edges.size():
 		var edge : Edge = edges[e_id]
 		if edge.vertices == dupe_index:
