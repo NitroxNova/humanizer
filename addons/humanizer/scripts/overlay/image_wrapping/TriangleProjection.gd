@@ -2,12 +2,14 @@ extends Resource
 class_name TriangleProjection
 
 var verts_3d
-var verts_2d
+var verts_2d = []
 var data
 
 func _init(_verts_3d):
 	verts_3d = _verts_3d
 	get_3D_to_2D_projection_data()
+	for i in verts_3d.size():
+		verts_2d.append(project_3d_to_2d_point(verts_3d[i]))
 	
 func find_edge_id(vert1,vert2):
 	var vert_pos1 = verts_3d.find(vert1)
@@ -91,3 +93,17 @@ func project_2d_to_3d_point(p1):
 	var p4 = Vector3.ZERO
 	p4 = p1.x * data.e1 + p1.y * data.e2 + data.origin # + tri_verts_3d[1]
 	return p4
+
+func PointInTriangle( p_3d:Vector3):
+	var p :Vector2 = project_3d_to_2d_point(p_3d)
+	var p0 = verts_2d[0]
+	var p1 = verts_2d[1]
+	var p2 = verts_2d[2]
+	var s = (p0.x - p2.x) * (p.y - p2.y) - (p0.y - p2.y) * (p.x - p2.x);
+	var t = (p1.x - p0.x) * (p.y - p0.y) - (p1.y - p0.y) * (p.x - p0.x);
+
+	if ((s < 0) != (t < 0) && s != 0 && t != 0):
+		return false;
+
+	var d = (p2.x - p1.x) * (p.y - p1.y) - (p2.y - p1.y) * (p.x - p1.x);
+	return d == 0 || (d < 0) == (s + t <= 0);

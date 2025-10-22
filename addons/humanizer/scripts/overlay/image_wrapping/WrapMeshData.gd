@@ -25,7 +25,10 @@ func _init(mesh:ArrayMesh):
 			for j in 3:
 				var old_v_id = i*3+j
 				var new_v_id =  sf_arrays[Mesh.ARRAY_VERTEX][old_v_id] 
-				face.add_uv_vertex_pair(sf_arrays[Mesh.ARRAY_TEX_UV][old_v_id],new_v_id)
+				var uv = Vector2.ZERO
+				if not sf_arrays[Mesh.ARRAY_TEX_UV] == null:
+					uv = 	sf_arrays[Mesh.ARRAY_TEX_UV][old_v_id]
+				face.add_uv_vertex_pair(uv,new_v_id)
 			add_face(face)
 			
 	else:

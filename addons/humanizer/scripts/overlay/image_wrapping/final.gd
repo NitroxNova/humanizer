@@ -34,29 +34,25 @@ func cut_mesh(borders):
 	var horizontal_lines = borders[0]
 	var vertical_lines = borders[1]
 	#start at face_id
-	var external_faces = []
+	var border_faces = []
 	#print("~~~~~~")
 	#for segment in horizontal_lines[0]:
 		#print(segment.face_id)
 	#print("~~~~~~")
 	for i in horizontal_lines.size():
 		for segment in horizontal_lines[i]:
-			if segment.face_id not in external_faces:
-				external_faces.append(segment.face_id)
+			if segment.face_id not in border_faces:
+				border_faces.append(segment.face_id)
 	for i in vertical_lines.size():
 		for segment in vertical_lines[i]:
-			if segment.face_id not in external_faces:
-				external_faces.append(segment.face_id)
+			if segment.face_id not in border_faces:
+				border_faces.append(segment.face_id)
 				
-	var internal_faces = get_connected_internal_faces(start_face_id,external_faces)
-	var internal_vertices = get_connected_internal_vertices(internal_faces)
 	#print(internal_faces)
 	
-	var internal_uvs = []
 	var sf_arrays = []
 	sf_arrays.resize(Mesh.ARRAY_MAX)
 	sf_arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
-	sf_arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
 	
 	
 	var borders2 = [borders[0][0]]
@@ -68,24 +64,16 @@ func cut_mesh(borders):
 	var cut_edge_faces = cut_edge_faces(borders2)	
 	var edge_faces = cut_edge_faces[0]
 	var new_borders = cut_edge_faces[1]
-	var external_uvs = get_external_uvs(borders2)
 	#print(edge_faces)	
 	var new_edge_faces = []
-	for edge_face in edge_faces:
-		new_edge_faces.append(edge_face)
-		#TODO
-			
-				
+	for face_id in edge_faces:
+		for temp_tri in edge_faces[face_id]:
+			new_edge_faces.append([temp_tri.verts_3d[0],temp_tri.verts_3d[1],temp_tri.verts_3d[2]])
+		#TODO		
 	for nf in new_edge_faces:
 		for vtx_pos in nf:
 			sf_arrays[Mesh.ARRAY_VERTEX].append(vtx_pos)
 			#print(vtx_pos ==sf_arrays[Mesh.ARRAY_VERTEX][-1] )
-			if vtx_pos in external_uvs:
-				sf_arrays[Mesh.ARRAY_TEX_UV].append(external_uvs[vtx_pos])
-			else:
-				if vtx_pos not in internal_uvs:
-					internal_uvs.append(vtx_pos)
-				sf_arrays[Mesh.ARRAY_TEX_UV].append(Vector2(.5,.5))
 	
 	#print(new_edge_faces[-1][-1])
 	#print(sf_arrays[Mesh.ARRAY_VERTEX].size())
@@ -94,116 +82,58 @@ func cut_mesh(borders):
 	cut_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,sf_arrays)
 	$CutMesh.mesh = cut_mesh
 	
-	var external_wmd = WrapMeshData.new(cut_mesh)
+	var first_tri = []
+	var edges_wmd = WrapMeshData.new(cut_mesh)
+	if start_face_id in border_faces:
+		var start_pos = wmd.get_face_center_point(start_face_id)
+		for face in edge_faces[start_face_id]:
+			if face.PointInTriangle(start_pos):
+				first_tri = face.verts_3d.duplicate()
+	else:
+		first_tri = wmd.faces[start_face_id].vertices.duplicate()
 	
-	var internal_face_verts = []
-	for face_id in internal_faces:
-		var face = wmd.faces[face_id]
-		for vtx_id in face.vertices:
-			internal_face_verts.append([face.vertices[0],face.vertices[1],face.vertices[2]])
-	
-	get_connected_edge_faces(external_wmd,internal_face_verts,new_borders)
-	#get original face
-	#print(wmd.faces[start_face_id].vertices)
-	
+	var connected_faces = []
+	get_connected_internal_faces(first_tri,edges_wmd,new_borders,edge_faces,connected_faces)	
+		
 	sf_arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
-	sf_arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
-	
-	for face_verts in internal_face_verts:
-		#var face = wmd.faces[face_id]
-		for vtx_id in face_verts:
-			sf_arrays[Mesh.ARRAY_VERTEX].append(vtx_id)
-			if vtx_id not in internal_uvs:
-				internal_uvs.append(vtx_id)
-			sf_arrays[Mesh.ARRAY_TEX_UV].append(Vector2(.5,.5))
+	for nf in connected_faces:
+		for vtx_pos in nf:
+			sf_arrays[Mesh.ARRAY_VERTEX].append(vtx_pos)
 	cut_mesh = ArrayMesh.new()
 	cut_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,sf_arrays)
 	$CutMesh.mesh = cut_mesh	
-	
-	#print(new_edge_faces[-1][-1] == cut_mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX][-1])
 	return new_borders
-
-func get_connected_edge_faces(external_wmd:WrapMeshData,internal_faces,borders):
 	
-	for face_verts_id in internal_faces.size():
-		var face_verts = internal_faces[face_verts_id]
-		for i in 3:
-			var vtx1 = face_verts[i]
-			var vtx2 = face_verts[(i+1) %3]
-			var external_edge_id = external_wmd.find_edge_id([vtx1,vtx2])
-			if external_edge_id != -1 and external_edge_id != null:
-				get_connected_edge_faces_recur(external_edge_id,external_wmd,internal_faces,borders)
+func get_connected_internal_faces(verts_3d,edges_wmd:WrapMeshData,border_edges,border_faces,connected_faces=[]):
+	#print(border_edges)
+	if verts_3d in connected_faces:
+		return
+	connected_faces.append(verts_3d) 
+	for i in 3:
+		var vert1 = verts_3d[i]
+		var vert2 = verts_3d[(i+1) %3]
+		if is_border_edge([vert1,vert2],border_edges):
+			continue
+		var edge_id = edges_wmd.find_edge_id([vert1,vert2])
+		if edge_id != -1:
+			for face_id in edges_wmd.edges[edge_id].faces:
+				var face = edges_wmd.faces[face_id]
+				get_connected_internal_faces(face.vertices,edges_wmd,border_edges,border_faces,connected_faces)
+		edge_id = wmd.find_edge_id([vert1,vert2])
+		if edge_id != -1:
+			for face_id in wmd.edges[edge_id].faces:
+				if face_id in border_faces:
+					continue	
+				var face = wmd.faces[face_id]
+				get_connected_internal_faces(face.vertices,edges_wmd,border_edges,border_faces,connected_faces)				
 
-func get_connected_edge_faces_recur(edge_id,external_wmd:WrapMeshData,internal_faces,borders):
-	#print(edge_id)
-	var external_edge = external_wmd.edges[edge_id]
-	for i in borders.size():
-		if external_edge.vertices[0] in borders[i] and external_edge.vertices[1] in borders[i]:
-			#print("found external edge")
-			return
-	for external_face_id in external_edge.faces:
-		var edge_face = external_wmd.faces[external_face_id]
-		if edge_face.vertices not in internal_faces:
-			#print(external_face.vertices)
-			internal_faces.append(edge_face.vertices)
-			for next_edge_id in edge_face.edges:
-				get_connected_edge_faces_recur(next_edge_id,external_wmd,internal_faces,borders)
+func is_border_edge(verts:Array,border_edges):
+	for line in border_edges:
+		if verts[0] in line and verts[1] in line:
+			return true
+	return false	
 			
-	
-func get_connected_internal_faces(face_id,border_faces,internal_faces=[]):
-	internal_faces.append(face_id)
-	var face = wmd.faces[face_id]
-	for e_id in face.edges:
-		var edge = wmd.edges[e_id]
-		for ef_id in edge.faces:
-			if ef_id not in internal_faces and ef_id not in border_faces:
-				get_connected_internal_faces(ef_id,border_faces,internal_faces)
-	return internal_faces
 
-func get_connected_internal_vertices(internal_faces):
-	var internal_verts = []
-	for face_id in internal_faces:
-		var face = wmd.faces[face_id]
-		for v_id in face.vertices:
-			if v_id not in internal_verts:
-				internal_verts.append(v_id)
-		
-	return internal_verts
-
-func get_external_uvs(borders:Array):
-	var uvs = {}
-	#var uvs = [Vector2.ZERO,Vector2(1,0),Vector2(1,.5),Vector2(1,1),Vector2(0,1),Vector2(0,.5)]
-	for line_id in borders.size():
-		var line = borders[line_id]
-		var start_uv = Vector2.ZERO
-		var end_uv = Vector2.ZERO
-		if line_id == 0:
-			start_uv = Vector2(1,0)
-			end_uv = Vector2(0,0)
-		elif line_id == 1:
-			start_uv = Vector2(1,0)
-			end_uv = Vector2(1,1)
-		elif line_id == 2:
-			start_uv = Vector2(1,1)
-			end_uv = Vector2(0,1)
-		elif line_id == 3:
-			start_uv = Vector2(0,1)
-			end_uv = Vector2(0,0)
-		var total_distance = 0
-		for segment_id in line.size()-1:
-			var segment1 = line[segment_id]
-			var segment2 = line[segment_id+1]
-			total_distance += segment1.position.distance_to(segment2.position)
-		var cur_distance:float = 0
-		for segment_id in line.size()-1:
-			var segment1 = line[segment_id]
-			var segment2 = line[segment_id+1]
-			var ratio = cur_distance/total_distance
-			var new_uv = start_uv.lerp(end_uv,ratio)
-			uvs[segment1.position] = new_uv
-			cur_distance += segment1.position.distance_to(segment2.position)
-		uvs[line[-1].position] = end_uv
-	return uvs
 
 func cut_edge_faces(borders:Array): 
 	#print(borders)
@@ -343,11 +273,11 @@ func cut_edge_faces(borders:Array):
 			for r in remove_tris:
 				border_shapes[face_id].erase(r)
 			border_shapes[face_id].append_array(add_tris)
-	var shapes = []
-	for face_id in border_shapes:
-		for temp_tri in border_shapes[face_id]:
-			shapes.append([temp_tri.verts_3d[0],temp_tri.verts_3d[1],temp_tri.verts_3d[2]])		
-	return [shapes,new_borders]
+	#var shapes = []
+	#for face_id in border_shapes:
+		#for temp_tri in border_shapes[face_id]:
+			#shapes.append([temp_tri.verts_3d[0],temp_tri.verts_3d[1],temp_tri.verts_3d[2]])		
+	return [border_shapes,new_borders]
 			
 func make_borders():
 	#draw center line, going left and going right
