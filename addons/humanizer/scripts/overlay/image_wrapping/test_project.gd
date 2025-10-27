@@ -14,6 +14,17 @@ extends Node3D
 	set(value):
 		face_id = value
 		run_update()
+
+@export var img_origin : Vector3:
+	set(value):
+		img_origin = value
+		run_update()
+		
+@export var img_normal : Vector3:
+	set(value):
+		img_normal = value
+		run_update()
+
 		
 @export var img_distance = 1.0 :
 	set(value):
@@ -52,17 +63,15 @@ func run_update():
 	$plane.get_surface_override_material(0).albedo_texture = img_texture
 	
 	
-	var sf_arrays = $FedoraCocked.mesh.surface_get_arrays(0)
-	var face_verts = []
-	for i in 3:
-		var idx = face_id * 3 + i
-		var vtx_id = sf_arrays[Mesh.ARRAY_INDEX][idx]
-		var vtx_pos = sf_arrays[Mesh.ARRAY_VERTEX][vtx_id]
-		face_verts.append(vtx_pos)
 	var axis_max:float =  max(img_texture.get_width(),img_texture.get_height()) 
 	var axis_scale = Vector2(img_texture.get_width()/axis_max,img_texture.get_height()/axis_max)
 	axis_scale *= img_scale
-	var plane = Plane_Projection.new(face_verts,img_rotate,axis_scale)
+	
+	var plane = Plane_Projection.new()
+	var sf_arrays = $FedoraCocked.mesh.surface_get_arrays(0)
+	#plane.from_face(face_id,sf_arrays,img_rotate,axis_scale)
+	plane.from_origin_normal(img_origin,img_normal,img_rotate,axis_scale)
+
 	draw_plane(plane,axis_scale)
 	
 	var uv_arrays = []
@@ -186,7 +195,30 @@ class Plane_Projection:
 	var unit_2 :Vector3
 	var axis_scale : Vector2
 	
-	func _init(face_verts,rotate,_axis_scale):
+	func from_origin_normal(img_origin,img_normal,img_rotate,_axis_scale):
+		origin_3d = img_origin
+		normal_3d = img_normal.normalized()
+		axis_scale = _axis_scale
+		if normal_3d == Vector3.UP:
+			unit_1 = normal_3d.cross(Vector3.FORWARD)
+		else:
+			unit_1 = normal_3d.cross(Vector3.UP)
+		unit_1 = unit_1.rotated(normal_3d,img_rotate)
+		unit_1 = unit_1.normalized()
+		unit_2 = unit_1.cross(normal_3d)
+		unit_2 = unit_2.normalized()
+		
+	
+	func from_face(face_id,sf_arrays,img_rotate,_axis_scale):
+		var face_verts = []
+		for i in 3:
+			var idx = face_id * 3 + i
+			var vtx_id = sf_arrays[Mesh.ARRAY_INDEX][idx]
+			var vtx_pos = sf_arrays[Mesh.ARRAY_VERTEX][vtx_id]
+			face_verts.append(vtx_pos)
+		from_triangle( face_verts,img_rotate,_axis_scale)
+	
+	func from_triangle(face_verts,rotate,_axis_scale):
 		origin_3d = (face_verts[0] + face_verts[1] + face_verts[2]) / 3
 		normal_3d = TriangleProjection.get_face_normal(face_verts)
 		unit_1 = (face_verts[0] - face_verts[1])
