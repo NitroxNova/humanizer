@@ -5,10 +5,40 @@ var wmd : WrapMeshData
 
 func _init(_wmd):
 	wmd = _wmd
+
+func make_floating_line(face_normal:Vector3,start_position:Vector3, line_rotation:float,total_distance:float ):
+	var left_line = []
+	var right_line = []
+
+	var perp_vector :Vector3 = face_normal.cross(Vector3.UP)
+	if perp_vector == Vector3.ZERO:
+		perp_vector = face_normal.cross(Vector3.FORWARD)
+	#print(perp_vector)
+
+	perp_vector = perp_vector.rotated(face_normal,line_rotation)
+	perp_vector = perp_vector.normalized()
+	#print(perp_vector)
+	
+	var p1 = start_position
+	var p2 = perp_vector *total_distance + start_position
+	
+	right_line.append(LineWrapper.Wrap_Line_Segment.new(-1, -1 ,start_position))
+	right_line.append(LineWrapper.Wrap_Line_Segment.new(-1, -1 ,p2))
+	
+	perp_vector = perp_vector.rotated(face_normal,PI)
+	p2 = perp_vector *total_distance + start_position
+	left_line.append(LineWrapper.Wrap_Line_Segment.new(-1,-1,start_position))
+	left_line.append(LineWrapper.Wrap_Line_Segment.new(-1,-1,p2))
+	return [left_line,right_line]
+	
 	
 func make_wrapping_line(start_face_id:int, start_position:Vector3, line_rotation:float,total_distance:float):
 	var left_line = []
 	var right_line = []
+	if start_face_id == -1:
+		printerr("start face is -1")
+		return [left_line,right_line]
+		
 	var face_normal = wmd.get_face_normal(start_face_id)
 
 	var perp_vector :Vector3 = face_normal.cross(Vector3.UP)
@@ -29,7 +59,6 @@ func make_wrapping_line(start_face_id:int, start_position:Vector3, line_rotation
 	
 	right_line.append(LineWrapper.Wrap_Line_Segment.new(start_face_id, -1 ,start_position))
 	var remaining_distance = total_distance
-	remaining_distance -= (p1.distance_to(intercept))
 	right_line.append_array(make_wrapping_line_one_way(remaining_distance,intersection,start_face_id,start_position))
 	perp_vector = perp_vector.rotated(face_normal,PI)
 	
@@ -38,65 +67,86 @@ func make_wrapping_line(start_face_id:int, start_position:Vector3, line_rotation
 	intercept = intersection[0]
 	left_line.append(LineWrapper.Wrap_Line_Segment.new(start_face_id,-1,start_position))
 	remaining_distance = total_distance
-	remaining_distance -= (p1.distance_to(intercept))
 	left_line.append_array(make_wrapping_line_one_way(remaining_distance,intersection,start_face_id,start_position))
 	return [left_line,right_line]
 
 func make_wrapping_line_one_way(remaining_distance:float,intersection:Array,curr_face_id:int,prev_intercept:Vector3):
 	var line : Array[LineWrapper.Wrap_Line_Segment] = []
 	var tries = 10000
+	#print("starting distance = ",remaining_distance)
+	#remaining_distance -= intersection[0].distance_to(prev_intercept)
 	while remaining_distance > 0 and tries > 0:
-		#
+		
+		var intercept = intersection[0]
+		var line_vector : Vector3 = intercept - prev_intercept
+		line_vector = line_vector.normalized()
 		var edge_id = intersection[1]
 		var next_faces:Array = wmd.get_edge_faces(edge_id).duplicate()
 		#print(next_faces)
 		next_faces.erase(curr_face_id)
+		
 		if next_faces.size() > 1:
 			printerr("too many connected faces")
 		elif next_faces.size() < 1:
-			printerr("not enough connected faces")
+			#printerr("not enough connected faces")
+			#straight line off the mesh
+			var wrap_line = LineWrapper.Wrap_Line_Segment.new(-1,edge_id,intercept)
+			#print(wrap_line)
+			line.append(wrap_line)
+			remaining_distance -= prev_intercept.distance_to(intercept)
+			line_vector = prev_intercept - intercept
+			line_vector = line_vector.normalized()
+			intercept = line_vector * remaining_distance + intercept
+			wrap_line = LineWrapper.Wrap_Line_Segment.new(-1,-1,intercept)
+			line.append(wrap_line)
+			return line
+			
 		var next_face_id = next_faces[0]
 		var next_face = wmd.faces[next_face_id]
-		var intercept = intersection[0]
-		var line_vector : Vector3 = intercept - prev_intercept
+		
+		if prev_intercept.distance_to(intercept) >= remaining_distance:
+			var percent = remaining_distance / prev_intercept.distance_to(intercept)
+			intercept = prev_intercept.lerp(intercept,percent)
+			remaining_distance = 0			
+			var wrap_line = LineWrapper.Wrap_Line_Segment.new(curr_face_id,-1,intercept)
+			line.append(wrap_line)
+		else:
+			var wrap_line = LineWrapper.Wrap_Line_Segment.new(next_face_id,intersection[1],intercept)
+			line.append(wrap_line)
+		
+		remaining_distance -= prev_intercept.distance_to(intercept)
 		prev_intercept = intercept
 		
-		var wrap_line = LineWrapper.Wrap_Line_Segment.new(next_face_id,intersection[1],intercept)
-		line.append(wrap_line)
+		if remaining_distance > 0:
 #
-		var face1_normal = wmd.get_face_normal(curr_face_id)
-		var face2_normal = wmd.get_face_normal(next_face_id)
-		var rotation_angle = face1_normal.angle_to(face2_normal)
-		var axis : Vector3 = wmd.get_vertex_position(wmd.get_edge_vertex(edge_id,1)) - wmd.get_vertex_position(wmd.get_edge_vertex(edge_id,0))
-		var axis2 : Vector3 = wmd.get_vertex_position(wmd.get_edge_vertex(edge_id,0)) - wmd.get_vertex_position(wmd.get_edge_vertex(edge_id,1))
-		axis = axis.normalized()
-		axis2 = axis2.normalized()
-		var result1 = face1_normal.rotated(axis,rotation_angle)
-		var result2 = face1_normal.rotated(axis2,rotation_angle)
-		if result2.distance_to(face2_normal) < result1.distance_to(face2_normal):
-			axis = axis2 
-		#
-		line_vector = line_vector.rotated(axis,rotation_angle)
-		var p1 = intercept
-		var p2 = intercept + line_vector
-		
-		#print("make wrap line one way get face intercept")
-		intersection = get_face_intercepts(next_face_id,p1,p2,edge_id)
+			var face1_normal = wmd.get_face_normal(curr_face_id)
+			var face2_normal = wmd.get_face_normal(next_face_id)
+			var rotation_angle = face1_normal.angle_to(face2_normal)
+			var axis : Vector3 = wmd.get_vertex_position(wmd.get_edge_vertex(edge_id,1)) - wmd.get_vertex_position(wmd.get_edge_vertex(edge_id,0))
+			var axis2 : Vector3 = wmd.get_vertex_position(wmd.get_edge_vertex(edge_id,0)) - wmd.get_vertex_position(wmd.get_edge_vertex(edge_id,1))
+			axis = axis.normalized()
+			axis2 = axis2.normalized()
+			var result1 = face1_normal.rotated(axis,rotation_angle)
+			var result2 = face1_normal.rotated(axis2,rotation_angle)
+			if result2.distance_to(face2_normal) < result1.distance_to(face2_normal):
+				axis = axis2 
+			#
+			line_vector = line_vector.rotated(axis,rotation_angle)
+			var p1 = intercept
+			var p2 = intercept + line_vector
+			
+			#print("make wrap line one way get face intercept")
+			intersection = get_face_intercepts(next_face_id,p1,p2,edge_id)
 
-		intercept = intersection[0]
-		if p1.distance_to(intercept) >= remaining_distance:
-			var percent = remaining_distance / p1.distance_to(intercept)
-			intercept = p1.lerp(intercept,percent)
-			remaining_distance = 0			
-			wrap_line = LineWrapper.Wrap_Line_Segment.new(next_face_id,-1,intercept)
-			line.append(wrap_line)
-
-
-		remaining_distance -= p1.distance_to(intercept)
-		curr_face_id = next_face_id
-		tries -= 1
-		##print(remaining_distance)
-
+			intercept = intersection[0]
+			curr_face_id = next_face_id
+			tries -= 1
+	
+	
+	
+	if tries <= 0:
+		printerr("Ran out of tries")
+	#print(line)
 	return line
 	
 func get_face_intercepts(face_id:int,p1:Vector3,p2:Vector3,crossed_edge_id:int):
@@ -145,6 +195,7 @@ func get_face_intercepts(face_id:int,p1:Vector3,p2:Vector3,crossed_edge_id:int):
 		print(p1)
 		print(p2)
 		print(crossed_edge_id)
+		return null
 	
 	var intercept = intercepts[0]
 	return intercept
@@ -223,14 +274,18 @@ func make_vertical_wrapping_line(percent:float,horizontal_line,vertical_distance
 	var segment_id = segment_data.segment_id
 	var curr_face_id = horizontal_line[segment_id].face_id
 	
+	var face_normal = wmd.get_face_normal(curr_face_id)
+	if curr_face_id == -1:
+		face_normal = wmd.get_face_normal(horizontal_line[segment_id-2].face_id)
+		
 	#TODO this might be wrong
 	var intercept_vector = horizontal_line[segment_id].position-horizontal_line[segment_id-1].position
 	#var intercept_vector = 
-	intercept_vector = intercept_vector.rotated(wmd.get_face_normal(curr_face_id),-PI/2)
+	intercept_vector = intercept_vector.rotated(face_normal,-PI/2)
 	intercept_vector = intercept_vector.normalized()
 	
 	
-	var face_normal = wmd.get_face_normal(curr_face_id)
+		
 	var perp_vector :Vector3 = face_normal.cross(Vector3.UP)
 	if perp_vector == Vector3.ZERO:
 		perp_vector = face_normal.cross(Vector3.FORWARD)
@@ -242,6 +297,9 @@ func make_vertical_wrapping_line(percent:float,horizontal_line,vertical_distance
 		#printerr("intercept vector doesnt match")
 		#printerr(perp_vector.rotated(face_normal,-line_rotation).normalized())
 		line_rotation = -line_rotation
+	if curr_face_id == -1:
+		return make_floating_line(face_normal,segment_data.start_point,line_rotation,vertical_distance)
+		
 	
 	return make_wrapping_line(curr_face_id,segment_data.start_point,line_rotation,vertical_distance)
 	#return [[segment_data.start_point,segment_data.start_point+intercept_vector]]
@@ -273,7 +331,7 @@ func get_weighted_line_segment(weight:float,horizontal_line:Array):
 		cur_distance = next_distance
 		
 class Wrap_Line_Segment:
-	var face_id:int # face the next part goes through, -1 at the end
+	var face_id:int # face the next part goes through, -1 if it goes over the edges
 	var edge_id:int #intersection, -1 if on face
 	var position :Vector3
 	

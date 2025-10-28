@@ -37,7 +37,7 @@ func get_edge_line_intersect(edge_id:int,line_verts_2d:Array):
 
 	
 
-func get_face_normal(verts:Array):
+static func get_face_normal(verts:Array):
 	var normal = (verts[2] - verts[0]).cross(verts[1]-verts[0])
 	normal = normal.normalized()
 	#print(verts)

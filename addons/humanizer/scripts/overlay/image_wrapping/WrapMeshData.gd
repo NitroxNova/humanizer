@@ -151,13 +151,42 @@ func get_face_normal(face_id):
 	#print(verts)
 	#print(normal)
 	return normal
-	
+
+func get_edges_between_corners(vtx_pos_1:Vector3,vtx_pos_2:Vector3,other_corners:Array):
+	var vtx_1 = vertices[vtx_pos_1]
+	var vtx_2 = vertices[vtx_pos_2]
+	var path = []
+	for edge_id in vtx_1.edges:
+		var edge = edges[edge_id]
+		if edge.faces.size() == 1:
+			path = [edge]
+			var next_vert_pos = edge.get_opposite_vertex(vtx_pos_1)
+			var next_vert = vertices[next_vert_pos]
+			if next_vert_pos == vtx_pos_2:
+				return path
+			var tries = 1000
+			while other_corners[0] not in path[-1].vertices and other_corners[1] not in path[-1].vertices and tries > 0: 
+				for next_edge_id in next_vert.edges:
+					var next_edge = edges[next_edge_id]
+					if edge.faces.size() == 1 and next_edge != path[-1]:
+						path.append(next_edge)
+						next_vert_pos = next_edge.get_opposite_vertex(next_vert_pos)
+						next_vert = vertices[next_vert_pos]
+						if next_vert_pos == vtx_pos_2:
+							return path
+				tries -= 1
+	#return path
+
+		
 class Edge:
 	var faces = []
 	var vertices = []
 	var astar_ids = []
 	
 	func get_opposite_vertex(vtx_id):
+		if vtx_id not in vertices:
+			printerr(vtx_id," not in edge ")
+			return
 		for v in vertices:
 			if v != vtx_id:
 				return v

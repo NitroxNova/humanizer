@@ -19,6 +19,10 @@ func get_shortest_path(face_1,position_1,face_2,position_2):
 	var point2_astar = link_astar_point_to_face(position_2,face_2)	
 	
 	var path = astar.get_id_path(point1_astar,point2_astar)
+	#print(position_1)
+	#print(position_2)
+	#print(astar.get_point_position( path[0]))
+	#print(point1_astar)
 	#print(path)
 	
 	var line = []
@@ -30,7 +34,14 @@ func get_shortest_path(face_1,position_1,face_2,position_2):
 		var edge_id = -1
 		var point_1_meta = astar_meta[astar_1_id]
 		var point_2_meta = astar_meta[astar_2_id]
-		if point_1_meta.type == "face":
+		if point_1_meta.type == "floating":
+			face_id = -1
+			edge_id = -1
+		elif point_2_meta.type == "floating":
+			if point_1_meta.type == "edge":
+				face_id = -1
+				edge_id = point_1_meta.id
+		elif point_1_meta.type == "face":
 			face_id = point_1_meta.id
 			edge_id = -1
 		elif point_2_meta.type == "face":
@@ -78,13 +89,22 @@ func get_shortest_path(face_1,position_1,face_2,position_2):
 	astar.remove_point(astar.get_point_count()-1)
 	astar_meta.remove_at(astar_meta.size()-1)
 	astar_meta.remove_at(astar_meta.size()-1)
+	#print(line)
 	return line
 	
 
 func link_astar_point_to_face(point_position,face_id):
-	var face = wmd.faces[face_id]
 	var new_id = astar.get_point_count()
 	astar.add_point(new_id,point_position)
+	if face_id == -1:
+		#printerr("point has no face")
+		astar_meta.append({type="floating"})
+		for edge in wmd.edges:
+			if edge.faces.size() == 1: #edge face
+				for a_id in edge.astar_ids:
+					astar.connect_points(new_id,a_id)
+		return new_id
+	var face = wmd.faces[face_id]
 	astar_meta.append({type="face",id=face_id})
 	for a_id in get_face_astar_ids(face_id):
 		astar.connect_points(new_id,a_id)

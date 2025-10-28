@@ -11,7 +11,11 @@ extends Node3D
 		image_rotation = value
 		run_update()
 
-@export var image_scale : float = 1
+@export var image_scale : float = 1:
+	set(value):
+		image_scale = value
+		run_update()
+		
 @export var image : Texture2D
 
 @onready var wmd = WrapMeshData.new($BaseMesh.mesh )
@@ -94,6 +98,9 @@ func cut_mesh(borders):
 	
 	var connected_faces = []
 	get_connected_internal_faces(first_tri,edges_wmd,new_borders,edge_faces,connected_faces)	
+	
+	#print(new_borders)
+	shapes_from_floating_points(borders2,connected_faces)	
 		
 	sf_arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
 	for nf in connected_faces:
@@ -151,15 +158,17 @@ func cut_edge_faces(borders:Array):
 				var edge_verts = edge.vertices.duplicate()
 				edge_verts.sort_custom(WrapMeshData.sort_edge)
 				line_intercepts[line_id][edge_verts] = segment.position
-
-						
+				
 
 	for line_id in borders.size():
 		new_borders.append([])
 		var line = borders[line_id]
 		for segment in line:
 			var face_id = segment.face_id
-			if face_id not in border_shapes:
+			if face_id == -1:
+				#get edges between connection
+				pass
+			if face_id not in border_shapes and face_id != -1:
 				#print(wmd.faces[face_id].vertices)
 				border_shapes[face_id] = [TriangleProjection.new(wmd.faces[face_id].vertices)]
 			if segment.position not in new_borders[line_id]:
@@ -170,6 +179,8 @@ func cut_edge_faces(borders:Array):
 			var segment1 = line[segment_id]
 			var segment2 = line[segment_id+1]
 			var face_id = segment1.face_id
+			if face_id == -1:
+				continue
 			var line_verts = [segment1.position,segment2.position]
 			var add_tris = []
 			var remove_tris = []
@@ -278,7 +289,39 @@ func cut_edge_faces(borders:Array):
 		#for temp_tri in border_shapes[face_id]:
 			#shapes.append([temp_tri.verts_3d[0],temp_tri.verts_3d[1],temp_tri.verts_3d[2]])		
 	return [border_shapes,new_borders]
-			
+
+func shapes_from_floating_points(borders,connected_faces):
+	if borders[3][0].face_id == -1 and borders[3][-1].face_id == -1:
+		#print("get edge between points")
+		if not borders[3].size() == 2:
+			printerr("expected 2 points on vertical side")
+		var sf_arrays = []
+		sf_arrays.resize(Mesh.ARRAY_MAX)
+		sf_arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
+		for nf in connected_faces:
+			for vtx_pos in nf:
+				sf_arrays[Mesh.ARRAY_VERTEX].append(vtx_pos)
+		var cut_mesh = ArrayMesh.new()
+		cut_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,sf_arrays)
+		var cut_wmd = WrapMeshData.new(cut_mesh)
+		var other_corners = []
+		if borders[1][0].face_id == -1 and borders[1][-1].face_id == -1:
+			other_corners.append(borders[0][1])
+			other_corners.append(borders[2][1])
+		else:
+			other_corners.append(borders[1][0])
+			other_corners.append(borders[1][-1])
+		var edge_verts = cut_wmd.get_edges_between_corners(borders[0][-2].position,borders[2][-2].position,other_corners)
+		#print(edge_verts)
+		for edge in edge_verts:
+			var new_face = edge.vertices.duplicate()
+			new_face.append(borders[3][0].position)
+			connected_faces.append(new_face)
+		var new_face = []
+		new_face.append(borders[3][0].position)
+		new_face.append(borders[3][-1].position)
+		new_face.append(borders[0][-2].position)
+		connected_faces.append(new_face)	
 func make_borders():
 	#draw center line, going left and going right
 	var start_position = wmd.get_face_center_point(start_face_id)
@@ -289,13 +332,15 @@ func make_borders():
 	var vertical_line = line_wrapper.make_wrapping_line(start_face_id,start_position,image_rotation+ PI/2,vertical_distance)
 	var temp_vert_line = line_wrapper.make_vertical_wrapping_line(1,horizontal_line[0],vertical_distance)
 	#vertical_line.append_array(line_wrapper.make_vertical_wrapping_line(1,horizontal_line[0],vertical_distance))
+	#print(temp_vert_line)
+	$points/p2.position = temp_vert_line[0][-1].position
 	temp_vert_line = combine_line_segments(temp_vert_line[0],temp_vert_line[1])
 	vertical_line.append(temp_vert_line)
 	
 	temp_vert_line = line_wrapper.make_vertical_wrapping_line(1,horizontal_line[1],vertical_distance)
 	temp_vert_line = combine_line_segments(temp_vert_line[0],temp_vert_line[1])
 	vertical_line.append(temp_vert_line)
-	##
+	#print(temp_vert_line)
 	horizontal_line.pop_front()
 	horizontal_line.pop_front()
 	#
@@ -314,6 +359,7 @@ func make_borders():
 	horizontal_line.append(horiz_line1)
 	
 	start_segment = vertical_line[2][-1]
+	#print(vertical_line)
 	end_segment = vertical_line[1][-1]
 	path = short_path_builder.get_shortest_path(start_segment.face_id,start_segment.position,end_segment.face_id,end_segment.position)
 	path.pop_back()
@@ -324,6 +370,7 @@ func make_borders():
 	path.pop_front()
 	horiz_line2.append_array(path)
 	horizontal_line.append(horiz_line2)
+	#print(horiz_line2)
 	#
 	vertical_line.pop_front()
 	vertical_line.pop_front()
