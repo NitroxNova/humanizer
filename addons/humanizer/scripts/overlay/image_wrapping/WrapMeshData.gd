@@ -157,6 +157,7 @@ func get_edges_between_corners(vtx_pos_1:Vector3,vtx_pos_2:Vector3,other_corners
 	var vtx_2 = vertices[vtx_pos_2]
 	var path = []
 	for edge_id in vtx_1.edges:
+		#print(edge_id)
 		var edge = edges[edge_id]
 		if edge.faces.size() == 1:
 			path = [edge]
@@ -165,15 +166,16 @@ func get_edges_between_corners(vtx_pos_1:Vector3,vtx_pos_2:Vector3,other_corners
 			if next_vert_pos == vtx_pos_2:
 				return path
 			var tries = 1000
-			while other_corners[0] not in path[-1].vertices and other_corners[1] not in path[-1].vertices and tries > 0: 
+			while other_corners[0].position not in path[-1].vertices and other_corners[1].position not in path[-1].vertices and tries > 0: 
 				for next_edge_id in next_vert.edges:
 					var next_edge = edges[next_edge_id]
-					if edge.faces.size() == 1 and next_edge != path[-1]:
+					if next_edge.faces.size() == 1 and next_edge not in path:
 						path.append(next_edge)
 						next_vert_pos = next_edge.get_opposite_vertex(next_vert_pos)
 						next_vert = vertices[next_vert_pos]
 						if next_vert_pos == vtx_pos_2:
 							return path
+						#break #shouldnt need the break, should be one and only one
 				tries -= 1
 	#return path
 
@@ -185,7 +187,7 @@ class Edge:
 	
 	func get_opposite_vertex(vtx_id):
 		if vtx_id not in vertices:
-			printerr(vtx_id," not in edge ")
+			printerr(vtx_id," not in edge ", vertices)
 			return
 		for v in vertices:
 			if v != vtx_id:

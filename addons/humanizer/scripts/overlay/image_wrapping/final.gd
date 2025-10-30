@@ -291,20 +291,22 @@ func cut_edge_faces(borders:Array):
 	return [border_shapes,new_borders]
 
 func shapes_from_floating_points(borders,connected_faces):
+	var sf_arrays = []
+	sf_arrays.resize(Mesh.ARRAY_MAX)
+	sf_arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
+	for nf in connected_faces:
+		for vtx_pos in nf:
+			sf_arrays[Mesh.ARRAY_VERTEX].append(vtx_pos)
+	var cut_mesh = ArrayMesh.new()
+	cut_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,sf_arrays)
+	var cut_wmd = WrapMeshData.new(cut_mesh)
+	#if the vertical line has floating end points
 	if borders[3][0].face_id == -1 and borders[3][-1].face_id == -1:
 		#print("get edge between points")
 		if not borders[3].size() == 2:
 			printerr("expected 2 points on vertical side")
-		var sf_arrays = []
-		sf_arrays.resize(Mesh.ARRAY_MAX)
-		sf_arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
-		for nf in connected_faces:
-			for vtx_pos in nf:
-				sf_arrays[Mesh.ARRAY_VERTEX].append(vtx_pos)
-		var cut_mesh = ArrayMesh.new()
-		cut_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,sf_arrays)
-		var cut_wmd = WrapMeshData.new(cut_mesh)
 		var other_corners = []
+		#if the opposite vertical line is cut off too
 		if borders[1][0].face_id == -1 and borders[1][-1].face_id == -1:
 			other_corners.append(borders[0][1])
 			other_corners.append(borders[2][1])
@@ -322,6 +324,33 @@ func shapes_from_floating_points(borders,connected_faces):
 		new_face.append(borders[3][-1].position)
 		new_face.append(borders[0][-2].position)
 		connected_faces.append(new_face)	
+	#if the vertical line has floating end points
+	if borders[1][0].face_id == -1 and borders[1][-1].face_id == -1:
+		#print("get edge between points")
+		if not borders[1].size() == 2:
+			printerr("expected 2 points on vertical side")
+
+		var other_corners = []
+		#if the opposite vertical line is cut off too
+		if borders[3][0].face_id == -1 and borders[3][-1].face_id == -1:
+			other_corners.append(borders[0][-2])
+			other_corners.append(borders[2][-2])
+		else: #else get the opposite vertical line edge
+			other_corners.append(borders[3][0])
+			other_corners.append(borders[3][-1])
+
+		var edge_verts = cut_wmd.get_edges_between_corners(borders[0][1].position,borders[2][1].position,other_corners)
+
+		for edge in edge_verts:
+		
+			var new_face = edge.vertices.duplicate()
+			new_face.append(borders[1][0].position)
+			connected_faces.append(new_face)
+		var new_face = []
+		new_face.append(borders[1][0].position)
+		new_face.append(borders[1][-1].position)
+		new_face.append(borders[2][1].position)
+		connected_faces.append(new_face)	
 func make_borders():
 	#draw center line, going left and going right
 	var start_position = wmd.get_face_center_point(start_face_id)
@@ -333,7 +362,7 @@ func make_borders():
 	var temp_vert_line = line_wrapper.make_vertical_wrapping_line(1,horizontal_line[0],vertical_distance)
 	#vertical_line.append_array(line_wrapper.make_vertical_wrapping_line(1,horizontal_line[0],vertical_distance))
 	#print(temp_vert_line)
-	$points/p2.position = temp_vert_line[0][-1].position
+	#$points/p2.position = temp_vert_line[0][-1].position
 	temp_vert_line = combine_line_segments(temp_vert_line[0],temp_vert_line[1])
 	vertical_line.append(temp_vert_line)
 	

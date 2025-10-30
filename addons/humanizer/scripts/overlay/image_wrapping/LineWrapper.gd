@@ -29,7 +29,8 @@ func make_floating_line(face_normal:Vector3,start_position:Vector3, line_rotatio
 	p2 = perp_vector *total_distance + start_position
 	left_line.append(LineWrapper.Wrap_Line_Segment.new(-1,-1,start_position))
 	left_line.append(LineWrapper.Wrap_Line_Segment.new(-1,-1,p2))
-	return [left_line,right_line]
+	#return [left_line,right_line]
+	return [right_line,left_line]
 	
 	
 func make_wrapping_line(start_face_id:int, start_position:Vector3, line_rotation:float,total_distance:float):
