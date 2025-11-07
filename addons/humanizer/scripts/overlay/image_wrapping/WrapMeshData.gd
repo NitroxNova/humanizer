@@ -6,8 +6,9 @@ var vertices = {}
 var faces = []
 var edges = []
 
-func _init(mesh:ArrayMesh):
-	var sf_arrays = mesh.surface_get_arrays(0)
+func _init(sf_arrays:Array):
+	#print(sf_arrays[Mesh.ARRAY_VERTEX].size())
+	#var sf_arrays = mesh.surface_get_arrays(0)
 	#for i in sf_arrays[Mesh.ARRAY_INDEX].size()/3:
 		
 	for v_id in sf_arrays[Mesh.ARRAY_VERTEX].size():
@@ -210,6 +211,9 @@ class Face:
 		#order matters
 		vertices.append(vertex)
 		uvs.append(uv)
+	
+	func _to_string() -> String:
+		return "vertices: " + str(vertices) + ", edges: " + str(edges)
 
 class Vertex:
 	var edges = []

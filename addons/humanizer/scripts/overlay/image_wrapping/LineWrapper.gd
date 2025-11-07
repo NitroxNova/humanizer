@@ -18,9 +18,12 @@ func make_floating_line(face_normal:Vector3,start_position:Vector3, line_rotatio
 	perp_vector = perp_vector.rotated(face_normal,line_rotation)
 	perp_vector = perp_vector.normalized()
 	#print(perp_vector)
+	#print("~~~~~~")
 	
 	var p1 = start_position
+	#print(p1)
 	var p2 = perp_vector *total_distance + start_position
+	
 	
 	right_line.append(LineWrapper.Wrap_Line_Segment.new(-1, -1 ,start_position))
 	right_line.append(LineWrapper.Wrap_Line_Segment.new(-1, -1 ,p2))
@@ -29,8 +32,8 @@ func make_floating_line(face_normal:Vector3,start_position:Vector3, line_rotatio
 	p2 = perp_vector *total_distance + start_position
 	left_line.append(LineWrapper.Wrap_Line_Segment.new(-1,-1,start_position))
 	left_line.append(LineWrapper.Wrap_Line_Segment.new(-1,-1,p2))
-	#return [left_line,right_line]
-	return [right_line,left_line]
+	return [left_line,right_line]
+	#return [right_line,left_line]
 	
 	
 func make_wrapping_line(start_face_id:int, start_position:Vector3, line_rotation:float,total_distance:float):
@@ -50,6 +53,7 @@ func make_wrapping_line(start_face_id:int, start_position:Vector3, line_rotation
 	perp_vector = perp_vector.rotated(face_normal,line_rotation)
 	perp_vector = perp_vector.normalized()
 	#print(perp_vector)
+	#print("++++++")
 	
 	var p1 = start_position
 	var p2 = perp_vector + start_position
@@ -92,10 +96,9 @@ func make_wrapping_line_one_way(remaining_distance:float,intersection:Array,curr
 			#printerr("not enough connected faces")
 			#straight line off the mesh
 			var wrap_line = LineWrapper.Wrap_Line_Segment.new(-1,edge_id,intercept)
-			#print(wrap_line)
+
 			line.append(wrap_line)
-			remaining_distance -= prev_intercept.distance_to(intercept)
-			line_vector = prev_intercept - intercept
+			line_vector = intercept - prev_intercept
 			line_vector = line_vector.normalized()
 			intercept = line_vector * remaining_distance + intercept
 			wrap_line = LineWrapper.Wrap_Line_Segment.new(-1,-1,intercept)
@@ -290,6 +293,7 @@ func make_vertical_wrapping_line(percent:float,horizontal_line,vertical_distance
 	var perp_vector :Vector3 = face_normal.cross(Vector3.UP)
 	if perp_vector == Vector3.ZERO:
 		perp_vector = face_normal.cross(Vector3.FORWARD)
+	perp_vector = perp_vector.normalized()
 	#printerr(perp_vector)
 	#printerr(intercept_vector)
 	var line_rotation = perp_vector.angle_to(intercept_vector)
@@ -298,10 +302,15 @@ func make_vertical_wrapping_line(percent:float,horizontal_line,vertical_distance
 		#printerr("intercept vector doesnt match")
 		#printerr(perp_vector.rotated(face_normal,-line_rotation).normalized())
 		line_rotation = -line_rotation
+	
+	#print("---")
+	#print(segment_data.start_point)
 	if curr_face_id == -1:
+		#print(perp_vector.rotated(face_normal,line_rotation).normalized())
 		return make_floating_line(face_normal,segment_data.start_point,line_rotation,vertical_distance)
 		
 	
+	#print(perp_vector)
 	return make_wrapping_line(curr_face_id,segment_data.start_point,line_rotation,vertical_distance)
 	#return [[segment_data.start_point,segment_data.start_point+intercept_vector]]
 

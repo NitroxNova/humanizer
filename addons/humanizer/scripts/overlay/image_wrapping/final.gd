@@ -18,20 +18,21 @@ extends Node3D
 		
 @export var image : Texture2D
 
-@onready var wmd = WrapMeshData.new($BaseMesh.mesh )
+@onready var wmd = WrapMeshData.new($BaseMesh.mesh.surface_get_arrays(0) )
 @onready var short_path_builder = ShortestPath.new(.01,wmd)
 
 
 func run_update():
 	var borders = make_borders()
-	var borders2 = cut_mesh(borders)
+	var cut_mesh_data = cut_mesh(borders)
 	#print(internal_vertices)
 	#var cut_wmd = WrapMeshData.new($CutMesh.mesh)
 	#for face in cut_wmd.faces:
 		#for vtx_idx in face.vertices.size():
 			#cut_wmd.vertices[face.vertices[vtx_idx]].new_uv = face.uvs[vtx_idx]
 		
-	var heatmap = HeatMap.new($CutMesh.mesh,borders2)
+	var heatmap = HeatMap.new(cut_mesh_data.sf_arrays,cut_mesh_data.borders)
+	#heatmap.rebuild_mesh_uvs($SubViewport/wrap)
 	heatmap.rebuild_mesh_uvs($CutMesh)
 
 func cut_mesh(borders):
@@ -82,12 +83,12 @@ func cut_mesh(borders):
 	#print(new_edge_faces[-1][-1])
 	#print(sf_arrays[Mesh.ARRAY_VERTEX].size())
 	
-	var cut_mesh = ArrayMesh.new()
-	cut_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,sf_arrays)
-	$CutMesh.mesh = cut_mesh
+	#var cut_mesh = ArrayMesh.new()
+	#cut_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,sf_arrays)
+	#$CutMesh.mesh = cut_mesh
 	
 	var first_tri = []
-	var edges_wmd = WrapMeshData.new(cut_mesh)
+	var edges_wmd = WrapMeshData.new(sf_arrays)
 	if start_face_id in border_faces:
 		var start_pos = wmd.get_face_center_point(start_face_id)
 		for face in edge_faces[start_face_id]:
@@ -106,10 +107,10 @@ func cut_mesh(borders):
 	for nf in connected_faces:
 		for vtx_pos in nf:
 			sf_arrays[Mesh.ARRAY_VERTEX].append(vtx_pos)
-	cut_mesh = ArrayMesh.new()
-	cut_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,sf_arrays)
-	$CutMesh.mesh = cut_mesh	
-	return new_borders
+	#cut_mesh = ArrayMesh.new()
+	#cut_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,sf_arrays)
+	#$CutMesh.mesh = cut_mesh	
+	return {borders=new_borders,sf_arrays=sf_arrays}
 	
 func get_connected_internal_faces(verts_3d,edges_wmd:WrapMeshData,border_edges,border_faces,connected_faces=[]):
 	#print(border_edges)
@@ -158,7 +159,8 @@ func cut_edge_faces(borders:Array):
 				var edge_verts = edge.vertices.duplicate()
 				edge_verts.sort_custom(WrapMeshData.sort_edge)
 				line_intercepts[line_id][edge_verts] = segment.position
-				
+				#print("adding line intercept ",edge_verts)
+				#
 
 	for line_id in borders.size():
 		new_borders.append([])
@@ -194,17 +196,19 @@ func cut_edge_faces(borders:Array):
 					edge_verts_3d.sort_custom(WrapMeshData.sort_edge)
 					if edge_verts_3d in line_intercepts[line_id]:
 						edge_intercept = line_intercepts[line_id][edge_verts_3d]
+						#print("edge ", edge_verts_3d," already in line intercepts")
 					else:
 						#if segment1.edge_id == -1 or segment2.edge_id == -1:
 							#print("here")
 						edge_intercept = tri_proj.get_edge_line_intersect(i,line_verts)
 						#TODO filter for null somewhere else
 						line_intercepts[line_id][edge_verts_3d] = edge_intercept
+						#print("adding line intercept ",edge_verts_3d)
 						
 						
 						
 					if edge_intercept != null:
-						intercepts_3d.append({position=edge_intercept,edge_id=i})
+						intercepts_3d.append({position=edge_intercept,edge_id=i,edge_verts=edge_verts_3d})
 						if edge_intercept not in new_borders[line_id]:
 							new_borders[line_id].append(edge_intercept)
 						
@@ -224,7 +228,7 @@ func cut_edge_faces(borders:Array):
 									new_edge1.sort_custom(WrapMeshData.sort_edge)
 									var new_edge2 = [edge_verts_3d[1],edge_intercept]
 									new_edge2.sort_custom(WrapMeshData.sort_edge)
-
+									#print("adding new eges ",new_edge1," : ",new_edge2)
 									if LineWrapper.point_within_3d_line_segment(new_edge1,old_intercept):
 										line_intercepts[corner_line_id][new_edge1] = old_intercept
 										line_intercepts[corner_line_id][new_edge2] = null
@@ -236,7 +240,13 @@ func cut_edge_faces(borders:Array):
 								
 						
 				if not intercepts_3d.is_empty():
-					
+					if intercepts_3d.size() == 1:
+						printerr("expecting 2 intercepts, only 1 was found")
+						print(intercepts_3d)
+						print(segment1)
+						print(segment2)
+						print(tri_proj.verts_3d)
+						#print(wmd.faces[915])
 					if segment1.edge_id == -1 or segment2.edge_id == -1:
 						var temp_corner_edge = [intercepts_3d[0].position,intercepts_3d[1].position]
 						temp_corner_edge.sort_custom(WrapMeshData.sort_edge)
@@ -247,9 +257,10 @@ func cut_edge_faces(borders:Array):
 							for corner_segment in borders[corner_line_id]:
 								if corner_segment.position ==  segment1.position and segment1.edge_id == -1 and corner_segment.edge_id == -1:
 									line_intercepts[corner_line_id][temp_corner_edge] = corner_segment.position
+									#print("1 - adding new intercept ",corner_segment.position," to edge ",temp_corner_edge, " to line ",corner_line_id)
 								if corner_segment.position ==  segment2.position and segment2.edge_id == -1 and corner_segment.edge_id == -1:
 									line_intercepts[corner_line_id][temp_corner_edge] = corner_segment.position
-													
+									#print("2 - adding new intercept ",corner_segment.position," to edge ",temp_corner_edge, " to line ",corner_line_id)				
 					
 					remove_tris.append(tri_proj)
 					var output_polygons = [ [],[] ]
@@ -297,9 +308,9 @@ func shapes_from_floating_points(borders,connected_faces):
 	for nf in connected_faces:
 		for vtx_pos in nf:
 			sf_arrays[Mesh.ARRAY_VERTEX].append(vtx_pos)
-	var cut_mesh = ArrayMesh.new()
-	cut_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,sf_arrays)
-	var cut_wmd = WrapMeshData.new(cut_mesh)
+	#var cut_mesh = ArrayMesh.new()
+	#cut_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,sf_arrays)
+	var cut_wmd = WrapMeshData.new(sf_arrays)
 	#if the vertical line has floating end points
 	if borders[3][0].face_id == -1 and borders[3][-1].face_id == -1:
 		#print("get edge between points")

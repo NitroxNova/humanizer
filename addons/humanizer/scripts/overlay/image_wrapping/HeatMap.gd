@@ -3,10 +3,11 @@ extends Resource
 class_name HeatMap
 
 var vertices = {}
+var cut_wmd : WrapMeshData
 enum {UP, RIGHT, DOWN, LEFT, }
 
-func _init(mesh:ArrayMesh,borders:Array):
-	make_from_mesh(mesh)
+func _init(sf_arrays:Array,borders:Array):
+	make_from_mesh(sf_arrays)
 	#print(vertices.size())
 	set_borders(borders)
 	build_map()
@@ -58,9 +59,10 @@ func set_borders(borders:Array):
 				#printerr(vtx," not in vertices")
 	#print(vertices.keys())
 
-func make_from_mesh(mesh:ArrayMesh):
+func make_from_mesh(sf_arrays:Array):
+	cut_wmd = WrapMeshData.new(sf_arrays)
 	vertices = {}
-	var sf_arrays = mesh.surface_get_arrays(0)
+	#var sf_arrays = mesh.surface_get_arrays(0)
 	#print(sf_arrays[Mesh.ARRAY_VERTEX].size())
 	for idx in sf_arrays[Mesh.ARRAY_VERTEX].size()/3:
 		for i in 3:
@@ -78,16 +80,25 @@ func make_from_mesh(mesh:ArrayMesh):
 
 func rebuild_mesh_uvs(mesh_instance):	
 	#rebuild mesh with new uvs
-	var sf_arrays = mesh_instance.mesh.surface_get_arrays(0)
+	var sf_arrays = []
+	sf_arrays.resize(Mesh.ARRAY_MAX)
+	#sf_arrays[Mesh.ARRAY_VERTEX] = PackedVector2Array()
+	sf_arrays[Mesh.ARRAY_VERTEX] = PackedVector3Array()
 	sf_arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array()
-	for vtx_id in sf_arrays[Mesh.ARRAY_VERTEX].size():
-		var vtx_pos = sf_arrays[Mesh.ARRAY_VERTEX][vtx_id]
-		#var new_uv = wmd.vertices[vtx_pos].new_uv
-		var new_uv = Vector2.ZERO
-		var vertex = vertices[vtx_pos]
-		new_uv.y = vertex.distance[0] / (vertex.distance[0] + vertex.distance[2])
-		new_uv.x = vertex.distance[3] / (vertex.distance[1] + vertex.distance[3])
-		sf_arrays[Mesh.ARRAY_TEX_UV].append(new_uv)
+	#for vtx_pos in vertices:
+	for face in cut_wmd.faces:
+		for vtx_idx in face.vertices.size():
+			var vtx_pos = face.vertices[vtx_idx]
+			#var new_uv = wmd.vertices[vtx_pos].new_uv
+			var new_uv = Vector2.ZERO
+			var vertex = vertices[vtx_pos]
+			new_uv.y = vertex.distance[0] / (vertex.distance[0] + vertex.distance[2])
+			new_uv.x = vertex.distance[3] / (vertex.distance[1] + vertex.distance[3])
+			sf_arrays[Mesh.ARRAY_TEX_UV].append(new_uv)
+			#sf_arrays[Mesh.ARRAY_VERTEX].append(face.uvs[vtx_idx])
+			sf_arrays[Mesh.ARRAY_VERTEX].append(vtx_pos)
+			#print(face.uvs[vtx_idx])
+		
 	var mesh = ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES,sf_arrays)
 	mesh_instance.mesh = mesh				
